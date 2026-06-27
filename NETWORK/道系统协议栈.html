@@ -1,0 +1,885 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="socket 注册创建sock和关联协议，之后recv 和send都用的这个sock。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="道系统协议栈">
+<meta property="og:url" content="http://blog.uanet.cn/NETWORK/%E9%81%93%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%AE%AE%E6%A0%88.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="socket 注册创建sock和关联协议，之后recv 和send都用的这个sock。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/%E9%81%93%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%AE%AE%E6%A0%88/Linux%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90%E5%9B%BE_%E9%A1%B5%E9%9D%A2_2.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/%E9%81%93%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%AE%AE%E6%A0%88/image-20220429092941156.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/%E9%81%93%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%AE%AE%E6%A0%88/dev_queue_xmit.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/%E9%81%93%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%AE%AE%E6%A0%88/netif_schedule.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/%E9%81%93%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%AE%AE%E6%A0%88/v2-bbbe307a5ce6b33aa1c3c4f2ca13a5c5_r.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/%E9%81%93%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%AE%AE%E6%A0%88/irq_thread.jpg">
+<meta property="article:published_time" content="2025-02-13T05:53:20.912Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.912Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/NETWORK/%E9%81%93%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%AE%AE%E6%A0%88/Linux%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90%E5%9B%BE_%E9%A1%B5%E9%9D%A2_2.jpg">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>道系统协议栈 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="道系统协议栈"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          14 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">道系统协议栈</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><img src="/NETWORK/%E9%81%93%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%AE%AE%E6%A0%88/Linux%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90%E5%9B%BE_%E9%A1%B5%E9%9D%A2_2.jpg" srcset="/img/loading.gif" lazyload></p>
+<h3 id="socket-注册"><a href="#socket-注册" class="headerlink" title="socket 注册"></a>socket 注册</h3><p>创建sock和关联协议，之后recv 和send都用的这个sock。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c">sock = pal_sock (NSM_ZG, AF_INET, SOCK_RAW, IPPROTO_VRRP);<br>|<br>V<br>inet_create<br>  <span class="hljs-keyword">case</span> SOCK_RAW: <span class="hljs-comment">/* init will come here */</span><br>    <span class="hljs-keyword">if</span> (!capable(CAP_NET_RAW))<br>      <span class="hljs-keyword">goto</span> free_and_badperm;<br>    <span class="hljs-keyword">if</span> (!protocol)<br>      <span class="hljs-keyword">goto</span> free_and_noproto;<br>...<br>    <span class="hljs-comment">//例如 raw_sendmsg </span><br>    prot = &amp;raw_prot;<br>    sk-&gt;reuse = <span class="hljs-number">1</span>;<br>    sk-&gt;ip_pmtudisc = IP_PMTUDISC_DONT;<br>    sk-&gt;num = protocol;<br>...<br>    <span class="hljs-comment">//例如 inet_sendmsg </span><br>    sock-&gt;ops = &amp;inet_dgram_ops; <br>    <span class="hljs-keyword">if</span> (protocol == IPPROTO_RAW)<br>      sk-&gt;ip_hdrincl = <span class="hljs-number">1</span>;<br></code></pre></td></tr></table></figure>
+
+<p>说明：	socket的创建初始化了以下模块</p>
+<p>例：收包inet_recvmsg 发包inet_sendmsg</p>
+<h3 id="收包流程"><a href="#收包流程" class="headerlink" title="收包流程"></a>收包流程</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs c">inet_recvmsg(af_inet.c)<br> |<br> V<br><span class="hljs-title function_">raw_recvmsg</span><span class="hljs-params">(raw.c)</span><br> |<br> V<br><span class="hljs-title function_">skb_recv_datagram</span><span class="hljs-params">(sk-&gt;receive_queue)</span>  从<span class="hljs-built_in">queue</span>取<br><br><br>===========sk_recv_queue=========================<br><br><br>skb_queue_tail     存入<span class="hljs-built_in">queue</span><br> ^<br> |<br>sock_queue_rcv_skb(sk-&gt;receive_queue)<br> ^<br> |<br>raw_rcv_skb<br> ^<br>| <br>raw_rcv<br> ^<br> |<br>ip_local_deliver<br> ^<br> |<br>skb-&gt;dst-&gt;input(skb)<br> ^<br> |<br>ip_route_input -&gt; ip_route_input_slow<br> ^<br> |<br>ip_rcv &lt;= ip_init_ict&#123;dev_add_pack(&amp;ip_packet_type)&#125;<br> ^<br> |<br>net_bh<br><br>===========msg(net_mq)=========================<br><br>mark_bh<br> ^<br> |<br>netif_rx<br> ^<br> |<br>hal_packet_rx<br></code></pre></td></tr></table></figure>
+
+<h3 id="发包流程"><a href="#发包流程" class="headerlink" title="发包流程"></a>发包流程</h3><p>传输层到网络层发送图</p>
+<p><img src="/NETWORK/%E9%81%93%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%AE%AE%E6%A0%88/image-20220429092941156.png" srcset="/img/loading.gif" lazyload alt="image-20220429092941156"></p>
+<p>邻居层到物理层</p>
+<p>UDP之数据报发送过程 </p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/wangquan1992/article/details/109164638">https://blog.csdn.net/wangquan1992/article/details/109164638</a></p>
+<p>动图图解！代码执行send成功后，数据就发出去了吗？</p>
+<p><a target="_blank" rel="noopener" href="https://chowdera.com/2022/04/202204071440580551.html">https://chowdera.com/2022/04/202204071440580551.html</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br></pre></td><td class="code"><pre><code class="hljs c">inet_sockraw_ops<br>|<br>V<br><br>raw_prot/udp_prot<br>&#123;	   <br>  道: ip_build_xmit-&gt;ip_output_ict  <br>  linux: <br>    <span class="hljs-type">int</span> <span class="hljs-title function_">udp_sendmsg</span><span class="hljs-params">()</span><br>    &#123;<br>      <span class="hljs-comment">// corkreq 为 true 表示是 MSG_MORE 的方式，仅仅组织报文，不发送；</span><br>      <span class="hljs-type">int</span> corkreq = up-&gt;corkflag || msg-&gt;msg_flags&amp;MSG_MORE；<br><br>      <span class="hljs-comment">// 将要发送的数据，按照MTU大小分割，每个片段一个skb；并且这些</span><br>      <span class="hljs-comment">// skb会放入到套接字的skb-&gt;sk_write_queue发送缓冲区中；该函数只是组织数据包，并不执行发送动作。</span><br>      <span class="hljs-comment">// ip_append_d:qata用来存储几个传输请求而不传输任何东西。使得IP层更容易处理分片，提高性能。</span><br>      <span class="hljs-comment">// 当L4必须刷新数据时调用ip_push_pengding_frames ，</span><br>      <span class="hljs-comment">// 此函数对IP报文进行必要的分片，将分片后所有的报文向下传递给dst_output。</span><br>      err = ip_append_data(sk, fl4, getfrag, msg-&gt;msg_iov, ulen,<br>               <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> udphdr), &amp;ipc, &amp;rt,<br>               corkreq ? msg-&gt;msg_flags|MSG_MORE : msg-&gt;msg_flags);<br><br>      <span class="hljs-comment">// 没有启用 MSG_MORE 特性，那么直接将发送队列中的数据发送给IP。 </span><br>      <span class="hljs-keyword">if</span> (!corkreq)<br>        err = udp_push_pending_frames(sk);<br>    &#125;<br>  <br>    <span class="hljs-comment">//ip_queue_xmit L4协议吧PMTU考虑后，已经把数据切成合适大小的段，IP层只要加上IP头。tcp用此接口。</span><br>    <span class="hljs-comment">//ip_push_pending_frames 调用该函数的L4协议需要在IPceng分片相关操作。udp用此接口。</span><br>    ip_push_pending_frames<br>    |<br>    V<br>    ip_send_skb -&gt; ip_local_out -&gt; dst_output -&gt; &#123;skb_dst(skb)-&gt;output(net, sk, skb);&#125;<br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">     如果是单播数据包，设置的是ip_output(),</span><br><span class="hljs-comment">     如果是组播数据包，设置的是ip_mc_output().dev_queue_xmit</span><br><span class="hljs-comment">     </span><br><span class="hljs-comment">     道这个指针是在raw_sendmsg-&gt;ip_route_output-&gt;ip_route_output_slow中指定的：</span><br><span class="hljs-comment">     linux这个指针是在ip_route_output_flow-&gt;__ip_route_output_key-&gt;ip_route_output_slow中指定的：</span><br><span class="hljs-comment">     rth-&gt;u.dst.output=ip_output;</span><br><span class="hljs-comment">     ip_route_output的作用 便是查找路由，并将结果记录到skb-&gt;dst中。 </span><br><span class="hljs-comment">     同时通过rt_intern_hash-&gt;arp_bind_neighbours设置了dst-&gt;neighbout</span><br><span class="hljs-comment">    */</span><br>&#125;<br><br>tcp_prot<br>&#123;<br>  tcp_sendmsg-&gt;tcp_sendmsg_locked -&gt; tcp_push_one -&gt; tcp_write_xmit -&gt; tcp_transmit_skb<br>    <br>  err = icsk-&gt;icsk_af_ops-&gt;queue_xmit(sk, skb, &amp;inet-&gt;cork.fl);<br>  |<br>  V<br>  ip_queue_xmit <br>&#125;<br>==============ip skb-&gt;sk_write_queue 道和新版linux有点区别=========================<br> <br><span class="hljs-comment">//道</span><br>ip_queue_xmit <br>| <br>V<br>skb-&gt;dst-&gt;output = Ip_output_ict <br>|<br>V<br>ip_finish_output <br>|<br>V<br>dst-&gt;neighbout-&gt;output/hh-&gt;hh_output = dev_queue_xmit<br>|<br>V <br>dev-&gt;hard_start_xmit<br>|<br>V<br>ethVlanTx <br>|<br>V<br>serialDevHardXmit <br>|<br>V<br>hal_packet_tx<br><br>  <br> <br>linux<br>  <br>ip_queue_xmit <span class="hljs-comment">//tcp用这个不需要ip分片 udp用ip_push_pengding_frames</span><br>| <br>V<br>ip_local_out<br>|<br>V<br>dst_output<br>|<br>V<br>ip_output<br>|<br>V<br>ip_finish_output <br>|<br>V<br>dst-&gt;neighbout-&gt;output/hh-&gt;hh_output<br>|<br>V<br>dev_queue_xmit -&gt; dev_hard_start_xmit <span class="hljs-comment">//直接发送</span><br>|<br>V<br>__dev_xmit_skb <span class="hljs-comment">//中断发送</span><br>|<br>V<br>看下面：软中断发送过程<br><br>  <br><br>dev_hard_start_xmit <br>|<br>V<br>xmit_one <br>|<br>V<br>netdev_start_xmit<br>|<br>V<br>ops-&gt;ndo_start_xmit (dm9000)<br>  <br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-number">1.</span> ip_route_output_slow <br>设置路由缓存  后面用到的dst都是sk-&gt;dst_cache复制的<br>  <br>sk-&gt;dst_cache = &amp;rt-&gt;u.dst <br>tcp_v4_connect -&gt; ip_route_connect -&gt; ip_route_output -&gt;<br>ip_route_output_slow	<span class="hljs-comment">//创建rth-&gt;u.dst</span><br>&#123;<br>	rth-&gt;u.dst.output 	= ip_output_ict;<br>	rth-&gt;u.dst.input  	= ip_local_deliver;<br>  rt_intern_hash(vrfIndex, hash, rth, rp); <br>  <span class="hljs-comment">//arp_bind_neighbour dst-&gt;neighbout = dst-&gt;neighbout(&amp;rt-&gt;u.dst);</span><br>&#125; <br><br><span class="hljs-comment">/* 设置路由缓存 */</span><br>tcp_make_synack <br>&#123;<br>	<span class="hljs-comment">/*我们的旧版本实现*/</span><br>	skb-&gt;dst = dst_clone(dst);<br>	<span class="hljs-comment">/*新版本实现*/</span><br>	skb_dst_set(skb, dst);<br>&#125;<br><br><br><span class="hljs-number">2.</span> neighbout设置<br><br>dst-&gt;neighbout-&gt;output = dev_queue_xmit<br>arp_constructor(<span class="hljs-keyword">struct</span> neighbour *neigh)<br>&#123;<br>neigh-&gt;ops = &amp;arp_direct_ops;		<span class="hljs-comment">//output = dev_queue_xmit</span><br>neigh-&gt;ops = &amp;arp_hh_ops;			<span class="hljs-comment">//output = neigh_resolve_output</span><br>neigh-&gt;ops = &amp;arp_generic_ops;		<span class="hljs-comment">//output = dev_queue_xmitt;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>「干货」25 张图一万字，拆解 Linux 网络包发送过程（下）</p>
+<p><a target="_blank" rel="noopener" href="https://baijiahao.baidu.com/s?id=1707608648230579710&wfr=spider&for=pc">https://baijiahao.baidu.com/s?id=1707608648230579710&amp;wfr=spider&amp;for=pc</a></p>
+<h4 id="软中断发送过程"><a href="#软中断发送过程" class="headerlink" title="软中断发送过程"></a>软中断发送过程</h4><p><img src="/NETWORK/%E9%81%93%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%AE%AE%E6%A0%88/dev_queue_xmit.jpeg" srcset="/img/loading.gif" lazyload alt="image-20220408171722214"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">//file: net/sched/sch_generic.c</span><br><span class="hljs-type">void</span> __qdisc_run(<span class="hljs-keyword">struct</span> Qdisc *q)<br>&#123;<br>  <span class="hljs-type">int</span> quota = weight_p;<br><br>  <span class="hljs-comment">//循环从队列取出一个 skb 并发送</span><br>  <span class="hljs-keyword">while</span> (qdisc_restart(q)) &#123;<br><br>    <span class="hljs-comment">// 如果发生下面情况之一，则延后处理：</span><br>    <span class="hljs-comment">// 1. quota 用尽</span><br>    <span class="hljs-comment">// 2. 其他进程需要 CPU</span><br>    <span class="hljs-keyword">if</span> (--quota &lt;= <span class="hljs-number">0</span> || need_resched()) &#123;<br>    <span class="hljs-comment">//将触发一次 NET_TX_SOFTIRQ 类型 softirq</span><br>    __netif_schedule(q);<br>    <span class="hljs-keyword">break</span>;<br>    &#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>while 循环不断地从队列中取出 skb 并进行发送。注意，这个时候其实都占用的是用户进程的系统态时间(sy)。只有当 quota 用尽或者其它进程需要 CPU 的时候才触发软中断进行发送。</p>
+<p><img src="/NETWORK/%E9%81%93%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%AE%AE%E6%A0%88/netif_schedule.jpeg" srcset="/img/loading.gif" lazyload alt="image-20220408171722214"></p>
+<p>该函数会进入到 __netif_reschedule，由它来实际发出 NET_TX_SOFTIRQ 类型软中断。是通过软中断</p>
+<p>open_softirq(NET_TX_SOFTIRQ, net_tx_action);<br>open_softirq(NET_RX_SOFTIRQ, net_rx_action);</p>
+<h3 id="软中断"><a href="#软中断" class="headerlink" title="软中断"></a>软中断</h3><p>软中断的实现机制很多，比如bottom half（下半部）、task queue，不过这两者已经被废弃，下面三种实现机制是现在kernel还支持的：</p>
+<p><strong>软中断（softirq）</strong>：内核2.3引入，是最基本、最优先的软中断处理形式，为了避免名字冲突，本文中将这种子类型的软中断叫softirq。</p>
+<p><strong>tasklet</strong>：其底层使用softirq机制实现，提供了一种用户方便使用的软中方式，为软中断提供了很好的扩展性。</p>
+<p><strong>work queue</strong>：前两种软中断执行时是禁止抢占的（softirq的ksoftirq除外），对于用户进程不友好。如果在softirq执行时间过长，会继续推后到work queue中执行，work queue执行处于进程上下文，其可被抢占，也可以被调度，如果软中断需要执行睡眠、阻塞，直接选择work queue。</p>
+<p><img src="/NETWORK/%E9%81%93%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%AE%AE%E6%A0%88/v2-bbbe307a5ce6b33aa1c3c4f2ca13a5c5_r.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>Linux的中断处理机制 : <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/80371745">https://zhuanlan.zhihu.com/p/80371745</a></p>
+<p>Linux内核浅析-软中断 ：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/81742153">https://zhuanlan.zhihu.com/p/81742153</a></p>
+<p>linux 中断子系统-softirq 的实现原理： <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/363225717">https://zhuanlan.zhihu.com/p/363225717</a></p>
+<p>s3c2440 linux中断过程：<a target="_blank" rel="noopener" href="https://blog.csdn.net/oqqYuJi12345678/article/details/99726927">https://blog.csdn.net/oqqYuJi12345678/article/details/99726927</a></p>
+<p><strong>软中断的触发时机</strong></p>
+<p>1、<strong>irq_exit</strong>：在硬中断退出时，会检查local_softirq_pending和preemt_count，如果都符合条件，则执行软中断。</p>
+<p>​	invoke_softirq()函数的处理是，要么wakeup_softirqd（先唤醒ksoftirqd）将软中断交由ksoftirqd专门线程处理，要么直接调用__do_softirq即时处理（当然，即时处理要区分是在哪个栈上：是当前栈上还是在独立的软中断栈上）。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">if (!in_interrupt() &amp;&amp; local_softirq_pending())<br>        invoke_softirq();<br></code></pre></td></tr></table></figure>
+
+<p>2、<strong>local_bh_enable</strong>：使用此函数开启软中断时，会检查local_softirq_pending，如果都符合条件，则执行软中断。调用链为<a href="https://link.zhihu.com/?target=https://www.cnblogs.com/arnoldlu/p/8659986.html%23local_bh_enable">local_bh_enable</a>()-&gt;__local_bh_enable()-&gt;do_softirq()。</p>
+<p>3、<strong>raise_softirq</strong>：主动唤起一个软中断，会首先设置__softirq_pending对应的软中断位为挂起，然后检查in_interrupt，如果不在中断中，则唤起ksoftirq线程执行软中断（ksoftirq是softirq的一种执行机制，在软中的运行流程中会提到）。</p>
+<p>软中断线程是在系统初始化时创建的，cpu几个核心就创建几个线程。</p>
+<figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs xl">smpboot_register_percpu_thread<br><br>smpboot_thread_fn<br><br>&#123;<br><br> <span class="hljs-function"><span class="hljs-title">if</span> (!ht-&gt;</span><span class="hljs-function"><span class="hljs-title">thread_should_run</span>(td-&gt;</span>cpu)) &#123;		<br><br> &#125;<span class="hljs-keyword">else</span>&#123;<br><br>			<span class="hljs-function"><span class="hljs-title">ht</span>-&gt;</span><span class="hljs-function"><span class="hljs-title">thread_fn</span>(td-&gt;</span>cpu);<br><br>		&#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/NETWORK/%E9%81%93%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%AE%AE%E6%A0%88/irq_thread.jpg" srcset="/img/loading.gif" lazyload alt="image-20220429092941156"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/NETWORK/" class="category-chain-item">NETWORK</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>道系统协议栈</div>
+      <div>http://blog.uanet.cn/NETWORK/道系统协议栈.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/NETWORK/%E9%9D%99%E6%80%81%E8%B7%AF%E7%94%B1%E4%BD%BF%E7%94%A8%E4%B8%8B%E4%B8%80%E8%B7%B3IP%E4%B8%8E%E5%87%BA%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%8C%BA%E5%88%AB.html" title="静态路由使用下一跳IP与出接口的区别">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">静态路由使用下一跳IP与出接口的区别</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/NETWORK/%E5%85%B3%E4%BA%8Elinux%20802.1d%20(bridge)%20%E5%92%8C%20802.1q(vlan)%20%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%86%8D%E6%80%9D%E8%80%83.html" title="关于linux 802">
+                        <span class="hidden-mobile">关于linux 802</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

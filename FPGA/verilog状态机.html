@@ -1,0 +1,877 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​	根据状态机的输出是否与输入条件相关，可将状态机分为两大类，即摩尔(Moore)型状态机和米勒(Mealy)型状态机。 ➢ Mealy 状态机：组合逻辑的输出不仅取决于当前状态，还取决于输入状态。➢ Moore 状态机：组合逻辑的输出只取决于当前状态。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="verilog状态机">
+<meta property="og:url" content="http://blog.uanet.cn/FPGA/verilog%E7%8A%B6%E6%80%81%E6%9C%BA.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="​	根据状态机的输出是否与输入条件相关，可将状态机分为两大类，即摩尔(Moore)型状态机和米勒(Mealy)型状态机。 ➢ Mealy 状态机：组合逻辑的输出不仅取决于当前状态，还取决于输入状态。➢ Moore 状态机：组合逻辑的输出只取决于当前状态。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/verilog%E7%8A%B6%E6%80%81%E6%9C%BA/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE_20240922_154648.png">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/verilog%E7%8A%B6%E6%80%81%E6%9C%BA/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE_20240922_154734.png">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/verilog%E7%8A%B6%E6%80%81%E6%9C%BA/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE_20240922_160752.png">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/verilog%E7%8A%B6%E6%80%81%E6%9C%BA/pIYBAF9qvVCAPFqTAAHAX7I-9fU342-1726992173715-3.png">
+<meta property="article:published_time" content="2025-02-13T05:53:20.762Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.762Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/FPGA/verilog%E7%8A%B6%E6%80%81%E6%9C%BA/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE_20240922_154648.png">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>verilog状态机 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="verilog状态机"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          15 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">verilog状态机</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>​	根据状态机的输出是否与输入条件相关，可将状态机分为两大类，即摩尔(Moore)型状态机和米勒(Mealy)<br>型状态机。</p>
+<p>➢ Mealy 状态机：组合逻辑的输出不仅取决于当前状态，还取决于输入状态。<br>➢ Moore 状态机：组合逻辑的输出只取决于当前状态。</p>
+<p><img src="/FPGA/verilog%E7%8A%B6%E6%80%81%E6%9C%BA/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE_20240922_154648.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/FPGA/verilog%E7%8A%B6%E6%80%81%E6%9C%BA/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE_20240922_154734.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="状态机分类"><a href="#状态机分类" class="headerlink" title="状态机分类"></a>状态机分类</h4><p>​	根据状态机的实际写法，状态机还可以分为一段式、二段式和三段式状态机。</p>
+<h5 id="一段式："><a href="#一段式：" class="headerlink" title="一段式："></a>一段式：</h5><p>​	整个状态机写到一个 always 模块里面，在该模块中既描述状态转移，又描述状态的输入和输<br>出。不推荐采用这种状态机，因为从代码风格方面来讲，一般都会要求把组合逻辑和时序逻辑分开；从代<br>码维护和升级来说，组合逻辑和时序逻辑混合在一起不利于代码维护和修改，也不利于约束。</p>
+<h5 id="二段式："><a href="#二段式：" class="headerlink" title="二段式："></a>二段式：</h5><p>​	用两个 always 模块来描述状态机，其中一个 always 模块采用同步时序描述状态转移；另一个<br>模块采用组合逻辑判断状态转移条件，描述状态转移规律以及输出。不同于一段式状态机的是，它需要定<br>义两个状态，现态和次态，然后通过现态和次态的转换来实现时序逻辑。</p>
+<h5 id="三段式："><a href="#三段式：" class="headerlink" title="三段式："></a>三段式：</h5><p>​	在两个 always 模块描述方法基础上，使用三个 always 模块，一个 always 模块采用同步时序描<br>述状态转移，一个 always 采用组合逻辑判断状态转移条件，描述状态转移规律，另一个 always 模块描述状<br>态输出(可以用组合电路输出，也可以时序电路输出)。</p>
+<p>​	</p>
+<p>​	实际应用中三段式状态机使用最多，因为三段式状态机将组合逻辑和时序分开，有利于综合器分析优<br>化以及程序的维护；并且三段式状态机将状态转移与状态输出分开，使代码看上去更加清晰易懂，提高了<br>代码的可读性，推荐大家使用三段式状态机，本文也着重讲解三段式。<br>三段式状态机的基本格式是：</p>
+<p>​	第一个 always 语句实现同步状态跳转；<br>​	第二个 always 语句采用组合逻辑判断状态转移条件；<br>​	第三个 always 语句描述状态输出(可以用组合电路输出，也可以时序电路输出)。在开始编写状态机代码之前，一般先画出状态跳转图，这样在编写代码时思路会比较清晰，下面以一个 7 分频为例（对于分频等较简单的功能，可以不使用状态机，这里只是演示状态机编写的方法），状态跳转图如下图所示：</p>
+<p><img src="/FPGA/verilog%E7%8A%B6%E6%80%81%E6%9C%BA/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE_20240922_160752.png" srcset="/img/loading.gif" lazyload></p>
+<p>状态跳转图画完之后，接下来通过 parameter 来定义各个不同状态的参数，如下代码所示：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">parameter</span> S0 = <span class="hljs-number">7&#x27;b0000001</span>; <span class="hljs-comment">//独热码定义方式</span><br><span class="hljs-keyword">parameter</span> S1 = <span class="hljs-number">7&#x27;b0000010</span>;<br><span class="hljs-keyword">parameter</span> S2 = <span class="hljs-number">7&#x27;b0000100</span>;<br><span class="hljs-keyword">parameter</span> S3 = <span class="hljs-number">7&#x27;b0001000</span>;<br><span class="hljs-keyword">parameter</span> S4 = <span class="hljs-number">7&#x27;b0010000</span>;<br><span class="hljs-keyword">parameter</span> S5 = <span class="hljs-number">7&#x27;b0100000</span>;<br><span class="hljs-keyword">parameter</span> S6 = <span class="hljs-number">7&#x27;b1000000</span>;<br></code></pre></td></tr></table></figure>
+
+<p>这里是使用独热码的方式来定义状态机，每个状态只有一位为 1，当然也可以直接定义成十进制的 0，<br>1，2……7。<br>因为我们定义成独热码的方式，每一个状态的位宽为 7 位，接下来还需要定义两个 7 位的寄存器，一<br>个用来表示当前状态，另一个用来表示下一个状态，如下所示：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">reg</span> [<span class="hljs-number">6</span>:<span class="hljs-number">0</span>] curr_st ; <span class="hljs-comment">//当前状态</span><br><span class="hljs-keyword">reg</span> [<span class="hljs-number">6</span>:<span class="hljs-number">0</span>] next_st ; <span class="hljs-comment">//下一个状态</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来就可以使用三个 always 语句来开始编写状态机的代码，第一个 always 采用同步时序描述状态转<br>移，第二个 always 采用组合逻辑判断状态转移条件，第三个 always 是描述状态输出，一个完整的三段式状<br>态机的例子如下代码所示：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">module</span> divider7_fsm (<br>	<span class="hljs-comment">//系统时钟与复位</span><br>	<span class="hljs-keyword">input</span> sys_clk ,<br>	<span class="hljs-keyword">input</span> sys_rst_n ,<br>	<span class="hljs-comment">//输出时钟</span><br>	<span class="hljs-keyword">output</span> <span class="hljs-keyword">reg</span> clk_divide_7 <br>);<br><span class="hljs-comment">//parameter define </span><br><span class="hljs-keyword">parameter</span> S0 = <span class="hljs-number">7&#x27;b0000001</span>; <span class="hljs-comment">//独热码定义方式</span><br><span class="hljs-keyword">parameter</span> S1 = <span class="hljs-number">7&#x27;b0000010</span>;<br><span class="hljs-keyword">parameter</span> S2 = <span class="hljs-number">7&#x27;b0000100</span>;<br><span class="hljs-keyword">parameter</span> S3 = <span class="hljs-number">7&#x27;b0001000</span>;<br><span class="hljs-keyword">parameter</span> S4 = <span class="hljs-number">7&#x27;b0010000</span>;<br><span class="hljs-keyword">parameter</span> S5 = <span class="hljs-number">7&#x27;b0100000</span>;<br><span class="hljs-keyword">parameter</span> S6 = <span class="hljs-number">7&#x27;b1000000</span>; <br><br><br><span class="hljs-comment">//reg define </span><br><span class="hljs-keyword">reg</span> [<span class="hljs-number">6</span>:<span class="hljs-number">0</span>] curr_st ; <span class="hljs-comment">//当前状态</span><br><span class="hljs-keyword">reg</span> [<span class="hljs-number">6</span>:<span class="hljs-number">0</span>] next_st ; <span class="hljs-comment">//下一个状态</span><br><br><br><span class="hljs-comment">//状态机的第一段采用同步时序描述状态转移</span><br><span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> sys_clk <span class="hljs-keyword">or</span> <span class="hljs-keyword">negedge</span> sys_rst_n) <span class="hljs-keyword">begin</span><br><span class="hljs-keyword">if</span> (!sys_rst_n)<br> curr_st &lt;= S0;<br><span class="hljs-keyword">else</span><br> curr_st &lt;= next_st;<br><span class="hljs-keyword">end</span><br><br><span class="hljs-comment">//状态机的第二段采用组合逻辑判断状态转移条件</span><br><span class="hljs-keyword">always</span> @(*) <span class="hljs-keyword">begin</span><br><span class="hljs-keyword">case</span> (curr_st)<br>S0: next_st = S1;<br>S1: next_st = S2;<br>S2: next_st = S3;<br>S3: next_st = S4;<br>S4: next_st = S5;<br>S5: next_st = S6;<br>S6: next_st = S0;<br> <span class="hljs-keyword">default</span>: next_st = S0;<br><span class="hljs-keyword">endcase</span><br><span class="hljs-keyword">end</span><br><br><span class="hljs-comment">//状态机的第三段描述状态输出（这里采用时序电路输出）</span><br><span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> sys_clk <span class="hljs-keyword">or</span> <span class="hljs-keyword">negedge</span> sys_rst_n) <span class="hljs-keyword">begin</span><br><span class="hljs-keyword">if</span> (!sys_rst_n)<br>	clk_divide_7 &lt;= <span class="hljs-number">1&#x27;b0</span>;<br><span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ((curr_st == S0) | (curr_st == S1) | (curr_st == S2) | (curr_st == S3))<br>	clk_divide_7 &lt;= <span class="hljs-number">1&#x27;b0</span>;<br><span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ((curr_st == S4) | (curr_st == S5) | (curr_st == S6))<br>	clk_divide_7 &lt;= <span class="hljs-number">1&#x27;b1</span>; <br><span class="hljs-keyword">else</span><br> 	;<br><span class="hljs-keyword">end</span><br><span class="hljs-keyword">endmodule</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="AXI总线为例"><a href="#AXI总线为例" class="headerlink" title="AXI总线为例"></a>AXI总线为例</h4><p><img src="/FPGA/verilog%E7%8A%B6%E6%80%81%E6%9C%BA/pIYBAF9qvVCAPFqTAAHAX7I-9fU342-1726992173715-3.png" srcset="/img/loading.gif" lazyload alt="接口协议"></p>
+<p>​	</p>
+<p>AXI Write time <em>sequence</em> </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs bash">            ___     ___     ___     ___     ___    <br>clk     ___/   \___/   \___/   \___/   \___/   \___<br>            _______<br>awid    XXXX_ID____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>awaddr  XXXX_ADDR__XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>awlen   XXXX_00____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>awsize  XXXX_0_____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>awburst XXXX_0_____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>awprot  XXXX_PROT__XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>awvalid ___/       \_______________________________<br>        ___________         _______________________<br>awready            \_______/<br>            _______________<br>wdata   XXXX_DATA__________XXXXXXXXXXXXXXXXXXXXXXXX<br>            _______________<br>wstrb   XXXX_STRB__________XXXXXXXXXXXXXXXXXXXXXXXX<br>            _______________<br>wvalid  ___/               \_______________________<br>                    _______<br>wready  ___________/       \_______________________<br>                                    _______<br>bid     XXXXXXXXXXXXXXXXXXXXXXXXXXXX_ID____XXXXXXXX<br>                                    _______<br>bresp   XXXXXXXXXXXXXXXXXXXXXXXXXXXX_RESP__XXXXXXXX<br>                                    _______<br>bvalid  ___________________________/       \_______<br>        ___________________________________________<br>bready<br></code></pre></td></tr></table></figure>
+
+
+
+<p>AXI Read time <em>sequence</em> </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs bash">            ___     ___     ___     ___     ___    <br>clk     ___/   \___/   \___/   \___/   \___/   \___<br>            _______<br>arid    XXXX_ID____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>araddr  XXXX_ADDR__XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>arlen   XXXX_00____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>arsize  XXXX_0_____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>arburst XXXX_0_____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>arprot  XXXX_PROT__XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>arvalid ___/       \_______________________________<br>        ___________________________________________<br>arready<br>                                    _______<br>rid     XXXXXXXXXXXXXXXXXXXXXXXXXXXX_ID____XXXXXXXX<br>                                    _______<br>rdata   XXXXXXXXXXXXXXXXXXXXXXXXXXXX_DATA__XXXXXXXX<br>                                    _______<br>rresp   XXXXXXXXXXXXXXXXXXXXXXXXXXXX_RESP__XXXXXXXX<br>                                    _______<br>rvalid  ___________________________/       \_______<br>        ___________________________________________<br>rready<br></code></pre></td></tr></table></figure>
+
+
+
+<p>两段式axi-ram示例</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * AXI4-Lite RAM</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">module</span> axil_ram #<br>(<br>    <span class="hljs-comment">// Width of data bus in bits</span><br>    <span class="hljs-keyword">parameter</span> DATA_WIDTH = <span class="hljs-number">32</span>,<br>    <span class="hljs-comment">// Width of address bus in bits</span><br>    <span class="hljs-keyword">parameter</span> ADDR_WIDTH = <span class="hljs-number">16</span>,<br>    <span class="hljs-comment">// Width of wstrb (width of data bus in words)</span><br>    <span class="hljs-keyword">parameter</span> STRB_WIDTH = (DATA_WIDTH/<span class="hljs-number">8</span>),<br>    <span class="hljs-comment">// Extra pipeline register on output</span><br>    <span class="hljs-keyword">parameter</span> PIPELINE_OUTPUT = <span class="hljs-number">0</span><br>)<br>(<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   clk,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   rst,<br><br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [ADDR_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]  s_axil_awaddr,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>]             s_axil_awprot,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   s_axil_awvalid,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>                   s_axil_awready,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [DATA_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]  s_axil_wdata,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [STRB_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]  s_axil_wstrb,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   s_axil_wvalid,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>                   s_axil_wready,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]             s_axil_bresp,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>                   s_axil_bvalid,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   s_axil_bready,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [ADDR_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]  s_axil_araddr,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>]             s_axil_arprot,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   s_axil_arvalid,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>                   s_axil_arready,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> [DATA_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]  s_axil_rdata,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]             s_axil_rresp,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>                   s_axil_rvalid,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   s_axil_rready<br>);<br><br><span class="hljs-keyword">parameter</span> VALID_ADDR_WIDTH = ADDR_WIDTH - <span class="hljs-built_in">$clog2</span>(STRB_WIDTH);<br><span class="hljs-keyword">parameter</span> WORD_WIDTH = STRB_WIDTH;<br><span class="hljs-keyword">parameter</span> WORD_SIZE = DATA_WIDTH/WORD_WIDTH;<br><br><span class="hljs-keyword">reg</span> mem_wr_en;<br><span class="hljs-keyword">reg</span> mem_rd_en;<br><br><span class="hljs-keyword">reg</span> s_axil_awready_reg = <span class="hljs-number">1&#x27;b0</span>, s_axil_awready_next;<br><span class="hljs-keyword">reg</span> s_axil_wready_reg = <span class="hljs-number">1&#x27;b0</span>, s_axil_wready_next;<br><span class="hljs-keyword">reg</span> s_axil_bvalid_reg = <span class="hljs-number">1&#x27;b0</span>, s_axil_bvalid_next;<br><span class="hljs-keyword">reg</span> s_axil_arready_reg = <span class="hljs-number">1&#x27;b0</span>, s_axil_arready_next;<br><span class="hljs-keyword">reg</span> [DATA_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] s_axil_rdata_reg = &#123;DATA_WIDTH&#123;<span class="hljs-number">1&#x27;b0</span>&#125;&#125;, s_axil_rdata_next;<br><span class="hljs-keyword">reg</span> s_axil_rvalid_reg = <span class="hljs-number">1&#x27;b0</span>, s_axil_rvalid_next;<br><span class="hljs-keyword">reg</span> [DATA_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] s_axil_rdata_pipe_reg = &#123;DATA_WIDTH&#123;<span class="hljs-number">1&#x27;b0</span>&#125;&#125;;<br><span class="hljs-keyword">reg</span> s_axil_rvalid_pipe_reg = <span class="hljs-number">1&#x27;b0</span>;<br><br><span class="hljs-comment">// (* RAM_STYLE=&quot;BLOCK&quot; *)</span><br><span class="hljs-keyword">reg</span> [DATA_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] mem[(<span class="hljs-number">2</span>**VALID_ADDR_WIDTH)-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>];<br><br><span class="hljs-keyword">wire</span> [VALID_ADDR_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] s_axil_awaddr_valid = s_axil_awaddr &gt;&gt; (ADDR_WIDTH - VALID_ADDR_WIDTH);<br><span class="hljs-keyword">wire</span> [VALID_ADDR_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] s_axil_araddr_valid = s_axil_araddr &gt;&gt; (ADDR_WIDTH - VALID_ADDR_WIDTH);<br><br><span class="hljs-keyword">assign</span> s_axil_awready = s_axil_awready_reg;<br><span class="hljs-keyword">assign</span> s_axil_wready = s_axil_wready_reg;<br><span class="hljs-keyword">assign</span> s_axil_bresp = <span class="hljs-number">2&#x27;b00</span>;<br><span class="hljs-keyword">assign</span> s_axil_bvalid = s_axil_bvalid_reg;<br><span class="hljs-keyword">assign</span> s_axil_arready = s_axil_arready_reg;<br><span class="hljs-keyword">assign</span> s_axil_rdata = PIPELINE_OUTPUT ? s_axil_rdata_pipe_reg : s_axil_rdata_reg;<br><span class="hljs-keyword">assign</span> s_axil_rresp = <span class="hljs-number">2&#x27;b00</span>;<br><span class="hljs-keyword">assign</span> s_axil_rvalid = PIPELINE_OUTPUT ? s_axil_rvalid_pipe_reg : s_axil_rvalid_reg;<br><br><br><span class="hljs-comment">/*==============axi ram write=================*/</span><br><span class="hljs-keyword">always</span> @* <span class="hljs-keyword">begin</span><br>    mem_wr_en = <span class="hljs-number">1&#x27;b0</span>;<br>    s_axil_awready_next = <span class="hljs-number">1&#x27;b0</span>;<br>    s_axil_wready_next = <span class="hljs-number">1&#x27;b0</span>;<br>    s_axil_bvalid_next = s_axil_bvalid_reg &amp;&amp; !s_axil_bready;<br><br>    <span class="hljs-keyword">if</span> (s_axil_awvalid &amp;&amp; s_axil_wvalid &amp;&amp; (!s_axil_bvalid || s_axil_bready) &amp;&amp; (!s_axil_awready &amp;&amp; !s_axil_wready)) <span class="hljs-keyword">begin</span><br>        s_axil_awready_next = <span class="hljs-number">1&#x27;b1</span>;<br>        s_axil_wready_next = <span class="hljs-number">1&#x27;b1</span>;<br>        s_axil_bvalid_next = <span class="hljs-number">1&#x27;b1</span>;<br>        mem_wr_en = <span class="hljs-number">1&#x27;b1</span>;<br>    <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><br><span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span><br>    s_axil_awready_reg &lt;= s_axil_awready_next;<br>    s_axil_wready_reg &lt;= s_axil_wready_next;<br>    s_axil_bvalid_reg &lt;= s_axil_bvalid_next;<br><br>    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; WORD_WIDTH; i = i + <span class="hljs-number">1</span>) <span class="hljs-keyword">begin</span><br>        <span class="hljs-keyword">if</span> (mem_wr_en &amp;&amp; s_axil_wstrb[i]) <span class="hljs-keyword">begin</span><br>            mem[s_axil_awaddr_valid][WORD_SIZE*i +: WORD_SIZE] &lt;= s_axil_wdata[WORD_SIZE*i +: WORD_SIZE];<br>        <span class="hljs-keyword">end</span><br>    <span class="hljs-keyword">end</span><br><br>    <span class="hljs-keyword">if</span> (rst) <span class="hljs-keyword">begin</span><br>        s_axil_awready_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>        s_axil_wready_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>        s_axil_bvalid_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>    <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br>    <br><span class="hljs-comment">/*==============axi ram read=================*/</span><br><br><span class="hljs-keyword">always</span> @* <span class="hljs-keyword">begin</span><br>    mem_rd_en = <span class="hljs-number">1&#x27;b0</span>;<br>    s_axil_arready_next = <span class="hljs-number">1&#x27;b0</span>;<br>    s_axil_rvalid_next = s_axil_rvalid_reg &amp;&amp; !(s_axil_rready || (PIPELINE_OUTPUT &amp;&amp; !s_axil_rvalid_pipe_reg));<br><br>    <span class="hljs-keyword">if</span> (s_axil_arvalid &amp;&amp; (!s_axil_rvalid || s_axil_rready || (PIPELINE_OUTPUT &amp;&amp; !s_axil_rvalid_pipe_reg)) &amp;&amp; (!s_axil_arready)) <span class="hljs-keyword">begin</span><br>        s_axil_arready_next = <span class="hljs-number">1&#x27;b1</span>;<br>        s_axil_rvalid_next = <span class="hljs-number">1&#x27;b1</span>;<br>        mem_rd_en = <span class="hljs-number">1&#x27;b1</span>;<br>    <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><br><span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span><br>    s_axil_arready_reg &lt;= s_axil_arready_next;<br>    s_axil_rvalid_reg &lt;= s_axil_rvalid_next;<br><br>    <span class="hljs-keyword">if</span> (mem_rd_en) <span class="hljs-keyword">begin</span><br>        s_axil_rdata_reg &lt;= mem[s_axil_araddr_valid];<br>    <span class="hljs-keyword">end</span><br><br>    <span class="hljs-keyword">if</span> (!s_axil_rvalid_pipe_reg || s_axil_rready) <span class="hljs-keyword">begin</span><br>        s_axil_rdata_pipe_reg &lt;= s_axil_rdata_reg;<br>        s_axil_rvalid_pipe_reg &lt;= s_axil_rvalid_reg;<br>    <span class="hljs-keyword">end</span><br><br>    <span class="hljs-keyword">if</span> (rst) <span class="hljs-keyword">begin</span><br>        s_axil_arready_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>        s_axil_rvalid_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>        s_axil_rvalid_pipe_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>    <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><br><span class="hljs-keyword">endmodule</span><br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-meta">`<span class="hljs-keyword">timescale</span> 1ns / 1ps</span><br><span class="hljs-comment">//////////////////////////////////////////////////////////////////////////////////</span><br><span class="hljs-comment">// Company: </span><br><span class="hljs-comment">// Engineer: </span><br><span class="hljs-comment">// </span><br><span class="hljs-comment">// Create Date: 2024/09/24 14:57:55</span><br><span class="hljs-comment">// Design Name: </span><br><span class="hljs-comment">// Module Name: tb_mdio_top</span><br><span class="hljs-comment">// Project Name: </span><br><span class="hljs-comment">// Target Devices: </span><br><span class="hljs-comment">// Tool Versions: </span><br><span class="hljs-comment">// Description: </span><br><span class="hljs-comment">// </span><br><span class="hljs-comment">// Dependencies: </span><br><span class="hljs-comment">// </span><br><span class="hljs-comment">// Revision:</span><br><span class="hljs-comment">// Revision 0.01 - File Created</span><br><span class="hljs-comment">// Additional Comments:</span><br><span class="hljs-comment">// </span><br><span class="hljs-comment">//////////////////////////////////////////////////////////////////////////////////</span><br><br><br><span class="hljs-keyword">module</span> tb_mdio_top();<br>    <br>    <br><span class="hljs-keyword">reg</span> sys_clk;<br><span class="hljs-keyword">reg</span> sys_rst_n;<br><br><span class="hljs-comment">//输出</span><br><span class="hljs-keyword">reg</span>  ETH0_MDC;<br><span class="hljs-keyword">reg</span>  ETH0_MDIO;<br><span class="hljs-keyword">wire</span> ETH0_MDIO_I;<br><span class="hljs-keyword">wire</span> ETH0_MDC_I;<br><span class="hljs-keyword">reg</span> [<span class="hljs-number">32</span>:<span class="hljs-number">0</span>] mdio_request1 = <span class="hljs-number">64&#x27;hFFFFFFFF</span>;<br><span class="hljs-keyword">reg</span> [<span class="hljs-number">32</span>:<span class="hljs-number">0</span>] mdio_request2 = <span class="hljs-number">64&#x27;b00000000000110</span>;<br><span class="hljs-keyword">reg</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>]cnt;<br><br><span class="hljs-keyword">assign</span> ETH0_MDIO_I = (cnt &lt; <span class="hljs-number">&#x27;d46</span>) ?  ETH0_MDIO : <span class="hljs-number">1&#x27;bz</span>;<br><span class="hljs-keyword">assign</span> ETH0_MDIO_O = (cnt &lt; <span class="hljs-number">&#x27;d46</span>) ?  <span class="hljs-number">1&#x27;bz</span> : ETH0_MDIO_I;<br><span class="hljs-comment">//assign ETH0_MDIO_I = ETH0_MDIO;</span><br><span class="hljs-keyword">assign</span> ETH0_MDC_I = ETH0_MDC;<br><br><br><span class="hljs-comment">//信号初始化</span><br><span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span><br>sys_clk = <span class="hljs-number">1&#x27;b0</span>;<br>sys_rst_n = <span class="hljs-number">1&#x27;b0</span>;<br>#<span class="hljs-number">200</span><br>sys_rst_n = <span class="hljs-number">1&#x27;b1</span>;<br><span class="hljs-keyword">end</span><br><br><br><br><span class="hljs-comment">//生成时钟</span><br><span class="hljs-keyword">always</span> #<span class="hljs-number">100</span> sys_clk = ~sys_clk;<br><br><span class="hljs-keyword">always</span> @ (<span class="hljs-keyword">posedge</span> sys_clk <span class="hljs-keyword">or</span> <span class="hljs-keyword">negedge</span> sys_rst_n) <span class="hljs-keyword">begin</span><br>    <span class="hljs-keyword">if</span>(!sys_rst_n) <span class="hljs-keyword">begin</span><br>        ETH0_MDC &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>    <span class="hljs-keyword">end</span><br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>        ETH0_MDC &lt;= ~ETH0_MDC;<br>    <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><br><br><span class="hljs-keyword">always</span> @ (<span class="hljs-keyword">posedge</span> ETH0_MDC <span class="hljs-keyword">or</span> <span class="hljs-keyword">negedge</span> sys_rst_n) <span class="hljs-keyword">begin</span><br>    <span class="hljs-keyword">if</span>(!sys_rst_n) <span class="hljs-keyword">begin</span><br>        cnt &lt;= <span class="hljs-number">0</span>;<br>        ETH0_MDC &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>    <span class="hljs-keyword">end</span><br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>        cnt &lt;= cnt + <span class="hljs-number">1&#x27;b1</span>;<br>        <span class="hljs-keyword">if</span>(cnt == <span class="hljs-number">&#x27;d64</span>)<br>            cnt &lt;= <span class="hljs-number">0</span>;<br>         <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(cnt &lt; <span class="hljs-number">&#x27;d32</span>) <span class="hljs-keyword">begin</span><br>            ETH0_MDIO &lt;= mdio_request1[cnt];<br>         <span class="hljs-keyword">end</span> <br>         <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>            ETH0_MDIO &lt;= mdio_request2[cnt - <span class="hljs-number">&#x27;d32</span>];<br>         <span class="hljs-keyword">end</span><br>    <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><br><br><br><span class="hljs-comment">//例化待测设计</span><br>mdio_top u_mdio_top(<br>    <span class="hljs-variable">.sys_clk</span>(sys_clk),<br>    <span class="hljs-variable">.sys_rst_n</span>(sys_rst_n),<br>    <span class="hljs-variable">.ETH0_MDC</span> (ETH0_MDC_I),<br>    <span class="hljs-variable">.ETH0_MDIO</span>(ETH0_MDIO_I)<br> );<br><br><span class="hljs-keyword">endmodule</span><br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/FPGA/" class="category-chain-item">FPGA</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>verilog状态机</div>
+      <div>http://blog.uanet.cn/FPGA/verilog状态机.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/FPGA/fpga%E8%BE%B9%E7%BC%98ai%E6%A8%A1%E5%9E%8B.html" title="fpga边缘ai模型">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">fpga边缘ai模型</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95.html" title="Verilog仿真延时方法">
+                        <span class="hidden-mobile">Verilog仿真延时方法</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

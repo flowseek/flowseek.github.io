@@ -1,0 +1,915 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="蓝亚之舟 1、数据集预处理1.1 整合数据并剔除脏数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CIC-IDS2017数据集训练和测试">
+<meta property="og:url" content="http://blog.uanet.cn/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="蓝亚之舟 1、数据集预处理1.1 整合数据并剔除脏数据">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/d643a6151af3c331639cad676d97a7d9.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/0fe4a15d8c8ac5398fabdc2feea43b63.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/ec27d0be87d6d3e94349ffeb278f2eb2.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/9f72ed8372b6b011faa1f9bd8ba78e5b.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/a22f2c0e8174d123443db738f309b3fc.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/d0341c0ee9cab559ad2310793527aeb6.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/b1d2024f9befbe0404016ee77179beef.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/be98ea5b1c34b25332e800da0e915234.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/e1014888152f8c277511fcb014715369.png">
+<meta property="article:published_time" content="2025-02-13T05:53:20.789Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.789Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/d643a6151af3c331639cad676d97a7d9.png">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>CIC-IDS2017数据集训练和测试 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CIC-IDS2017数据集训练和测试"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          23 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CIC-IDS2017数据集训练和测试</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><strong>蓝亚之舟</strong></p>
+<h3 id="1、数据集预处理"><a href="#1、数据集预处理" class="headerlink" title="1、数据集预处理"></a>1、数据集预处理</h3><h4 id="1-1-整合数据并剔除脏数据"><a href="#1-1-整合数据并剔除脏数据" class="headerlink" title="1.1 整合数据并剔除脏数据"></a>1.1 整合数据并剔除脏数据</h4><p><img src="/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/d643a6151af3c331639cad676d97a7d9.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>如上图所示，整个数据集是分开的，想要训练，必须要整合在一起，同时在数据集中存在 Nan 和 Infiniti 脏数据（只有第 15 列和第 16 列存在）需要剔除：</p>
+<p><img src="/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/0fe4a15d8c8ac5398fabdc2feea43b63.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>具体代码如下：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs scss">import pandas as pd<br><br># 按行合并多个Dataframe数据<br>def <span class="hljs-built_in">mergeData</span>():<br>    monday = <span class="hljs-built_in">writeData</span>(<span class="hljs-string">&quot;data\MachineLearningCVE\Monday-WorkingHours.pcap_ISCX.csv&quot;</span>)<br><br>    # 剔除第一行属性特征名称<br>    monday = monday.<span class="hljs-built_in">drop</span>([<span class="hljs-number">0</span>])<br>    friday1 = <span class="hljs-built_in">writeData</span>(<span class="hljs-string">&quot;data\MachineLearningCVE\Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv&quot;</span>)<br>    friday1 = friday1.<span class="hljs-built_in">drop</span>([<span class="hljs-number">0</span>])<br>    friday2 = <span class="hljs-built_in">writeData</span>(<span class="hljs-string">&quot;data\MachineLearningCVE\Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv&quot;</span>)<br>    friday2 = friday2.<span class="hljs-built_in">drop</span>([<span class="hljs-number">0</span>])<br>    friday3 = <span class="hljs-built_in">writeData</span>(<span class="hljs-string">&quot;data\MachineLearningCVE\Friday-WorkingHours-Morning.pcap_ISCX.csv&quot;</span>)<br>    friday3 = friday3.<span class="hljs-built_in">drop</span>([<span class="hljs-number">0</span>])<br>    thursday1 = <span class="hljs-built_in">writeData</span>(<span class="hljs-string">&quot;data\MachineLearningCVE\Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv&quot;</span>)<br>    thursday1 = thursday1.<span class="hljs-built_in">drop</span>([<span class="hljs-number">0</span>])<br>    thursday2 = <span class="hljs-built_in">writeData</span>(<span class="hljs-string">&quot;data\MachineLearningCVE\Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv&quot;</span>)<br>    thursday2 = thursday2.<span class="hljs-built_in">drop</span>([<span class="hljs-number">0</span>])<br>    tuesday = <span class="hljs-built_in">writeData</span>(<span class="hljs-string">&quot;data\MachineLearningCVE\Tuesday-WorkingHours.pcap_ISCX.csv&quot;</span>)<br>    tuesday = tuesday.<span class="hljs-built_in">drop</span>([<span class="hljs-number">0</span>])<br>    wednesday = <span class="hljs-built_in">writeData</span>(<span class="hljs-string">&quot;data\MachineLearningCVE\Wednesday-workingHours.pcap_ISCX.csv&quot;</span>)<br>    wednesday = wednesday.<span class="hljs-built_in">drop</span>([<span class="hljs-number">0</span>])<br>    frame = [monday,friday1,friday2,friday3,thursday1,thursday2,tuesday,wednesday]<br><br>    # 合并数据<br>    result = pd.<span class="hljs-built_in">concat</span>(frame)<br>    list = <span class="hljs-built_in">clearDirtyData</span>(result)<br>    result = result.<span class="hljs-built_in">drop</span>(list)<br>    return result<br><br><br># 清除CIC-IDS数据集中的脏数据，第一行特征名称和含有Nan、Infiniti等数据的行数<br>def <span class="hljs-built_in">clearDirtyData</span>(df):<br>    dropList = df[(df[<span class="hljs-number">14</span>]==<span class="hljs-string">&quot;Nan&quot;</span>)|(df[<span class="hljs-number">15</span>]==<span class="hljs-string">&quot;Infinity&quot;</span>)].index.<span class="hljs-built_in">tolist</span>()<br>    return dropList<br><br>raw_data=<span class="hljs-built_in">mergeData</span>()<br>file = <span class="hljs-string">&#x27;data/total.csv&#x27;</span><br>raw_data.<span class="hljs-built_in">to_csv</span>(file, index=False, header=False)<br></code></pre></td></tr></table></figure>
+
+<p>将合并文件保存为 total.csv，省去每次训练都要重复操作的步骤</p>
+<h4 id="1-2-分析数据"><a href="#1-2-分析数据" class="headerlink" title="1.2 分析数据"></a>1.2 分析数据</h4><p>在 panda 库中，dataframe 类型有一个很好用的函数 value_counts，可以用来统计标签数量，加载 total.csv 得到 raw_data，运行下面代码：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment"># 得到标签列索引</span><br><span class="hljs-attribute">last_column_index</span> = raw_data.shape[<span class="hljs-number">1</span>] - <span class="hljs-number">1</span><br><span class="hljs-attribute">print</span>(raw_data[last_column_index].value_counts())<br></code></pre></td></tr></table></figure>
+
+<p>打印结果如下：</p>
+<p><img src="/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/ec27d0be87d6d3e94349ffeb278f2eb2.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>由上图可以看到，整个数据集相当不平衡，正常数据非常大，而攻击流量却相当少，可以说整个数据集是相当不平衡的，怎么解决这个问题，下一节来说一说。</p>
+<h4 id="1-3-平衡数据集"><a href="#1-3-平衡数据集" class="headerlink" title="1.3 平衡数据集"></a>1.3 平衡数据集</h4><p>针对这种情况，一般而言，是要扩充小的攻击数据集，其扩充方法有很多：</p>
+<ul>
+<li>从数据源头采集更多数据</li>
+<li>复制原有数据并加上随机噪声</li>
+<li>重采样</li>
+<li>根据当前数据集估计数据分布参数，使用该分布产生更多数据等</li>
+</ul>
+<p>上面的方法都不太好整：</p>
+<ul>
+<li>数据源头不用想了；</li>
+<li>复制数据加上加上随机噪声，需要对于数据本身比较理解，否则容易出现问题；</li>
+<li>重采样，因为数据量很少，想要达到平衡必须百倍扩充数据，重采样只适用于扩充量不大的情况（个人见解）</li>
+<li>根据分布产生更多数据，因为数据太少了（只有几十个），而且特征太多，估计出来的分布会十分不准确，而由此分布产生的数据则更加不准确了。</li>
+</ul>
+<p>由于上述方法不好整，我只好用一个不算方法的方法去做：复制粘贴，将每个数据集扩充到 5000 条以上（其实本质上类似于重采样），具体代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd<br><br><span class="hljs-comment"># 根据file读取数据</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">writeData</span>(<span class="hljs-params">file</span>):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Loading raw data...&quot;</span>)<br>    raw_data = pd.read_csv(file, header=<span class="hljs-literal">None</span>,low_memory=<span class="hljs-literal">False</span>)<br>    <span class="hljs-keyword">return</span> raw_data<br><br><br><span class="hljs-comment"># 将大的数据集根据标签特征分为15类，存储到lists集合中</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">separateData</span>(<span class="hljs-params">raw_data</span>):<br>    <span class="hljs-comment"># dataframe数据转换为多维数组</span><br>    lists=raw_data.values.tolist()<br>    temp_lists=[]<br><br>    <span class="hljs-comment"># 生成15个空的list集合，用来暂存生成的15种特征集</span><br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>,<span class="hljs-number">15</span>):<br>        temp_lists.append([])<br><br>    <span class="hljs-comment"># 得到raw_data的数据标签集合</span><br>    label_set = lookData(raw_data)<br><br>    <span class="hljs-comment"># 将无序的数据标签集合转换为有序的list</span><br>    label_list = <span class="hljs-built_in">list</span>(label_set)<br><br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>,<span class="hljs-built_in">len</span>(lists)):<br>        <span class="hljs-comment"># 得到所属标签的索引号</span><br>        data_index = label_list.index(lists[i][<span class="hljs-built_in">len</span>(lists[<span class="hljs-number">0</span>])-<span class="hljs-number">1</span>])<br>        temp_lists[data_index].append(lists[i])<br>        <span class="hljs-keyword">if</span> i%<span class="hljs-number">5000</span>==<span class="hljs-number">0</span>:<br>            <span class="hljs-built_in">print</span>(i)<br>    saveData(temp_lists,<span class="hljs-string">&#x27;data/expendData/&#x27;</span>)<br>    <span class="hljs-keyword">return</span> temp_lists<br><br><br><span class="hljs-comment"># 将lists分批保存到file文件路径下</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">saveData</span>(<span class="hljs-params">lists,file</span>):<br>    label_set = lookData(raw_data)<br>    label_list = <span class="hljs-built_in">list</span>(label_set)<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>,<span class="hljs-built_in">len</span>(lists)):<br>        save = pd.DataFrame(lists[i])<br>        file1 = file+label_list[i]+<span class="hljs-string">&#x27;.csv&#x27;</span><br>        save.to_csv(file1,index=<span class="hljs-literal">False</span>,header=<span class="hljs-literal">False</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">lookData</span>(<span class="hljs-params">raw_data</span>):<br>    <span class="hljs-comment"># 打印数据集的标签数据数量</span><br>    last_column_index = raw_data.shape[<span class="hljs-number">1</span>] - <span class="hljs-number">1</span><br>    <span class="hljs-built_in">print</span>(raw_data[last_column_index].value_counts())<br><br>    <span class="hljs-comment"># 取出数据集标签部分</span><br>    labels = raw_data.iloc[:, raw_data.shape[<span class="hljs-number">1</span>] - <span class="hljs-number">1</span>:]<br><br>    <span class="hljs-comment"># 多维数组转为以为数组</span><br>    labels = labels.values.ravel()<br>    label_set = <span class="hljs-built_in">set</span>(labels)<br>    <span class="hljs-keyword">return</span> label_set<br><br><span class="hljs-comment"># lists存储着15类数据集，将数据集数量少的扩充到至少不少于5000条，然后存储起来。</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">expendData</span>(<span class="hljs-params">lists</span>):<br>    totall_list = []<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>,<span class="hljs-built_in">len</span>(lists)):<br>        <span class="hljs-keyword">while</span> <span class="hljs-built_in">len</span>(lists[i])&lt;<span class="hljs-number">5000</span>:<br>            lists[i].extend(lists[i])<br>        <span class="hljs-built_in">print</span>(i)<br>        totall_list.extend(lists[i])<br>    saveData(lists,<span class="hljs-string">&#x27;data/expendData/&#x27;</span>)<br>    save = pd.DataFrame(totall_list)<br>    file = <span class="hljs-string">&#x27;data/expendData/totall_extend.csv&#x27;</span><br>    save.to_csv(file, index=<span class="hljs-literal">False</span>, header=<span class="hljs-literal">False</span>)<br><br><br>file = <span class="hljs-string">&#x27;data/clearData/total.csv&#x27;</span><br>raw_data = writeData(file)<br>lists = separateData(raw_data)<br>expendData(lists)<br></code></pre></td></tr></table></figure>
+
+<p>再来看一下数据集的统计情况：</p>
+<p><img src="/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/9f72ed8372b6b011faa1f9bd8ba78e5b.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>将这个数据集命名为 total_expend.csv，等使用的时候，我们仔细分析一下两个数据集对于模型训练到底有什么区别。</p>
+<h3 id="2、使用-sklearn-进行训练和测试"><a href="#2、使用-sklearn-进行训练和测试" class="headerlink" title="2、使用 sklearn 进行训练和测试"></a>2、使用 sklearn 进行训练和测试</h3><p>sklearn 分类算法有很多，这里以决策树为例。</p>
+<h4 id="2-1-数据处理"><a href="#2-1-数据处理" class="headerlink" title="2.1 数据处理"></a>2.1 数据处理</h4><p>直接上代码吧：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs routeros">import pandas as pd<br>import numpy as np<br><span class="hljs-keyword">from</span> sklearn.metrics import confusion_matrix, zero_one_loss<br><span class="hljs-keyword">from</span> sklearn.model_selection import train_test_split<br>import matplotlib.pyplot as plt<br><span class="hljs-keyword">from</span> sklearn import preprocessing<br><br><span class="hljs-comment"># 加载数据</span><br>raw_data_filename = <span class="hljs-string">&quot;data/clearData/total_expend.csv&quot;</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Loading raw data...&quot;</span>)<br>raw_data = pd.read_csv(raw_data_filename, <span class="hljs-attribute">header</span>=None,low_memory=False)<br><br><span class="hljs-comment"># 随机抽取比例，当数据集比较大的时候，可以采用这个，可选项</span><br><span class="hljs-attribute">raw_data</span>=raw_data.sample(frac=0.03)<br><br><span class="hljs-comment"># 查看标签数据情况</span><br>last_column_index = raw_data.shape[1] - 1<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;print data labels:&quot;</span>)<br><span class="hljs-built_in">print</span>(raw_data[last_column_index].value_counts())<br><br><span class="hljs-comment"># 将非数值型的数据转换为数值型数据</span><br><span class="hljs-comment"># print(&quot;Transforming data...&quot;)</span><br>raw_data[last_column_index], attacks = pd.factorize(raw_data[last_column_index], <span class="hljs-attribute">sort</span>=<span class="hljs-literal">True</span>)<br><br><span class="hljs-comment"># 对原始数据进行切片，分离出特征和标签，第1~78列是特征，第79列是标签</span><br>features = raw_data.iloc[:, :raw_data.shape[1] - 1]  # pandas中的iloc切片是完全基于位置的索引<br>labels = raw_data.iloc[:, raw_data.shape[1] - 1:]<br><br><span class="hljs-comment"># 特征数据标准化，这一步是可选项</span><br>features = preprocessing.scale(features)<br>features = pd.DataFrame(features)<br><br><span class="hljs-comment"># 将多维的标签转为一维的数组</span><br>labels = labels.values.ravel()<br><br><span class="hljs-comment"># 将数据分为训练集和测试集,并打印维数</span><br>df = pd.DataFrame(features)<br>X_train, X_test, y_train, y_test = train_test_split(df, labels, <span class="hljs-attribute">train_size</span>=0.8, <span class="hljs-attribute">test_size</span>=0.2, <span class="hljs-attribute">stratify</span>=labels)<br><br><span class="hljs-comment"># print(&quot;X_train,y_train:&quot;, X_train.shape, y_train.shape)</span><br><span class="hljs-comment"># print(&quot;X_test,y_test:&quot;, X_test.shape, y_test.shape)</span><br></code></pre></td></tr></table></figure>
+
+<p>上述大概流程可以分为：</p>
+<ul>
+<li>加载数据</li>
+<li>分析数据</li>
+<li>非数值型数据转换数值数据</li>
+<li>分离特征和标签</li>
+<li>数据标准化\归一化\正则化</li>
+<li>将这个数据集切分为训练集合测试集</li>
+</ul>
+<h4 id="2-2-训练和测试"><a href="#2-2-训练和测试" class="headerlink" title="2.2 训练和测试"></a>2.2 训练和测试</h4><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs routeros">import pandas as pd<br>import numpy as np<br><span class="hljs-keyword">from</span> sklearn.tree import DecisionTreeClassifier<br><span class="hljs-keyword">from</span> sklearn.metrics import confusion_matrix, zero_one_loss<br><br><span class="hljs-comment"># 训练模型</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Training model...&quot;</span>)<br>clf = DecisionTreeClassifier(<span class="hljs-attribute">criterion</span>=<span class="hljs-string">&#x27;entropy&#x27;</span>, <span class="hljs-attribute">max_depth</span>=12, <span class="hljs-attribute">min_samples_leaf</span>=1, <span class="hljs-attribute">splitter</span>=<span class="hljs-string">&quot;best&quot;</span>)<br>trained_model = clf.fit(X_train, y_train)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Score:&quot;</span>, trained_model.score(X_train, y_train))<br><br><span class="hljs-comment"># 预测</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Predicting...&quot;</span>)<br>y_pred = clf.predict(X_test)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Computing performance metrics...&quot;</span>)<br>results = confusion_matrix(y_test, y_pred)<br><span class="hljs-built_in">error</span> = zero_one_loss(y_test, y_pred)<br><br><span class="hljs-comment"># 根据混淆矩阵求预测精度</span><br>list_diag = np.diag(results)<br>list_raw_sum = np.sum(results, <span class="hljs-attribute">axis</span>=1)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Predict accuracy of the decisionTree: &quot;</span>, np.mean(list_diag) / np.mean(list_raw_sum))<br></code></pre></td></tr></table></figure>
+
+<p>在 sklearn 中，训练模型和预测模型几乎是一个模板，想要换算法，只需要将上面的算法行替换即可，也就是：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">clf = DecisionTreeClassifier(<span class="hljs-attribute">criterion</span>=<span class="hljs-string">&#x27;entropy&#x27;</span>, <span class="hljs-attribute">max_depth</span>=12, <span class="hljs-attribute">min_samples_leaf</span>=1, <span class="hljs-attribute">splitter</span>=<span class="hljs-string">&quot;best&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>其他都可以不变</p>
+<p>来看一下预测结果：</p>
+<p><img src="/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/a22f2c0e8174d123443db738f309b3fc.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>预测准确率为 99.56，算是很高了。</p>
+<h4 id="2-3-测试-total-csv-和-total-expend-csv-的区别"><a href="#2-3-测试-total-csv-和-total-expend-csv-的区别" class="headerlink" title="2.3 测试 total.csv 和 total_expend.csv 的区别"></a>2.3 测试 total.csv 和 total_expend.csv 的区别</h4><p>上面一节采用的数据集是 total.csv，也就是数据不平衡的数据集，但是从结果来看，其准确率很高，达到了 99.56%，然而，评价一个模型，准确率只是一个指标而已，我们来打印一下其混淆矩阵：</p>
+<p><img src="/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/d0341c0ee9cab559ad2310793527aeb6.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>由上图可以看到，存在很多类别被误分的，但是为什么其准确率依然这么高呢？</p>
+<p>这是因为数据不平衡，total.csv 数据集中，正常数据（也就是标签为 begin）的数据太多了，占据了几乎 99%的比例，只要它预测正确，那么整个数据集的准确率就会很高，至于其他标签的准确率哪怕再低，也不会有多大影响。</p>
+<p>再来看看如果使用 total_expend.csv 数据集，先看准确率：</p>
+<p><img src="/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/b1d2024f9befbe0404016ee77179beef.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>99.70%的准确率也很高，再看混淆矩阵打印：</p>
+<p><img src="/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/be98ea5b1c34b25332e800da0e915234.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>可以看到，相比上面的，要好了很多，大部分类别都预测正确了（当然，这个也可能是因为类别标签大都重复造成的。）</p>
+<p>绘制混淆矩阵代码：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs css">class PlotConfusionMatrix:<br>    def <span class="hljs-built_in">plot_confusion_matrix</span>(self,labels,cm, title=<span class="hljs-string">&#x27;Confusion Matrix&#x27;</span>, cmap=plt.cm.binary):<br>        plt.<span class="hljs-built_in">imshow</span>(cm, interpolation=<span class="hljs-string">&#x27;nearest&#x27;</span>, cmap=cmap)<br>        plt.<span class="hljs-built_in">title</span>(title)<br>        plt.<span class="hljs-built_in">colorbar</span>()<br>        xlocations = np.<span class="hljs-built_in">array</span>(<span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(labels)))<br>        plt.<span class="hljs-built_in">xticks</span>(xlocations, labels, rotation=<span class="hljs-number">90</span>)<br>        plt.<span class="hljs-built_in">yticks</span>(xlocations, labels)<br>        plt.<span class="hljs-built_in">ylabel</span>(<span class="hljs-string">&#x27;True label&#x27;</span>)<br>        plt.<span class="hljs-built_in">xlabel</span>(<span class="hljs-string">&#x27;Predicted label&#x27;</span>)<br><br>    def <span class="hljs-built_in">prepareWork</span>(self,labels, y_true, y_pred):<br>        tick_marks = np.<span class="hljs-built_in">array</span>(<span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(labels))) + <span class="hljs-number">0.5</span><br>        cm = <span class="hljs-built_in">confusion_matrix</span>(y_true, y_pred)<br>        np.<span class="hljs-built_in">set_printoptions</span>(precision=<span class="hljs-number">2</span>)<br>        cm_normalized = cm.<span class="hljs-built_in">astype</span>(<span class="hljs-string">&#x27;float&#x27;</span>) / cm.<span class="hljs-built_in">sum</span>(axis=<span class="hljs-number">1</span>)[:, np.newaxis]<br>        plt.<span class="hljs-built_in">figure</span>(figsize=(<span class="hljs-number">12</span>, <span class="hljs-number">8</span>), dpi=<span class="hljs-number">120</span>)<br><br>        ind_array = np.<span class="hljs-built_in">arange</span>(<span class="hljs-built_in">len</span>(labels))<br>        x, y = np.<span class="hljs-built_in">meshgrid</span>(ind_array, ind_array)<br><br>        for x_val, y_val in <span class="hljs-built_in">zip</span>(x.<span class="hljs-built_in">flatten</span>(), y.<span class="hljs-built_in">flatten</span>()):<br>            c = cm_normalized[y_val][x_val]<br>            if c &gt; <span class="hljs-number">0.01</span>:<br>                plt.<span class="hljs-built_in">text</span>(x_val, y_val, <span class="hljs-string">&quot;%0.2f&quot;</span> % (c,), color=<span class="hljs-string">&#x27;red&#x27;</span>, fontsize=<span class="hljs-number">7</span>, va=<span class="hljs-string">&#x27;center&#x27;</span>, ha=<span class="hljs-string">&#x27;center&#x27;</span>)<br>        # offset the tick<br>        plt.<span class="hljs-built_in">gca</span>().<span class="hljs-built_in">set_xticks</span>(tick_marks, minor=True)<br>        plt.<span class="hljs-built_in">gca</span>().<span class="hljs-built_in">set_yticks</span>(tick_marks, minor=True)<br>        plt.<span class="hljs-built_in">gca</span>().xaxis.<span class="hljs-built_in">set_ticks_position</span>(<span class="hljs-string">&#x27;none&#x27;</span>)<br>        plt.<span class="hljs-built_in">gca</span>().yaxis.<span class="hljs-built_in">set_ticks_position</span>(<span class="hljs-string">&#x27;none&#x27;</span>)<br>        plt.<span class="hljs-built_in">grid</span>(True, which=<span class="hljs-string">&#x27;minor&#x27;</span>, linestyle=<span class="hljs-string">&#x27;-&#x27;</span>)<br>        plt.<span class="hljs-built_in">gcf</span>().<span class="hljs-built_in">subplots_adjust</span>(bottom=<span class="hljs-number">0.15</span>)<br><br>        self.<span class="hljs-built_in">plot_confusion_matrix</span>(labels,cm_normalized, title=<span class="hljs-string">&#x27;Normalized confusion matrix&#x27;</span>)<br>        # show confusion matrix<br>        # plt.<span class="hljs-built_in">savefig</span>(<span class="hljs-string">&#x27;image/confusion_matrix.png&#x27;</span>, format=<span class="hljs-string">&#x27;png&#x27;</span>)<br>        plt.<span class="hljs-built_in">show</span>()<br><br># 绘制混淆矩阵<br>def <span class="hljs-built_in">plotMatrix</span>(attacks, y_test, y_pred):<br>    # attacks是整个数据集的标签集合，但是切分测试集的时候，某些标签数量很少，可能会被去掉，这里要剔除掉这些标签<br>    y_test_set = <span class="hljs-built_in">set</span>(y_test)<br>    y_test_list = <span class="hljs-built_in">list</span>(y_test_set)<br>    attacks_test = []<br>    for i in <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(y_test_set)):<br>        attacks_test.<span class="hljs-built_in">append</span>(attacks[y_test_list[i]])<br>    p = <span class="hljs-built_in">PlotConfusionMatrix</span>()<br>    p.<span class="hljs-built_in">prepareWork</span>(attacks_test, y_test, y_pred)<br><br># 绘制混淆矩阵图形，attacks是标签列表，y_test是测试结果，y_pred是预测结果<br><span class="hljs-built_in">plotMatrix</span>(attacks,y_test,y_pred)<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-4-调参"><a href="#2-4-调参" class="headerlink" title="2.4 调参"></a>2.4 调参</h4><p>调参，就我所知有两种，一种是通过绘制学习曲线来调节某个超参数——横坐标为参数，纵坐标为准确度或者其他模型度量；另外一种是通过网格搜索交叉验证来调节多个超参数（本质是组合参数，然后循环验证）</p>
+<h4 id="2-4-1-绘制学习曲线调节决策树最优深度"><a href="#2-4-1-绘制学习曲线调节决策树最优深度" class="headerlink" title="2.4.1 绘制学习曲线调节决策树最优深度"></a>2.4.1 绘制学习曲线调节决策树最优深度</h4><p>参数那么多，如何确定最优的参数呢？针对一个参数调节的时候，可以画出学习曲线——横坐标为参数，纵坐标为准确度：</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs stata">import matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br><br><span class="hljs-keyword">test</span> = []<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-keyword">range</span>(10):<br>    clf = tree.DecisionTreeClassifier(max_depth=i+1<br><br>                                    ,criterion=<span class="hljs-string">&quot;entropy&quot;</span><br><br>                                    ,random_state=30<br><br>                                    ,splitter=<span class="hljs-string">&quot;random&quot;</span><br><br>                                    )<br>    clf = clf.<span class="hljs-keyword">fit</span>(Xtrain, Ytrain)<br>    <span class="hljs-keyword">score</span> = clf.<span class="hljs-keyword">score</span>(Xtest, Ytest)<br>    <span class="hljs-keyword">test</span>.<span class="hljs-keyword">append</span>(<span class="hljs-keyword">score</span>)<br>plt.<span class="hljs-keyword">plot</span>(<span class="hljs-keyword">range</span>(1,11),<span class="hljs-keyword">test</span>,color=<span class="hljs-string">&quot;red&quot;</span>,<span class="hljs-keyword">label</span>=<span class="hljs-string">&quot;max_depth&quot;</span>)<br>plt.legend()<br>plt.show()<br></code></pre></td></tr></table></figure>
+
+
+
+<p><img src="/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95/e1014888152f8c277511fcb014715369.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h4 id="2-4-2-网格搜索寻找最优参数组合"><a href="#2-4-2-网格搜索寻找最优参数组合" class="headerlink" title="2.4.2 网格搜索寻找最优参数组合"></a>2.4.2 网格搜索寻找最优参数组合</h4><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs stylus">#网格搜索：能够帮助我们同时调整多个参数的技术，枚举技术<br>import numpy as np<br><br>gini_thresholds = np<span class="hljs-selector-class">.linspace</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0.5</span>,<span class="hljs-number">20</span>)#基尼系数的边界<br><span class="hljs-selector-id">#entropy_thresholds</span> = np<span class="hljs-selector-class">.linespace</span>(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">50</span>)<br><br>#一串参数和这些参数对应的，我们希望网格搜索来搜索的参数的取值范围<br>parameters = &#123;<span class="hljs-string">&#x27;splitter&#x27;</span>:(<span class="hljs-string">&#x27;best&#x27;</span>,<span class="hljs-string">&#x27;random&#x27;</span>)<br>              ,<span class="hljs-string">&#x27;criterion&#x27;</span>:(<span class="hljs-string">&quot;gini&quot;</span>,<span class="hljs-string">&quot;entropy&quot;</span>)<br>              ,<span class="hljs-string">&quot;max_depth&quot;</span>:<span class="hljs-selector-attr">[*range(1,10)]</span><br>              ,<span class="hljs-string">&#x27;min_samples_leaf&#x27;</span>:<span class="hljs-selector-attr">[*range(1,50,5)]</span><br>              ,<span class="hljs-string">&#x27;min_impurity_decrease&#x27;</span>:<span class="hljs-selector-attr">[*gini_thresholds]</span>&#125;<br><br>clf = <span class="hljs-built_in">DecisionTreeClassifier</span>(random_state=<span class="hljs-number">25</span>)#实例化决策树<br>GS = <span class="hljs-built_in">GridSearchCV</span>(clf, parameters, cv=<span class="hljs-number">10</span>)#实例化网格搜索，cv指的是交叉验证<br>GS<span class="hljs-selector-class">.fit</span>(Xtrain,Ytrain)<br><span class="hljs-function"><span class="hljs-title">print</span><span class="hljs-params">(GS.best_params_)</span></span>#从我们输入的参数和参数取值的列表中，返回最佳组合<br><span class="hljs-function"><span class="hljs-title">print</span><span class="hljs-params">(GS.best_score_)</span></span>#网格搜索后的模型的评判标准<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/NETWORK/" class="category-chain-item">NETWORK</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CIC-IDS2017数据集训练和测试</div>
+      <div>http://blog.uanet.cn/NETWORK/CIC-IDS2017数据集训练和测试.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/NETWORK/DPDK%20%E5%AE%8C%E5%85%A8%E5%86%85%E6%A0%B8%E6%97%81%E8%B7%AF%E6%8A%80%E6%9C%AF%E5%AE%9E%E7%8E%B0.html" title="DPDK 完全内核旁路技术实现">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">DPDK 完全内核旁路技术实现</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/KERNEL/linux%E5%86%85%E6%A0%B8%E9%87%8D%E8%A6%81%E6%A8%A1%E5%9D%97.html" title="linux内核重要模块">
+                        <span class="hidden-mobile">linux内核重要模块</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

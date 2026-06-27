@@ -1,0 +1,880 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="这篇论文《AI-Powered Internet Traffic Classification: Past, Present, and Future》发表于2024年9月的IEEE Communications Magazine，主要探讨了人工智能（AI）在网络流量分类（Traffic Classification, TC）中的应用和发展。以下是论文的中文总结： 摘要网络流量分类对于网络流量管理和">
+<meta property="og:type" content="article">
+<meta property="og:title" content="人工智能在网络流量分类中的应用和发展">
+<meta property="og:url" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E5%9C%A8%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8%E5%92%8C%E5%8F%91%E5%B1%95.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="这篇论文《AI-Powered Internet Traffic Classification: Past, Present, and Future》发表于2024年9月的IEEE Communications Magazine，主要探讨了人工智能（AI）在网络流量分类（Traffic Classification, TC）中的应用和发展。以下是论文的中文总结： 摘要网络流量分类对于网络流量管理和">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-24T01:55:54.659Z">
+<meta property="article:modified_time" content="2025-02-24T01:55:54.659Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>人工智能在网络流量分类中的应用和发展 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="人工智能在网络流量分类中的应用和发展"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-24 09:55" pubdate>
+          2025年2月24日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          7.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          62 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">人工智能在网络流量分类中的应用和发展</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>这篇论文《AI-Powered Internet Traffic Classification: Past, Present, and Future》发表于2024年9月的IEEE Communications Magazine，主要探讨了人工智能（AI）在网络流量分类（Traffic Classification, TC）中的应用和发展。以下是论文的中文总结：</p>
+<h3 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h3><p>网络流量分类对于网络流量管理和安全至关重要。随着时间的推移，利用人工智能（AI）的流量分类解决方案取得了显著进展，主要由机器学习（ML）推动。本文分析了互联网上AI驱动的流量分类的历史和现状，指出了未解决的研究问题。尽管进行了广泛的研究，但将关键目标转化为产品线实施仍面临挑战。AI在解决流量分类的复杂和不断演变的挑战方面具有未开发的潜力，可以从其他领域的成功应用中汲取经验。我们确定了新的机器学习主题和解决方案，以满足未满足的流量分类需求，为流量分类的未来塑造了一个全面的研究格局。我们还讨论了流量分类目标之间的相互依赖性，并确定了阻碍AI驱动的下一代解决方案的障碍。克服这些障碍将为未来网络解锁两个相互关联的愿景：自我管理的网络和以人为本的网络。</p>
+<h3 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h3><p>互联网对现代生活的重要性不言而喻，但一个基本问题——“这个链接中的流量是由哪些应用程序产生的？”——即使是网络运营商也常常无法回答。这种“可见性”差距影响了资源分配、规划、安全以及利益相关者对全球关键基础设施的把握。因此，网络流量分类（TC）——即推断产生观察到的流量的应用程序或服务——自互联网早期以来就一直是研究热点。随着互联网使用的演变，需要采用人工智能（AI）。AI对研究问题的贡献可能永远不会找到最终答案，因为网络流量的移动目标性质以及不同利益相关者（网络运营商、OTT提供商、设备制造商、监管机构、公民）之间的利益冲突所引发的军备竞赛。但AI在最近的快速发展中探索的广泛、多样且快速进步的主题，除非适当分类和组织，否则将进一步帮助TC研究。这促使我们做出了以下主要贡献：首先，总结了AI驱动的TC的过去和现状，如今主要集中在机器学习（ML）和特别是深度学习（DL）上。其次，讨论了当前AI驱动的流量分类器在产品线实际应用中的开放研究问题。第三，利用AI的热潮，确定了对TC有价值的热门研究课题。第四，讨论了下一代AI驱动的TC所实现的未来愿景、障碍和缓解策略。</p>
+<h3 id="AI驱动的流量分类：过去和现在"><a href="#AI驱动的流量分类：过去和现在" class="headerlink" title="AI驱动的流量分类：过去和现在"></a>AI驱动的流量分类：过去和现在</h3><p>对实际TC的追求有着悠久的历史。由于其简单性，基于IP&#x2F;端口的分类与共享黑名单仍然用于安全目的，最近的物联网标准也提出了这一点。对高级TC的需求早在20世纪90年代就已出现，因为P2P（点对点）协议破坏了IP地址和传输端口在推断流量性质方面的可靠性。研究转向应用数据进行推断，开启了基于负载的分类时代。在基于负载的技术中，深度包检测（DPI）利用模式匹配来识别特定字节序列作为应用程序的“指纹”。DPI被证明是专家劳动密集型的（定义签名）和计算密集型的（推理过程中），ML在2004年左右来救援。ML允许自动挖掘常见的负载子序列或频率签名，导致了基于概率的负载方法。然而，随着加密协议的兴起和隐私问题的出现，促使人们探索替代解决方案。此外，ML还应用于统计流特征和流计数器（或其压缩形式）作为流量分类器的输入。其他方法考虑了基于IP或IP端口组合的扇入和扇出因素，以及上述方法的混合（例如，基于规则的方法）。在当今互联网的动态格局中，现有TC方法的有效性面临着前所未有的挑战。用户行为的快速变化（例如，COVID-19封锁期间的远程工作和视频会议）和互联网生态系统的性质促成了流量的快速演变。这个生态系统包括终端设备（例如，具有许多应用程序的智能手机、物联网设备）、服务提供商（例如，推动广泛采用TLS的云服务和OTT，包括DNS-over-TLS）以及开发者（例如，跨平台框架、第三方服务和通过应用市场进行的自动更新）。为了应对日益增长的复杂性，研究人员正在转向受计算机视觉和自然语言处理领域成就启发的最新ML进展。特别是，深度学习（DL）因其能够自动从输入数据中提取有效特征（端到端学习）而受到关注。这消除了专家手动特征工程的需求。通过特征提取和分类的联合训练，DL模型实现了最先进的性能，并实现了无需专家更新的能力。这对于应对不断变化和快速发展的流量分类具有重要意义。</p>
+<h3 id="AI驱动的流量分类中的研究问题"><a href="#AI驱动的流量分类中的研究问题" class="headerlink" title="AI驱动的流量分类中的研究问题"></a>AI驱动的流量分类中的研究问题</h3><p>从过去二十年的文献中，可以确定五个研究问题，这些文献提供了特定的AI基础TC解决方案或相关调查。这些问题反映了现有技术的局限性，其中一些在采用AI时出现或被强调。我们以TC解决方案应满足的期望形式讨论这些问题：有效性、可部署性、可信性、鲁棒性和适应性。</p>
+<ul>
+<li><p><strong>有效性</strong>：能否为我提供准确的流量可见性？<br>有效性无疑是TC的主要目标。然而，即使在接近真实环境的情况下，有效性指标也远未达到要求。例如，在类别较少（&lt;10个应用程序或类别，具有不同的流量模式）且几乎完全观察到流量聚合（没有路由不对称性）的情况下，可以达到高达99%的准确率。但当类别数量增加、分类粒度变细（具体到特定应用程序而不仅仅是类别）或用于决策的流量部分有限时，现有方法的性能变得不切实际。</p>
+</li>
+<li><p><strong>可部署性</strong>：我能否在现有网络资产和约束条件下部署它？<br>许多物理约束（时间、内存、处理资源、能源）影响训练或推理阶段，这些限制了TC解决方案的实际应用。TC模型必须适合它们运行的设备，这些设备的性质差异很大，包括传统路由器、专用硬件组件、AI专用硬件加速器（例如，华为Ascend或Google Tensor Processing Units）和中间盒。虽然虚拟化的边缘&#x2F;云层（例如，Amazon Web Services或Google Cloud平台）可以缓解资源限制，但当分类结果必须驱动快速的本地实时决策（例如，流量流调度、攻击阻止）时，它们可能不是理想选择。此外，流量样本的收集和标记可能会带来进一步的约束。这些数据的跨管理边界传输可能受到知识产权或隐私政策和担忧的限制。例如，欧盟GDPR明确关注医疗保健和儿童合规应用程序，甚至IP地址也被归类为个人可识别信息。</p>
+</li>
+<li><p><strong>可信性</strong>：为什么我应该信任它，以及信任到什么程度？<br>基于ML的TC解决方案可以提供高度准确的结果，但它们通常被视为黑盒。它们的自动构建仅由流量数据驱动，形成了人类难以理解的复杂内部机制。这与运营商需要理解模型遵循特定决策过程的原因、评估其可靠性、预测其行为并进行改进的需求相冲突。由于所有ML方法都基于数据，流量数据集的质量也会影响结果的可靠性。这在TC中尤为重要，因为输入数据具有极其复杂的结构（与像素颜色或字母序列不同），给定网络协议栈的不同和变化的语义。了解数据集的哪个子集（特定应用程序&#x2F;服务&#x2F;协议）或输入（特定协议字段或负载流的一部分）影响模型创建及其性能是至关重要的。这提供了必要的洞察力来信任（或拒绝、改进、修复）TC解决方案。监管问题进一步使这一方面复杂化。新兴的法规和标准，如欧盟AI法案，禁止部署可能影响个人生活的AI系统，除非它们确保技术透明度或可解释性。</p>
+</li>
+<li><p><strong>鲁棒性</strong>：当网络环境变化时，它还能继续工作吗？<br>ML解决方案在特定网络环境中进行训练，包括应用程序的混合（及其版本）、用户群体（及其习惯）和设备（及其设置）。然而，至关重要的是，这些流量分类器能够在其他环境中有效应用，或者当相同的操作环境发生变化时，不会对上述期望产生显著影响。此外，网络流量的性质可能会因对抗性行为而变化，例如网络攻击或故意使用精心制作的输入来逃避恶意软件识别。虽然其中一些因素可以轻松记录和跟踪，但其他因素可能完全隐藏。因此，应通过评估设计&#x2F;训练和部署场景之间的潜在性能下降来定期重新评估模型的鲁棒性。</p>
+</li>
+<li><p><strong>适应性</strong>：如果流量可见性下降，我能修复它，代价是什么？<br>当TC模型转移到不同环境时，有两种情况需要考虑：</p>
+<ul>
+<li>模型性能可能因缺乏鲁棒性（例如，概念漂移）而低于预期水平。</li>
+<li>新环境可能需要不同的分类任务，例如容纳新应用程序&#x2F;服务或不同的流量指纹。<br>在这些情况下，适应性变得必要。理想情况下，这种适应应提供与在新环境中从头开始设计模型相同的性能（在最坏情况下，与原始模型相比略有下降）。此外，这一过程必须代价有限，包括收集新数据集和重新训练程序。这些属性的满足程度决定了适应性的水平。</li>
+</ul>
+</li>
+</ul>
+<h3 id="评估期望：评估设置"><a href="#评估期望：评估设置" class="headerlink" title="评估期望：评估设置"></a>评估期望：评估设置</h3><p>评估设置对于定量分析研究问题至关重要。定制的设置使用广泛的评估指标和工具或在比较场景中采用其中一些来评估TC期望。关于有效性，指标范围从简洁的指标（如按流量或字节计算的准确率）到每个应用程序的细分和软输出利用。可信性通过校准和可解释性工具来衡量，评估TC解决方案在多大程度上值得信任以及哪些流量&#x2F;数据包部分主要贡献于其结果。可部署性设置包括评估训练需求、运行时间、内存占用、洞察时间（time-to-insight）和吞吐量的指标。鲁棒性和适应性则从其他期望中继承指标，但以差异化的形式使用。关于鲁棒性，开放世界、跨数据集和对抗性设置分别评估TC解决方案对未见应用程序&#x2F;服务、不同条件下的部署（例如，不同的观察点）和数据包变异攻击的响应。相反，适应性通过增量学习设置来评估，以衡量现有TC模型在多大程度上（以及以什么代价）能够适应更新的应用程序模式、额外的应用程序或进一步的网络可见性任务（例如，QoS类别）。评估将其与从改进的知识中从头开始构建的理想分类器进行比较。</p>
+<h3 id="TC期望的相互作用"><a href="#TC期望的相互作用" class="headerlink" title="TC期望的相互作用"></a>TC期望的相互作用</h3><p>需要注意的是，这些期望是相互依赖的，因此需要联合评估，并可能需要权衡以找到最佳平衡点。图2展示了它们之间的相互作用，突显了它们之间的潜在积极和消极影响（通过前面讨论的评估设置衡量）。有效性作为主要目标，很容易受到任何额外要求的影响，限制了可行的解决方案，并受到所有其他期望的负面影响。例如，纳入可信性可能导致一个可解释但不太准确的TC解决方案（例如，更易于理解但区分度较低的流量特征）。相反，可部署性引入了物理、后勤和成本约束，对所有其他期望产生负面影响。例如，当分类器专门用于部署到本地观察点时，任何网络环境的变化都可能影响其鲁棒性，产品线约束可能妨碍其可解释性。鲁棒性和适应性也可以通过模型提供的更通用的流量表示来满足可信性。这些相互作用需要对AI驱动的TC解决方案进行全面的定量评估，这是迈向理论框架的第一步。</p>
+<h3 id="利用AI的热门话题"><a href="#利用AI的热门话题" class="headerlink" title="利用AI的热门话题"></a>利用AI的热门话题</h3><p>基于研究问题，我们探索了可以解决TC中未满足或可改进需求的AI话题。利用Gartner等已建立的AI报告，我们通过图3（顶部）中的方法步骤，根据我们的专业知识，确定了TC研究的有前景的领域。这些领域包括几个最近的AI解决方案和具有未开发潜力的已建立解决方案，用于现代TC操作。图3使用炒作周期表示法（左）展示了这些AI解决方案在TC中的成熟度和研究兴趣（右）。网格（右）展示了每个AI话题如何关注（或可以改进）五个期望中的每一个。</p>
+<ul>
+<li><p><strong>ModelOps</strong>：ModelOps是行业创新中出现的一种趋势，提供了一种全面的方法来利用AI的实际好处。它包括ML生命周期的自动化，也称为MLOps，利用MLflow和Neptune等平台。这些平台使数据和过程的跟踪和管理成为可能，确保在多个基础设施上的无缝存储和部署。生命周期自动化对于从原始数据收集到在不同网络点的可审计部署和维护的端到端TC模型开发至关重要。自动化管理过程包括数据预处理、模型优化、维护和更新。模型优化可以利用AutoML伞下的方法，以无需人类专家的方式大规模设计节点聚焦的TC模型，例如使用Auto-Sklearn或AutoKeras Python库。相反，模型维护和更新可以利用持续学习，当新数据流进入时更新AI模型，例如识别新兴应用程序的流量。</p>
+</li>
+<li><p><strong>TRS M</strong>：AI（T）rust、（Ri）sk和（S）ecurity（M）anagement旨在为AI工具提供模型治理、可信性、公平性、可靠性、有效性、安全性和数据保护。这包括模型透明度、对抗性攻击抵抗和隐私保护的解决方案。为了确保基于黑盒AI的TC分类器的透明度，可解释AI（XAI）工具至关重要，提供事后解释（例如，LIME和SHAP）或使用新颖的可解释设计架构。在后一种情况下，因果AI技术构建可以推断因果关系并预测参数变化（如网络状态恶化）结果的TC分类器。同样，规则辅助DL可以将先验人类信息（例如，协议起源的信息）整合到完全黑盒的TC决策中。这在数据监督最小的情况下很有用，并提供与格式&#x2F;网络约束一致的决策。神经符号编程将DL用于特征提取与符号程序合成相结合，以增强TC分类器。它生成人类可读的代码（例如，Scallop语言），系统地整合先验知识。相反，对抗性学习解决了AI模型对抗攻击（如中毒和规避）的脆弱性。其想法是，通过专门的修改&#x2F;伪造网络流量（流量变形）可以欺骗模型错误分类给定应用程序或泄露流量敏感信息。目标是在这样的对抗性网络环境中使TC工具变得鲁棒。通过各种策略可以实现训练数据驱动的TC分类器的隐私保护。迁移学习将训练过程分为两个阶段。预训练使用大型数据集创建丰富的模型，而微调使用专门的数据集来增强和适应它。将这些任务分配给两个不同的参与者，迁移学习可以实现知识的不对称共享（例如，在大型和小型网络运营商之间），并消除了共享流量数据的需要。联邦学习将学习与数据集存储解耦，允许通过专用框架（如OpenFL和TensorFlow Federated）进行分布式训练，定期更新到&#x2F;从中央服务器。边缘设备在不共享流量数据的情况下执行本地训练操作，提高隐私保护，并适应业务敏感约束。</p>
+</li>
+<li><p><strong>云AI服务与Tiny ML</strong>：在考虑支持AI驱动的TC解决方案的学习范式和技术时，出现了相互冲突的趋势。一方面，云数据中心提供了几乎无限的计算资源，促进了集中式训练。另一方面，实际限制推动了在边缘设备上进行分散式学习，甚至是在捕获流量的同一观察点上。网络流量数据符合大数据的特征，即数据量、多样性和速度。利用丰富的计算能力可以显著加速大数据支持的DL中的训练过程。数据并行方案等技术，其中多个CPU处理训练数据的子集，以及精心设计的数据布局，有助于这一加速，采用专门的库（Apache Spark MLlib）和框架（Horovod）来实现这一目标。相反，Tiny ML专注于在内存、计算和带宽资源有限的设备上运行的ML技术（硬件、软件和过程），可能是电池供电的（这些设备在网络中无处不在）。因此，它可以帮助通过简化训练算法、应对内存限制和减少交换信息来直接在边缘设备上进行训练（实现迁移学习和联邦学习）。在这方面可以实施多种策略，例如更节能的前向-前向学习，而不是经典的反向传播，在线学习技术，而不是批处理学习，以及深度梯度压缩，以显著减少分布式训练中的通信带宽。除了训练，Tiny ML还旨在通过减少ML模型的复杂性来简化推理阶段，以便在网络接口卡上部署。这可以通过二值化神经网络（Larq Python库是一个流行的实现）或深度模型压缩（涉及知识蒸馏、剪枝和量化）来实现。节能硬件（如IBM TrueNorth等神经形态芯片）还可以通过禁用不活跃神经元来改善DL解决方案的环境影响。</p>
+</li>
+<li><p><strong>统一表示学习&#x2F;基础模型</strong>：基础模型是在大规模未标记数据上训练的大型AI模型，可以适应广泛的下游任务。AI的最新趋势依赖于自监督学习这一新概念，通过适当定义的预文本任务从未标记数据中提取统一表示，呼应了自然语言处理（ChatGPT）和计算机视觉（Dall-E）中的成功应用。自监督学习从结构化和多模态输入（如网络流量聚合）中受益匪浅，并在开放世界TC中提供了检测分布外的好处。有效设计取决于输入与模型的对齐，图神经网络（使用PyG或DGL库构建）有潜力捕获不同抽象层次的网络数据的复杂交互（例如，流量、流量序列）。下游任务包括各种网络可见性视角，包括在不同粒度下识别服务或应用程序，或基于应用程序的流量预测。多任务学习可以用单一解决方案处理这些多样化的问题。此外，收集TC任务的广泛真实数据的挑战可以通过少样本学习技术来解决。这些技术利用基础模型，同时使特定任务的微调适应最小监督。</p>
+</li>
+<li><p><strong>合成数据生成</strong>：生成建模是一种无监督学习任务，涉及自动发现输入数据中的规律或模式，以生成几乎与原始数据无法区分的新样本。合成流量的生成缓解了由于收集困难而导致的公共网络流量数据集的可用性差的问题。当与少样本训练结合时，生成方法甚至在新应用程序&#x2F;服务出现或零日网络攻击的场景中缓解了数据稀缺问题。此外，生成方法可以通过提供隐私保护工具来降低数据集共享的障碍。已经提出了各种DL网络用于合成流量生成。变分方法通过变分推断学习数据生成分布。生成对抗网络将两个网络相互对抗，生成器产生几乎与真实数据无法区分的合成样本。最近，潜在和条件扩散模型在根据其文本描述生成图像方面取得了成功应用（例如，Stable Diffusion和Google Imagen），但在TC上下文中尚未得到探索。</p>
+</li>
+</ul>
+<h3 id="AI驱动的流量分类：未来"><a href="#AI驱动的流量分类：未来" class="headerlink" title="AI驱动的流量分类：未来"></a>AI驱动的流量分类：未来</h3><p>TC的未来与AI密切相关，但最终目标是什么？两个相互关联的愿景浮现出来（AI驱动的TC是核心使能器）：自我管理的网络和以人为本的网络。这些愿景旨在实现自动化，同时将目标和监督控制牢牢掌握在人类手中。自我管理的网络旨在通过创建一个主动监控和重新配置自身的系统来排除直接的人类干预。以人为本的网络寻求通过抽象接口实现人类指挥的方法，用于定义目标和政策。AI对于实现这些想法至关重要，特别是解决流量监控、警务和人类理解的问题：以下强调了AI研究话题如何使新的TC用例成为可能。</p>
+<ul>
+<li><p><strong>AI驱动的TC用于自我管理的网络</strong>：ModelOps范式通过利用TC结果（TC-in-the-loop）支持网络基础设施的全自动管理。这种方法利用了软件定义网络（例如，通过OpenFlow和P4）提供的机会，并实现了强化学习。网络数字孪生在收集网络环境信息、模拟TC知情决策和预测其影响方面发挥着关键作用，然后才将其付诸实践。通过基础模型和ModelOps生命周期提高有效性，对于推进QoS管理以及新兴的6G技术至关重要。这促进了超细粒度的流量管理，支持增强&#x2F;虚拟现实元宇宙、车对车和无人驾驶车辆通信等应用。此外，云AI服务与Tiny ML的结合可以支持一系列符合绿色网络原则的流量监控器。它们的联合使用简化了TC和学习阶段，适用于各种网络设备。实际上，在后一种情况下，训练过程可以在边缘轻量化，或委托给云。</p>
+</li>
+<li><p><strong>AI驱动的TC用于以人为本的网络</strong>：TC中TRS M技术的保证是设计用户友好和隐私保护的仪表板的必要步骤，提供可解释的分析，这将扩大TC在更多不同场景中的采用，包括个人网络。基础模型对于创建细粒度的个性化TC分类器特别有益。这在“小型办公室家庭办公室”环境中尤为重要，自带设备政策很常见。个性化分类器增强了操作的透明度和问责制，提高了通信资源管理的效率和公平性。最后，网络可见性在垂直场景中也成为一个有价值的信息来源，网络服务不是主要焦点，如控制关键基础设施或管理工业4.0中的物理资产。</p>
+</li>
+</ul>
+<h3 id="道路障碍与缓解策略"><a href="#道路障碍与缓解策略" class="headerlink" title="道路障碍与缓解策略"></a>道路障碍与缓解策略</h3><p>各种道路障碍阻碍了AI技术在实现这些愿景中的充分利用，我们讨论了可能的缓解策略。可重复性和彻底评估是TC研究中的重大挑战。一个共享的基准套件（类似于Kaggle或GitHub），包含开源实现、数据集和指标，可以加速进展。ITU“AI&#x2F;ML in 5G Challenge”等举措是朝着这个方向迈出的第一步。标准化生成、收集、预处理、标记和共享流量数据的方法至关重要，但由于收集环境的多样性和隐私敏感性，这些方法通常缺乏。数据可用性长期以来一直是ML和DL的问题。新的隐私保护解决方案和激励系统（例如，基于区块链的NFTs）可以帮助解决这一问题。表2对2016年以来发布的用于加密流量分类的数据集进行了分类，以适应加密协议使用（特别是TLS）的增长。较旧的数据集不再代表当前的流量格局。我们标记了提供原始流量数据的数据集，用于DL的端到端学习。关于可部署性，尽管基于Tiny ML的TC解决方案解决了可扩展性问题，但它们可能依赖于特定的网络设备硬件实现，从而变得依赖供应商。因此，迫切需要适合现有开放硬件（例如，Corundum FPGA NIC）和&#x2F;或遗留系统的创新AI驱动的TC解决方案。类似的推理适用于专门为AI驱动的TC设计的新开放硬件架构。解释基于DL的TC解决方案是一个挑战，因为其解释对非专家不友好。弥合网络输入归因与可操作的可解释性之间的差距仍然是一个挑战。与计算机视觉等成熟领域不同，当前解决方案很难提供诸如“为什么这些协议字段或流量流部分驱动了这一决策？”之类的直观答案，特别是在加密存在的情况下。提供更高层次可解释性的工具，将流量部分映射到其“网络语义”，变得至关重要。在处理敏感字段（如明文负载）时，需要考虑隐私和数据保护，以使解释有效，同时保护个人信息。流量数据的复杂和多模态性质在定义有效的基础模型（例如，避免对流量输入的特定方面产生不必要的依赖）和生成多样化（同时现实的）合成流量方面提出了挑战。从用户提示生成跟踪，类似于计算机视觉中的图像生成，目前是不可行的。利用多视图表示（例如，图和时间序列形式的流量）和领域知识（例如，将专家规则编码到AI技术中）可以解决这一挑战。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>基于我们在AI驱动的TC方面的研究经验，我们提供了该领域的最新和全面理解。新工具、方法和对人类在技术中角色的不断演变的视角的融合，催生了引人注目的未来愿景。我们鼓励TC研究人员超越仅有效性的观点，消除阻碍进展的障碍。通过这样做，我们可以将这些设想的未来变为现实，同时克服由于对硬件&#x2F;软件投资、维护和投资回报的担忧而产生的对AI转型的抵制。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/AI/%E8%BD%AC%E8%BD%BD/" class="category-chain-item">转载</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>人工智能在网络流量分类中的应用和发展</div>
+      <div>http://blog.uanet.cn/AI/转载/人工智能在网络流量分类中的应用和发展.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月24日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/%E8%BD%AC%E8%BD%BD/%E3%80%90%E8%AE%BA%E6%96%87%E6%8E%A8%E8%8D%90%E3%80%91%E9%80%9A%E4%BF%A1%E7%9B%B8%E5%85%B3%E8%AE%BA%E6%96%87%E5%BC%80%E6%BA%90%E4%BB%A3%E7%A0%81%E6%9C%AC%E5%91%A8%E6%8E%A8%E8%8D%9020231210.html" title="【论文推荐】通信相关论文开源代码本周推荐20231210">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【论文推荐】通信相关论文开源代码本周推荐20231210</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/SYSTEM/Arch%20Linux%E5%AE%89%E8%A3%9D%E5%A4%9A%E9%87%8DPython%E7%89%88%E6%9C%AC%EF%BC%8C%E4%BD%BF%E5%85%B6%E5%85%B1%E5%AD%98.html" title="Arch Linux安裝多重Python版本，使其共存">
+                        <span class="hidden-mobile">Arch Linux安裝多重Python版本，使其共存</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

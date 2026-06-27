@@ -1,0 +1,908 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta property="og:type" content="article">
+<meta property="og:title" content="linux协议栈TCP代码流程">
+<meta property="og:url" content="http://blog.uanet.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88TCP%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88TCP%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/tcp_state.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88TCP%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/tcp_state.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88TCP%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/Linux%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90%E5%9B%BE_%E9%A1%B5%E9%9D%A2_3.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88TCP%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/slidingwindow.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88TCP%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/tcp_send.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88TCP%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/tcp_rcv.png">
+<meta property="article:published_time" content="2025-02-13T05:53:20.812Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.812Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88TCP%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/tcp_state.png">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>linux协议栈TCP代码流程 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="linux协议栈TCP代码流程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          9 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">linux协议栈TCP代码流程</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><img src="/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88TCP%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/tcp_state.png" srcset="/img/loading.gif" lazyload alt="Linux协议栈实现分析图_页面_3"></p>
+<p><img src="/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88TCP%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/tcp_state.jpeg" srcset="/img/loading.gif" lazyload alt="Linux协议栈实现分析图_页面_3"></p>
+<p><img src="/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88TCP%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/Linux%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90%E5%9B%BE_%E9%A1%B5%E9%9D%A2_3.jpg" srcset="/img/loading.gif" lazyload alt="Linux协议栈实现分析图_页面_3"></p>
+<p>tcp有两个sock结构hash</p>
+<p>hashinfo-&gt;ehash </p>
+<p>hashinfo-&gt;lhash</p>
+<p>滑动窗口：发送窗口、接收窗口</p>
+<p><img src="/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88TCP%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/slidingwindow.png" srcset="/img/loading.gif" lazyload alt="Linux协议栈实现分析图_页面_3"></p>
+<p>发送窗口（swnd）</p>
+<p>接受窗口（rwnd）</p>
+<p>拥塞窗口（cwnd）</p>
+<p>发送窗口&#x3D;Min(拥塞窗口，接受窗口)</p>
+<h5 id="滑动窗口和拥塞窗口"><a href="#滑动窗口和拥塞窗口" class="headerlink" title="滑动窗口和拥塞窗口"></a>滑动窗口和拥塞窗口</h5><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41890651/article/details/120155783">https://blog.csdn.net/qq_41890651/article/details/120155783</a></p>
+<h5 id="高性能网络编程2—-TCP消息的发送"><a href="#高性能网络编程2—-TCP消息的发送" class="headerlink" title="高性能网络编程2—-TCP消息的发送"></a>高性能网络编程2—-TCP消息的发送</h5><p><a target="_blank" rel="noopener" href="https://taohui.blog.csdn.net/article/details/9370109">https://taohui.blog.csdn.net/article/details/9370109</a></p>
+<h5 id="高性能网络编程3—-TCP消息的接收"><a href="#高性能网络编程3—-TCP消息的接收" class="headerlink" title="高性能网络编程3—-TCP消息的接收"></a>高性能网络编程3—-TCP消息的接收</h5><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/russell_tao/article/details/9950615">https://blog.csdn.net/russell_tao/article/details/9950615</a></p>
+<h5 id="计网-TCP-的稳定性：滑动窗口和流速控制是怎么回事？"><a href="#计网-TCP-的稳定性：滑动窗口和流速控制是怎么回事？" class="headerlink" title="计网 - TCP 的稳定性：滑动窗口和流速控制是怎么回事？"></a>计网 - TCP 的稳定性：滑动窗口和流速控制是怎么回事？</h5><p><a target="_blank" rel="noopener" href="https://blog.51cto.com/u_15239532/3009395">https://blog.51cto.com/u_15239532/3009395</a></p>
+<p>TCP发送源码学习(2)–tcp_write_xmit</p>
+<p><a target="_blank" rel="noopener" href="http://sunjiangang.blog.chinaunix.net/uid-9543173-id-3543419.html">http://sunjiangang.blog.chinaunix.net/uid-9543173-id-3543419.html</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/types.h&gt;</span>          <span class="hljs-comment">/* See NOTES */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/socket.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">socket</span><span class="hljs-params">(<span class="hljs-type">int</span> domain, <span class="hljs-type">int</span> type, <span class="hljs-type">int</span> protocol)</span>;<br></code></pre></td></tr></table></figure>
+
+<p><strong>domain</strong>用来选择通信协议，参数主要有一下一些常用类型</p>
+<p><em>AF_INET</em></p>
+<p>AF_UNIX</p>
+<p>AF_NS</p>
+<p><strong>type</strong>参数定义通信语义</p>
+<p>SOCK_STREAM：提供一种有序的，可靠的，双向的，基于连接的字节流<br>SOCK_DGRAM：支持数据报文（非连接的，不可靠的具有固定的最大字节长度的消息）<br>SOCK_SEQPACKET：提供一种有序的，可靠的，双向的基于连接的数据传输通道传输数据报文，报文的最大大小固定socket.SOCK_RAW<br>socket.SOCK_RDM</p>
+<p><strong>protocol</strong>参数指定和socket一起使用的特殊的协议栈（比如说SCTP），</p>
+<p><strong>SOCK_STREAM</strong>类型的socket是一个全双工的字节流，不预留消息边界：一个stream socket必须处于连接状态才能收发数据；通过调用connect()函数来连接到另一个创建的socket；一旦连接建立起来了，就可以通过read()和write()函数调用来进行数据传输了；最后调用close()函数关闭连接；实现了SOCK_STREAM的通信协议栈确保数据不会丢失或者重复；</p>
+<p><strong>SOCK_SEQPACKET</strong>使用的系统调用和SOCK_STREAM类型的socket一样，唯一的差异是read(2)函数只会返回请求的大小的数据包，多余的接收数据会被丢弃。同时会预留报文的消息边界</p>
+<h4 id="tcp发送流程"><a href="#tcp发送流程" class="headerlink" title="tcp发送流程"></a>tcp发送流程</h4><p>send</p>
+<p>&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;kernel&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</p>
+<p>__sys_sendto</p>
+<p>sock_sendmsg -&gt; sock-&gt;ops-&gt;sendmsg</p>
+<p>tcp_sendmsg-&gt;tcp_sendmsg_locked -&gt;</p>
+<p> tcp_push_one -&gt; tp-&gt;ops-&gt;write_xmit-&gt; tcp_write_xmit -&gt; tcp_transmit_skb</p>
+<p> tcp_push -&gt; __tcp_push_pending_frames() -&gt; tcp_write_xmit -&gt; tcp_transmit_skb</p>
+<h5 id="tcp-sendmsg"><a href="#tcp-sendmsg" class="headerlink" title="tcp_sendmsg"></a>tcp_sendmsg</h5><p>该函数是将待发送的数据组织成一个个的skb，而且将这些skb按照前后顺序放入到发送队列sk_write_queue中。而且该函数也会尝试调用tcp_push()（以及其它两个接口）进行一次新数据发送。</p>
+<h5 id="tp-gt-ops-gt-write-xmit"><a href="#tp-gt-ops-gt-write-xmit" class="headerlink" title="tp-&gt;ops-&gt;write_xmit"></a>tp-&gt;ops-&gt;write_xmit</h5><p>该注册回调是mptcp为了实现subflow操作实现加入的</p>
+<h5 id="tcp-write-xmit"><a href="#tcp-write-xmit" class="headerlink" title="tcp_write_xmit"></a>tcp_write_xmit</h5><p>该函数是TCP发送新数据的核心函数，包括发送窗口判断、拥塞控制判断等核心操做都是在该函数中完成。</p>
+<h5 id="tcp-transmit-skb"><a href="#tcp-transmit-skb" class="headerlink" title="tcp_transmit_skb"></a>tcp_transmit_skb</h5><p>该函数为传入的skb构造TCP首部，而后调用IP层的输出接口完成数据发送。</p>
+<p><img src="/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88TCP%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/tcp_send.png" srcset="/img/loading.gif" lazyload alt="Linux协议栈实现分析图_页面_3"></p>
+<p><img src="/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88TCP%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/tcp_rcv.png" srcset="/img/loading.gif" lazyload alt="Linux协议栈实现分析图_页面_3"></p>
+<h4 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h4><p>内核ip层收到报文到tcp</p>
+<p>tcp_v4_rcv (报文校验)</p>
+<p>|</p>
+<p>V</p>
+<p>tcp_v4_do_rcv</p>
+<p>{</p>
+<p>​	&#x2F;&#x2F;当状态是ESTABLISHED时接收数据报文</p>
+<p>​	if (sk-&gt;sk_state &#x3D;&#x3D; TCP_ESTABLISHED) { &#x2F;* Fast path *&#x2F;</p>
+<p>​	{</p>
+<p>​		tcp_rcv_established(sk, skb);</p>
+<p>​	}</p>
+<p>​	&#x2F;&#x2F;当状态不是ESTABLISHED时 进行tcp协议例如3次握手</p>
+<p>​	tcp_rcv_state_process(sk, skb) </p>
+<p>|</p>
+<p>tcp_ipv4.c</p>
+<p>int tcp_v4_conn_request(struct sock *sk, struct sk_buff *skb)</p>
+<h4 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h4><p>int tcp_v4_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len)</p>
+<p>{	</p>
+<p>​	rt &#x3D; ip_route_connect(); &#x2F;&#x2F;查找路由</p>
+<p>​	err &#x3D; tcp_connect(sk);   &#x2F;&#x2F;发送syn 并创建定时器</p>
+<p>}</p>
+<p>内核收到报文复制到用户态</p>
+<p>int tcp_recvmsg(struct sock *sk, struct msghdr *msg, size_t len, int nonblock,int flags, int *addr_len)</p>
+<h4 id="TCP重传"><a href="#TCP重传" class="headerlink" title="TCP重传"></a>TCP重传</h4><p>tcp_init_sock -&gt; tcp_init_xmit_timers  注册了tcp_retransmit_timer</p>
+<p>tcp_retransmit_timer 定时</p>
+<p>报文重传的次数</p>
+<p>TCP报文重传的次数也根据系统设置的不同而有区分，有些系统，一个报文只会被重传3次，如果重传三次后还未收到该报文的确认，那么就不再尝试重传，直接reset重置该TCP连接，但有些要求很高的业务应用系统，则会不断的重传被丢弃的报文，以尽最大可能保证业务数据的正常交互。</p>
+<p>TCP数据发送之发送新数</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/fanxiaoyu321/article/details/85460896">https://blog.csdn.net/fanxiaoyu321/article/details/85460896</a></p>
+<p>Linux中TCP流程详解</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_40276626/article/details/120569084">https://blog.csdn.net/qq_40276626/article/details/120569084</a></p>
+<p>linux tcp 优化案例详解</p>
+<p><a target="_blank" rel="noopener" href="https://wenku.baidu.com/view/f587d2e90975f46527d3e11d.html">https://wenku.baidu.com/view/f587d2e90975f46527d3e11d.html</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/NETWORK/" class="category-chain-item">NETWORK</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>linux协议栈TCP代码流程</div>
+      <div>http://blog.uanet.cn/NETWORK/linux协议栈TCP代码流程.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88RDS%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B.html" title="linux协议栈RDS代码流程">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">linux协议栈RDS代码流程</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/NETWORK/http/http%E8%A7%A3%E6%9E%90%E5%BA%93.html" title="http解析库">
+                        <span class="hidden-mobile">http解析库</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

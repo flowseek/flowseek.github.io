@@ -1,0 +1,861 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="算法框图">
+<meta property="og:type" content="article">
+<meta property="og:title" content="zynq7000版yolov4_tiny代码框架">
+<meta property="og:url" content="http://blog.uanet.cn/AI/zynq7000%E7%89%88yolov4_tiny%E4%BB%A3%E7%A0%81%E6%A1%86%E6%9E%B6.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="算法框图">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/AI/zynq7000%E7%89%88yolov4_tiny%E4%BB%A3%E7%A0%81%E6%A1%86%E6%9E%B6/202007061438066851.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/zynq7000%E7%89%88yolov4_tiny%E4%BB%A3%E7%A0%81%E6%A1%86%E6%9E%B6/fpls-14-1150958-g001.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/zynq7000%E7%89%88yolov4_tiny%E4%BB%A3%E7%A0%81%E6%A1%86%E6%9E%B6/yolov4tinylable.drawio.svg">
+<meta property="article:published_time" content="2025-02-13T05:53:20.492Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.492Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/AI/zynq7000%E7%89%88yolov4_tiny%E4%BB%A3%E7%A0%81%E6%A1%86%E6%9E%B6/202007061438066851.jpg">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>zynq7000版yolov4_tiny代码框架 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="zynq7000版yolov4_tiny代码框架"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          12 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">zynq7000版yolov4_tiny代码框架</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="算法框图"><a href="#算法框图" class="headerlink" title="算法框图"></a>算法框图</h4><p><img src="/AI/zynq7000%E7%89%88yolov4_tiny%E4%BB%A3%E7%A0%81%E6%A1%86%E6%9E%B6/202007061438066851.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="/AI/zynq7000%E7%89%88yolov4_tiny%E4%BB%A3%E7%A0%81%E6%A1%86%E6%9E%B6/fpls-14-1150958-g001.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="/AI/zynq7000%E7%89%88yolov4_tiny%E4%BB%A3%E7%A0%81%E6%A1%86%E6%9E%B6/yolov4tinylable.drawio.svg" srcset="/img/loading.gif" lazyload alt="yolov4tinylable.drawio"></p>
+<p>​	YOLOv4-tiny结构是YOLOv4的精简版，属于轻量化模型，参数只有600万相当于原来的十分之一，这使得检测速度提升很大。整体网络结构共有38层，使用了三个残差单元，激活函数使用了LeakyReLU，目标的分类与回归改为使用两个特征层，合并有效特征层时使用了特征金字塔(FPN)网络。其同样使用了CSPnet结构，并对特征提取网络进行通道分割，将经过3x3卷积后输出的特征层通道划分为两部分，并取第二部分。在COCO数据集上得到了40.2%的AP50、371FPS，相较于其他版本的轻量化模型性能优势显著。</p>
+<p>​	CNN卷积层的基本组成单元标配：Conv + BN +ReLU 三剑客，可以将BN层的运算融合到Conv层中，把三层减少为一层减少运算量，加速推理。本质上是修改了卷积核的参数，在不增加Conv层计算量的同时，适用于模型推理。</p>
+<p>​	BN（批归一化）层常用于在卷积层之后，对feature maps进行归一化，从而加速网络学习，也具有一定的正则化效果。训练时，BN需要学习一个minibatch数据的均值、方差，然后利用这些信息进行归一化。而在推理过程，通常为了加速，都会把BN融入到其上层卷积中，这样就将两步运算变成了一步，也就达到了加速目的。</p>
+<h4 id="CPU无加速版本"><a href="#CPU无加速版本" class="headerlink" title="CPU无加速版本"></a>CPU无加速版本</h4><p>tools\predictor\yolo4-tiny</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Yolo4_Tiny</span>&#123;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">forward</span><span class="hljs-params">(<span class="hljs-type">float</span>* in,<span class="hljs-type">float</span>* out0,<span class="hljs-type">float</span>* out1)</span></span>&#123;<br>        <span class="hljs-type">float</span>* feat1=<span class="hljs-keyword">new</span> <span class="hljs-type">float</span>[<span class="hljs-number">256</span>*<span class="hljs-number">26</span>*<span class="hljs-number">26</span>];<br>        <span class="hljs-type">float</span>* feat2=<span class="hljs-keyword">new</span> <span class="hljs-type">float</span>[<span class="hljs-number">512</span>*<span class="hljs-number">13</span>*<span class="hljs-number">13</span>];<br>        <span class="hljs-type">float</span>* P5=<span class="hljs-keyword">new</span> <span class="hljs-type">float</span>[<span class="hljs-number">256</span>*<span class="hljs-number">13</span>*<span class="hljs-number">13</span>];<br>        <span class="hljs-type">float</span>* out0_tmp=<span class="hljs-keyword">new</span> <span class="hljs-type">float</span>[<span class="hljs-number">512</span>*<span class="hljs-number">13</span>*<span class="hljs-number">13</span>];<br>        <span class="hljs-type">float</span>* P5_Upsample=<span class="hljs-keyword">new</span> <span class="hljs-type">float</span>[<span class="hljs-number">128</span>*<span class="hljs-number">13</span>*<span class="hljs-number">13</span>];<br>        <span class="hljs-type">float</span>* P4=<span class="hljs-keyword">new</span> <span class="hljs-type">float</span>[<span class="hljs-number">384</span>*<span class="hljs-number">26</span>*<span class="hljs-number">26</span>];<br>        <span class="hljs-type">float</span>* out1_tmp=<span class="hljs-keyword">new</span> <span class="hljs-type">float</span>[<span class="hljs-number">256</span>*<span class="hljs-number">26</span>*<span class="hljs-number">26</span>];<br>        <span class="hljs-comment">//compute</span><br>        <span class="hljs-keyword">this</span>-&gt;backbone-&gt;forward(in,P4<span class="hljs-number">+128</span>*<span class="hljs-number">26</span>*<span class="hljs-number">26</span>,feat2);  <span class="hljs-comment">//相当于concat,P4=concat(Upsample_out,feat1)</span><br>        <span class="hljs-comment">//conv_forP5</span><br>        <span class="hljs-keyword">this</span>-&gt;conv_forP5_conv-&gt;forward(feat2,P5);<br>        <span class="hljs-comment">//out0</span><br>        <span class="hljs-keyword">this</span>-&gt;yolo_headP5_basic_conv1-&gt;forward(P5,out0_tmp);<br>        <span class="hljs-built_in">conv</span>(<span class="hljs-number">512</span>,<span class="hljs-keyword">this</span>-&gt;out_ch,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">13</span>,<span class="hljs-number">13</span>,out0_tmp,<span class="hljs-keyword">this</span>-&gt;yolo_headP5_w2,<span class="hljs-keyword">this</span>-&gt;yolo_headP5_b2,out0);<br>        <span class="hljs-comment">//upsample</span><br>        <span class="hljs-keyword">this</span>-&gt;upsample_conv-&gt;forward(P5,P5_Upsample);<br>        <span class="hljs-built_in">upsample</span>(P5_Upsample,P4,<span class="hljs-number">13</span>,<span class="hljs-number">13</span>,<span class="hljs-number">128</span>);<br>        <span class="hljs-comment">//out1</span><br>        <span class="hljs-keyword">this</span>-&gt;yolo_headP4_basic_conv1-&gt;forward(P4,out1_tmp);<br>        <span class="hljs-built_in">conv</span>(<span class="hljs-number">256</span>,<span class="hljs-keyword">this</span>-&gt;out_ch,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">26</span>,<span class="hljs-number">26</span>,out1_tmp,<span class="hljs-keyword">this</span>-&gt;yolo_headP4_w2,<span class="hljs-keyword">this</span>-&gt;yolo_headP4_b2,out1);<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="ZYNQ加速版本"><a href="#ZYNQ加速版本" class="headerlink" title="ZYNQ加速版本"></a>ZYNQ加速版本</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs cpp">CSPDarkNet* backbone;<br>BasicConv* conv_forP5_conv;<br>BasicConv* yolo_headP4_basic_conv1;<br>BasicConv* upsample_conv;<br><br>Yolo4_Tiny-forward()<br>&#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">data_t</span> feat1[<span class="hljs-number">256</span>*<span class="hljs-number">26</span>*<span class="hljs-number">26</span>];<br>	<span class="hljs-type">static</span> <span class="hljs-type">data_t</span> feat2[<span class="hljs-number">512</span>*<span class="hljs-number">13</span>*<span class="hljs-number">13</span>];<br>    <span class="hljs-type">static</span> <span class="hljs-type">data_t</span> P5[<span class="hljs-number">256</span>*<span class="hljs-number">13</span>*<span class="hljs-number">13</span>];<br>	<span class="hljs-type">static</span> <span class="hljs-type">data_t</span> out0_tmp[<span class="hljs-number">512</span>*<span class="hljs-number">13</span>*<span class="hljs-number">13</span>];<br>	<span class="hljs-type">static</span> <span class="hljs-type">data_t</span> P5_Upsample[<span class="hljs-number">128</span>*<span class="hljs-number">13</span>*<span class="hljs-number">13</span>];<br>	<span class="hljs-type">static</span> <span class="hljs-type">data_t</span> P4[<span class="hljs-number">384</span>*<span class="hljs-number">26</span>*<span class="hljs-number">26</span>];<br>	<span class="hljs-type">static</span> <span class="hljs-type">data_t</span> out1_tmp[<span class="hljs-number">256</span>*<span class="hljs-number">26</span>*<span class="hljs-number">26</span>];<br><br>	<span class="hljs-comment">//相当于concat,P4=concat(Upsample_out,feat1)</span><br>	<span class="hljs-keyword">this</span>-&gt;backbone-&gt;forward(in,P4<span class="hljs-number">+128</span>*<span class="hljs-number">26</span>*<span class="hljs-number">26</span>,feat2); <br>    <br>    <span class="hljs-comment">//conv_forP5</span><br>	<span class="hljs-keyword">this</span>-&gt;conv_forP5_conv-&gt;forward(feat2,P5);<br>    <span class="hljs-comment">//out0</span><br>    <span class="hljs-keyword">this</span>-&gt;yolo_headP5_basic_conv1-&gt;forward(P5,out0_tmp);<br>    <span class="hljs-built_in">conv_leakyrelu</span>(<span class="hljs-number">512</span>,OUT_CH,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">13</span>,<span class="hljs-number">13</span>,out0_tmp,<span class="hljs-keyword">this</span>-&gt;yolo_headP5_w2,<span class="hljs-keyword">this</span>-&gt;yolo_headP5_b2,out0,<span class="hljs-number">0</span>);<br>    <br>    <span class="hljs-comment">//conv_forP4</span><br>    <span class="hljs-comment">//upsample_conv</span><br>    <span class="hljs-keyword">this</span>-&gt;upsample_conv-&gt;forward(P5,P5_Upsample);<br>    <span class="hljs-comment">//upsample</span><br>    <span class="hljs-built_in">sampling</span>(P5_Upsample,P4,<span class="hljs-number">128</span>,<span class="hljs-number">13</span>,<span class="hljs-number">0</span>);<br>    <span class="hljs-comment">//out1</span><br>    <span class="hljs-keyword">this</span>-&gt;yolo_headP4_basic_conv1-&gt;forward(P4,out1_tmp);<br>    <span class="hljs-built_in">conv_leakyrelu</span>(<span class="hljs-number">256</span>,OUT_CH,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">26</span>,<span class="hljs-number">26</span>,out1_tmp,<span class="hljs-keyword">this</span>-&gt;yolo_headP4_w2,<span class="hljs-keyword">this</span>-&gt;yolo_headP4_b2,out1,<span class="hljs-number">0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="backbone"><a href="#backbone" class="headerlink" title="backbone"></a>backbone</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs cpp">CSPDarkNet-&gt;forward()<br>&#123;<br>	BasicConclass CSPDarkNet&#123;<br><span class="hljs-keyword">public</span>:<br>    BasicConv* basic_conv1;<br>    BasicConv* basic_conv2;<br>    BasicConv* basic_conv3;<br>    Resblock_body* resblock1;<br>    Resblock_body* resblock2;<br>    Resblock_body* resblock3;<br>    <span class="hljs-built_in">CSPDarkNet</span>()&#123;<br>        <span class="hljs-keyword">this</span>-&gt;basic_conv1=<span class="hljs-keyword">new</span> <span class="hljs-built_in">BasicConv</span>(<span class="hljs-number">416</span>,<span class="hljs-number">416</span>,<span class="hljs-number">3</span>,<span class="hljs-number">2</span>,<span class="hljs-number">1</span>,<span class="hljs-number">3</span>,<span class="hljs-number">32</span>);<br>        <span class="hljs-keyword">this</span>-&gt;basic_conv2=<span class="hljs-keyword">new</span> <span class="hljs-built_in">BasicConv</span>(<span class="hljs-number">208</span>,<span class="hljs-number">208</span>,<span class="hljs-number">3</span>,<span class="hljs-number">2</span>,<span class="hljs-number">1</span>,<span class="hljs-number">32</span>,<span class="hljs-number">64</span>);<br>        <span class="hljs-keyword">this</span>-&gt;basic_conv3=<span class="hljs-keyword">new</span> <span class="hljs-built_in">BasicConv</span>(<span class="hljs-number">13</span>,<span class="hljs-number">13</span>,<span class="hljs-number">3</span>,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">512</span>,<span class="hljs-number">512</span>);<br>        <span class="hljs-keyword">this</span>-&gt;resblock1=<span class="hljs-keyword">new</span> <span class="hljs-built_in">Resblock_body</span>(<span class="hljs-number">104</span>,<span class="hljs-number">104</span>,<span class="hljs-number">64</span>,<span class="hljs-number">64</span>);<br>        <span class="hljs-keyword">this</span>-&gt;resblock2=<span class="hljs-keyword">new</span> <span class="hljs-built_in">Resblock_body</span>(<span class="hljs-number">52</span>,<span class="hljs-number">52</span>,<span class="hljs-number">128</span>,<span class="hljs-number">128</span>);<br>        <span class="hljs-keyword">this</span>-&gt;resblock3=<span class="hljs-keyword">new</span> <span class="hljs-built_in">Resblock_body</span>(<span class="hljs-number">26</span>,<span class="hljs-number">26</span>,<span class="hljs-number">256</span>,<span class="hljs-number">256</span>);<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">load_weight</span><span class="hljs-params">(string dir)</span></span>&#123;<br>        <span class="hljs-keyword">this</span>-&gt;basic_conv1-&gt;<span class="hljs-built_in">load_weight</span>(dir+<span class="hljs-string">&quot;\\BasicConv1&quot;</span>);<br>        <span class="hljs-keyword">this</span>-&gt;basic_conv2-&gt;<span class="hljs-built_in">load_weight</span>(dir+<span class="hljs-string">&quot;\\BasicConv2&quot;</span>);<br>        <span class="hljs-keyword">this</span>-&gt;basic_conv3-&gt;<span class="hljs-built_in">load_weight</span>(dir+<span class="hljs-string">&quot;\\BasicConv3&quot;</span>);<br>        <span class="hljs-keyword">this</span>-&gt;resblock1-&gt;<span class="hljs-built_in">load_weight</span>(dir+<span class="hljs-string">&quot;\\ResBlock1&quot;</span>);<br>        <span class="hljs-keyword">this</span>-&gt;resblock2-&gt;<span class="hljs-built_in">load_weight</span>(dir+<span class="hljs-string">&quot;\\ResBlock2&quot;</span>);<br>        <span class="hljs-keyword">this</span>-&gt;resblock3-&gt;<span class="hljs-built_in">load_weight</span>(dir+<span class="hljs-string">&quot;\\ResBlock3&quot;</span>);<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">forward</span><span class="hljs-params">(<span class="hljs-type">data_t</span>* in,<span class="hljs-type">data_t</span>* feat1,<span class="hljs-type">data_t</span>* feat2)</span></span>&#123;<br>    	<span class="hljs-type">static</span> <span class="hljs-type">data_t</span> basic_conv1_out[<span class="hljs-number">32</span>*<span class="hljs-number">208</span>*<span class="hljs-number">208</span>];<br>		<span class="hljs-type">static</span> <span class="hljs-type">data_t</span> basic_conv2_out[<span class="hljs-number">64</span>*<span class="hljs-number">104</span>*<span class="hljs-number">104</span>];<br>		<span class="hljs-type">static</span> <span class="hljs-type">data_t</span> resblock1_out[<span class="hljs-number">128</span>*<span class="hljs-number">52</span>*<span class="hljs-number">52</span>];<br>		<span class="hljs-type">static</span> <span class="hljs-type">data_t</span> resblock2_out[<span class="hljs-number">256</span>*<span class="hljs-number">26</span>*<span class="hljs-number">26</span>];<br>		<span class="hljs-type">static</span> <span class="hljs-type">data_t</span> resblock3_out[<span class="hljs-number">512</span>*<span class="hljs-number">13</span>*<span class="hljs-number">13</span>];<br>		<span class="hljs-type">static</span> <span class="hljs-type">data_t</span> tmp[<span class="hljs-number">64</span>*<span class="hljs-number">104</span>*<span class="hljs-number">104</span>];<br>        <span class="hljs-comment">//forward</span><br>        <span class="hljs-keyword">this</span>-&gt;basic_conv1-&gt;forward(in,basic_conv1_out);<br>        <span class="hljs-comment">//cout&lt;&lt;&quot;basic conv1 end\n&quot;;</span><br>        <span class="hljs-keyword">this</span>-&gt;basic_conv2-&gt;forward(basic_conv1_out,basic_conv2_out);<br>        <span class="hljs-comment">//cout&lt;&lt;&quot;basic conv2 end\n&quot;;</span><br>        <span class="hljs-keyword">this</span>-&gt;resblock1-&gt;forward(basic_conv2_out,tmp,resblock1_out);<br>        <span class="hljs-comment">//cout&lt;&lt;&quot;resblock1 end\n&quot;;</span><br>        <span class="hljs-keyword">this</span>-&gt;resblock2-&gt;forward(resblock1_out,tmp,resblock2_out);<br>        <span class="hljs-comment">//cout&lt;&lt;&quot;resblock2 end\n&quot;;</span><br>        <span class="hljs-keyword">this</span>-&gt;resblock3-&gt;forward(resblock2_out,feat1,resblock3_out);<br>        <span class="hljs-comment">//cout&lt;&lt;&quot;resblock3 end\n&quot;;</span><br>        <span class="hljs-keyword">this</span>-&gt;basic_conv3-&gt;forward(resblock3_out,feat2);<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<h4 id="forP5和forP4"><a href="#forP5和forP4" class="headerlink" title="forP5和forP4"></a>forP5和forP4</h4><p>backbone、forP5、forP4都是由基本的Basicconv实现，其中conv_leakyrelu()为zynq7000硬件加速</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">BasicConv</span>&#123;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">forward</span><span class="hljs-params">(<span class="hljs-type">data_t</span>* in,<span class="hljs-type">data_t</span>* out)</span></span>&#123; <span class="hljs-comment">//folded_conv+leakyrelu</span><br>        <span class="hljs-built_in">conv_leakyrelu</span>(<span class="hljs-keyword">this</span>-&gt;ch_in,<span class="hljs-keyword">this</span>-&gt;ch_out,<span class="hljs-keyword">this</span>-&gt;p,<span class="hljs-keyword">this</span>-&gt;s,<span class="hljs-keyword">this</span>-&gt;k,<span class="hljs-keyword">this</span>-&gt;h,<span class="hljs-keyword">this</span>-&gt;w,in,<span class="hljs-keyword">this</span>-&gt;weight,<span class="hljs-keyword">this</span>-&gt;bias,out,<span class="hljs-number">1</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="SDK-conv-leakyrelu"><a href="#SDK-conv-leakyrelu" class="headerlink" title="SDK:conv_leakyrelu"></a>SDK:conv_leakyrelu</h4><p>SDK\src &gt;  basic_op.cpp</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">conv_leakyrelu</span><span class="hljs-params">(<span class="hljs-type">int</span> ch_in,<span class="hljs-type">int</span> ch_out,<span class="hljs-type">int</span> pad,<span class="hljs-type">int</span> stride,<span class="hljs-type">int</span> k,<span class="hljs-type">int</span> h,<span class="hljs-type">int</span> w,<span class="hljs-type">data_t</span>* in,<span class="hljs-type">data_t</span> *weight,<span class="hljs-type">data_t</span> *bias,<span class="hljs-type">data_t</span> *out,<span class="hljs-type">int</span> act)</span></span>&#123;<br>	<span class="hljs-comment">//Xil_DCacheFlushRange((u32)in,sizeof(data_t)*ch_in*h*w);</span><br>	<span class="hljs-built_in">XConv_Set_in1_V</span>(&amp;conv_inst, (u32)in);<br>	<span class="hljs-built_in">XConv_Set_in2_V</span>(&amp;conv_inst, (u32)in);<br>	<span class="hljs-built_in">XConv_Set_in3_V</span>(&amp;conv_inst, (u32)in);<br>	<span class="hljs-built_in">XConv_Set_in4_V</span>(&amp;conv_inst, (u32)in);<br><br>	<span class="hljs-built_in">XConv_Set_w1_V</span>(&amp;conv_inst, (u32)weight);<br>	<span class="hljs-built_in">XConv_Set_w2_V</span>(&amp;conv_inst, (u32)weight);<br>	<span class="hljs-built_in">XConv_Set_w3_V</span>(&amp;conv_inst, (u32)weight);<br>	<span class="hljs-built_in">XConv_Set_w4_V</span>(&amp;conv_inst, (u32)weight);<br><br>	<span class="hljs-built_in">XConv_Set_b_V</span>(&amp;conv_inst, (u32)bias);<br>	<span class="hljs-built_in">XConv_Set_out1_V</span>(&amp;conv_inst, (u32)out);<br>	<span class="hljs-built_in">XConv_Set_out2_V</span>(&amp;conv_inst, (u32)out);<br>	<span class="hljs-built_in">XConv_Set_out3_V</span>(&amp;conv_inst, (u32)out);<br>	<span class="hljs-built_in">XConv_Set_out4_V</span>(&amp;conv_inst, (u32)out);<br><br>	<span class="hljs-built_in">XConv_Set_ch_in</span>(&amp;conv_inst,ch_in);<br>	<span class="hljs-built_in">XConv_Set_ch_out</span>(&amp;conv_inst,ch_out);<br>	<span class="hljs-built_in">XConv_Set_fsize</span>(&amp;conv_inst,h);<br>	<span class="hljs-built_in">XConv_Set_stride</span>(&amp;conv_inst,stride);<br>	<span class="hljs-built_in">XConv_Set_kernel</span>(&amp;conv_inst,k);<br>	<span class="hljs-built_in">XConv_Set_act</span>(&amp;conv_inst,act);<br>	<span class="hljs-comment">//</span><br>	<span class="hljs-built_in">XConv_Start</span>(&amp;conv_inst);<br>	<span class="hljs-keyword">while</span>(<span class="hljs-built_in">XConv_IsDone</span>(&amp;conv_inst)==<span class="hljs-number">0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="HLS-conv-leakyrelu"><a href="#HLS-conv-leakyrelu" class="headerlink" title="HLS:conv_leakyrelu"></a>HLS:conv_leakyrelu</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">conv</span><span class="hljs-params">(<span class="hljs-type">data_t</span>* in1,<span class="hljs-type">data_t</span>* in2,<span class="hljs-type">data_t</span>* in3,<span class="hljs-type">data_t</span>* in4,<span class="hljs-type">data_t</span>* w1,<span class="hljs-type">data_t</span>* w2,<span class="hljs-type">data_t</span>* w3,</span></span><br><span class="hljs-params"><span class="hljs-function"><span class="hljs-type">data_t</span>* w4,<span class="hljs-type">data_t</span>* b,<span class="hljs-type">data_t</span>* out1,<span class="hljs-type">data_t</span>* out2,<span class="hljs-type">data_t</span>* out3,<span class="hljs-type">data_t</span>* out4,</span></span><br><span class="hljs-params"><span class="hljs-function"><span class="hljs-type">int</span> ch_in,<span class="hljs-type">int</span> ch_out,<span class="hljs-type">int</span> fsize,<span class="hljs-type">int</span> stride,<span class="hljs-type">int</span> kernel,<span class="hljs-type">int</span> act)</span></span>&#123;<br><span class="hljs-comment">//PRAGMA</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE s_axilite port=return bundle=CTRL</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE s_axilite port=fsize bundle=CTRL</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE s_axilite port=ch_out bundle=CTRL</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE s_axilite port=act bundle=CTRL</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE s_axilite port=stride bundle=CTRL</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE s_axilite port=ch_in bundle=CTRL</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE s_axilite port=kernel bundle=CTRL</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE m_axi depth=60000 port=in1 offset=slave bundle=FM1 max_read_burst_length=256 max_write_burst_length=256</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE m_axi depth=60000 port=in2 offset=slave bundle=FM2 max_read_burst_length=256 max_write_burst_length=256</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE m_axi depth=60000 port=in3 offset=slave bundle=FM3 max_read_burst_length=256 max_write_burst_length=256</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE m_axi depth=60000 port=in4 offset=slave bundle=FM4 max_read_burst_length=256 max_write_burst_length=256</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE m_axi depth=65536 port=w1 offset=slave bundle=W1 max_read_burst_length=256</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE m_axi depth=65536 port=w2 offset=slave bundle=W2 max_read_burst_length=256</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE m_axi depth=65536 port=w3 offset=slave bundle=W3 max_read_burst_length=256</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE m_axi depth=65536 port=w4 offset=slave bundle=W4 max_read_burst_length=256</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE m_axi depth=128 port=b offset=slave bundle=W1 max_read_burst_length=256</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE m_axi port=out1 offset=slave bundle=FM1</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE m_axi port=out2 offset=slave bundle=FM2</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE m_axi port=out3 offset=slave bundle=FM3</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> HLS INTERFACE m_axi port=out4 offset=slave bundle=FM4</span><br><span class="hljs-comment">//content</span><br>	<span class="hljs-keyword">if</span>(kernel==<span class="hljs-number">3</span>)&#123;<br>		<span class="hljs-comment">//WinogradConv(in1,in2,in3,in4,w1,w2,w3,w4,b,out1,out2,ch_out,ch_in,fsize,stride,act);</span><br>		<span class="hljs-built_in">std_conv</span>(in1,in2,in3,in4,w1,w2,w3,w4,b,out1,out2,out3,out4,ch_in,ch_out,fsize,stride,act);<br>	&#125;<br>	<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(kernel==<span class="hljs-number">1</span>)&#123;<br>		<span class="hljs-built_in">pwconv</span>(in1,in2,in3,in4,w1,b,out1,ch_in,ch_out,fsize,act);<br>	&#125;<br>	<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(kernel==<span class="hljs-number">2</span>)&#123;     <span class="hljs-comment">//kernel==2 maxpool; kernel==0 upsample</span><br>		<span class="hljs-built_in">maxpool</span>(in1,out1,ch_in,fsize,fsize);<br>	&#125;<br>	<span class="hljs-keyword">else</span>&#123;<br>		<span class="hljs-built_in">upsample</span>(in1,out1);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>zynq7000版yolov4_tiny代码框架</div>
+      <div>http://blog.uanet.cn/AI/zynq7000版yolov4_tiny代码框架.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C.html" title="人工智能（一）机器学习和神经网络">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">人工智能（一）机器学习和神经网络</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85.html" title="tenserflow环境安装">
+                        <span class="hidden-mobile">tenserflow环境安装</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

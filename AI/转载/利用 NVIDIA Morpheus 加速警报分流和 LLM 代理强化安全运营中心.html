@@ -1,0 +1,902 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="By Jee-weon Jung and Huck Yang ![img](利用 NVIDIA Morpheus 加速警报分流和 LLM 代理强化安全运营中心&#x2F;cybersecurity-digital-fingerprint-human-featured.png) 安全运营中心（SOC）分析师每天都会收到大量传入的安全警报。为了确保其组织的持续安全，他们的任务是仔细检查传入的噪音，分拣">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用 NVIDIA Morpheus 加速警报分流和 LLM 代理强化安全运营中心">
+<meta property="og:url" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%88%A9%E7%94%A8%20NVIDIA%20Morpheus%20%E5%8A%A0%E9%80%9F%E8%AD%A6%E6%8A%A5%E5%88%86%E6%B5%81%E5%92%8C%20LLM%20%E4%BB%A3%E7%90%86%E5%BC%BA%E5%8C%96%E5%AE%89%E5%85%A8%E8%BF%90%E8%90%A5%E4%B8%AD%E5%BF%83.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="By Jee-weon Jung and Huck Yang ![img](利用 NVIDIA Morpheus 加速警报分流和 LLM 代理强化安全运营中心&#x2F;cybersecurity-digital-fingerprint-human-featured.png) 安全运营中心（SOC）分析师每天都会收到大量传入的安全警报。为了确保其组织的持续安全，他们的任务是仔细检查传入的噪音，分拣">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-25T05:59:24.530Z">
+<meta property="article:modified_time" content="2025-02-25T05:59:24.530Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>利用 NVIDIA Morpheus 加速警报分流和 LLM 代理强化安全运营中心 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="利用 NVIDIA Morpheus 加速警报分流和 LLM 代理强化安全运营中心"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-25 13:59" pubdate>
+          2025年2月25日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          19 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">利用 NVIDIA Morpheus 加速警报分流和 LLM 代理强化安全运营中心</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>By <a target="_blank" rel="noopener" href="https://developer.nvidia.com/zh-cn/blog/author/jee-weon-jung/">Jee-weon Jung</a> and <a target="_blank" rel="noopener" href="https://developer.nvidia.com/zh-cn/blog/author/huck-yang/">Huck Yang</a></p>
+<p>![img](利用 NVIDIA Morpheus 加速警报分流和 LLM 代理强化安全运营中心&#x2F;cybersecurity-digital-fingerprint-human-featured.png)</p>
+<p>安全运营中心（SOC）分析师每天都会收到大量传入的安全警报。为了确保其组织的持续安全，他们的任务是仔细检查传入的噪音，分拣出误报，并找出可能是真正安全漏洞的指标。然而，警报的数量之多可能意味着泄露的重要早期指标被隐藏起来。更不用说流程本身，该流程通常是重复性的、耗时的且成本高昂。</p>
+<p>我们能否构建工作流程来缓解这些问题，同时仍然保持良好的甚至更好的安全级别？</p>
+<p>首先，我们研究了 <a target="_blank" rel="noopener" href="https://www.nvidia.cn/ai-data-science/products/morpheus/">NVIDIA Morpheus </a>，这是一种 GPU 加速的网络安全 AI 框架，用于处理和分析高速数据流。特别是，我们关注 <a target="_blank" rel="noopener" href="https://www.nvidia.cn/ai-data-science/ai-workflows/digital-fingerprinting/">数字指纹 </a>AI 工作流，该工作流支持在网络上进行大规模异常检测。</p>
+<p>数字指纹工作流可以学习任何给定实体的正常行为特征，并将其表示为自动编码器模型。当行为出现偏差时（例如，如果用户显示几个新的地理位置），系统会生成与异常程度对应的 z 分数。</p>
+<h2 id="将生成式-AI-与-NVIDIA-NIM-集成，以增强安全运营"><a href="#将生成式-AI-与-NVIDIA-NIM-集成，以增强安全运营" class="headerlink" title="将生成式 AI 与 NVIDIA NIM 集成，以增强安全运营"></a>将生成式 AI 与 NVIDIA NIM 集成，以增强安全运营</h2><p>传统上，数字指纹等基于 AI 的网络异常检测管道的输出是表格数据结构，其中包含异常分数和有关安全事件异常部分的其他元数据。</p>
+<p>虽然此 Feed 信息量很大，但解释可能很耗时。在本文中，我们将介绍如何使用生成式 AI 增强数字指纹工作流，以演示如何将这些输出转换为易于解释和交互的可行见解。</p>
+<p>使用默认的 Llama 3.1 模型，我们将这些分散的见解合成为可读的报告，并为每个用户生成一份报告。这个合成过程的目标是捕获、分组和放置那些本来会被归类为低优先级、无法手动查看的警报。自动化这个分诊工作还可以减少响应警报的总时间。</p>
+<p>在完成生成和预处理警报后，您可以使用用户摘要报告通知安全 Co – Pilot。Co – Pilot 会接收来自人类 SOC 分析师的口头查询，并产生口头响应。</p>
+<p>Co – Pilot 流程的步骤如下：</p>
+<ul>
+<li>将查询转录为文本。</li>
+<li>部署 LLM 代理，并授予此代理访问用户摘要报告的权限。您还授予人类 SOC 分析师通常使用的数据库和工具(包括用户目录和网络流量数据库)的读取权限。</li>
+<li>智能体通过检索增强生成（RAG）执行迭代推理。</li>
+<li>LLM 代理的最终响应转换回音频。</li>
+<li>音频指示虚拟形象的面部动画。</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://developer.nvidia.cn/nim">NVIDIA NIM </a><em>微服务</em> (强调易于部署的容器化独立模型) 是此代理流程的核心。</p>
+<p>对于语音服务：</p>
+<ul>
+<li>用于自动语音识别（ASR）的 <a target="_blank" rel="noopener" href="https://build.nvidia.com/nvidia/parakeet-ctc-1_1b-asr">Parakeet-CTC-1.1B </a>NIM 微服务，可将语音查询转录为文本。</li>
+<li>用于 NVIDIA Riva 文本转语音（TTS）的 <a target="_blank" rel="noopener" href="https://build.nvidia.com/nvidia/fastpitch-hifigan-tts">FastPitch-HifiGAN </a>NIM 微服务，可将 LLM 响应转换回音频。</li>
+<li><a target="_blank" rel="noopener" href="https://build.nvidia.com/meta/llama-3_1-405b-instruct">Llama 3.1 </a>NIM 微服务为 LLM 智能体提供支持。</li>
+</ul>
+<p>对于 RAG 的嵌入和检索过程：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://build.nvidia.com/nvidia/embed-qa-4">用于嵌入的 embed-qa-4 模型 </a>的 NIM 微服务，来自 NVIDIA NeMo Retriever。</li>
+<li>用于重新排名的 <a target="_blank" rel="noopener" href="https://build.nvidia.com/nvidia/rerank-qa-mistral-4b">rerank-qa-mistral-4b 模型 </a>，也来自 NeMo Retriever。</li>
+<li><a target="_blank" rel="noopener" href="https://build.nvidia.com/nvidia/audio2face">NVIDIA Audio2Face NIM </a>对数字人脸网格进行动画处理，在本项目中，数字人脸是在 Unreal Engine 5.4 中渲染的默认 Metahuman 人脸。</li>
+</ul>
+<p>由于通用 API 标准，由自行托管的 NIM 微服务提供支持的推理调用可以轻松替换为托管在 <a target="_blank" rel="noopener" href="https://explore/discover">build.nvidia.com </a>上的基于云的端点，从而提供测试不同模型 API 端点的轻量级方法。</p>
+<p>![A diagram shows modules for data ingestion, processing, and output, with connections between components labeled.](利用 NVIDIA Morpheus 加速警报分流和 LLM 代理强化安全运营中心&#x2F;security-co-pilot-ref-architecture-1024x437.png)<em>图 1. 安全分析师 Co-pilot 完整参考架构</em></p>
+<p>集成此完整架构的结果是一个智能安全 Co-Pilot，用于简化 SOC 分析任务。接下来，我们将讨论一个完整的场景，展示此工作流程节省了多少时间和重复性工作量。</p>
+<h2 id="Co-pilot：开启"><a href="#Co-pilot：开启" class="headerlink" title="Co-pilot：开启"></a>Co-pilot：开启</h2><p>假设您是一名一级安全运营中心（SOC）分析师，遇到一个警报，声称端点用户 <a href="mailto:&#x6a;&#117;&#110;&#101;&#64;&#x64;&#x6f;&#109;&#97;&#x69;&#110;&#46;&#x63;&#x6f;&#x6d;">&#x6a;&#117;&#110;&#101;&#64;&#x64;&#x6f;&#109;&#97;&#x69;&#110;&#46;&#x63;&#x6f;&#x6d;</a> 显示的出站网络流量异常。</p>
+<p>首先，您检查内部网络流量数据库。您必须编写一些严格的查询语言规则来指定要搜索的参数，例如时间框架。</p>
+<p>在构建和运行查询时，您会看到一个重复出现的目标 URL。您将该 URL 输入到恶意软件检测工具（例如 <a target="_blank" rel="noopener" href="https://www.virustotal.com/gui/home/upload">VirusTotal </a>）。该 URL 历史上属于一个已知的恶意行为者，因此您可以得出结论，此警报为真阳性。</p>
+<p>如您所见，SOC 分析师是众多职业之一，需要处理大量仪表板和数据模式，从而导致可以从自动化中受益的重复性任务</p>
+<p>这一系列活动可以通过向 RAG Co-pilot 提出口头请求来完成：“您能为我提供有关用户 <a href="mailto:&#x6a;&#117;&#x6e;&#x65;&#64;&#100;&#111;&#x6d;&#97;&#x69;&#110;&#46;&#99;&#111;&#109;">&#x6a;&#117;&#x6e;&#x65;&#64;&#100;&#111;&#x6d;&#97;&#x69;&#110;&#46;&#99;&#111;&#109;</a> 是否受到攻击的更多见解吗？”</p>
+<p>由于 LLM 代理可以访问人类分析师可能拥有的所有内部和外部数据，因此它可以自行推理执行调查的最合理路径，然后收集此类调查所需的证据。</p>
+<p>在网络安全方面，由于网络威胁可能会产生巨大的影响，我们希望尽可能降低风险。LLM 不会合成任何结论，而是向人类分析师提供其认为相关的证据。然后，SOC 分析师可以给出最终结论，或进一步询问。要采取后续行动，您可能会问 LLM 代理：“您是否注意到其他用户显示了类似的妥协指标？”</p>
+<p>我们的最终目标是提高 SOC 分析师的工作效率，使您能够专注于检测和减轻更复杂和更具创意性的网络攻击。自然语言查询提供的自由意味着您不再需要构建严格的基于规则的搜索，也不再需要花费更多时间来解释细粒度的数值数据。</p>
+<p>同时，<a target="_blank" rel="noopener" href="https://build.nvidia.com/explore/speech"> NVIDIA Riva NIM </a>微服务支持的无键盘语音交互可加快每次交互的速度。</p>
+<p>Co-Pilot 的第二个目标是建立用户信任。与完全由事件驱动的自动执行链相比，最终用户可以控制并询问 LLM 的每个推理步骤。添加 <a target="_blank" rel="noopener" href="https://build.nvidia.com/nvidia/audio2face">NVIDIA ACE Audio2Face NIM 微服务 </a>可将交互转化为直观的对话式体验，并在面部表情中添加一层通信。</p>
+<p>作为展示可能艺术的例子，我们展示了用户如何与数字智能体进行来回讨论，就像团队一起解决问题一样（视频 1）。这样，我们就使用 AI 来改变安全运营中心。</p>
+<p><video src="https://images.nvidia.cn/cn/youtube-replicates/yrTpS3jF_rs.mp4" controls="controls" width="100%" height="auto" style="box-sizing: border-box; margin: 0px; padding: 0px; border: 0px; font: inherit; vertical-align: middle; width: 655px;"></video></p>
+<p><em>视频 1. NVIDIA Morpheus 安全警报分流 LLM 代理</em></p>
+<p>未来，我们希望能够更轻松地集成特定数据源，将当前的异步数据池转变为实时事件驱动提取，以处理真实世界中的数据量。</p>
+<p>通过与 NVIDIA 内部威胁运营团队合作，我们正在努力找出工具（例如此工作流）可以为用户带来最大好处和直观体验。</p>
+<h2 id="开始使用-NVIDIA-Morpheus"><a href="#开始使用-NVIDIA-Morpheus" class="headerlink" title="开始使用 NVIDIA Morpheus"></a>开始使用 NVIDIA Morpheus</h2><p>如本项目所示，<a target="_blank" rel="noopener" href="https://www.nvidia.cn/ai-data-science/ai-workflows/digital-fingerprinting/"> Morpheus 数字指纹识别 </a>以独特的方式为最终用户和设备的零信任异常检测提供 100%的数据可见性。</p>
+<p>此检查清单和多步骤代理 RAG 工作流基于 <a target="_blank" rel="noopener" href="https://build.nvidia.com/nvidia/vulnerability-analysis-for-container-security">Morpheus 安全漏洞分析 AI 工作流 </a>提供的架构。该工作流最初创建的目的是自动筛查代码版本中的常见漏洞和暴露。</p>
+<p>其核心是为具有并行推理的迭代复杂推理提供参考架构，可轻松适应多个行业和用例，从 SOC Co-pilot 到可以在动态开放世界环境中导航的视觉可访问性工具</p>
+<p>使用 NVIDIA Morpheus 和其他 NVIDIA NIM 微服务构建强大的网络安全工作流和复杂的代理工作流。</p>
+<p>有关更多信息，请参阅以下资源：有关更多信息，请参阅以下资源：有关更多信息，请参阅以下资源：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://developer.nvidia.cn/morpheus-cybersecurity">Morpheus 网络安全</a></li>
+<li><a target="_blank" rel="noopener" href="https://learn.nvidia.com/courses/course-detail?course_id=course-v1:DLI+C-DS-03+V1">构建基于人工智能的网络安全工作流 </a>(以及更多 <a target="_blank" rel="noopener" href="https://learn.nvidia.com/courses/course-detail?course_id=course-v1:DLI+C-DS-03+V1">讲师指导式培训 </a>和 <a target="_blank" rel="noopener" href="https://learn.nvidia.com/courses/course-detail?course_id=course-v1:DLI+T-DS-02+V2">自定进度课程 </a>)</li>
+<li><a target="_blank" rel="noopener" href="https://build.nvidia.com/explore/discover">NVIDIA API Catalog </a>(用于测试和自行托管部署的 NVIDIA NIM 微服务)</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/NVIDIA/GenerativeAIExamples/tree/main/community/digital-human-security-analyst">数字人安全分析师 </a>GitHub 库</li>
+</ul>
+<h2 id="相关资源"><a href="#相关资源" class="headerlink" title="相关资源"></a>相关资源</h2><ul>
+<li>GTC session: <a target="_blank" rel="noopener" href="https://www.nvidia.cn/gtc-global/session-catalog/?tab.catalogallsessionstab=1700692987788001F1cG&search=S71515&ncid=ref-dev-694675">Enhanced Lateral Movement Detection With NVIDIA NIM and NeMo</a></li>
+<li>GTC session: <a target="_blank" rel="noopener" href="https://www.nvidia.cn/gtc-global/session-catalog/?tab.catalogallsessionstab=1700692987788001F1cG&search=S73211&ncid=ref-dev-694675">Lessons Learned Turning AI Models Into Production-Grade Microservices at Scale</a></li>
+<li>SDK: <a target="_blank" rel="noopener" href="https://developer.nvidia.cn/morpheus-cybersecurity/?ncid=ref-dev-694675">Morpheus</a></li>
+<li>SDK: <a target="_blank" rel="noopener" href="https://developer.nvidia.cn/nccl/?ncid=ref-dev-694675">NCCL</a></li>
+<li>SDK: <a target="_blank" rel="noopener" href="https://www.nvidia.cn/ai-data-science/generative-ai/nemo-framework/?ncid=ref-dev-694675">NeMo Retriever</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/AI/%E8%BD%AC%E8%BD%BD/" class="category-chain-item">转载</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>利用 NVIDIA Morpheus 加速警报分流和 LLM 代理强化安全运营中心</div>
+      <div>http://blog.uanet.cn/AI/转载/利用 NVIDIA Morpheus 加速警报分流和 LLM 代理强化安全运营中心.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月25日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6.html" title="加密恶意流量识别及对抗研究">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">加密恶意流量识别及对抗研究</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/AI/%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE.html" title="流量识别开源项目">
+                        <span class="hidden-mobile">流量识别开源项目</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

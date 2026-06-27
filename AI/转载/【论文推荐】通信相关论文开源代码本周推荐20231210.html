@@ -1,0 +1,966 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="2022年开始的一个系列，主要是整理通信领域最近发表的提供开源代码和数据集的论文，这一期一共包含15篇论文，希望对相关领域的小伙伴有所帮助。获取这些论文的全文可以私信回复20231210，仅供大家交流学习。欢迎转发和关注！ 号外：我们有开源代码交流群啦，欢迎感兴趣的老师和同学私信回复开源代码交流群。 号外：我们开始招募内容编辑志愿者了，欢迎对文献整理、推文创作、科研分享与合作感兴趣的小朋友们私信回">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文推荐】通信相关论文开源代码本周推荐20231210">
+<meta property="og:url" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E3%80%90%E8%AE%BA%E6%96%87%E6%8E%A8%E8%8D%90%E3%80%91%E9%80%9A%E4%BF%A1%E7%9B%B8%E5%85%B3%E8%AE%BA%E6%96%87%E5%BC%80%E6%BA%90%E4%BB%A3%E7%A0%81%E6%9C%AC%E5%91%A8%E6%8E%A8%E8%8D%9020231210.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="2022年开始的一个系列，主要是整理通信领域最近发表的提供开源代码和数据集的论文，这一期一共包含15篇论文，希望对相关领域的小伙伴有所帮助。获取这些论文的全文可以私信回复20231210，仅供大家交流学习。欢迎转发和关注！ 号外：我们有开源代码交流群啦，欢迎感兴趣的老师和同学私信回复开源代码交流群。 号外：我们开始招募内容编辑志愿者了，欢迎对文献整理、推文创作、科研分享与合作感兴趣的小朋友们私信回">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-24T01:55:54.659Z">
+<meta property="article:modified_time" content="2025-02-24T01:55:54.659Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>【论文推荐】通信相关论文开源代码本周推荐20231210 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【论文推荐】通信相关论文开源代码本周推荐20231210"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-24 09:55" pubdate>
+          2025年2月24日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          6.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          51 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【论文推荐】通信相关论文开源代码本周推荐20231210</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>2022年开始的一个系列，主要是整理通信领域最近发表的提供开源代码和数据集的论文，这一期一共包含15篇论文，希望对相关领域的小伙伴有所帮助。获取这些论文的全文可以私信回复20231210，仅供大家交流学习。欢迎转发和关注！</p>
+<p><strong>号外</strong>：我们有开源代码交流群啦，欢迎感兴趣的老师和同学私信回复开源代码交流群。</p>
+<p><strong>号外：</strong>我们开始招募内容编辑志愿者了，欢迎对文献整理、推文创作、科研分享与合作感兴趣的小朋友们私信回复志愿者，也欢迎有期刊和会议征稿公益宣传需求的老师们与我联系沟通。</p>
+<p>[1] Adversarial examples: A survey of attacks and defenses in deep learning-enabled cybersecurity systems</p>
+<p>作者：Macas M, Wu C, Fuertes W.</p>
+<p>出处：Expert Systems with Applications</p>
+<p>摘要：在过去的几年里，机器学习在各个领域的应用取得了令人瞩目的成就。尤其是深度学习，已被广泛用于驱动计算机视觉、自然语言处理、机器翻译和<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=237034095&content_type=Article&match_order=1&q=%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8&zhida_source=entity">网络安全</a>等专业领域的应用程序和服务，产生的结果可与人类专家的表现相媲美甚至超越。然而，机器学习系统很容易受到对抗性攻击，特别是在存在实际对手的非平稳环境中，例如网络安全领域。在这项工作中，我们全面调查并介绍了针对基于深度学习的网络安全系统的基于对抗性示例的攻击的最新研究，强调了它们带来的风险并促进了有效的对策。为此，首先根据对抗性攻击方法发生的地点以及攻击者的目标和能力进行分类。然后，在八个主要网络安全应用类别的框架内详细审查基于对抗性示例的具体攻击和各自的防御方法。最后，概述了近期研究的主要趋势，并探讨了对抗性机器学习最新进展的影响，为网络安全的未来研究提供指导和方向。总之，这项工作首次系统地分析了网络安全领域基于示例的对抗性攻击，讨论了可能的防御措施，并强调了未来研究的有前景的方向。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://www.sciencedirect.com/science/article/pii/S0957417423027252">https://www.sciencedirect.com/science/article/pii/S0957417423027252</a></p>
+<p>数据：</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/mmacas11/Adversarial_Machine_Learning">https://github.com/mmacas11/Adversarial_Machine_Learning</a></p>
+<p>[2] Anomaly Detection Dataset for Industrial Control Systems</p>
+<p>作者：Dehlaghi-Ghadim A, Moghadam M H, Balador A, et al</p>
+<p>出处：arXiv</p>
+<p>摘要：在过去的几十年里，工业控制系统 (ICS) 一直是网络攻击的目标，并且随着越来越多的 ICS 连接到互联网，它变得越来越容易受到攻击。将机器学习 (ML) 用于入侵检测系统 (IDS) 是一种很有前景的 ICS 网络保护方法，但缺乏合适的数据集来评估 ML 算法是一个挑战。尽管有一些常用的数据集，但它们可能无法反映真实的 ICS 网络数据，缺乏有效异常检测的必要特征，或者已经过时。本文介绍了“<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=237034095&content_type=Article&match_order=1&q=ICS-Flow&zhida_source=entity">ICS-Flow</a>”数据集，该数据集为有监督和无监督的基于 ML 的 IDS 评估提供网络数据和过程状态变量日志。网络数据包括从模拟 ICS 组件和模拟网络捕获的正常和异常网络数据包和流量。这些异常通过黑客常用的各种攻击技术注入系统，以修改网络流量并危害 ICS。我们还提出了开源工具“ICSFlowGenerator”，用于从原始网络数据包生成网络流参数。最终数据集包含超过 25,000,000 个原始网络数据包、网络流记录和过程变量日志。本文描述了用于收集和标记数据集的方法，并提供了详细的数据分析。最后，我们实现了多个机器学习模型，包括决策树、随机森林和人工神经网络来检测异常和攻击，证明我们的数据集可以有效地用于训练入侵检测机器学习模型。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://arxiv.org/abs/2305.09678">Anomaly Detection Dataset for Industrial Control Systems</a></p>
+<p>数据：</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/AlirezaDehlaghi/ICSFlow">GitHub - AlirezaDehlaghi&#x2F;ICSFlow: This is the Network Flow Generator for ICSSIM</a></p>
+<p>[3] Constraint-Aware Federated Scheduling for Data Center Workloads</p>
+<p>作者：Thiyyakat M, Kalambur S, Sitaram D</p>
+<p>出处：IoT</p>
+<p>摘要：数据中心的使用无处不在，因为它们支持跨领域的多种技术来存储、处理和传播数据。物联网应用程序根据工作负载的性质利用云数据中心和边缘数据中心。 由于物联网应用对延迟的严格要求，工作负载在 FPGA 和 GPU 等硬件加速器上运行，以实现更快的执行速度。此类硬件的引入以及数据中心机器的硬件和软件配置的现有变化增加了基础设施的异构性。最佳工作绩效需要满足任务布置约束。这是通过<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=237034095&content_type=Article&match_order=1&q=%E7%BA%A6%E6%9D%9F%E6%84%9F%E7%9F%A5%E8%B0%83%E5%BA%A6&zhida_source=entity">约束感知调度</a>来实现的，其中任务被调度到具有适当机器配置的工作节点上。放置约束的存在限制了可用于运行任务的合适资源的数量，从而导致排队延迟。由于<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=237034095&content_type=Article&match_order=1&q=%E8%81%94%E5%90%88%E8%B0%83%E5%BA%A6%E7%A8%8B%E5%BA%8F&zhida_source=entity">联合调度程序</a>因其速度和可扩展性而受到重视，我们在约束感知上下文中评估了两个此类调度程序（Megha 和 Pigeon）的性能。我们通过将 Megha 的性能与最先进的联合调度程序 Pigeon（PigeonC）的约束感知版本进行比较，扩展了我们之前在 Megha 上的工作。我们对合成和真实世界集群轨迹进行的实验结果表明，与 PigeonC 相比，Megha 将作业响应时间延迟的 99% 减少了 10 倍。我们还描述了对 Megha 架构的增强，以提高其调度效率。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://www.mdpi.com/2624-831X/4/4/23">Constraint-Aware Federated Scheduling for Data Center Workloads</a></p>
+<p>代码：</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/meghanat/megha-constraint-aware.git">https://github.com/meghanat/megha-constraint-aware.git</a></p>
+<p>[4] Cross-layer Federated Heterogeneous Ensemble Learning for Lightweight IoT Intrusion Detection System</p>
+<p>作者：Hajj S, Azar J, Abdo J B, et al.</p>
+<p>出处：2023 IEEE 10th International Conference on Data Science and Advanced Analytics (DSAA).</p>
+<p>摘要：本文提出了一种用于入侵检测系统的异构联合集成模型，采用半监督新颖性检测技术-基线 K 均值。该技术从基线数据中学习正常流量，并利用马哈拉诺比斯距离来检测异常数据包。为了降低基于异常的入侵检测系统固有的误报率，我们提出了一种集成方法，该方法将专用于每个工作人员的本地新颖性检测模型集成到加权和基于投票的策略中。联合设计增强了每个工作人员的检测能力，而不会增加误报率。我们广泛的实验展示了该系统相对于传统独立 IDS 的稳健性和适应性，在不同采样率下的精度、召回率和 F1score 方面都有显着改进。我们在 Github 上公开了该项目的代码，以实现可复制性。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://ieeexplore.ieee.org/abstract/document/10302497/">https://ieeexplore.ieee.org/abstract/document/10302497/</a></p>
+<p>代码：</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/josephazar/baselineKmeans">GitHub - josephazar&#x2F;baselineKmeans: Semi-Supervised Lightweight IoT Intrusion Detection System</a></p>
+<p>[5] EISim: A Platform for Simulating Intelligent Edge Orchestration Solutions</p>
+<p>作者：Kokkonen H, Pirttikangas S, Lovén L.</p>
+<p>出处：arXiv</p>
+<p>摘要：为了支持未来智能和交互应用的严格要求，智能需要成为边缘环境中资源管理的重要组成部分。开发智能编排解决方案是一项具有挑战性和艰巨的任务，其中对所提出的解决方案的评估和比较是重点。仿真通常用于评估和比较所提出的解决方案。然而，目前现有的、公开的模拟器在支持智能边缘编排方法的研究方面缺乏支持。针对这一需求，本文提出了一种名为<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=237034095&content_type=Article&match_order=1&q=%E8%BE%B9%E7%BC%98%E6%99%BA%E8%83%BD%E6%A8%A1%E6%8B%9F%E5%99%A8&zhida_source=entity">边缘智能模拟器</a>（EISim）的仿真平台，其目的是促进智能边缘编排解决方案的研究。EISim 是从现有的名为 PureEdgeSim 的雾模拟器扩展而来的。在目前的形式下，EISim 支持在与边缘任务卸载和资源定价相关的场景中模拟基于深度强化学习的解决方案和不同的编排控制拓扑。该平台还包括用于创建模拟环境、运行模拟以进行代理培训和评估以及绘制结果的其他工具。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://arxiv.org/abs/2311.01224">EISim: A Platform for Simulating Intelligent Edge Orchestration Solutions</a></p>
+<p>代码：</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/hennas/EISim">GitHub - hennas&#x2F;EISim: Edge Intelligence Simulator for testing and evaluating intelligent orchestration methods</a></p>
+<p>[6] Enabling simulation services for digital twins of 5G&#x2F;B5G mobile networks</p>
+<p>作者：Nardini G, Stea G.</p>
+<p>出处：Computer Communications</p>
+<p>摘要：<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=237034095&content_type=Article&match_order=1&q=%E6%95%B0%E5%AD%97%E5%AD%AA%E7%94%9F&zhida_source=entity">数字孪生</a> (DT) 被提议作为物理实体（例如制造设备）的数字复制品，人们可以实时观察并与之交互。网络数字孪生 (DTN) 在文献中越来越多地被讨论，作为高效数据驱动网络管理和性能驱动网络优化的推动者（例如，支持动态重新配置或预测故障影响）。DTN 包括服务映射模型，即可以输入获取的数据以产生对网络本身的洞察的模型-例如，基于多种底层技术（从机器学习到分析模型，例如运行假设场景）。在本文中，我们研究了专为 5G 及更高版本定制的移动网络 DTN（DTMN）的情况，其中动态重新配置和故障预测问题至关重要。我们认为，DTMN 应该提供模拟服务，以便实现性能驱动的网络优化，并且离散事件网络模拟器是用于此目的的理想工具。我们讨论了实现这一目标所需解决的挑战，例如集中式与分布式实施、从物理网络收集输入、安全问题和托管，并回顾了网络模拟在假设分析方面提供的可能性， 定义锁步和分支分析的概念。我们提出了一个为 DTMN 提供仿真服务的框架，并使用 Simu5G（一种流行的 OMNeT++ 5G&#x2F;B5G 仿真库）作为参考案例研究来举例说明。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://www.sciencedirect.com/science/article/pii/S0140366423003821">Enabling simulation services for digital twins of 5G&#x2F;B5G mobile networks</a></p>
+<p>代码：</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/Unipisa/Simu5G">https://github.com/Unipisa/Simu5G</a></p>
+<p>[7] ExPECA: An Experimental Platform for Trustworthy Edge Computing Applications</p>
+<p>作者：Mostafavi S, Moothedath V N, Rönngren S, et al.</p>
+<p>出处：arXiv</p>
+<p>摘要：本文介绍了 ExPECA，这是一个边缘计算和无线通信研究测试平台，旨在解决两个紧迫的挑战：全面的端到端实验和高水平的实验再现性。ExPECA 利用基于 OpenStack 的 Chameleon 基础设施 (CHI) 框架的灵活性和易于操作性，位于独特的隔离地下设施中，为无线实验提供高度受控的环境。该测试床旨在促进通信和计算的综合研究，提供各种软件定义无线电（SDR）和商业现成（COTS）无线和有线链路以及容器化计算环境。我们使用 OpenRTiST（一种延迟敏感、带宽密集型应用程序）举例说明了测试台的实验可能性，并分析了其性能。最后，我们重点介绍了一系列可以从 ExPECA 功能中获益的研究领域和实验设置，包括闭环应用和时间敏感网络。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://arxiv.org/abs/2311.01279">ExPECA: An Experimental Platform for Trustworthy Edge Computing Applications</a></p>
+<p>代码：</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/KTH-EXPECA/examples">GitHub - KTH-EXPECA&#x2F;examples</a></p>
+<p>[8] Industrial Environment Multi-Sensor Dataset for Vehicle Indoor Tracking with Wi-Fi, Inertial and Odometry Data</p>
+<p>作者：Silva I, Pendão C, Torres-Sospedra J, et al.</p>
+<p>出处：Data</p>
+<p>摘要：本文描述了使用类似于配备多个传感器的工业车辆的移动单元在工业环境中收集的数据集。Wi-Fi 接口从可用的接入点 (AP) 收集信号，而运动传感器则收集有关移动设备运动（方向和位移）的数据。该数据集的显着特征包括来自多个传感器的同步数据收集，例如从多个接口（包括无线电地图）获取的 Wi-Fi 数据、两个低成本惯性测量单元 (IMU) 传感器提供的方向以及位移（行程） 距离）由连接到移动单元轮子的绝对编码器测量。使用计算机视觉方法确定准确的地面实况信息，该方法记录移动单元通过参考位置时的时间戳。我们通过应用航位推算和 Wi-Fi 指纹识别的基线方法来评估所提出的数据集的质量。在不使用任何其他绝对定位技术的情况下，简单航位推算的平均定位误差对于 IMU1 和 IMU2 分别为 8.25 m 和 11.66 m。结合五个 Wi-Fi 接口的 RSSI 信息，简单 Wi-Fi 指纹识别的平均定位误差为 2.19 m。该数据集为工业 4.0 和移动传感领域做出了贡献，为研究人员提供了开发、测试和评估工业车辆室内跟踪解决方案的资源。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://www.mdpi.com/2306-5729/8/10/157">Industrial Environment Multi-Sensor Dataset for Vehicle Indoor Tracking with Wi-Fi, Inertial and Odometry Data</a></p>
+<p>数据：</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/adafruit/Adafruit_CircuitPython_BNO055">https://github.com/adafruit/Adafruit_CircuitPython_BNO055</a></p>
+<p>[9] Latency-Aware Semi-Synchronous Client Selection and Model Aggregation for Wireless Federated Learning</p>
+<p>作者：Yu L, Sun X, Albelaihi R, et al.</p>
+<p>出处：Future Internet</p>
+<p>摘要：联邦学习 (FL) 是一种协作机器学习 (ML) 框架，特别适合需要大量训练样本的 ML 模型，例如卷积神经网络 (CNN)、循环神经网络 (RNN) 和随机森林，在各种背景下应用程序，例如下一个单词预测和电子医疗。FL 涉及通过在每次全局迭代中将本地模型上传到 FL 服务器来参与训练过程的各种客户端。 服务器聚合这些模型以更新全局模型。传统的 FL 过程可能会遇到瓶颈，称为落后者问题，即速度较慢的客户端会延迟整体训练时间。本文介绍了联邦学习的延迟感知半同步客户端选择和模型聚合（LESSON）方法。LESSON 允许客户以不同的频率参与：速度更快的客户更频繁地做出贡献，从而缓解掉队问题并加速收敛。此外，LESSON 通过设置不同的截止日期，在模型精度和收敛速度之间提供了可调节的权衡。仿真结果表明，LESSON 在收敛速度方面优于两种基线方法 FedAvg 和 FedCS，并且与 FedCS 相比保持了更高的模型精度。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://www.mdpi.com/1999-5903/15/11/352">Latency-Aware Semi-Synchronous Client Selection and Model Aggregation for Wireless Federated Learning</a></p>
+<p>代码：</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/fzvincent/FL_AoR/tree/master">GitHub - fzvincent&#x2F;FL_AoR</a></p>
+<p>[10] Network intrusion detection using feature fusion with deep learning</p>
+<p>作者：Ayantayo A, Kaur A, Kour A, et al</p>
+<p>出处：Journal of Big Data</p>
+<p>摘要：网络入侵检测系统（NIDS）是用于防御网络攻击的主要工具之一，深度学习在网络入侵检测方面取得了显着的成功。然而，特征融合对于如何提升深度学习模型的性能并提高其在NIDS中的泛化能力仍有待探索。在本文中，我们提出了具有不同特征融合机制的新型深度学习架构，旨在提高 NIDS 多分类组件的性能。我们提出了三种不同的深度学习模型，我们称之为早期融合、后期融合和后期集成学习模型，使用特征融合与完全连接的深度网络。我们的特征融合机制旨在鼓励深度学习模型更有效地学习不同输入特征之间的关系，并减轻特定特征类型可能出现的任何潜在偏差。为了评估我们的深度学习解决方案的有效性并与最先进的模型进行比较，我们采用了可广泛访问的 UNSW-NB15 和 NSL-KDD 数据集，这些数据集专门用于增强改进的 NIDS 的开发和评估。通过定量分析，我们证明了我们提出的模型在有效解决多分类任务带来的挑战方面的弹性，特别是在存在类别不平衡问题的情况下。此外，我们的后期融合和后期集成模型显示出最佳的泛化行为（防止过度拟合），并且在训练和验证集上具有相似的性能。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://link.springer.com/article/10.1186/s40537-023-00834-0">https://link.springer.com/article/10.1186/s40537-023-00834-0</a></p>
+<p>代码：</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/deen-g/NIDS-MODELS">https://github.com/deen-g/NIDS-MODELS</a></p>
+<p>[11] OSF-EIMTC: An open-source framework for standardized encrypted internet traffic classification</p>
+<p>作者：Bader O, Lichy A, Dvir A, et al</p>
+<p>出处：Computer Communications</p>
+<p>摘要：互联网流量分类在网络可见性、服务质量 (QoS)、入侵检测、体验质量 (QoE) 和流量趋势分析中发挥着关键作用。为了提高隐私性、完整性、机密性和协议混淆，当前的流量基于加密协议，例如 SSL&#x2F;TLS。 随着文献中机器学习（ML）和深度学习（DL）模型的使用越来越多，由于缺乏标准化框架，不同模型和方法之间的比较变得繁琐和困难。在本文中，我们提出了一个名为 OSF-EIMTC 的开源框架，它可以提供学习过程和模拟再现性的完整流程。从众所周知的数据集到提取新的众所周知的特征，它提供了著名的 ML 和 DL 模型（来自流量分类文献）的实现以及实验测试台及其评估。通过提供标准化平台，OSF-EIMTC 能够对已建立的和新颖的特征和模型进行可重复、可再现和准确的比较。 作为框架评估的一部分，我们利用多个数据集、模型和特征集，展示了该框架可以使用的各种情况的可重复性。我们展示了对公开数据集的分析，并邀请社区使用 OSF-EIMTC 参与我们的公开挑战，促进加密流量分类方面的协作进步。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://www.sciencedirect.com/science/article/pii/S0140366423003754">OSF-EIMTC: An open-source framework for standardized encrypted internet traffic classification</a></p>
+<p>代码：</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/ArielCyber/OSF-EIMTC">https://github.com/ArielCyber/OSF-EIMTC</a></p>
+<p>[12] <a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=237034095&content_type=Article&match_order=1&q=PAC-GPT&zhida_source=entity">PAC-GPT</a>: A Novel Approach to Generating Synthetic Network Traffic With GPT-3</p>
+<p>作者：Kholgh D K, Kostakos P</p>
+<p>出处：IEEE Access</p>
+<p>摘要：机器学习模型的应用，特别是在网络安全领域的应用，在过去几年中大幅增长。然而，这些模型的有效性主要取决于它们摄取的训练数据的质量和广度。 网络安全领域真实数据集的稀缺对开发用于实际应用场景的工业级工具构成了相当大的挑战。具体来说，当前的数据集要么明显过时，要么在定性和定量方面都存在不足，这主要是因为许多组织出于隐私问题或对商业秘密的潜在威胁而不愿共享数据。为了应对这一挑战，本文介绍了 PAC-GPT，这是一种新颖的框架，可为基于 Open AI 的生成式预训练 Transformer 3 (GPT-3) 的机器学习方法生成可靠的合成数据。该框架的核心组件是两个模块，即流生成器（负责捕获和重新生成一系列网络数据包中的模式）和数据包生成器（可以在给定网络流的情况下生成单独的网络数据包）。我们还提出了一种基于 LLM 链接的数据包生成器，然后使用丢失、准确度和成功率等指标来评估、比较和评估其性能，得出的结论是，Transformer是一种适合进行合成数据包生成的方法，只需执行最少的微调 。最后，设计了一个简化的命令行界面（CLI）工具，以方便来自不同学科的专业人员无缝访问这种创新的数据生成策略。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://ieeexplore.ieee.org/abstract/document/10287342/">https://ieeexplore.ieee.org/abstract/document/10287342/</a></p>
+<p>代码：</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/dark-0ne/NetworkPacketGenerator">https://github.com/dark-0ne/NetworkPacketGenerator</a></p>
+<p>[13] quicSDN: Transitioning from TCP to QUIC for southbound communication in SDNs</p>
+<p>作者：Kumar P, Dezfouli B.</p>
+<p>出处：Journal of Network and Computer Applications</p>
+<p>摘要：在软件定义网络 (SDN) 中，控制平面和数据平面出于各种目的进行通信，例如应用配置和收集统计数据。虽然已经提出了各种方法来减少开销并增强软件定义网络（SDN）的可扩展性，但用于南向通信的传输层协议的影响尚未得到研究。现有的 SDN 依靠传输控制协议 (TCP)（和传输层安全性 (TLS)）来增强可靠性和安全性。在本文中，我们展示了 TCP 的使用给南向通信带来了相当大的开销，确定了这种开销的原因，并演示了如何用快速 UDP Internet 连接 (QUIC) 替换 TCP 来增强此通信的性能。我们引入了quicSDN架构，通过QUIC协议实现SDN中的南向通信。 我们提出了一个基于 SDN 社区最广泛使用的标准协议的参考架构，并展示了如何改进控制器和交换机以促进这种过渡。我们从分析和实证角度比较了 quicSDN 与传统 SDN 架构的性能，并确认了 quicSDN 的优越性能。我们在不同环境下的实证评估表明，与使用 TCP 进行南向通信的 SDN 相比，quicSDN 的通信开销和消息传递延迟分别降低了 82% 和 45%。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://www.sciencedirect.com/science/article/pii/S1084804523001996">https://www.sciencedirect.com/science/article/pii/S1084804523001996</a></p>
+<p>代码：</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/SIOTLAB/quicSDN">GitHub - SIOTLAB&#x2F;quicSDN: A QUIC based implementation of software defined networking (SDN). This allows using QUIC instead of TCP for southbound communication in SDNs.</a></p>
+<p>[14] Sample-Driven Federated Learning for Energy-Efficient and Real-Time IoT Sensing</p>
+<p>作者：Luu M N, Nguyen M D, Bedeer E, et al</p>
+<p>出处：arXiv</p>
+<p>摘要：在联邦学习（FL）系统领域，最新的前沿方法严重依赖于理想条件收敛分析。具体来说，这些方法假设物联网设备上的训练数据集具有与全局数据分布类似的属性。然而，这种方法无法捕获实时传感 FL 系统中的全部数据特征。为了克服这一限制，我们建议采用一种专为具有实时传感功能的物联网网络设计的新方法系统。我们的方法考虑了由于用户数据采样过程而产生的泛化差距。通过有效控制这个采样过程，我们可以减轻过度拟合问题并提高整体准确性。特别是，我们首先提出一个优化问题，利用采样过程来同时减少过度拟合，同时最大限度地提高准确性。为了实现这一目标，我们的代理优化问题擅长处理能源效率，同时以高泛化性优化准确性。为了解决高复杂度的优化问题，我们引入了一种在线强化学习算法，名为样本驱动联邦学习控制（SCFL），基于 Soft Actor-Critic（A2C）框架。这使得代理即使在不断变化的环境中也能够动态适应并找到全局最优值。 通过利用 SCFL 的功能，我们的系统为具有实时传感功能的 FL 系统中的资源分配提供了一种有前景的解决方案。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://arxiv.org/abs/2310.07497">Sample-Driven Federated Learning for Energy-Efficient and Real-Time IoT Sensing</a></p>
+<p>代码：</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/Skyd-FL/SCFL/blob/main/results/theoretical_evals/Lsmooth_Estimation.ipynb">https://github.com/Skyd-FL/SCFL/blob/main/results/theoretical_evals&#x2F;Lsmooth_Estimation.ipynb</a></p>
+<p>[15] Semi-2DCAE: a semi-supervision 2DCNN AutoEncoder model for feature representation and classification of encrypted traffic</p>
+<p>作者：Cui J, Bai L, Li G, et al.</p>
+<p>出处：PeerJ Computer Science</p>
+<p>摘要：流量分类在网络管理、监控和安全等网络相关领域至关重要。随着加密互联网流量比例的上升，基于端口和基于DPI的流量分类方法的准确性有所下降。 基于机器学习和深度学习的方法有效提高了流量分类的准确率，但仍存在流量结构特征提取不充分、特征代表性差等问题。本文提出了一种称为半监督二维卷积自动编码器（Semi-2DCAE）的模型。该模型通过二维卷积神经网络（2D-CNN）提取原始网络流量中的空间结构特征，并利用自动编码器结构对数据进行降尺度，使得不同的流量特征表示为一维不同区间的谱线。维度标准坐标系，我们称之为 FlowSpectrum。本文在模型中加入PRuLe激活函数，保证训练过程的稳定性。 我们使用ISCX-VPN2016数据集来测试FlowSpectrum模型的分类效果。实验结果表明，该模型能够在一维坐标系下表征加密流量特征，并对非VPN加密流量进行分类，准确率高达99.2%，比最先进的解决方案提高了约7%。VPN 加密流量的准确率高达 98.3%，比最先进的解决方案提高了约 2%。</p>
+<p>链接：</p>
+<p><a href="https://link.zhihu.com/?target=https://peerj.com/articles/cs-1635/">Semi-2DCAE: a semi-supervision 2D-CNN AutoEncoder model for feature representation and classification of encrypted traffic</a></p>
+<p>代码：</p>
+<p><a href="https://link.zhihu.com/?target=https://doi.org/10.5281/zenodo.8154325">https://doi.org/10.5281/zenodo.8154325</a></p>
+<p>回顾ICC 2022的开源代码<a href="https://link.zhihu.com/?target=http://mp.weixin.qq.com/s?__biz=Mzg3OTEyODQ1OA==&mid=2247484574&idx=1&sn=b6f748f9e8e99597e2e9cbd188609ff6&chksm=cf087e7bf87ff76db1e89f629dd7c12b448d1cef75e9fa6a1a1c5608619800510112e1990806&scene=21%23wechat_redirect">【论文推荐】ICC 2022 开源代码汇总</a></p>
+<p>回顾ICC 2023的开源代码<a href="https://link.zhihu.com/?target=http://mp.weixin.qq.com/s?__biz=Mzg3OTEyODQ1OA==&mid=2247485745&idx=1&sn=6615a9104f7ba381e81c54e77ead25cb&chksm=cf0873d4f87ffac21483e6a949b2df53acbc275e6a388849d661be92facf4d3b619703643b7c&scene=21%23wechat_redirect">【论文推荐】ICC 2023开源代码汇总</a></p>
+<p>回顾GLOBECOM 2022的开源代码<a href="https://link.zhihu.com/?target=http://mp.weixin.qq.com/s?__biz=Mzg3OTEyODQ1OA==&mid=2247484990&idx=1&sn=85d7b4126228d36cef020ddf06af1ff5&chksm=cf087cdbf87ff5cdc897b1376cda986296be91cfe8314a38fa8949aefecb5f04a705e99351c9&scene=21%23wechat_redirect">【论文推荐】GLOBECOM 2022 开源代码汇总</a></p>
+<p>回顾WCNC 2022的开源代码<a href="https://link.zhihu.com/?target=http://mp.weixin.qq.com/s?__biz=Mzg3OTEyODQ1OA==&mid=2247484434&idx=1&sn=93b7515c7742a66b2f922d0c2e4ac38c&chksm=cf087ef7f87ff7e12d553dbed73780462e70bc00fb6f884ffe7c20b76673e67fba775f1b2188&scene=21%23wechat_redirect">【论文推荐】WCNC 2022 开源代码汇总</a></p>
+<p>回顾WCNC 2023的开源代码<a href="https://link.zhihu.com/?target=http://mp.weixin.qq.com/s?__biz=Mzg3OTEyODQ1OA==&mid=2247485300&idx=1&sn=573d6ed6890c2810899750ae0aff69bb&chksm=cf087d91f87ff4875d99191c009c35eddcdc9c694a39b630ffef4beb74d78c621f0079d691d8&scene=21%23wechat_redirect">【论文推荐】WCNC 2023开源代码汇总</a></p>
+<p>回顾INFOCOM 2022的开源代码<a href="https://link.zhihu.com/?target=http://mp.weixin.qq.com/s?__biz=Mzg3OTEyODQ1OA==&mid=2247484391&idx=1&sn=751f7a6a47edb03a64324711886e237d&chksm=cf087902f87ff01422ed411f6bf0c0b9ae42a0966cc11b5792a431d7d5f5ebf1326c21b84d26&scene=21%23wechat_redirect">【论文推荐】INFOCOM 2022 开源代码汇总</a></p>
+<p>回顾INFOCOM 2023的开源代码<a href="https://link.zhihu.com/?target=http://mp.weixin.qq.com/s?__biz=Mzg3OTEyODQ1OA==&mid=2247485607&idx=1&sn=cee9e14d524fa9583b11ef620781785d&chksm=cf087242f87ffb54882052d8e37cea59b3459ca3cd771fdb7a1c7c7a093727605a2d1961b36e&scene=21%23wechat_redirect">【论文推荐】INFOCOM 2023开源代码汇总</a></p>
+<p>获取最全最新的<a href="https://link.zhihu.com/?target=http://mp.weixin.qq.com/s?__biz=Mzg3OTEyODQ1OA==&mid=2247484353&idx=1&sn=07ac8b4045f3bc4dd8955f44d0c9f02b&chksm=cf087924f87ff032d9d63c0a672c06bf37aa7d11580cdeb3165a9e5358128b542fb16c4ff700&scene=21%23wechat_redirect">【论文推荐】卫星网络仿真工具和开源代码汇总</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/AI/%E8%BD%AC%E8%BD%BD/" class="category-chain-item">转载</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【论文推荐】通信相关论文开源代码本周推荐20231210</div>
+      <div>http://blog.uanet.cn/AI/转载/【论文推荐】通信相关论文开源代码本周推荐20231210.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月24日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/%E8%BD%AC%E8%BD%BD/sklearn%E9%83%A8%E7%BD%B2%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%B9%E6%A1%88.html" title="sklearn部署嵌入式方案">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">sklearn部署嵌入式方案</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/AI/%E8%BD%AC%E8%BD%BD/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E5%9C%A8%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8%E5%92%8C%E5%8F%91%E5%B1%95.html" title="人工智能在网络流量分类中的应用和发展">
+                        <span class="hidden-mobile">人工智能在网络流量分类中的应用和发展</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

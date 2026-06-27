@@ -1,0 +1,944 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1. U-BOOT概况总结一、 启动代码为start.S 二、 由于u-boot为裸板上第一个程序，所以要初始化各个外设，由于u-boot已经初始化了，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="arm环境u-boot功能和linux启动过程">
+<meta property="og:url" content="http://blog.uanet.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="1. U-BOOT概况总结一、 启动代码为start.S 二、 由于u-boot为裸板上第一个程序，所以要初始化各个外设，由于u-boot已经初始化了，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpskVUGIb.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpsYSZYMg.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wps2WiPfj.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpsxz3XBO.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpslxQx3p.jpg">
+<meta property="article:published_time" content="2025-02-13T05:53:20.782Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.782Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpskVUGIb.jpg">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>arm环境u-boot功能和linux启动过程 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="arm环境u-boot功能和linux启动过程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          15 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">arm环境u-boot功能和linux启动过程</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="1-U-BOOT概况总结"><a href="#1-U-BOOT概况总结" class="headerlink" title="1. U-BOOT概况总结"></a><strong>1.</strong> <em><strong>U-BOOT概况总结</strong></em></h1><p>一、 启动代码为start.S</p>
+<p>二、 由于u-boot为裸板上第一个程序，所以要初始化各个外设，由于u-boot已经初始化了，</p>
+<p>包括：中断禁用、分配动态内存、初始化BBS区域、初始化页目录、打开缓存等任务。</p>
+<p>所以linux内核不需要全部再次初始化，所以可以理解bootloader和kernel其实是两兄弟。</p>
+<p>例:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs assembly">/*start code on reset*/<br><br>Reset:<br><br>  /*初始化cpu*/<br>  bl set_cpu_mode       /*设置特权模式*/<br><br>  /*初始化中断和时钟外设*/<br>  bl turn_off_watchdog  /*关闭看门狗*/<br>  bl mask_irqs        	/*关闭中断*/<br>  bl set_clock        	/*设置时钟*/<br><br>  /*初始化内存*/<br>  bl disable_id_caches  /*关闭caches*/<br>  bl init_memory        /*初始化sram*/<br>  bl init_stack        	/*初始化栈*/<br>  bl clean_bss         	/*初始化bss*/<br>  <br>  /*初始化硬盘*/<br>  bl nand_init         	/*初始化nand*/<br><br>  /*应用*/<br>  bl copy_to_ram        /*复制自身到ram*/<br>  ldr pc, =arm_main      /*执行main函数*/<br></code></pre></td></tr></table></figure>
+
+<p>三、 U-boot引导内核第一步要做的的是把内核下到ram中，然后跳到内核的start函数。</p>
+<p>四、bootloader必须提供5种功能：RAM初始化、串行端口初始化、查找机器类别、构建tagged list内核、将控制移交到内核镜像。</p>
+<h1 id="2-linux内核初始化流程"><a href="#2-linux内核初始化流程" class="headerlink" title="2. linux内核初始化流程"></a><strong>2.</strong> <em><strong>linux内核初始化流程</strong></em></h1><p><img src="/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpskVUGIb.jpg" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<p>u-boot跳到linux内核的arch&#x2F;arm&#x2F;boot&#x2F;compressed&#x2F;head.S中start后</p>
+<p><img src="/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpsYSZYMg.jpg" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<p>内核大致可以理解为三部曲：</p>
+<p>第一步 解压内核并跳到start_kernel()。</p>
+<p>​	1.arch&#x2F;arm&#x2F;boot&#x2F;compressed&#x2F;head.S(start)</p>
+<p>准备解压内核</p>
+<p>​	2.arch&#x2F;arm&#x2F;boot&#x2F;compressed&#x2F;head.S</p>
+<p>通过decompress_kernel 解压zImage </p>
+<p>通过call_kernel调用已解压后内核vmlinux</p>
+<p>​	3.arch&#x2F;arm&#x2F;kernel&#x2F;head.S</p>
+<p>通过ENTRY(stext)-&gt; </p>
+<p>处理器信息搜寻——__look_processor_type</p>
+<p>搜寻我的机型——__lookup_machine_type</p>
+<p>通过__mmap_switched调用start_kernel</p>
+<p>第二步 跳到真正第一个内核代码init&#x2F;main.c(start_kernel())。 注:在linux 0.11中为init&#x2F;main.c main()。</p>
+<p>其中明星函数（排名不分先后）：</p>
+<p>1.初始化console(此处为平台相关需要hack的地方&lt;1&gt;)</p>
+<p> start_kernel-&gt;console_init-&gt;serial_pxa_console_init</p>
+<p>2.注册SOC初始化函数machine_desc </p>
+<p>start_kernel-&gt;setup_arch()-&gt;setup_machine(machine_arch_type)[&#x2F;arch&#x2F;arm&#x2F;kernel&#x2F;setup.c]</p>
+<p><img src="/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wps2WiPfj.jpg" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<p>[&#x2F;arch&#x2F;arm&#x2F;mach-s3c2440&#x2F;mach-mini244.c]</p>
+<p> MACHINE_START(MINI2440, “FriendlyARM Mini2440 development board”)</p>
+<p>​	.phys_io	&#x3D; S3C2410_PA_UART,</p>
+<p>​	.io_pg_offst	&#x3D; (((u32)S3C24XX_VA_UART) &gt;&gt; 18) &amp; 0xfffc,</p>
+<p>​	.boot_params	&#x3D; S3C2410_SDRAM_PA + 0x100,</p>
+<p>​	.init_irq	&#x3D; s3c24xx_init_irq,</p>
+<p>​	.map_io	&#x3D; mini2440_map_io,</p>
+<p>​	.init_machine	&#x3D; mini2440_machine_init,</p>
+<p>​	.timer		&#x3D; &amp;s3c24xx_timer,</p>
+<p> MACHINE_END</p>
+<p>1）init_machine 在start_kernel()-&gt;setup_arch()-&gt;do_initcalls()-&gt;customize_machine()-&gt;mini6410_machine_init()</p>
+<p>2）init_irq在start_kernel() -&gt; init_IRQ() -&gt; init_arch_irq()中被调用</p>
+<p>3）map_io 在 setup_arch() -&gt; paging_init() -&gt; devicemaps_init()中被调用</p>
+<p>4）timer是定义系统时钟，定义TIMER4为系统时钟，在arch&#x2F;arm&#x2F;plat-s3c&#x2F;time.c中体现。</p>
+<p>在start_kernel() -&gt; time_init()中被调用。</p>
+<p>5）boot_params是bootloader向内核传递的参数的位置，这要和bootloader中参数的定义要一致。</p>
+<p><a target="_blank" rel="noopener" href="http://blog.csdn.net/boyemachao/article/details/45394363">http://blog.csdn.net/boyemachao/article/details/45394363</a></p>
+<p>3.初始化虚拟驱动平台platform</p>
+<p>start_kernel-&gt;kernel_init()-&gt;do_basic_setup()-&gt;driver_init()-&gt;platform_bus_init()→bus_register(&amp;platform_bus_type)</p>
+<p>4.初始化SOC(initcall参考下面的init.h)</p>
+<p>start_kernel-&gt;kernel_init()-&gt;do_basic_setup()-&gt;do_initcalls()-&gt;do_one_initcall()</p>
+<p><img src="/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpsxz3XBO.jpg" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<p>第三步 就为愉快的init的代码了也就是第一个进程，在linux 0.11中集成在内核中。在之后版本由用户态提供。</p>
+<p>​		当然我已经升级为systemd啦，哈哈。</p>
+<h1 id="3-linux初始化代码框架"><a href="#3-linux初始化代码框架" class="headerlink" title="3. linux初始化代码框架"></a><strong>3.</strong> <em><strong>linux初始化代码框架</strong></em></h1><p>哪部分是只和CPU相关的部分，</p>
+<p>哪部分是SOC平台相关的部分，</p>
+<p>也再次标明LINUX下大致逻辑。</p>
+<h2 id="第一部分代码arch-x2F-arm-x2F-boot-x2F"><a href="#第一部分代码arch-x2F-arm-x2F-boot-x2F" class="headerlink" title="第一部分代码arch&#x2F;arm&#x2F;boot&#x2F;"></a>第一部分代码arch&#x2F;arm&#x2F;boot&#x2F;</h2><p>简介：也就是自我解压部分，可以理解为和cpu相关但和SOC无关。</p>
+<p>移植：移植时选择对应的cpu。</p>
+<p>功能：arch&#x2F;arm&#x2F;boot&#x2F;compressed&#x2F;head.S自我解压前准备、解压缩。跳到start_kernel。</p>
+<h2 id="第二部分代码init-x2F-main-c"><a href="#第二部分代码init-x2F-main-c" class="headerlink" title="第二部分代码init&#x2F;main.c"></a>第二部分代码init&#x2F;main.c</h2><p>简介：也就是start_kernel（）或0.11中的main（） 可以理解内核真正的第一代码。为平台无关代码。</p>
+<p>移植：移植时不用管。</p>
+<p>功能：此代码虽说简单的大几十行，但功能太多，我还是给个linux 0.11中main()的靓照吧<del>_</del>！</p>
+<p><img src="/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpslxQx3p.jpg" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<h2 id="第三部分代码-arch-x2F-arm-x2F-PLAT-arch-x2F-arm-x2F-MACH"><a href="#第三部分代码-arch-x2F-arm-x2F-PLAT-arch-x2F-arm-x2F-MACH" class="headerlink" title="第三部分代码 arch&#x2F;arm&#x2F;PLAT- arch&#x2F;arm&#x2F;MACH-"></a>第三部分代码 arch&#x2F;arm&#x2F;PLAT- arch&#x2F;arm&#x2F;MACH-</h2><p>​	简介：为了完成start_kernel()中初始化的SOC相关部分。</p>
+<p>移植：移植时需要考虑对应的SOC。没有对应soc支持时，才是各路玩家大显身手的时候。</p>
+<p>功能：看下面的介绍吧。</p>
+<h1 id="4-Mini2440的plat和mach"><a href="#4-Mini2440的plat和mach" class="headerlink" title="4. Mini2440的plat和mach"></a><strong>4.</strong> <em><strong>Mini2440的plat和mach</strong></em></h1><p>plat-s3c24xx</p>
+<p>mach-s3c2440</p>
+<p>mach-s3c2410</p>
+<p>&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</p>
+<p>\1. 三星这样分层的理由是s3c系列的soc具有一定的共通性, plat-实现了一些较通用的封装, 这些封装的具体参数一般是宏, 这些宏如寄存器地址可能是在mach-里面被定义;</p>
+<p>  linux&#x2F;arch&#x2F;arm&#x2F;plat-s3c24xx&#x2F;common-smdk.c</p>
+<p>​    static struct s3c24xx_led_platdata smdk_pdata_led5 &#x3D; {</p>
+<p>​      .gpio     &#x3D; S3C2410_GPF5,</p>
+<p>​      .flags     &#x3D; S3C24XX_LEDF_ACTLOW | S3C24XX_LEDF_TRISTATE,</p>
+<p>​      .name     &#x3D; “led5”,</p>
+<p>​      .def_trigger   &#x3D; “nand-disk”,</p>
+<p>​    };</p>
+<p>  linux&#x2F;include&#x2F;asm-arm&#x2F;arch-s3c2410&#x2F;regs-gpio.h</p>
+<p>​    #define S3C2410_GPF5     S3C2410_GPIONO(S3C2410_GPIO_BANKF, 5)</p>
+<p>\2. 原则上是把所有s3c系列共同的东西放在   plat-里面去, 具体的io或者比较有mach-特色的部分放到mach-里面;</p>
+<p>  改板时, 实际上大多是直接在mach-里面增删自己的功能. (不按三星预设方案的改动除外)</p>
+<p>  plat里面需要动的相对更少, 不过在linux&#x2F;arch&#x2F;arm&#x2F;plat-s3c24xx&#x2F;common-smdk.c里面, </p>
+<p>我们可以根据实际情形来分配nand的分区(修改static struct mtd_partition smdk_default_nand_part[] );</p>
+<p>\3. 编译时,一般只会选中一个特定的mach-, mach-会调用plat-的功能具体实现平台的资源和设备初始化.</p>
+<h1 id="5-内核移植"><a href="#5-内核移植" class="headerlink" title="5.内核移植"></a><em><strong>5.内核移植</strong></em></h1><p>在一般普通的产品公司，大部分都是在soc上添加自己需要的外设做成产品。</p>
+<p>并且常见的soc都已经有了成熟的soc代码支持。</p>
+<p>现在讨论内核移植重点在板级支持，这属于BSP工程师的范围。并非属于芯片工程。</p>
+<p>BSP工程师的能力就是要在各种板子上移植我们万众期待的linux内核。</p>
+<p>总的来说，我们所做的就是要找到外设的区别，熟悉内核的框架，</p>
+<p>修改外设的驱动，使内核完美的运行起来就好了。</p>
+<p>所涉及到的驱动：GPIO、协处理器、中断、时钟、MMU、存储控制器、NAND、UART、IIC等。</p>
+<p>我们可以找出最基本的，启动linux所依赖的。并根据依赖的顺序一一攻破。</p>
+<p>我暂时认为，学习此部分好的方法是先在一个成熟板子上写一个裸板程序。</p>
+<p>这样可以熟悉板子硬件，也可熟悉一个小的系统是如何跑起来的。</p>
+<p>有了这个基础我们就能把我哪些是最为基础的驱动。和依赖的顺序等。</p>
+<p>通过本文可以体会到，对于内核，移植它改造它有难度呀。</p>
+<p>会裸板驱动、会写bootloader只是基础。</p>
+<p>还要熟悉内核代码，真是上知系统、应用，下知硬件、驱动。</p>
+<p>参考资料：</p>
+<p>[console] early printk实现流程</p>
+<p><a target="_blank" rel="noopener" href="http://blog.csdn.net/ooonebook/article/details/52654120">http://blog.csdn.net/ooonebook/article/details/52654120</a></p>
+<p>linux2.6中的console_init初始化的研究</p>
+<p><a target="_blank" rel="noopener" href="http://blog.csdn.net/breeze_vickie/article/details/5563375">http://blog.csdn.net/breeze_vickie/article/details/5563375</a></p>
+<p>linux下tty，控制台，虚拟终端，串口，console（控制台终端）详解</p>
+<p><a target="_blank" rel="noopener" href="http://blog.csdn.net/liaoxinmeng/article/details/5004743">http://blog.csdn.net/liaoxinmeng/article/details/5004743</a></p>
+<p>【原创】s3c2440内核启动时如何注册串口为终端设备</p>
+<p><a target="_blank" rel="noopener" href="http://blog.sina.com.cn/s/blog_70ef2ee90100zc4z.html">http://blog.sina.com.cn/s/blog_70ef2ee90100zc4z.html</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/KERNEL/" class="category-chain-item">KERNEL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>arm环境u-boot功能和linux启动过程</div>
+      <div>http://blog.uanet.cn/KERNEL/arm环境u-boot功能和linux启动过程.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/LIVE/%E9%AC%BC%E8%B0%B7%E5%AD%90-%E9%A9%AD%E4%BA%BA%E6%9C%AF.html" title="鬼谷子-驭人术">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">鬼谷子-驭人术</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/FPGA/vnote.html" title="vnote">
+                        <span class="hidden-mobile">vnote</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

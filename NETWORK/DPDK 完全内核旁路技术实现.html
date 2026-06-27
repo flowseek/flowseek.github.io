@@ -1,0 +1,990 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="目录文章目录 目录 前文列表 内核协议栈的数据转发性能瓶颈是什么？ DPDK DPDK 在 NFV 中的应用 DPDK 基本技术 DPDK 实现原理 DPDK 架构   UIO，DPDK 的基石 * PMD，DPDK 的核心优化 * IGB_UIO * KNI * 核心部件库 * 核心部件库对应的 DPDK 核心组件实现 * 平台相关模块 几个关键 API 的使用举例   DPDK 优化技术 DP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DPDK 完全内核旁路技术实现">
+<meta property="og:url" content="http://blog.uanet.cn/NETWORK/DPDK%20%E5%AE%8C%E5%85%A8%E5%86%85%E6%A0%B8%E6%97%81%E8%B7%AF%E6%8A%80%E6%9C%AF%E5%AE%9E%E7%8E%B0.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="目录文章目录 目录 前文列表 内核协议栈的数据转发性能瓶颈是什么？ DPDK DPDK 在 NFV 中的应用 DPDK 基本技术 DPDK 实现原理 DPDK 架构   UIO，DPDK 的基石 * PMD，DPDK 的核心优化 * IGB_UIO * KNI * 核心部件库 * 核心部件库对应的 DPDK 核心组件实现 * 平台相关模块 几个关键 API 的使用举例   DPDK 优化技术 DP">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-13T05:53:20.792Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.792Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>DPDK 完全内核旁路技术实现 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="DPDK 完全内核旁路技术实现"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          8.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          69 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">DPDK 完全内核旁路技术实现</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li>目录</li>
+<li>前文列表</li>
+<li>内核协议栈的数据转发性能瓶颈是什么？</li>
+<li>DPDK</li>
+<li>DPDK 在 NFV 中的应用</li>
+<li>DPDK 基本技术</li>
+<li>DPDK 实现原理<ul>
+<li>DPDK 架构</li>
+</ul>
+</li>
+<li>UIO，DPDK 的基石 * PMD，DPDK 的核心优化 * IGB_UIO * KNI * 核心部件库 * 核心部件库对应的 DPDK 核心组件实现 * 平台相关模块<ul>
+<li>几个关键 API 的使用举例</li>
+</ul>
+</li>
+<li>DPDK 优化技术</li>
+<li>DPDK 性能影响因素</li>
+<li>硬件结构的影响 * OS 版本及其内核的影响 * OVS 性能问题 * 内存管理 * CPU 核间无锁通信 * 设置正确的目标 CPU 类型与模式<ul>
+<li>优化方案</li>
+</ul>
+</li>
+<li>应用 NUMA 亲和性技术减少跨 NUMA 内存访问 * 应用 CPU 绑核技术减少上下文切换损耗 * 应用大页内存技术减少 TLB miss</li>
+<li>参考文章</li>
+<li>推荐文章</li>
+</ul>
+<h1 id="前文列表"><a href="#前文列表" class="headerlink" title="前文列表"></a>前文列表</h1><p>《OpenStack Nova 高性能虚拟机之 NUMA 架构亲和》<br>《OpenStack Nova 高性能虚拟机之 CPU 绑定》<br>《OpenStack Nova 高性能虚拟机之大页内存》<br>《多进程、多线程与多处理器计算平台的性能问题》<br>《计算机组成原理 — 存储系统》<br>《计算机组成原理 — 输入输出系统》<br>《计算机组成原理 — 总线系统》<br>《Linux 的零拷贝技术》<br>《数据包从物理网卡流经 Open vSwitch 进入 OpenStack 云主机的流程》<br>《Linux 内核网络协议栈》<br>《用户态网络协议栈还是内核协议栈？》<br>《网卡适配器收发数据帧流程》</p>
+<h1 id="内核协议栈的数据转发性能瓶颈是什么？"><a href="#内核协议栈的数据转发性能瓶颈是什么？" class="headerlink" title="内核协议栈的数据转发性能瓶颈是什么？"></a>内核协议栈的数据转发性能瓶颈是什么？</h1><p>在 x86 体系结构中，接受数据包的传统方式是 CPU 中断方式，即网卡驱动接收到数据包后通过中断通知 CPU 处理，然后由 CPU 拷贝数据并交给内核协议栈。在数据量大时，这种方式会产生大量 CPU 中断，导致 CPU 无法运行其他程序。</p>
+<p><strong>内核协议栈的数据转发流程</strong>：</p>
+<p>![img](DPDK 完全内核旁路技术实现&#x2F;f6f54d05b5eb33adb50f322ab148f021.png)</p>
+<p><strong>内核协议栈的数据转发性能瓶颈有</strong>：</p>
+<ul>
+<li><strong>硬件中断导致的线程&#x2F;进程切换</strong>：硬件中断请求会抢占优先级较低的软件中断，频繁到达的硬件中断和软中断意味着频繁的线程切换，随着而来的就是运行模式切换、上下文切换、线程调度器负载、高速缓存缺失（Cache Missing）、多核缓存共享数据同步、竞争锁等一系列的 CPU 性能损耗。</li>
+<li><strong>内存拷贝</strong>：网卡驱动位于内核态，网络驱动接收到的数据包后会经过内核协议栈的处理，然后再拷贝到处于用户态的应用层缓冲区，这样的数据拷贝是很耗时间的。据统计，这个拷贝的时间会占数据包处理流程时间的 57.1%。</li>
+<li><strong>多处理器平台的 CPU 漂移</strong>：一个数据包可能中断在 CPU0，内核态处理在 CPU1，用户态处理在 CPU2，这样跨多个物理核（Core）的处理，导致了大量的 CPU Cache Miss，造成局部性失效。如果是 NUMA 架构，还会出现跨 NUMA remote access Memory 的情况，这些都极大地影响了 CPU 性能。</li>
+<li><strong>缓存失效</strong>：传统服务器大多采用页式虚拟存储器，内存页默认为 4K 的小页，所以在存储空间较大的处理机上会存在大量的页面映射条目。同时因为 TLB 缓存空间有限，最终导致了 TLB 快表的映射条目频繁变更，产生大量的快页表 Cache Miss。</li>
+</ul>
+<p><strong>故此，对应的优化方案为</strong>：</p>
+<ul>
+<li><strong>使用 NUMA 亲和</strong>：避免 CPU 跨 NUMA 访问内存。</li>
+<li><strong>使用 CPU 绑核</strong>：避免跨 CPU 的线程&#x2F;进程切换。</li>
+<li><strong>使用大页内存</strong>：避免 TLB Cache Miss。</li>
+<li><strong>使用 DPDK</strong>：内核旁路技术避免了频繁的硬件中断和无效数据拷贝。</li>
+</ul>
+<h1 id="DPDK"><a href="#DPDK" class="headerlink" title="DPDK"></a>DPDK</h1><p><strong>DPDK（Data Plane Development Kit，数据平面开发套件）是一个开源的、快速处理数据平面数据包转发的开发平台及接口</strong>。运行于 Intel x86 与 ARM 平台上，最新版本也开始支持 PowerPC。</p>
+<p>英特尔在 2010 年启动了对 DPDK 技术的开源化进程，于当年 9 月通过 BSD 开源许可协议正式发布源代码软件包，并于 2014 年 4 月在 <a target="_blank" rel="noopener" href="http://www.dpdk.org/">www.dpdk.org</a> 上正式成立了独立的开源社区平台，为开发者提供支持。开源社区的参与者们大幅推进了 DPDK 的技术创新和快速演进，而今它已发展成为 SDN 和 NFV 的一项关键技术。</p>
+<p>DPDK 提供了一个用户态的高效数据包处理库函数，它通过环境抽象层、内核旁路协议栈、轮询模式的报文无中断收发、优化内存&#x2F;缓冲区&#x2F;队列管理、基于网卡多队列和流识别的负载均衡等多项技术，实现了在 x86 处理器架构下的高性能报文转发能力，用户可以在 Linux 用户态开发各类高速转发应用，也适合与各类商业化的数据平面加速解决方案进行集成。简而言之，<strong>DPDK 重载了网卡驱动，将数据包的控制平面和数据平面分离，驱动在收到数据包后不再硬中断通知 CPU，而是让数据包通过内核旁路的协议栈绕过了 Linux 内核协议栈，并通过零拷贝技术存入内存，这时应用层的程序就可以通过 DPDK 提供的接口读取数据包</strong>。</p>
+<p><strong>DPDK 数据包处理流程</strong>：<br>![在这里插入图片描述](DPDK 完全内核旁路技术实现&#x2F;105ee641fe8655b1f338c305e3258734.png)<br>这种处理方式节省了 CPU 中断时间、内存拷贝时间，并向应用层提供了简单易行且高效的数据包处理接口函数，使得网络应用的开发更加方便。但同时，由于需要重载网卡驱动，因此该开发包目前只能用在部分采用 Intel 网络处理芯片的网卡设备中。DPDK 支持的网卡列表：<a target="_blank" rel="noopener" href="https://core.dpdk.org/supported/%EF%BC%8C%E4%B8%BB%E6%B5%81%E4%BD%BF%E7%94%A8">https://core.dpdk.org/supported/，主流使用</a> Intel 82599（光口）和 Intel x540（电口)。DPDK 可以将数据包处理性能最多提高十倍。在单个英特尔至强处理器上获得超过 80 Mbps 的吞吐量，在双处理器配置中则可将该其提高一倍。</p>
+<h1 id="DPDK-在-NFV-中的应用"><a href="#DPDK-在-NFV-中的应用" class="headerlink" title="DPDK 在 NFV 中的应用"></a>DPDK 在 NFV 中的应用</h1><p>NFV 通过在通用 x86 架构硬件上运行的虚拟化网络功能（VNF），为电信运营商和互联网服务商提供了一种灵活的业务部署手段和高效的组网方案，可以支持固&#x2F;移网络和 IDC 中 NAT、DPI、EPC、FW 等各类业务功能的灵活部署与弹性扩展。</p>
+<p>不同于典型数据中心业务和企业网业务，电信广域网业务要求网元（如 BNG、DPI 等）具有高吞吐、低时延、海量流表支持、用户级 QoS 控制的特点。大量实践表明，通用 x86 服务器作为 NFV 基础设施用于高转发业务时，面临着严重的数据包转发性能瓶颈，需要有针对性地从硬件架构、系统 I&#x2F;O、操作系统、虚拟化层、组网与流量调度、VNF 功能等层面进行性能优化，才能达到各类 NFV 网络业务的高性能转发要求。</p>
+<p>根据 ETSI 的 NFV 参考架构，现实中的 NFV 应用系统一般由 NFV 基础设施（VIM）和 VNF 两类系统服务商提供。因此，相应的 NFV 端到端性能测试，也应划分为底层的 VIM 性能与上层的 VNF 性能两类，以明确各自的性能瓶颈，并避免性能调优工作相互干扰。</p>
+<p>在 VIM 层面，由于采用了软件转发和软件交换技术，单个物理服务器内部的数据转发能力是 NFV 的主要性能瓶颈。在各类高速转发的 NFV 应用中，数据报文从网卡中接收，再传送到虚拟化的用户态应用程序处理。整个过程要经历 CPU 中断处理、虚拟化 I&#x2F;O 与地址映射转换、虚拟交换层、内核协议栈、内核上下文切换、内存拷贝等多个费时的 CPU 操作和 I&#x2F;O 处理环节。面对这样的性能损耗问题，业内通常采用消除海量中断、内核旁路协议栈、减少内存拷贝、CPU 多核任务分担、Intel VT 等技术来综合提升服务器数据平面的报文处理性能。但由于技术栈复杂，普通用户较难掌握，业界迫切需要一种综合的性能优化方案，同时提供良好的用户开发和商业集成环境。</p>
+<p>在 VIM 层的各类性能优化技术方案中，DPDK 加速技术方案成为其中的典型代表。DPDK 以用户数据 I&#x2F;O 通道优化为基础，结合了 Intel VT 技术、操作系统、虚拟化层与 vSwitch 等多种优化方案，已经形成了完善的性能加速整体架构，并提供了用户态 API 供高速转发类应用访问。<br>![在这里插入图片描述](DPDK 完全内核旁路技术实现&#x2F;77cce544a02cb352b76145d7e7397bfa.png)</p>
+<h1 id="DPDK-基本技术"><a href="#DPDK-基本技术" class="headerlink" title="DPDK 基本技术"></a>DPDK 基本技术</h1><p>DPDK 技术分为基本技术和优化技术两类。其中，前者指标准的 DPDK 数据平面开发包和 I&#x2F;O 转发实现技术。</p>
+<h2 id="DPDK-实现原理"><a href="#DPDK-实现原理" class="headerlink" title="DPDK 实现原理"></a>DPDK 实现原理</h2><p>![在这里插入图片描述](DPDK 完全内核旁路技术实现&#x2F;cf7da95d7b54ce618753386cb8447384.png)</p>
+<ul>
+<li><strong>内核协议栈（左边）</strong>：网卡 -&gt; 驱动 -&gt; 协议栈 -&gt; Socket 接口 -&gt; 业务。</li>
+<li><strong>DPDK 基于 UIO（User Space I&#x2F;O）的内核旁路（右边）</strong>：网卡 -&gt; DPDK 轮询模式-&gt; DPDK 基础库 -&gt; 业务。</li>
+</ul>
+<p><strong>NOTE</strong>：说 DPDK 依赖网卡设备不如说 DPDK 依赖的是网卡设备对应的驱动程序。支持 DPDK 的 NIC Kernel Driver 可以转换为 UIO Driver 模式。由此，如有需要，DPDK 实际上是可以在虚拟机上使用的，前提是网卡设备通过 Passthrough 的方式给到虚拟机。所以，该场景中 SR-IOV 网卡会是一个不错的选择。</p>
+<h2 id="DPDK-架构"><a href="#DPDK-架构" class="headerlink" title="DPDK 架构"></a>DPDK 架构</h2><p>![在这里插入图片描述](DPDK 完全内核旁路技术实现&#x2F;3985ddd79f0e63d5f78f735adc06fd80.png)</p>
+<p>在最底部的内核态（Linux Kernel），DPDK 拥有两个模块：KNI 与 IGB_UIO。而 DPDK 的上层用户态由很多库组成，主要包括核心部件库（Core Libraries）、平台相关模块（Platform）、网卡轮询模式驱动模块（PMD-Natives&amp;Virtual）、QoS 库、报文转发分类算法（Classify）等几大类，用户应用程序可以使用这些库进行二次开发。下面我们逐一介绍这些组件的功能和作用。</p>
+<h3 id="UIO，DPDK-的基石"><a href="#UIO，DPDK-的基石" class="headerlink" title="UIO，DPDK 的基石"></a>UIO，DPDK 的基石</h3><p>传统的收发数据包方式，首先网卡通过中断方式通知内核协议栈对数据包进行处理，内核协议栈先会对数据包进行合法性进行必要的校验，然后判断数据包目标是否为本机的 Socket，满足条件则会将数据包拷贝一份向上递交到用户态 Socket 来处理。不仅处理路径冗长，还需要从内核到应用层的一次拷贝过程。</p>
+<p>为了使得网卡驱动（e.g. PMD Driver）运行在用户态，实现内核旁路。Linux 提供了 UIO（User Space I&#x2F;O）机制。使用 UIO 可以通过 read() 感知中断，通过 mmap() 实现和网卡设备的通讯。</p>
+<p>简单来说，UIO 是用户态的一种 I&#x2F;O 技术，DPDK 能够绕过内核协议栈，提供了用户态 PMD Driver 的支持，根本上是得益于 UIO 技术。DPDK 架构在 Linux 内核中安装了 IGB_UIO（igb_uio.ko 和 kni.ko.IGB_UIO）模块，以此借助 UIO 技术来截获中断，并重设中断回调行为，从而绕过内核协议栈后续的处理流程。并且 IGB_UIO 会在内核初始化的过程中将网卡硬件寄存器映射到用户态。</p>
+<p>UIO 的实现机制是：对用户态暴露文件接口。当注册一个 UIO 设备 uioX 时，就会出现系统文件 &#x2F;dev&#x2F;uioX，对该文件的读写就是对网卡设备内存的读写。除此之外，对网卡设备的控制还可以通过 &#x2F;sys&#x2F;class&#x2F;uio 下的各个文件的读写来完成。如下图：</p>
+<p>![在这里插入图片描述](DPDK 完全内核旁路技术实现&#x2F;4d6567df14510ff9ef93c6e6429a1797.png)</p>
+<p>此外，DPDK 还在用户态实现了一套精巧的内存池技术，内核态和用户态之间的的内存交互不进行拷贝，只做控制权转移。这样，当收发数据包时，就减少了内存拷贝的开销。</p>
+<h3 id="PMD，DPDK-的核心优化"><a href="#PMD，DPDK-的核心优化" class="headerlink" title="PMD，DPDK 的核心优化"></a>PMD，DPDK 的核心优化</h3><p>我们知道，Linux 内核在收包时有两种方式可供选择，一种是中断方式，另外一种是轮询方式。</p>
+<p>从哲学的角度来说，中断是外界强加给你的信号，你必须被动应对，而轮询则是你主动地处理事情。前者最大的影响就是打断你当前工作的连续性，而后者则不会，事务的安排自在掌握。</p>
+<p><strong>中断对性能的影响有多大</strong>？在 x86 体系结构中，一次中断处理需要将 CPU 的状态寄存器保存到堆栈，并运行中断服务程序，最后再将保存的状态寄存器信息从堆栈中恢复。整个过程需要至少 300 个处理器时钟周期。</p>
+<p><strong>轮询对性能的提升有多大</strong>？网卡收到报文后，可以借助 DDIO（Direct Data I&#x2F;O）技术直接将报文保存到 CPU 的 Cache 中，或者保存到内存中（没有 DDIO 技术的情况下），并设置报文到达的标志位。应用程序则可以周期性地轮询报文到达的标志位，检测是否有新报文需要处理。整个过程中完全没有中断处理过程，因此应用程序的网络报文处理能力得以极大提升。</p>
+<p>故此，想要 CPU 执行始终高效，就必然需要一个内核线程去主动 Poll（轮询）网卡，而这种行为与当前的内核协议栈是不相容的，即便当前内核协议栈可以使用 NAPI 中断+轮询的方式，但依旧没有根本上解决问题。除非再重新实现一套全新的内核协议栈，显然这并不现实，但幸运的是，我们可以在用户态实现这一点。</p>
+<p>针对 Intel 网卡，DPDK 实现了基于轮询方式的 PMD（Poll Mode Drivers）网卡驱动。该驱动由用户态的 API 以及 PMD Driver 构成，内核态的 UIO Driver 屏蔽了网卡发出的中断信号，然后由用户态的 PMD Driver 采用主动轮询的方式。除了链路状态通知仍必须采用中断方式以外，均使用无中断方式直接操作网卡设备的接收和发送队列。</p>
+<p>PMD Driver 从网卡上接收到数据包后，会直接通过 DMA 方式传输到预分配的内存中，同时更新无锁环形队列中的数据包指针，不断轮询的应用程序很快就能感知收到数据包，并在预分配的内存地址上直接处理数据包，这个过程非常简洁。</p>
+<p>PMD 极大提升了网卡 I&#x2F;O 性能。此外，PMD 还同时支持物理和虚拟两种网络接口，支持 Intel、Cisco、Broadcom、Mellanox、Chelsio 等整个行业生态系统的网卡设备，以及支持基于 KVM、VMware、 Xen 等虚拟化网络接口。PMD 实现了 Intel 1GbE、10GbE 和 40GbE 网卡下基于轮询收发包。</p>
+<p>UIO+PMD，前者旁路了内核，后者主动轮询避免了硬中断，DPDK 从而可以在用户态进行收发包的处理。带来了零拷贝（Zero Copy）、无系统调用（System call）的优化。同时，还避免了软中断的异步处理，也减少了上下文切换带来的 Cache Miss。</p>
+<p>值得注意的是，运行在 PMD 的 Core 会处于用户态 CPU 100% 的状态，如下图：<br>![在这里插入图片描述](DPDK 完全内核旁路技术实现&#x2F;815b4dbb52cf35136f181cd108c31247.png)<br>由于，网络空闲时 CPU 会长期处于空转状态，带来了电力能耗的问题。所以，DPDK 引入了 Interrupt DPDK（中断 DPDK)模式。Interrupt DPDK 的原理和 NAPI 很像，就是 PMD 在没数据包需要处理时自动进入睡眠，改为中断通知，接收到收包中断信号后，激活主动轮询。这就是所谓的链路状态中断通知。并且 Interrupt DPDK 还可以和其他进程共享一个 CPU Core，但 DPDK 进程仍具有更高的调度优先级。</p>
+<p>![在这里插入图片描述](DPDK 完全内核旁路技术实现&#x2F;c98166c0748831847357647ba00ad7a3.png)</p>
+<h3 id="IGB-UIO"><a href="#IGB-UIO" class="headerlink" title="IGB_UIO"></a>IGB_UIO</h3><p>虽然 PMD 是在用户态实现的驱动程序，但实际上还是会依赖于内核提供的策略。其中 UIO 内核模块，是内核提供的用户态驱动框架，而 igb_uio 是 DPDK 用于与 UIO 交互的内核模块，通过 igb_uio 来 bind 指定的 PCI 网卡设备到 DPDK 使用。</p>
+<p><strong>igb_uio 内核模块主要功能之一就是用于注册一个 PCI 设备</strong>。实际上这是由 DPDK 提供个一个 Python 脚本 dpdk-devbind 来完成的，当执行 dpdk-devbind 来 bind 网卡时，会通过 sysfs 与内核交互，让内核使用指定的驱动程序来匹配网卡。具体的行为是向文件 &#x2F;sys&#x2F;bus&#x2F;pci&#x2F;devices&#x2F;(pci id)&#x2F;driver_override 写入指定驱动的名称，或者向 &#x2F;sys&#x2F;bus&#x2F;pci&#x2F;drivers&#x2F;igb_uio(驱动名称)&#x2F;new_id 写入要 bind 的网卡设备的 PCI ID。前者是配置设备，让其选择驱动；后者是是配置驱动，让其支持新的 PCI 设备。按照内核的文档 <a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-pci">https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-pci</a> 中提到，这两个动作都会促使驱动程序 bind 新的网卡设备。</p>
+<p><strong>dpdk-devbind 具体的步骤如下</strong>：</p>
+<ol>
+<li>获取脚本执行参数指定的网卡（e.g. eth1）设备的 PCI 信息。实际是执行指令 lspci–Dvmmn 查看，主要关注 Slot、Vendor 以及 Device 信息。</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">Slot: 0000:06:00.1<br>Class: 0200<br>Vendor: 8086<br>Device: 1521<br>SVendor: 15d9<br>SDevice: 1521<br>Rev: 01<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>unbind 网卡设备之前的 igb 模块，将 Step 1 中获取到的 eth1 对应的 Slot 信息 0000:06:00.1 值写入 igb 驱动的 unbind 文件。e.g. echo 0000:06:00.1 &gt; &#x2F;sys&#x2F;bus&#x2F;pci&#x2F;drivers&#x2F;igb&#x2F;unbind。</li>
+<li>bind 网卡设备到新的 igb_uio 模块，将 eth1 的 Vendor 和 Device ID 信息写入 igb_uio 驱动的 new_id 文件。e.g. echo 0x8086 0x1521 &gt; &#x2F;sys&#x2F;bus&#x2F;pci&#x2F;drivers&#x2F;igb_uio&#x2F;new_id。</li>
+</ol>
+<p><strong>igb_uio 内核模块的另一个主要功能就是让用于态的 PMD 驱动程序得以与 UIO 进行交互</strong>：</p>
+<ol>
+<li>调用 igbuio_setup_bars，设置 uio_info 的 uio_mem 和 uio_port。</li>
+<li>设置 uio_info 的其他成员。</li>
+<li>调用 uio_register_device，注册 UIO 设备。</li>
+<li>打开 UIO 设备并注册中断。</li>
+<li>调用 uio_event_notify，将注册的 UIO 设备的 “内存空间” 映射到用户态的应用空间。其 mmap 的函数为 uio_mmap。至此，UIO 就可以让 PMD 驱动程序在用户态应用层访问设备的大部分资源了。</li>
+<li>应用层 UIO 初始化。同时，DPDK 还需要把 PCI 设备的 BAR 映射到应用层。在 pci_uio_map_resource 函数中会调用 pci_uio_map_resource_by_index 做资源映射。</li>
+<li>在 PMD 驱动程序中，DPDK 应用程序，会调用 rte_eth_rx_burst 读取数据报文。如果网卡接收 Buffer 的描述符表示已经完成一个报文的接收（e.g. 有 E1000_RXD_STAT_DD 标志），则 rte_mbuf_raw_alloc 一个 mbuf 进行处理。</li>
+<li>对应 RTC 模型的 DPDK 应用程序来说，就是不断的调用 rte_eth_rx_burst 去询问网卡是否有新的报文。如果有，就取走所有的报文或达到参数 nb_pkts 的上限。然后进行报文处理，处理完毕，再次循环。</li>
+</ol>
+<h3 id="KNI"><a href="#KNI" class="headerlink" title="KNI"></a>KNI</h3><p>KNI（Kernel NIC Interface，内核网卡接口），是 DPDK 允许用户态和内核态交换报文的解决方案，模拟了一个虚拟的网口，提供 DPDK 应用程序和 Linux 内核之间通讯没接。即 KNI 接口允许报文从用户态接收后转发到 Linux 内核协议栈中去。</p>
+<p>虽然 DPDK 的高速转发性能很出色，但是也有自己的一些缺点，比如没有标准协议栈就是其中之一，当然也可能当时设计时就将没有将协议栈考虑进去，毕竟协议栈需要将报文转发处理，可能会使处理报文的能力大大降低。</p>
+<p>![在这里插入图片描述](DPDK 完全内核旁路技术实现&#x2F;c6288f990867683e2bf7ac2497956678.png)</p>
+<p>上图是 KNI 的 mbuf 的使用流程，也可以看出报文的流向，因为报文在代码中其实就是一个个内存指针。其中 rx_q 右边是用户态，左边是内核态。最后通过调用 netif_rx 将报文送入 Linux 内核协议栈，这其中需要将 DPDK 的 mbuf 转换成标准的 skb_buf 结构体。当 Linux 内核向 KNI 端口发送报文时，调用回调函数 kni_net_tx，然后报文经过转换之后发送到端口上。</p>
+<h3 id="核心部件库"><a href="#核心部件库" class="headerlink" title="核心部件库"></a>核心部件库</h3><p>核心部件库（Core Libraries）是 DPDK 面向用户态协议栈应用程序员开发的模块。</p>
+<ul>
+<li><strong>EAL（Environment Abstraction Layer，环境抽象层）</strong>：对 DPDK 的运行环境（e.g. Linux 操作系统）进行初始化，包括：HugePage 内存分配、内存&#x2F;缓冲区&#x2F;队列分配、原子性无锁操作、NUMA 亲和性、CPU 绑定等，并通过 UIO 或 VFIO 技术将 PCI&#x2F;PCIe 设备地址映射到用户态，方便了用户态的 DPDK 应用程序调用。同时为应用程序提供了一个通用接口，隐藏了其与底层库以及设备打交道的相关细节。</li>
+<li><strong>MALLOC（堆内存管理组件）</strong>：为 DPDK 应用程序提供从 HugePage 内分配堆内存的接口。当需要为 SKB（Socket Buffer，本质是若干个数据包的缓存区）分配大量的小块内存时（如：分配用于存储 Buffer descriptor table 中每个表项指针的内存）可以调用该接口。由于堆内存是从 HugePage 内存分配的，所以可以减少 TLB 缺页。</li>
+</ul>
+<p><strong>NOTE</strong>：堆，是由开发人员主动分配和释放的存储空间， 若开发人员不释放，则程序结束时由 OS 回收，分配方式类似于链表；与堆不同，栈，是由操作系统自动分配和释放的存储空间 ，用于存放函数的参数值、局部变量等，其操作方式类似于数据结构中的栈。</p>
+<ul>
+<li><strong>MBUF（网络报文缓存块管理组件）</strong>：为 DPDK 应用程序提供创建和释放用于存储数据报文信息的缓存块的接口。提供了两种类型的 MBUF，一种用于存储一般信息，一种用于存储实际的报文数据。这些 MBUF 存储在一个内存池中。</li>
+<li><strong>MEMPOOL（内存池管理组件）</strong>：为 DPDK 应用程序和其它组件提供分配内存池的接口，内存池是一个由固定大小的多个内存块组成的内存容器，可用于存储不同的对像实体，如：数据报文缓存块等。内存池由内存池的名称（一个字符串）进行唯一标识，它由一个 Ring 缓冲区和一组本地缓存队列组成，每个 CPU Core 优先从自身的缓存队列中分配内存块，当本地缓存队列减少到一定程度时，开始从内存环缓冲区中申请内存块来进行补充。</li>
+<li><strong>RING（环缓冲区管理组件）</strong>：为 DPDK 应用程序和其它组件提供一个无锁的多生产者多消费者 FIFO 队列。</li>
+</ul>
+<p><strong>NOTE</strong>：DPDK 基于 Linux 内核的无锁环形缓冲 kfifo 实现了一套自己的无锁机制。支持单生产者入列&#x2F;单消费者出列和多生产者入列&#x2F;多消费者出列操作，在数据传输的时候，降低性能的同时还能保证数据的同步。</p>
+<ul>
+<li><strong>TIMER（定时器组件）</strong>：提供一些异步周期执行的接口（也可以只执行一次），可以指定某个函数在规定时间内的异步执行，就像 LIBC 中的 timer 定时器。但是这里的定时器需要 DPDK 应用程序在主循环中周期内调用 rte_timer_manage 来使能定时器，使用起来不那么方便。TIMER 的时间参考来自 EAL 层提供的时间接口。</li>
+</ul>
+<h3 id="核心部件库对应的-DPDK-核心组件实现"><a href="#核心部件库对应的-DPDK-核心组件实现" class="headerlink" title="核心部件库对应的 DPDK 核心组件实现"></a>核心部件库对应的 DPDK 核心组件实现</h3><p>![在这里插入图片描述](DPDK 完全内核旁路技术实现&#x2F;7eb4e636e701d0ade7aefba4a46e60bb.png)</p>
+<p><strong>注</strong>：</p>
+<ul>
+<li>RTE：Run-Time Environment</li>
+<li>EAL：Environment Abstraction Layer</li>
+<li>PMD：Poll-Mode Driver</li>
+</ul>
+<p><strong>Memory Manager（librte_malloc，堆内存管理器）</strong>：提供一组 API，用于从 HugePages 内存创建的 memzones 中分配内存。</p>
+<p><strong>Ring Manager（librte_ring，环形队列管理器）</strong>：在一个大小有限的页表中，Ring 数据结构提供了一个无锁的多生产者-多消费者 FIFO API。相较于无锁队列，它有一些的优势，如：更容易实现，适应于大容量操作，而且速度更快。 Ring 在 Memory Pool Manager 中被使用，而且 Ring 还用于不同 CPU Core 之间或是 Processor 上处理单元之间的通信。</p>
+<p><strong>Memory Pool Manager（librte_mempool，内存池管理器）</strong>：内存池管理器负责分配的内存中的 Pool 对象。Pool 由名称唯一标识，并使用一个 Ring 来存储空闲对象。它提供了其他一些可选的服务，例如：每个 CPU Core 的对象缓存和对齐方式帮助，以确保将填充的对象在所有内存通道上得到均匀分布。</p>
+<p><strong>Network Packet Buffer Management（librte_mbuf，网络报文缓冲管理）</strong>：提供了创建和销毁数据报文缓冲区的能力。DPDK 应用程序中可以使用这些缓存区来存储消息以及报文数据。</p>
+<p><strong>Timer Manager（librte_timer，定时器管理）</strong>：为 DPDK 应用程序的执行单元提供了定时服务，为函数异步执行提供支持。定时器可以设置周期调用或只调用一次。DPDK 应用程序可以使用 EAL 提供的接口获取高精度时钟，并且能在每个核上根据需要进行初始化。</p>
+<h3 id="平台相关模块"><a href="#平台相关模块" class="headerlink" title="平台相关模块"></a>平台相关模块</h3><p>平台相关模块（Platform）包括 KNI、POWER（能耗管理）以及 IVSHMEM 接口。</p>
+<ul>
+<li><strong>KNI</strong>：主要通过 Linux 内核中的 kni.ko 模块将数据报文从用户态传递给内核态协议栈处理，以便常规的用户进程（e.g. Container）可以使用 Linux 内核协议栈传统的 Socket 接口对相关报文进行处理。</li>
+<li><strong>POWER</strong>：提供了一些 API，让 DPDK 应用程序可以根据收包速率动态调整 CPU 频率或让 CPU 进入不同的休眠状态。</li>
+<li><strong>IVSHMEM</strong>：模块提供了虚拟机与虚拟机之间，或者虚拟机与主机之间的零拷贝共享内存机制。当 DPDK 应用程序运行时，IVSHMEM 模块会调用 Core Libraries 的 API，把几个 HugePage 内存映射为一个 IVSHMEM 设备池，并通过参数传递给 QEMU，这样，就实现了虚拟机之间的零拷贝内存共享。</li>
+</ul>
+<h2 id="几个关键-API-的使用举例"><a href="#几个关键-API-的使用举例" class="headerlink" title="几个关键 API 的使用举例"></a>几个关键 API 的使用举例</h2><ul>
+<li><strong>Buffer Manager API</strong>：通过预先从 EAL 上分配固定大小的多个内存对象，避免了在运行过程中动态进行内存分配和回收，以此来提高效率，用于数据包 Buffer 的管理。</li>
+<li><strong>Queue&#x2F;Ring Manager API</strong>：以高效的方式实现了无锁的 FIFO 环形队列，适用于一个生产者多个消费者、一个消费者多个生产者模型。支持批量无锁操作，可避免锁冲突导致的等待。</li>
+<li><strong>Packet Flow Classification API</strong>：通过 Intel SSE 基于多元组的方式实现了高效的 HASH 算法，以便快速对数据包进行分类处理。该 API 一般用于路由查找过程中的最长前缀匹配。此外，安全产品场景中，可以根据 DataFlow 五元组来标记不同的用户。</li>
+</ul>
+<p>![在这里插入图片描述](DPDK 完全内核旁路技术实现&#x2F;8334149672f16fac2ba8dc414306014e.png)</p>
+<h1 id="DPDK-优化技术"><a href="#DPDK-优化技术" class="headerlink" title="DPDK 优化技术"></a>DPDK 优化技术</h1><p>DPDK 优化技术指在 DPDK 应用过程中，为进一步提高各类用户应用程序的转发性能，所采取的性能调优方法和关键配置。</p>
+<h2 id="DPDK-性能影响因素"><a href="#DPDK-性能影响因素" class="headerlink" title="DPDK 性能影响因素"></a>DPDK 性能影响因素</h2><p>本节主要介绍基于 DPDK 进行应用开发和环境配置时，应用程序性能的影响因素以及相应的优化调整方法。这些因素并非必然劣化性能，可能因硬件能力、OS 版本、各类软硬环境参数配置等的差异产生较大波动，或者存在较大的不稳定性，相关的调优方法需要用户结合自身的 VNF 应用部署在实践中不断完善。</p>
+<h3 id="硬件结构的影响"><a href="#硬件结构的影响" class="headerlink" title="硬件结构的影响"></a>硬件结构的影响</h3><p>DPDK 具有广泛的平台适应性，可以运行在整个 x86 平台，从主流服务器平台（从高性能或者高能效产品系列），到桌面或者嵌入式平台，也可以运行于基于 Power 或者其他架构的运算平台。下图展示了一个通用双路服务器的内部架构，它包含了 2 个中央处理器，2 个分离的内存控制单元来连接系统内存，芯片组会扩展出大量高速的 PCIe 2.0&#x2F;3.0 接口，用于连接外设，如 10Gbps 或者 25Gbps 网卡外设。</p>
+<p>![在这里插入图片描述](DPDK 完全内核旁路技术实现&#x2F;f1cc76b3e1fe16d8fa705b276bd19b9e.png)<br>硬件规格对 DPDK 性能的影响体现在几个方面：</p>
+<ul>
+<li>CPU 频率：CPU 频率越高，DPDK 性能越高。</li>
+<li>LLC（Last Leve Cache）大小：缓存越大，DPDK 性能越高。</li>
+<li>PCIe Lane 的数目：PCIe 链路可以支持 1、2、4、8、12、16 和 32 个 Lane，需要确保其带宽可以满足所插网卡的带宽。</li>
+<li>NUMA：网络数据报文的处理由网卡所在的 NUMA 节点处理，将会比远端 NUMA 节点处理的性能更高。</li>
+</ul>
+<h3 id="OS-版本及其内核的影响"><a href="#OS-版本及其内核的影响" class="headerlink" title="OS 版本及其内核的影响"></a>OS 版本及其内核的影响</h3><p>不同的 Linux OS 发行版使用的 Linux 内核版本不一样，配置的 Linux OS 服务也不一样。这些差异都会导致应用程序在网络报文处理能力上有所差别。由于 Linux 内核还在不断演进，Linux 的发行版也数量众多，同样的硬件配置环境下，不同的 Linux 发行版在小包的处理能力上存在差异。本文无法提供最佳 Linux 内核版本和配置，而只能给出部分参考建议，如：关闭部分 OS 服务。</p>
+<h3 id="OVS-性能问题"><a href="#OVS-性能问题" class="headerlink" title="OVS 性能问题"></a>OVS 性能问题</h3><p>OVS 作为 NFV 的一个重要组成模块，会运行在绝大多数的服务器节点上，提供虚拟机和虚拟机之间，以及虚拟网络和物理网络间的互连接口，其性能至关重要。OVS 2.4 开始正式支持 DPDK 加速，相比传统基于 Linux 内核的 OVS 版本，转发性能提高了数倍，为 VNF 在通用 x86 服务器上部署提供了有力支持。</p>
+<p>OVS 缺省会为每一个 NUMA 节点创建一个 pmd 线程，该 pmd 线程以轮询方式处理属于其 NUMA 节点上的所有 DPDK 接口。为了高性能，需要利用前面提到的 CPU 绑核技术，把 pmd 线程绑定在一个固定的 CPU core 上处理。此外，为了增加扩展性，OVS 2.4 也支持网卡多队列以及多 pmd 线程数，这些参数均可动态配置，但具体配置应根据具体需求来决定。</p>
+<h3 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h3><p>如前所述，DPDK 考虑了 NUMA 以及多内存通道的访问效率，会在系统运行前要求配置 Linux 的 HugePage，初始化时申请其内存池，用于 DPDK 运行的主要内存资源。Linux 大页机制利用了处理器核上的的 TLB 的 HugePage 表项，这可以减少内存地址转换的开销。</p>
+<h3 id="CPU-核间无锁通信"><a href="#CPU-核间无锁通信" class="headerlink" title="CPU 核间无锁通信"></a>CPU 核间无锁通信</h3><p>如果想建立一个基于消息传递的核间通信机制，可以使用 DPDK Ring API，它是一个无锁的 ring 实现。该 Ring 机制支持批量和突发访问，即使同时读取几个对象，也只需要一个昂贵的原子操作，批量访问可以极大地改善性能。</p>
+<h3 id="设置正确的目标-CPU-类型与模式"><a href="#设置正确的目标-CPU-类型与模式" class="headerlink" title="设置正确的目标 CPU 类型与模式"></a>设置正确的目标 CPU 类型与模式</h3><p>DPDK 支持 CPU 微架构级别的优化，可以通过修改 DPDK 配置文件中的 CONFIG_RTE_MACHINE 参数来定义。优化的程度根据随编译器的能力而不同，通常建议采用最新的编译器进行编译。如果编译器的版本不支持该款 CPU 的特性，比如 Intel AVX 指令，那么它在编译时只会选用自己支持的指令集，这可能导致编译后生成的 DPDK 应用的性能下降。</p>
+<h2 id="优化方案"><a href="#优化方案" class="headerlink" title="优化方案"></a>优化方案</h2><h3 id="应用-NUMA-亲和性技术减少跨-NUMA-内存访问"><a href="#应用-NUMA-亲和性技术减少跨-NUMA-内存访问" class="headerlink" title="应用 NUMA 亲和性技术减少跨 NUMA 内存访问"></a>应用 NUMA 亲和性技术减少跨 NUMA 内存访问</h3><h3 id="应用-CPU-绑核技术减少上下文切换损耗"><a href="#应用-CPU-绑核技术减少上下文切换损耗" class="headerlink" title="应用 CPU 绑核技术减少上下文切换损耗"></a>应用 CPU 绑核技术减少上下文切换损耗</h3><h3 id="应用大页内存技术减少-TLB-miss"><a href="#应用大页内存技术减少-TLB-miss" class="headerlink" title="应用大页内存技术减少 TLB miss"></a>应用大页内存技术减少 TLB miss</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-attribute">default_hugepagesz</span>=1G <span class="hljs-attribute">hugepagesz</span>=1G <span class="hljs-attribute">hugepages</span>=32 <span class="hljs-attribute">isolcpus</span>=0-22<br>mount –t hugetlbfs nodev /mnt/huge<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/NETWORK/" class="category-chain-item">NETWORK</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>DPDK 完全内核旁路技术实现</div>
+      <div>http://blog.uanet.cn/NETWORK/DPDK 完全内核旁路技术实现.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/NETWORK/DPDK%E5%85%A5%E9%97%A8.html" title="DPDK入门">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">DPDK入门</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/NETWORK/CIC-IDS2017%E6%95%B0%E6%8D%AE%E9%9B%86%E8%AE%AD%E7%BB%83%E5%92%8C%E6%B5%8B%E8%AF%95.html" title="CIC-IDS2017数据集训练和测试">
+                        <span class="hidden-mobile">CIC-IDS2017数据集训练和测试</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

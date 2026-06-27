@@ -1,0 +1,1062 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="PS和PL通信机制 ​">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZYNQ防火墙开发12-ETH-AXI-GMII">
+<meta property="og:url" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="PS和PL通信机制 ​">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240423_155134.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_140715.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEEView-image-9-1.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEEView-image-12.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEView-image-10-1.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEEView-image-13.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Create-Project-1712319151540-75.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240405_205003.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-1712319158092-81.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-1-1712319160257-84.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240405_205714.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-1-1712319169918-89.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_104431.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-5-1712319178543-98.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_110118.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_221325.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_204917.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_104727.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_112718.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_205216.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_205945.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_212201.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_152720.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_230118.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113300.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113444.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113623.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113728.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_134534.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114027.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114224.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114308.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114623.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_135329.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_144949.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_135606.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/gmii_to_rgmii_and_axi_ethernet_subsystem_45.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_135606-1714024917038-62.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_140513.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_142406.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_142729.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_145047.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/gmii_to_rgmii_and_axi_ethernet_subsystem_51.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_152818.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_153103.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/gmii_to_rgmii_and_axi_ethernet_subsystem_56.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_153601.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240507_141623.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-140.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-142.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-21.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-143.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-149.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-12-1024x619.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-156.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-13-1024x735.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-18-1024x377.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-19.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-20.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-21-1726740003346-1.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-22.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-24-1024x517.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-23.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-4.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-25.png">
+<meta property="article:published_time" content="2025-02-13T05:53:21.012Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:21.012Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240423_155134.png">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>ZYNQ防火墙开发12-ETH-AXI-GMII - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ZYNQ防火墙开发12-ETH-AXI-GMII"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          3.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          29 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">ZYNQ防火墙开发12-ETH-AXI-GMII</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="PS和PL通信机制"><a href="#PS和PL通信机制" class="headerlink" title="PS和PL通信机制"></a>PS和PL通信机制</h4><p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240423_155134.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240423_155134"></p>
+<p>​        </p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_140715.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240424_140715"></p>
+<p>ZYNQ 网络功能可以有3种方式实现</p>
+<ul>
+<li>一 PS端 MIO功能直接扩展以太网口</li>
+<li>二 PS端通过EMIO的方式将以太网口映射到PL端口上</li>
+<li>三 PL端口的硬件以太网功能 通过AXI的方式供PS端调用</li>
+</ul>
+<p>​    第三种方式利用的是上图中的主 AXI GP0 接口。HP 从属 AXI 接口提供与 DDR3 内存控制器的高带宽连接 - 这将是 DMA 引擎所需要的，我们将在将 AXI 以太网子系统模块添加到我们的设计中后创建该引擎。</p>
+<p>​    之前gpio的方式是用的AXI GP。由于ARM是统一编址，所以GP的gpio也是通过地址配置。</p>
+<p>​    AXI HP的PL是MASTER，DMA模式。</p>
+<p>​    和AXI DDR工程对比，DDR工程是PL_DDR_RW模块通过AXI HP访问DDR，而本工程是听过AXI INTERNET模块以DMA的方式通过AXI HP访问DDR。</p>
+<p>​    课程的目的是让还未有工作经验的同学尽快增加实战经验。为此还需说明下，实际开发当中有些和芯片相关的问题可以直接咨询芯片厂家的技术支持解决。而做为课程我这还需自己做好技术准备。</p>
+<p>矿卡默认为第二种方式</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">root@zedboard-zynq7:~# dmesg |grep eth0 <br>macb e000b000.ethernet eth0: Cadence GEM rev 0x00020118 at 0xe000b000 irq 148 (00:0a:35:00:01:22)<br></code></pre></td></tr></table></figure>
+
+<p>通过dmesg可以看到为macb驱动</p>
+<p>硬件驱动层实现原理<br>在硬件驱动层，主要是通过DMA进行网络数据包的收发，在控制器端维护一对TX&#x2F;RX包含desc的队列，mac层收到的每一包数据以及要通过mac层发出的数据信息被保存在这一对队列中，zynq上linux驱动的代码实现位于</p>
+<p>Macb.c (drivers\net\ethernet\cadence)中。</p>
+<p>第二种方式和arm接phy的没有本质区别。另外我们需要PL端处理以太报文，所以本节采用第三种方式。</p>
+<p>drivers&#x2F;net&#x2F;ethernet&#x2F;xilinx&#x2F;xilinx_axienet_main.c</p>
+<h4 id="TRANSMIT-INTERFACE-AND-FLOW"><a href="#TRANSMIT-INTERFACE-AND-FLOW" class="headerlink" title="TRANSMIT INTERFACE AND FLOW"></a>TRANSMIT INTERFACE AND FLOW</h4><p>From the above <strong>MAC Clock Domains figure</strong> we can see that the transmit data is stored in dual port memory starting from address <strong>0x0</strong> which uses word aligned addressing (4 bytes) which means we start at address 0x0 and then 0x4 (as 0x00, 0x01, 0x02, 0x03 are occupied with data).</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEEView-image-9-1.png" srcset="/img/loading.gif" lazyload alt="img">Transmit Dual Port Memory</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEEView-image-12.png" srcset="/img/loading.gif" lazyload alt="img">Transmit Flow</p>
+<h4 id="RECEIVE-INTERFACE"><a href="#RECEIVE-INTERFACE" class="headerlink" title="RECEIVE INTERFACE"></a>RECEIVE INTERFACE</h4><p>The receive data is also stored in dual port memory which starts at address <strong>0x1000.</strong> It is important to note that <strong>0x17FC bit[0] on the data bus</strong> is used <strong>as</strong> a <strong>status</strong> to <strong>indicate the presence of a receive packet</strong> that is <strong>ready</strong> for processing by software.</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEView-image-10-1.png" srcset="/img/loading.gif" lazyload alt="img">Receive Dual Port Memory</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEEView-image-13.png" srcset="/img/loading.gif" lazyload alt="img">Receive Flow</p>
+<p>We could now look at sample transactions but in the best use of time let’s go straight to using the EthernetLite IP and learn from <strong>doing</strong>.</p>
+<h2 id="1-工程创建"><a href="#1-工程创建" class="headerlink" title="1 工程创建"></a>1 <strong>工程创建</strong></h2><p>1）具体步骤 新建一个VIVADO 工程，打开软件 选中Create Project, 如下图所示</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Create-Project-1712319151540-75.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>2）点击NEXT ，在出现的第二个对话框“Project name”中输入工程名；在“Project location”中选择保存路径；勾选“Create project subdirectory”，最后点击“Next” <strong>备注，所有的路径均不能出现中文名称</strong></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240405_205003.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240405_205003"></p>
+<p>3)点击 RTL PROJECT 选项，点击NEXT</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-1712319158092-81.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>4） 第四步Add Sources 选项直接留空，NEXT</p>
+<p>5）第五步Add Constraints 选项直接留空，NEXT</p>
+<p>6）选择芯片型号 我们板子上用的芯片是XC7Z010 ，并在列表栏中选择对应的封装型号，完整型号是XC7Z010CLG400-1 如下所示，选中后点NEXT</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-1-1712319160257-84.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>7）确认所选信息 点击“Finish”，完成vivado的工程创建</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240405_205714.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2-创建一个BLOCK设计"><a href="#2-创建一个BLOCK设计" class="headerlink" title="2 创建一个BLOCK设计"></a><strong>2 创建一个BLOCK设计</strong></h2><p>1）IP INTEGRATOR→Create Block Design，在弹出的对话框中输入设计名，最后点击“OK”，如下图所示</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-1-1712319169918-89.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>​    在模块设计图中，您将看到一条消息，上面写着“Run Block Automation“。单击“Run Block Automation”链接。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_104431.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_104431"></p>
+<p>​    依次在弹窗里找到DDR Configuration→DDR Controller Configuration→DDR3，在Memory Part下拉菜单中根据自己板子上的DDR来选择相应的DDR3，本实验所用到型号：MT41K128M16JT 125，数据位宽选择16bit 最后点击“OK”,如下图所示。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-5-1712319178543-98.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>​    页面导航器中，选择“时钟配置”并打开“PL Fabric 时钟”树。请注意，默认情况下启用并设置为 100MHz，这将用作我们 AXI 接口的时钟。现在启用并分别将它们设置为 125MHz 和 200MHz。AXI 以太网子系统模块需要 FCLK_CLK1 （125MHz），它将用于为 RGMII 接口提供时钟。GMII 到 RGMII 和 AXI 以太网子系统 IP 都需要 FCLK_CLK2 （200MHz），并且需要为IDELAY_CTRLs提供时钟。<code>FCLK_CLK0``FCLK_CLK1``FCLK_CLK2</code></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_110118.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_110118"></p>
+<p>​        </p>
+<p>2）打开ZYNQ7 Processing system配置， 选中S AXI GP0 interface和M AXI GP0 interface。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_221325.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240424_221325"></p>
+<p>3）添加PS侧的中断</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_204917.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240424_204917"></p>
+<p>Block Automation 使用 ZedBoard 的板定义文件与外部硬件（如 DDR 和板载以太网端口）进行连接和引脚分配。只需确保勾选“应用板预设”，然后单击确定即可。    <img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_104727.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_104727"></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_112718.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_112718"></p>
+<ol start="4">
+<li>添加AXI 1G&#x2F;2.5G Ethernet Subsystem IP核。</li>
+</ol>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_205216.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240424_205216"></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_205945.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240424_205945"></p>
+<p>5） 运行模块自动连接。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_212201.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240424_212201"></p>
+<p>​    在块自动化运行其过程后，您会注意到它添加了一个名为 的时钟向导块。该模块生成一个 125MHz 和 200MHz 时钟来馈送以太网模块，但是我们将使用 Zynq PS 来生成这些时钟，因此我们不需要这个模块。在块上单击一次，然后按 Delete 将其从框图中删除。<code>axi_ethernet_0_refclk``axi_ethernet_0_refclk</code></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_152720.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_152720"></p>
+<p>6） 运行自动连接。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_230118.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240424_230118"></p>
+<p>​    当自动化功能运行完毕后，您会注意到您再次可以选择“运行连接自动化”。也许在 Vivado 的未来版本中不会出现这种情况，但 2015.4 会出现这种情况。因此，再次单击“运行连接自动化”，勾选以启用所有自动化接口并确保设置正确。它们都应配置为连接到 HP 从站 AXI 接口 （S_AXI_HP0） 并使用“自动”时钟连接。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113300.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_113300"></p>
+<p>​    为以太网的端口添加 GMII-to-RGMII 模块了。打开 IP 目录并双击“Gmii 到 Rgmii”</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113444.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_113444"></p>
+<p>​    双击 GMII-to-RGMII 块以打开 Re-customize IP 窗口</p>
+<p>​    在“核心功能”选项卡中，勾选“在设计中实例化 IDELAYCTRL”，将 PHY 地址设置为 8，然后选择“由 PHY 添加的偏斜”选项。请注意，GMII 到 RGMII 内核具有 MDIO 输入和 MDIO 输出。为什么MDIO总线必须通过内核？这是因为GMII到RGMII内核的逻辑位于MDIO总线上，用于接收来自MAC的命令以进行配置。我们在这里指定的 PHY 地址允许我们在 MDIO 总线上为内核提供唯一的地址，并且该地址与外部 PHY 的地址不同非常重要。在以太网 FMC 上，所有 PHY 都配置了地址 0，因此我们可以为 GMII 到 RGMII 内核提供 8 的地址，而不会产生总线冲突。至于“PHY添加的偏斜”选项，这与RGMII发射时钟有关。一些 PHY，包括以太网 FMC 上的 88E1510，具有为传入的 RGMII TX 时钟添加延迟的功能，以便它能够很好地对入 RGMII 传输数据进行采样。GMII到RGMII内核允许我们指定偏斜的添加位置：在PHY或FPGA架构（MMCM）中。偏斜应由一个或另一个添加，而不能由两者添加，否则时钟对数据采样的对齐将很差，RGMII接口将失败。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113623.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_113623"></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113728.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_113728"></p>
+<p>​    现在，我们可以使用块自动化功能连接以太网块。请注意，程序框图中有一条消息，上面写着“Designer Assistance available.运行块自动化“。单击“运行块自动化”链接。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_134534.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_134534"></p>
+<p>​    要将 GMII 到 RGMII 内核连接到 PS，我们需要在 PS 中启用 GEM1。 双击 Zynq PS 模块，然后在页面导航器中选择“MIO 配置”。勾选以启用“ENET 1”并选择“EMIO”（扩展多路复用输入&#x2F;输出）。选择EMIO后，我们可以将GEM1路由到FPGA架构，然后将其连接到GMII到RGMII内核，然后再连接到以太网FMC。    <img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114027.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_114027"></p>
+<p>​    现在您应该在 Zynq PS 块上看到两个额外的端口：和 。在 GMII 到 RGMII 模块和 Zynq PS 之间建立连接。GMII_ETHERNET_1MDIO_ETHERNET_1MDIO_GEMMDIO_ETHERNET_1</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114224.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_114224">    </p>
+<p>​    现在在 GMII 到 RGMII 模块的“GMII”和 Zynq PS 之间建立连接。GMII_ETHERNET_1</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114308.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_114308"></p>
+<p>​    现在我们需要将 和 “RGMII” 端口设为外部端口，以便它们可以连接到以太网 FMC。右键单击每个接口，然后选择“设为外部”。MDIO_PHY</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114623.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_114623"></p>
+<p>​    GMII 到 RGMII 模块不能为我们提供 PHY 的复位信号，因此我们必须添加一些逻辑来提供该信号。打开 IP 目录并添加“实用程序简化逻辑”IP。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_135329.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_135329"></p>
+<p>​    双击该块并将“C Size”设置为 1，将“C Operation”设置为“and”。然后单击“确定”。<code>util_reduced_logic_0</code></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_144949.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_144949"></p>
+<p>​    现在右键单击块的输出，然后选择“Make External”。<code>util_reduced_logic_0</code></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_135606.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_135606"></p>
+<p>​    现在打开 IP 目录并将 Concat（连接）IP 添加到设计中。串联 IP 采用一系列单个输入并将它们串联成矢量输出。我们需要这个 IP 能够将所有中断连接到 PS 的矢量输入。IRQ_F2P[0:0]</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/gmii_to_rgmii_and_axi_ethernet_subsystem_45.png" srcset="/img/loading.gif" lazyload alt="gmii_to_rgmii_and_axi_ethernet_subsystem_45"></p>
+<p>​    双击 Concat 块并将端口数设置为 4。然后单击“确定”</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_135606-1714024917038-62.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_135606"></p>
+<p>​    我们必须将所有中断连接到 Concat IP。逐一完成并建立以下所有连接。请注意，引脚分配的顺序并不重要，因为它将在硬件描述中全部传输到 SDK，并由 BSP 正确映射。</p>
+<ol>
+<li><p>Connect <strong>axi_ethernet_0_dma&#x2F;mm2s_introut</strong> to <strong>xlconcat_0&#x2F;In0</strong></p>
+</li>
+<li><p>Connect <strong>axi_ethernet_0_dma&#x2F;s2mm_introut</strong> to <strong>xlconcat_0&#x2F;In1</strong></p>
+</li>
+<li><p>Connect <strong>axi_ethernet_0&#x2F;mac_irq</strong> to <strong>xlconcat_0&#x2F;In6</strong></p>
+</li>
+<li><p>Connect <strong>axi_ethernet_0&#x2F;interrupt</strong> to <strong>xlconcat_0&#x2F;In7</strong></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_140513.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_140513"></p>
+</li>
+</ol>
+<p>​    将FCLK_CLK2（200MHz时钟）连接到以太网模块。首先连接到 的引脚FCLK_CLK2ref_clkaxi_ethernet_0。</p>
+<p>​    <img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_142406.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_142406"></p>
+<p>​    然后将FCLK_CLK2连接到 GMII 到 RGMII 模块的“clkin”引脚。现在，对于那些好奇的人，您可能注意到GMII到RGMII模块只有一个时钟输入（clkin）。该输入必须连接到200MHz，该时钟将用于为IDELAY_CTRL提供时钟，但它也将用于生成其他三个时钟：125MHz、25MHz和2.5MHz，分别用于1Gbps、100Mbps和10Mbps的链路速度。实际链路速度由PHY在自动协商过程中确定，由处理器从PHY读取链路速度，然后将该值传递到GMII到RGMII内核，以便它使用适当的时钟。默认情况下，它设置为使用 2.5MHz 时钟来实现 10Mbps 的链路速度。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_142729.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_142729"></p>
+<p>​    将 and 端口连接到外设复位信号。请记住连接它们（一次一个）。tx_resetrx_reset</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_145047.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_145047"></p>
+<p>​    现在我们需要将 125MHz 时钟连接到 AXI 以太网子系统模块（包含共享逻辑的端口）的端口。我们确实为此目的启用了FCLK_CLK1，如果您愿意，可以建立这种连接，但在本教程中，我们将探索另一种可能性。以太网FMC具有板载125MHz振荡器，也可用于供电。为了使用它，我们只需要在设计中添加一个差分缓冲器。打开 IP 目录，将“实用程序缓冲区”添加到设计中。gtx_clkaxi_ethernet_0gtx_clk</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/gmii_to_rgmii_and_axi_ethernet_subsystem_51.png" srcset="/img/loading.gif" lazyload alt="gmii_to_rgmii_and_axi_ethernet_subsystem_51"></p>
+<p>​    将缓冲区的输出连接到的axi_ethernet_0 的 gtx_clk 输入 </p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_152818.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_152818"></p>
+<p>现在右键单击缓冲区的每个单独输入，然后选择“设为外部”。您最终应该得到两个名为 和 的外部输入端口。IBUF_DS_P[0:0]IBUF_DS_N[0:0]</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_153103.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_153103"></p>
+<p>​    有两个输入，用于启用板载125MHz振荡器并选择其频率（也可以设置为250MHz）。我们需要在设计中添加一些常数，以启用振荡器并将其输出频率设置为125MHz。打开 IP 目录并添加两个常数constant IP。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/gmii_to_rgmii_and_axi_ethernet_subsystem_56.png" srcset="/img/loading.gif" lazyload alt="gmii_to_rgmii_and_axi_ethernet_subsystem_56"></p>
+<p>​    默认情况下，它们将设置为常量输出 1，这正是我们所需要的。因此，我们所要做的就是将它们的输出设置为外部，并将它们重命名为 和 。结果应如下图所示。ref_clk_oeref_clk_fsel</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_153601.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240425_153601"></p>
+<p>最终布线综合完成</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240507_141623.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240507_141623"></p>
+<h2 id="3-PS部分工程创建"><a href="#3-PS部分工程创建" class="headerlink" title="3 PS部分工程创建"></a><strong>3 PS部分工程创建</strong></h2><p>1）File→Export→Export hardware…，在弹出的对话框中勾选“include bitstream”，点击“OK”确认，如下图所示。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-140.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-142.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>2）File→Lauch SDK，在弹出的对话框中，保存默认，点击“OK”，如下图所示。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-21.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>系统将自动打开SDK开发环境</p>
+<p>3）在SDK环境下创建网络工程</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-143.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>输入一个工程名，然后点选下一步，选择 LwIP Echo Server选项，自动导入网络SDK自带的网络例程。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-149.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>\4) 创建好LWIP工程后，我们 需要手动修改其连接速度，默认是AUTO自动协商，实测自动协商的时候只会识别到10M 的网络， 这里我们手动在BSP中将设置修改成100Mbps</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-12-1024x619.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>5）对网络进行调试</p>
+<p><strong>硬件部分将网络部分的RJ45接上网线</strong>，将扩展板通过TYPEC 连接电脑（在设备管理器中查看主板的串口在系统中的串口号），并且在SDK 的终端中添加这个串口，如下图所示（波特率115200） <strong>也可以用第三方串口助手来调试</strong></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-156.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>6）接下来右键点选工程，然后点Run As 进行配置，点选 Run Configurations</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-13-1024x735.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>双击 最下方的System Debugger 选项，直到右边出现配置页面</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-18-1024x377.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><strong>勾选 Reset entire system 和Program FPGA 再下载，否则有可能不能正常访问网络（原因请看备注）</strong></p>
+<p><strong>备注：如果先下载PL 后debug的方法操作 可能会出现无法自动获取路由器的IP（并且无法ping通的情况），并且路由器列表上没有检测到设备（猜测可能是因为PL单独下载后，PS还没下载的情况下，路由器和板子握手失败后，就停止了板子访问网络的权限，造成板子网络部能正常工作），所以这里要求要勾选reset entire system，和program fpga选项（让系统每次debug 都能重新配置整个fpga）</strong></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-19.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><strong>之后点选Apply 和 Run</strong></p>
+<p>通过串口观察到网络已经启动，并且速度为100M， 网络IP为192.168.1.110（板子需要连接到路由器才能分配到IP） <strong>如果板子和PC直接通过网线直连 看本文最后的部分</strong></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-20.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>用相同路由器网段的 WINDOWS电脑 ping 一下这个IP 可以ping 通，说明网络连接成功了</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-21-1726740003346-1.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>通过网络助手（ <a target="_blank" rel="noopener" href="http://www.hellofpga.com/wp-content/uploads/2023/01/%E7%BD%91%E7%BB%9C%E8%B0%83%E8%AF%95%E5%8A%A9%E6%89%8B-v4.3.29.zip">网络调试助手 v4.3.29下载</a>）连接后，发送什么数据，就能通过网络接收到什么数据（设置的端口号是7，IP地址按照之前SDK 串口读到的板子IP地址设置）</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-22.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="板子和PC-通过网线直连的注意事项"><a href="#板子和PC-通过网线直连的注意事项" class="headerlink" title="板子和PC 通过网线直连的注意事项"></a><strong>板子和PC 通过网线直连的注意事项</strong></h2><p>直连状态会无法获得IP，那系统自动分配IP 192.168.1.10, 那本地主机也记得将对应的网络口设置成192.168.1.* 的网络段， 网关设置成192.168.1.1才可以ping通 <strong>（另外：之前别的千兆网络芯片用这个工程时，直连需要用交叉线，但是EBAZ4205的百兆测试下，实测不用交叉线也可以直连，大家自行尝试，如果不能ping通，请尝试用交叉网线）</strong></p>
+<p>另外因为我们之前强制设置了百兆模式，所以直连状态下，电脑端的网络也需要手动设置成百兆，否则会永远link down link up反复切换</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-24-1024x517.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-23.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-4.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-25.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>LWIP</p>
+<p>platform_setup_interrupts</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/" class="category-chain-item">视频课程</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" class="category-chain-item">FIREWALL_GATEWAY</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ZYNQ防火墙开发12-ETH-AXI-GMII</div>
+      <div>http://blog.uanet.cn/视频课程/FIREWALL_GATEWAY/ZYNQ防火墙开发12-ETH-AXI-GMII.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%912-FSBL%20u-boot%20kernel%20rootfs%20PetaLinux.html" title="ZYNQ防火墙开发2-FSBL u-boot kernel rootfs PetaLinux">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">ZYNQ防火墙开发2-FSBL u-boot kernel rootfs PetaLinux</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9111-ETH-EMIO-GMII.html" title="ZYNQ防火墙开发11-ETH-EMIO-GMII">
+                        <span class="hidden-mobile">ZYNQ防火墙开发11-ETH-EMIO-GMII</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

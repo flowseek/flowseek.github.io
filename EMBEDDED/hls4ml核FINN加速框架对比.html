@@ -1,0 +1,1016 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="HLS简要介绍ESL（Electrical system Level，电子系统级）设计的发展历经多个时期，从早期的CAD（Computer Aided Design）、CAE（Computer Aided Engineering），到EDA (Electronic Design Automation)时代以Verilog和VHDL工具为主，再到现如今的ESL。与传统的RTL（寄存器传送级）设计相比">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hls4ml核FINN加速框架对比">
+<meta property="og:url" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="HLS简要介绍ESL（Electrical system Level，电子系统级）设计的发展历经多个时期，从早期的CAD（Computer Aided Design）、CAE（Computer Aided Engineering），到EDA (Electronic Design Automation)时代以Verilog和VHDL工具为主，再到现如今的ESL。与传统的RTL（寄存器传送级）设计相比">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-1b1515b20f89f52a502922ab62e1b8ab_1440w.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-accbfd953075774481515c790878b343_1440w.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-e071a9a44cc014fab9e80ce4813c68ef_1440w.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-ce02eb5462a43785c1b9dc910cf5d80e_1440w.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-7a6c21ddd9d63b947f9c17124d910c30_1440w.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-03bd1e5104d53fe22866f647251a2083_1440w.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-4e849290e2d4a17f2bdd4e582bb77fea_1440w.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-25acc11f2a8b0c7315768ebea6aaf788_1440w.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-957ca84137becbaeb7363d972e6e14ae_1440w.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-c562fb7acf833a7f931cfb361ace6f4c_1440w.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-29e9a54d862a85b8619301e42c1aec58_1440w.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-7c1d81061298d8600d642873a3c20908_1440w.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-e61c61c8269493779737adc060b49795_1440w.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-5b3558c55703d104c0acc9b37d7194e4_1440w.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-ceddfe8c8b6012bb057f3db5e36cde8c_1440w.jpg">
+<meta property="article:published_time" content="2025-02-13T05:53:20.632Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.632Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-1b1515b20f89f52a502922ab62e1b8ab_1440w.jpg">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>hls4ml核FINN加速框架对比 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="hls4ml核FINN加速框架对比"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          24 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">hls4ml核FINN加速框架对比</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="HLS简要介绍"><a href="#HLS简要介绍" class="headerlink" title="HLS简要介绍"></a>HLS简要介绍</h2><p>ESL（Electrical system Level，电子系统级）设计的发展历经多个时期，从早期的CAD（Computer Aided Design）、CAE（Computer Aided Engineering），到EDA (Electronic Design Automation)时代以Verilog和VHDL工具为主，再到现如今的ESL。与传统的RTL（寄存器传送级）设计相比，该方法具有更高的抽象级别，强调系统级建模，称为高层次综合，典型的设计工具如Vivado HLS，使用C&#x2F;C++作为开发语言，经HLS编译器将设计转换为等价的RTL设计，作为IP供硬件开发人员使用。</p>
+<p>HLS开发具有以下优势：</p>
+<ul>
+<li>在C&#x2F;C++层面开发算法。在相比verilog或VHDL语言更高抽象程度的C&#x2F;C++进行算法开发，并转换成相应的RTL实现，<strong>设计周期更短</strong>。</li>
+<li>在C级别验证算法的功能正确性。包含c test bench验证<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=214685979&content_type=Article&match_order=1&q=%E6%BA%90%E4%BB%A3%E7%A0%81&zhida_source=entity">源代码</a>的功能正确性，通过C Simulation进行验证；在C-RTL Co-Simulation中复用c test bench，验证程序在模拟器上的正确性；</li>
+<li>通过优化指令控制RTL综合。对C源代码的变量、循环或端口等添加directives，实现在RTL级别的优化，<strong>相比RTL实现更具灵活性</strong>。典型优化如<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=214685979&content_type=Article&match_order=1&q=%E5%BE%AA%E7%8E%AF%E5%B1%95%E5%BC%80&zhida_source=entity">循环展开</a>的层数、流水化的深度、数组的包装等。</li>
+<li>通过优化指令从c源代码创建多个解决方案。一份C源代码可以包含不同的Solution，添加不同的Directives观察对比结果，<strong>快速探索设计的不同优化空间</strong>。</li>
+</ul>
+<p>在Vivado HLS中编写的源代码经过以下步骤进行编译转换：</p>
+<ul>
+<li>调度。提取源代码的操作逻辑，设置执行顺序。</li>
+<li>提取控制逻辑，转换为<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=214685979&content_type=Article&match_order=1&q=%E6%9C%89%E9%99%90%E7%8A%B6%E6%80%81%E6%9C%BA&zhida_source=entity">有限状态机</a>（FSM）。</li>
+<li>绑定，将高层次操作逻辑映射到低层次硬件资源。</li>
+</ul>
+<p>HLS的典型设计流如图：</p>
+<p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-1b1515b20f89f52a502922ab62e1b8ab_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>HLS设计流</p>
+<p>HLS有三个输入：</p>
+<ul>
+<li>C&#x2F;C++源代码：对算法的计算描述。</li>
+<li>Directives：优化指令，设置如循环展开的层数、参数类型等。可以加在源代码中，也可以新建不同solution，设置不同优化指令。</li>
+<li>C&#x2F;C++ Test bench：用于算法的仿真验证，需要自己设置和golden data的对比。</li>
+</ul>
+<p>HLS与C++十分相似，Xilinx的Vivado HLS在C++基础上进行了一定修改：</p>
+<ul>
+<li>支持任意精度数据类型。Vivado HLS支持C原本的数据类型如char、short、int、float、double。其引入了任意精度类型，甚至打破了8位对齐的限制，可以声明23bit的整数或几百位的整数。针对定点数，ap_[u]fixed&lt;W,I,Q,O&gt;中的W是指总共的位数；I是正数部分的位数，W-I就是小数部分的位数；Q是量化模式，针对低位部分；O是溢出模式，针对高位部分。多种模式可参考Xilinx的HLS手册。</li>
+<li>不支持动态内存申请，内存需在编译时完全确定，不支持运行时申请。</li>
+<li>不支持C++中的STL。</li>
+<li>不支持递归。</li>
+<li>不支持操作系统层面的任何调用，如printf。这个很直观，因为C++在CPU运行，HLS的target是FPGA。</li>
+</ul>
+<h2 id="hls4ml"><a href="#hls4ml" class="headerlink" title="hls4ml"></a>hls4ml</h2><h3 id="基本信息"><a href="#基本信息" class="headerlink" title="基本信息"></a>基本信息</h3><p><strong>项目地址</strong>：<a href="https://link.zhihu.com/?target=https://github.com/fastmachinelearning/hls4ml">https://github.com/fastmachinelearning/hls4ml</a> 700+stars 目前仍在维护</p>
+<p><strong>开发者</strong>：美国哥伦比亚大学、MIT等顶尖高校，最初是为高能物理中的相关需求开发</p>
+<p><strong>相关论文</strong>：FAHIM F, HAWKS B, HERWIG C, et al. hls4ml: An Open-Source Codesign Workflow to Empower Scientific Low-Power Machine Learning Devices[J]. arXiv, 2021.</p>
+<p>AARRESTAD T, LONCAR V, GHIELMETTI N, et al. Fast convolutional neural networks on FPGAs with hls4ml[J]. Machine Learning: Science and Technology, 2021, 2(4): 045015.\</p>
+<p><strong>支持网络：</strong></p>
+<table>
+<thead>
+<tr>
+<th>Architectures&#x2F;Toolkits</th>
+<th>Keras&#x2F;TensorFlow&#x2F;QKeras</th>
+<th>PyTorch</th>
+<th>ONNX</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MLP</td>
+<td>supported</td>
+<td>supported</td>
+<td>supported</td>
+</tr>
+<tr>
+<td>Conv1D&#x2F;Conv2D</td>
+<td>supported</td>
+<td>in development</td>
+<td>in development</td>
+</tr>
+<tr>
+<td>RNN&#x2F;LSTM</td>
+<td>in development</td>
+<td>in development</td>
+<td>in development</td>
+</tr>
+</tbody></table>
+<p><strong>运行平台</strong>：Linux, and supports Vivado HLS versions 2018.2 to 2020.1</p>
+<h3 id="工作流"><a href="#工作流" class="headerlink" title="工作流"></a><strong>工作流</strong></h3><p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-accbfd953075774481515c790878b343_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>hls4ml工作流</p>
+<ul>
+<li>在深度学习框架中进行的模型训练和压缩（支持剪枝和量化）</li>
+<li>hls4ml执行，将一个模型转换为一个HLS项目</li>
+<li>在FPGA或ASIC上综合并实现</li>
+</ul>
+<p>每个层和激活类型都实现为一个单独的可配置模块，定制以执行特定的操作。网络的每一层的计算都在单独的硬件中进行，完整的模型被合成到一个IP核心中，可以集成到一个完整的应用程序中。</p>
+<h3 id="项目架构"><a href="#项目架构" class="headerlink" title="项目架构"></a><strong>项目架构</strong></h3><p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-e071a9a44cc014fab9e80ce4813c68ef_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>hls4ml的项目组成</p>
+<ul>
+<li>Model converter：(Q)Keras, TensorFlow, PyTorch, and ONNX导入</li>
+<li>Utilities：对神经网络图的可视化工具、指导用户设置的工具（如bit位宽）</li>
+</ul>
+<p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-ce02eb5462a43785c1b9dc910cf5d80e_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>可视化工具。使用箱型图将原本的weight、bias参数分布画出，灰色为用户配置的数据精度的表示范围。</p>
+<ul>
+<li>Configuration：时钟周期，IO类型，位宽，重用因子等</li>
+<li>Optimizers：修改网络图结构，使其更轻量级、快速推理。如batchnorm层的融合</li>
+</ul>
+<h3 id="关键设计"><a href="#关键设计" class="headerlink" title="关键设计"></a><strong>关键设计</strong></h3><ul>
+<li><strong>并行：</strong>dense层与conv层实现的核心是矩阵-向量乘法。设置重用因子，表示计算一个层的输出值使用乘法器的次数。对于较大的重用因子，矩阵向量乘法内核具有更大的延迟和II，但使用更少的片上资源</li>
+</ul>
+<p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-7a6c21ddd9d63b947f9c17124d910c30_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>reuse为重用因子</p>
+<ul>
+<li><strong>稀疏：</strong>包含两种<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=214685979&content_type=Article&match_order=1&q=%E7%A8%80%E7%96%8F%E7%9F%A9%E9%98%B5&zhida_source=entity">稀疏矩阵</a>向量乘法kernel，两种实现互补，适用于不同场景。<ul>
+<li>第一个实现：使用HLS预处理器指令基于非零权值的数量来限制内核可用的乘法器的数量，剩下HLS进行优化。这只适用于较小的网络层</li>
+<li>在第二个实现中，使用COO表示来压缩非零权值，其中索引被打包到权值本身中。hls4ml用户可以为每层指定一个布尔压缩参数，从而激活这个内核。</li>
+</ul>
+</li>
+</ul>
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a><strong>测试</strong></h3><ul>
+<li>不同filter数量和kernel大小的单个卷积层的输入大小的关系</li>
+</ul>
+<p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-03bd1e5104d53fe22866f647251a2083_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<ul>
+<li>模型深度与资源消耗和延迟的关系</li>
+</ul>
+<p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-4e849290e2d4a17f2bdd4e582bb77fea_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>这些测试都比较直观，论文中有其他更多不同调优设置的实验对比。奇怪的是，论文中对比和其他HLS加速器的实验缺失。</p>
+<h2 id="FINN"><a href="#FINN" class="headerlink" title="FINN"></a>FINN</h2><h3 id="基本信息-1"><a href="#基本信息-1" class="headerlink" title="基本信息"></a>基本信息</h3><p><strong>项目地址</strong>：<a href="https://link.zhihu.com/?target=https://github.com/Xilinx/finn">https://github.com/Xilinx/finn</a> 420+ stars 仍在维护</p>
+<p><strong>开发者</strong>：Xilinx官方和FINN社区，对Xilinx的许多FPGA型号适配</p>
+<p><strong>相关论文</strong>：UMUROGLU Y, FRASER N J, GAMBARDELLA G, et al. FINN: A Framework for Fast, Scalable Binarized Neural Network Inference[C]&#x2F;&#x2F; Proceedings of the 2017 ACM&#x2F;SIGDA International Symposium on Field-Programmable Gate Arrays, 2017: 65–74.</p>
+<p>BLOTT M, PREUSSER T, FRASER N, et al. FINN-R: An End-to-End Deep-Learning Framework for Fast Exploration of Quantized Neural Networks[J]. arXiv, 2018.</p>
+<p><strong>运行平台</strong>：Linux, Vitis （ Vivado HLS的升级版，用法几乎不变）</p>
+<h3 id="项目架构-1"><a href="#项目架构-1" class="headerlink" title="项目架构"></a><strong>项目架构</strong></h3><p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-25acc11f2a8b0c7315768ebea6aaf788_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>finn-examples：是用例仓库，包含多种经典网络如VGG、Resnet、MobileNet，多个硬件平台Pynq-Z1、ZCU104、Ultra96、多个数据集CIFAR-10、MINST、ImageNet，多种量化方式1bit、2bit、4bit、8bit weights or activations。</p>
+<p>brevitas：Xilinx开发的基于Pytorch的量化感知训练<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=214685979&content_type=Article&match_order=1&q=%E5%B7%A5%E5%85%B7%E5%8C%85&zhida_source=entity">工具包</a>。</p>
+<p>finn-hlslib：FINN硬件部分HLS实现库。支持高度可配置的C++模板参数：Input, weight, output数据类型，不同FPGA资源的映射（LUT or DSP, LUTRAM or BRAM）。</p>
+<h3 id="软硬件设计"><a href="#软硬件设计" class="headerlink" title="软硬件设计"></a>软硬件设计</h3><p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-957ca84137becbaeb7363d972e6e14ae_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>FINN编译器分为三个层次：</p>
+<ul>
+<li>前端：将框架训练的qnn转换为FINN IR，获取网络的结构与数据类型精度。</li>
+<li>IR：每个节点都有其输入、参数（权重）和输出的量化标记，以实现量化感知优化，以及为量化计算优化的后端原语的映射。包含FPGA资源分析、FPGA数据流架构生成、FPGA多层卸载调度生成等。</li>
+<li>后端：使用IR图和特定后端信息创建一个部署包，部署包包括QNN模型的参数数据，以及执行模型的后端特定代码，包括运行时环境、用于针对数据流和多层卸载体系结构的可执行硬件设计，以及预定义平台的选择。</li>
+</ul>
+<p>FINN加速器是HLS硬件库，可将卷积、全连接、池化和 LSTM 层类型作为流组件实现。该库使用 C++ 模板来支持广泛的精度。</p>
+<h3 id="加速器架构"><a href="#加速器架构" class="headerlink" title="加速器架构"></a>加速器架构</h3><p>FINN将加速器分为两种架构，并且支持这两种架构。</p>
+<p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-c562fb7acf833a7f931cfb361ace6f4c_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<ul>
+<li>数据流架构：为特定的神经<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=214685979&content_type=Article&match_order=1&q=%E7%BD%91%E7%BB%9C%E6%8B%93%E6%89%91&zhida_source=entity">网络拓扑</a>定制，每一层的激活和权重的精度不同。每层实例化一个计算引擎。一旦上一个引擎开始产生输出，引擎就开始计算，因此在层之间引入另一种并发性.</li>
+<li>多层卸载结构：相当于取数据流架构中计算资源的并集，适用于在有限资源约束下的大型网络</li>
+</ul>
+<p>数据流架构成本是所有实现层的总和，而多层架构的成本是由层的最大值定义的。显然前者的延迟更低，但资源开销更大。</p>
+<p><strong>工作流</strong></p>
+<p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-29e9a54d862a85b8619301e42c1aec58_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<ul>
+<li>导入Brevitas量化后的模型</li>
+<li>网络准备 ，优化网络并将节点转换为与finn-hlslib函数对应的自定义节点</li>
+<li>硬件构建和部署：1.<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=214685979&content_type=Article&match_order=1&q=%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F&zhida_source=entity">驱动程序</a>生成。2.DMA 和 DWC 节点插入：用于将数据移入和移出加速器（来自 DRAM）的 DMA 引擎，以及在需要的连续节点之间的数据宽度转换器。3.用于平面规划的分区。4.FIFO插入和IP生成。5.Vivado&#x2F;Vitis 项目生成和综合</li>
+</ul>
+<h3 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h3><p>测试网络都经过一定修改，如yolo将第一层与最后一层卷积8位，其他卷积1位权重三位激活。</p>
+<p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-7c1d81061298d8600d642873a3c20908_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-e61c61c8269493779737adc060b49795_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="CNNA"><a href="#CNNA" class="headerlink" title="CNNA"></a>CNNA</h2><h3 id="基本信息-2"><a href="#基本信息-2" class="headerlink" title="基本信息"></a>基本信息</h3><p>这是一个较小的实现，代码也许久未更新，可以作学习之用，前两个<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=214685979&content_type=Article&match_order=1&q=%E9%A1%B9%E7%9B%AE%E6%96%87%E6%A1%A3&zhida_source=entity">项目文档</a>、代码、论文、教程齐全，可以拿来即用。</p>
+<p><strong>代码地址</strong>：<a href="https://link.zhihu.com/?target=https://github.com/jonathan93sh/CNNA">https://github.com/jonathan93sh/CNNA</a> 2年前最后更新</p>
+<p><strong>相关论文</strong>：BJERGE K, SCHOUGAARD J H, LARSEN D E. A scalable and efficient convolutional neural network accelerator using HLS for a System on Chip design[J]. arXiv, 2020.</p>
+<h3 id="主要贡献"><a href="#主要贡献" class="headerlink" title="主要贡献"></a><strong>主要贡献</strong></h3><p>1.通用的CNN架构，包括单计算引擎，带有5个核心元素（weight buffer、data buffer、PEA（PEs Array）、pooling block output handler）.</p>
+<p>2.在训练过程中采用动态自动缩放的方法，使浮点和量化定点加速器之间的精度差降到最低</p>
+<p>3.拼接用于过大而不能在单个处理通道中执行的卷积层，并用于将复杂的卷积分割为子卷积。</p>
+<p>4.提出了一种具有可执行模型的基于模板的SystemC<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=214685979&content_type=Article&match_order=1&q=%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95&zhida_source=entity">设计方法</a>，用于设计空间探索。该模板模型通过HLS合成到Xilinx IP核中，并使用PYNQ框架和Python从主机CPU进行控制。</p>
+<h3 id="关键设计-1"><a href="#关键设计-1" class="headerlink" title="关键设计"></a><strong>关键设计</strong></h3><p>设计空间探索，包括：</p>
+<ul>
+<li>定点数的位宽格式，如I+F，对精度有影响。</li>
+<li>内部带宽</li>
+<li>PE的数量</li>
+<li>输出带宽</li>
+<li>cache的kernel数量</li>
+</ul>
+<p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-5b3558c55703d104c0acc9b37d7194e4_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>Parameter为上述5个参数的组合，具体见论文</p>
+<h3 id="工作流-1"><a href="#工作流-1" class="headerlink" title="工作流"></a><strong>工作流</strong></h3><ul>
+<li>预处理：将weight转换为定点数，调整和缩放权重。计算参数，例如层输出大小和待分割的层，离线计算。最后，权重被保存在h5文件中，可以传输至硬件目标。</li>
+<li>初始化：硬件目标需要配置和优化为特定定点数表示，使用优化CNNA的bit文件。首先计算缓冲区大小并获取加载的CNNA的属性。完成此操作后，SW将分配所需的资源，并通过为CNN中的每一层分配缓冲区为SW做好推理准备。</li>
+<li>推理：支持卷积、最大值池化、<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=214685979&content_type=Article&match_order=1&q=%E5%85%A8%E8%BF%9E%E6%8E%A5%E5%B1%82&zhida_source=entity">全连接层</a>。</li>
+</ul>
+<p><img src="/EMBEDDED/hls4ml%E6%A0%B8FINN%E5%8A%A0%E9%80%9F%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/v2-ceddfe8c8b6012bb057f3db5e36cde8c_1440w.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>硬件架构</p>
+<h3 id="测试-2"><a href="#测试-2" class="headerlink" title="测试"></a><strong>测试</strong></h3><p>作者仅采用了VGG16测试，具体见论文。</p>
+<h2 id="hls4ml和FINN对比"><a href="#hls4ml和FINN对比" class="headerlink" title="hls4ml和FINN对比"></a>hls4ml和FINN对比</h2><p>FINN实现了一套rtl版本框架，例如hls-rtllib库。真实工程当中用完全用hls加速的少，更多是verilog编写加速模块。</p>
+<p>hls4ml主要是通过onnx转化为hls工程。</p>
+<h2 id="其他开源库"><a href="#其他开源库" class="headerlink" title="其他开源库"></a>其他开源库</h2><ul>
+<li>CHaiDNN：<a href="https://link.zhihu.com/?target=https://github.com/Xilinx/CHaiDNN">https://github.com/Xilinx/CHaiDNN</a> Xilinx官方推出，但4年未更新代码，已经废弃了。</li>
+<li>FlexCNN： <a href="https://link.zhihu.com/?target=https://github.com/UCLA-VAST/FlexCNN">https://github.com/UCLA-VAST/FlexCNN</a> 论文：SOHRABIZADEH A, WANG J, CONG J. End-to-End Optimization of Deep Learning Applications[C]&#x2F;&#x2F; Proceedings of the 2020 ACM&#x2F;SIGDA International Symposium on Field-Programmable Gate Arrays, Seaside CA USA: ACM, 2020: 133–139.</li>
+<li>fpgaConvNet：<a href="https://link.zhihu.com/?target=https://github.com/AlexMontgomerie/fpgaconvnet-hls">https://github.com/AlexMontgome</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/EMBEDDED/" class="category-chain-item">EMBEDDED</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>hls4ml核FINN加速框架对比</div>
+      <div>http://blog.uanet.cn/EMBEDDED/hls4ml核FINN加速框架对比.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/EMBEDDED/hls4ml%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95.html" title="hls4ml使用记录">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">hls4ml使用记录</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/EMBEDDED/fpga%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90.html" title="fpga相关资源">
+                        <span class="hidden-mobile">fpga相关资源</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

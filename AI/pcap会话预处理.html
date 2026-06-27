@@ -1,0 +1,987 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Windows Python实现方式SplitCap是按照会话流来切割的工具，会话流由源IP、目的IP、源端口、目的端口四个部分组成。 参考github连接：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pcap会话预处理">
+<meta property="og:url" content="http://blog.uanet.cn/AI/pcap%E4%BC%9A%E8%AF%9D%E9%A2%84%E5%A4%84%E7%90%86.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="Windows Python实现方式SplitCap是按照会话流来切割的工具，会话流由源IP、目的IP、源端口、目的端口四个部分组成。 参考github连接：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/7a9663df768965cfb93a96ffe28ece2c.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/3a9af54a05164b867b655a3b3c91ca98.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/552c35e03c81887e1665851c6a47d97f.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/pcap%E4%BC%9A%E8%AF%9D%E9%A2%84%E5%A4%84%E7%90%86/1.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/pcap%E4%BC%9A%E8%AF%9D%E9%A2%84%E5%A4%84%E7%90%86/2.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/pcap%E4%BC%9A%E8%AF%9D%E9%A2%84%E5%A4%84%E7%90%86/3.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/pcap%E4%BC%9A%E8%AF%9D%E9%A2%84%E5%A4%84%E7%90%86/4.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/pcap%E4%BC%9A%E8%AF%9D%E9%A2%84%E5%A4%84%E7%90%86/5.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/pcap%E4%BC%9A%E8%AF%9D%E9%A2%84%E5%A4%84%E7%90%86/6.png">
+<meta property="article:published_time" content="2025-02-13T05:53:20.472Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.472Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://i-blog.csdnimg.cn/blog_migrate/7a9663df768965cfb93a96ffe28ece2c.png">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>pcap会话预处理 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="pcap会话预处理"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          5.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          48 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">pcap会话预处理</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Windows-Python实现方式"><a href="#Windows-Python实现方式" class="headerlink" title="Windows Python实现方式"></a>Windows Python实现方式</h2><p>SplitCap是按照会话流来切割的工具，会话流由源IP、目的IP、源端口、目的端口四个部分组成。</p>
+<p>参考github连接：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/echowei/DeepTraffic/tree/master/1.malware_traffic_classification">https://github.com/echowei/DeepTraffic/tree/master/1.malware_traffic_classification</a></p>
+<p>该链接有Splitcap工具</p>
+<h3 id="1、Split切分会话流"><a href="#1、Split切分会话流" class="headerlink" title="1、Split切分会话流"></a>1、Split切分会话流</h3><p>Split切分pcap文件脚本（PowerShell）如下：</p>
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs gams">foreach(<span class="hljs-symbol">$</span>f in gci <span class="hljs-number">1</span>_Pcap *.pcap)<br>&#123;<br>    <span class="hljs-number">0</span>_Tool\SplitCap_2<span class="hljs-number">-1</span>\SplitCap -p <span class="hljs-number">100000</span> -b <span class="hljs-number">100000</span> -r <span class="hljs-symbol">$</span>f.FullName -o <span class="hljs-number">2</span>_Session\AllLayers\<span class="hljs-symbol">$</span>(<span class="hljs-symbol">$</span>f.BaseName)-<span class="hljs-keyword">ALL</span><br>    # <span class="hljs-number">0</span>_Tool\SplitCap_2<span class="hljs-number">-1</span>\SplitCap -p <span class="hljs-number">100000</span> -b <span class="hljs-number">100000</span> -r <span class="hljs-symbol">$</span>f.FullName -s flow -o <span class="hljs-number">2</span>_Session\AllLayers\<span class="hljs-symbol">$</span>(<span class="hljs-symbol">$</span>f.BaseName)-<span class="hljs-keyword">ALL</span><br>    gci <span class="hljs-number">2</span>_Session\AllLayers\<span class="hljs-symbol">$</span>(<span class="hljs-symbol">$</span>f.BaseName)-<span class="hljs-keyword">ALL</span> | ?&#123;<span class="hljs-symbol">$</span>_.Length -<span class="hljs-keyword">eq</span> <span class="hljs-number">0</span>&#125; | del<br><br>    <span class="hljs-number">0</span>_Tool\SplitCap_2<span class="hljs-number">-1</span>\SplitCap -p <span class="hljs-number">100000</span> -b <span class="hljs-number">100000</span> -r <span class="hljs-symbol">$</span>f.FullName -o <span class="hljs-number">2</span>_Session\L7\<span class="hljs-symbol">$</span>(<span class="hljs-symbol">$</span>f.BaseName)-L7 -y L7<br>    # <span class="hljs-number">0</span>_Tool\SplitCap_2<span class="hljs-number">-1</span>\SplitCap -p <span class="hljs-number">100000</span> -b <span class="hljs-number">100000</span> -r <span class="hljs-symbol">$</span>f.FullName -s flow -o <span class="hljs-number">2</span>_Session\L7\<span class="hljs-symbol">$</span>(<span class="hljs-symbol">$</span>f.BaseName)-L7 -y L7<br>    gci <span class="hljs-number">2</span>_Session\L7\<span class="hljs-symbol">$</span>(<span class="hljs-symbol">$</span>f.BaseName)-L7 | ?&#123;<span class="hljs-symbol">$</span>_.Length -<span class="hljs-keyword">eq</span> <span class="hljs-number">0</span>&#125; | del<br>&#125;<br><br><span class="hljs-number">0</span>_Tool\finddupe -del <span class="hljs-number">2</span>_Session\AllLayers<br><span class="hljs-number">0</span>_Tool\finddupe -del <span class="hljs-number">2</span>_Session\L7<br></code></pre></td></tr></table></figure>
+
+<h3 id="2、提取会话内容"><a href="#2、提取会话内容" class="headerlink" title="2、提取会话内容"></a>2、提取会话内容</h3><p>对SpiltCap进行预处理，提取传输层以上的payload并进行拼接，脚本（PowerShell）如下：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$SESSIONS_COUNT_LIMIT_MIN</span> = <span class="hljs-number">0</span><br><span class="hljs-variable">$SESSIONS_COUNT_LIMIT_MAX</span> = <span class="hljs-number">6000</span><br><span class="hljs-variable">$TRIMED_FILE_LEN</span> = <span class="hljs-number">784</span><br><span class="hljs-variable">$SOURCE_SESSION_DIR</span> = <span class="hljs-string">&quot;2_Session\L7&quot;</span><br><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;If Sessions more than <span class="hljs-variable">$SESSIONS_COUNT_LIMIT_MAX</span> we only select the largest <span class="hljs-variable">$SESSIONS_COUNT_LIMIT_MAX</span>.&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Finally Selected Sessions:&quot;</span><br><br><span class="hljs-variable">$dirs</span> = <span class="hljs-built_in">gci</span> <span class="hljs-variable">$SOURCE_SESSION_DIR</span> <span class="hljs-literal">-Directory</span><br><span class="hljs-keyword">foreach</span>(<span class="hljs-variable">$d</span> <span class="hljs-keyword">in</span> <span class="hljs-variable">$dirs</span>)<br>&#123;<br>    <span class="hljs-variable">$files</span> = <span class="hljs-built_in">gci</span> <span class="hljs-variable">$d</span>.FullName<br>    <span class="hljs-variable">$count</span> = <span class="hljs-variable">$files</span>.count<br>    <span class="hljs-keyword">if</span>(<span class="hljs-variable">$count</span> <span class="hljs-operator">-gt</span> <span class="hljs-variable">$SESSIONS_COUNT_LIMIT_MIN</span>)<br>    &#123;             <br>        <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;<span class="hljs-variable">$</span>(<span class="hljs-variable">$d</span>.Name) <span class="hljs-variable">$count</span>&quot;</span>        <br>        <span class="hljs-keyword">if</span>(<span class="hljs-variable">$count</span> <span class="hljs-operator">-gt</span> <span class="hljs-variable">$SESSIONS_COUNT_LIMIT_MAX</span>)<br>        &#123;<br>            <span class="hljs-variable">$files</span> = <span class="hljs-variable">$files</span> | <span class="hljs-built_in">sort</span> Length <span class="hljs-literal">-Descending</span> | <span class="hljs-built_in">select</span> <span class="hljs-literal">-First</span> <span class="hljs-variable">$SESSIONS_COUNT_LIMIT_MAX</span><br>            <span class="hljs-variable">$count</span> = <span class="hljs-variable">$SESSIONS_COUNT_LIMIT_MAX</span><br>        &#125;<br><br>        <span class="hljs-variable">$files</span> = <span class="hljs-variable">$files</span> | <span class="hljs-built_in">resolve-path</span><br>        <span class="hljs-comment"># Ignore the .pcap file that has less than 10 packets</span><br>        <span class="hljs-variable">$test</span>  = <span class="hljs-variable">$files</span> | <span class="hljs-built_in">get-random</span> <span class="hljs-literal">-count</span> ([<span class="hljs-built_in">int</span>](<span class="hljs-variable">$count</span>/<span class="hljs-number">10</span>))<br>        <span class="hljs-variable">$train</span> = <span class="hljs-variable">$files</span> | ?&#123;<span class="hljs-variable">$_</span> <span class="hljs-operator">-notin</span> <span class="hljs-variable">$test</span>&#125;     <br><br>        <span class="hljs-variable">$path_test</span>  = <span class="hljs-string">&quot;3_ProcessedSession\FilteredSession\Test\<span class="hljs-variable">$</span>(<span class="hljs-variable">$d</span>.Name)&quot;</span><br>        <span class="hljs-variable">$path_train</span> = <span class="hljs-string">&quot;3_ProcessedSession\FilteredSession\Train\<span class="hljs-variable">$</span>(<span class="hljs-variable">$d</span>.Name)&quot;</span><br>        <span class="hljs-built_in">ni</span> <span class="hljs-literal">-Path</span> <span class="hljs-variable">$path_test</span> <span class="hljs-literal">-ItemType</span> Directory <span class="hljs-literal">-Force</span><br>        <span class="hljs-built_in">ni</span> <span class="hljs-literal">-Path</span> <span class="hljs-variable">$path_train</span> <span class="hljs-literal">-ItemType</span> Directory <span class="hljs-literal">-Force</span>    <br><br>        <span class="hljs-built_in">cp</span> <span class="hljs-variable">$test</span> <span class="hljs-literal">-destination</span> <span class="hljs-variable">$path_test</span>        <br>        <span class="hljs-built_in">cp</span> <span class="hljs-variable">$train</span> <span class="hljs-literal">-destination</span> <span class="hljs-variable">$path_train</span><br>    &#125;<br>&#125;<br><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;All files will be trimed to <span class="hljs-variable">$TRIMED_FILE_LEN</span> length and if it&#x27;s even shorter we&#x27;ll fill the end with 0x00...&quot;</span><br><br><span class="hljs-variable">$paths</span> = <span class="hljs-selector-tag">@</span>((<span class="hljs-string">&#x27;3_ProcessedSession\FilteredSession\Train&#x27;</span>, <span class="hljs-string">&#x27;3_ProcessedSession\TrimedSession\Train&#x27;</span>), (<span class="hljs-string">&#x27;3_ProcessedSession\FilteredSession\Test&#x27;</span>, <span class="hljs-string">&#x27;3_ProcessedSession\TrimedSession\Test&#x27;</span>))<br><span class="hljs-keyword">foreach</span>(<span class="hljs-variable">$p</span> <span class="hljs-keyword">in</span> <span class="hljs-variable">$paths</span>)<br>&#123;<br>    <span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$d</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">gci</span> <span class="hljs-variable">$p</span>[<span class="hljs-number">0</span>] <span class="hljs-literal">-Directory</span>) <br>    &#123;<br>        <span class="hljs-built_in">ni</span> <span class="hljs-literal">-Path</span> <span class="hljs-string">&quot;<span class="hljs-variable">$</span>(<span class="hljs-variable">$p</span>[1])\<span class="hljs-variable">$</span>(<span class="hljs-variable">$d</span>.Name)&quot;</span> <span class="hljs-literal">-ItemType</span> Directory <span class="hljs-literal">-Force</span><br>        <span class="hljs-keyword">foreach</span>(<span class="hljs-variable">$f</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">gci</span> <span class="hljs-variable">$d</span>.fullname)<br>        &#123;<br>            <span class="hljs-variable">$content</span> = [<span class="hljs-type">System.IO.File</span>]::ReadAllBytes(<span class="hljs-variable">$f</span>.FullName)<br>            <span class="hljs-variable">$len</span> = <span class="hljs-variable">$f</span>.length - <span class="hljs-variable">$TRIMED_FILE_LEN</span><br>            <span class="hljs-keyword">if</span>(<span class="hljs-variable">$len</span> <span class="hljs-operator">-gt</span> <span class="hljs-number">0</span>)<br>            &#123;        <br>                <span class="hljs-variable">$content</span> = <span class="hljs-variable">$content</span>[<span class="hljs-number">0</span><span class="hljs-type">..</span>(<span class="hljs-variable">$TRIMED_FILE_LEN</span>-<span class="hljs-number">1</span>)]        <br>            &#125;<br>            <span class="hljs-keyword">elseif</span>(<span class="hljs-variable">$len</span> <span class="hljs-operator">-lt</span> <span class="hljs-number">0</span>)<br>            &#123;        <br>                <span class="hljs-variable">$padding</span> = [<span class="hljs-built_in">Byte</span>[]] (,<span class="hljs-number">0</span>x00 * ([<span class="hljs-type">math</span>]::abs(<span class="hljs-variable">$len</span>)))<br>                <span class="hljs-variable">$content</span> = <span class="hljs-variable">$content</span> += <span class="hljs-variable">$padding</span><br>            &#125;<br>            <span class="hljs-built_in">Set-Content</span> <span class="hljs-literal">-value</span> <span class="hljs-variable">$content</span> <span class="hljs-literal">-encoding</span> byte <span class="hljs-literal">-path</span> <span class="hljs-string">&quot;<span class="hljs-variable">$</span>(<span class="hljs-variable">$p</span>[1])\<span class="hljs-variable">$</span>(<span class="hljs-variable">$d</span>.Name)\<span class="hljs-variable">$</span>(<span class="hljs-variable">$f</span>.Name)&quot;</span><br>        &#125;        <br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>结果如下，左侧bin文件是提取的会话流，右侧是网络数据流的通信层级，可见绘话流就是TCP层之上的payload。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/7a9663df768965cfb93a96ffe28ece2c.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="3、会话流转为png图片"><a href="#3、会话流转为png图片" class="headerlink" title="3、会话流转为png图片"></a>3、会话流转为png图片</h3><p>文件的内容就是字节序，将字节转为16进制为一个单位的数组，然后将两个数组成员拼接为一个字节，字节转为Int存到numpy的array当中，然后reshape一下，让一行为28个数，Python代码如下：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs scss">def <span class="hljs-built_in">getMatrixfrom_pcap</span>(filename,width):<br>    with <span class="hljs-built_in">open</span>(filename, <span class="hljs-string">&#x27;rb&#x27;</span>) as f:<br>        content = f.<span class="hljs-built_in">read</span>()<br>    hexst = binascii.<span class="hljs-built_in">hexlify</span>(content)  <br>    fh = numpy.<span class="hljs-built_in">array</span>([<span class="hljs-built_in">int</span>(hexst[i:i+<span class="hljs-number">2</span>],<span class="hljs-number">16</span>) for i in <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(hexst), <span class="hljs-number">2</span>)])  <br>    rn = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">len</span>(fh)/width)<br>    fh = numpy.<span class="hljs-built_in">reshape</span>(fh[:rn*width],(-<span class="hljs-number">1</span>,width))  <br>    fh = numpy.<span class="hljs-built_in">uint8</span>(fh)<br>    return fh<br></code></pre></td></tr></table></figure>
+
+<p>然后在批量处理上一步生成的会话流即可，代码如下：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs stylus">paths = <span class="hljs-selector-attr">[[<span class="hljs-string">&#x27;3_ProcessedSession\TrimedSession\Train&#x27;</span>, <span class="hljs-string">&#x27;4_Png\Train&#x27;</span>]</span>,<span class="hljs-selector-attr">[<span class="hljs-string">&#x27;3_ProcessedSession\TrimedSession\Test&#x27;</span>, <span class="hljs-string">&#x27;4_Png\Test&#x27;</span>]</span>]<br><span class="hljs-keyword">for</span> <span class="hljs-selector-tag">p</span> <span class="hljs-keyword">in</span> paths:<br>    <span class="hljs-keyword">for</span> <span class="hljs-selector-tag">i</span>, d <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(os<span class="hljs-selector-class">.listdir</span>(<span class="hljs-selector-tag">p</span><span class="hljs-selector-attr">[0]</span>)):<br>        dir_full = os<span class="hljs-selector-class">.path</span><span class="hljs-selector-class">.join</span>(<span class="hljs-selector-tag">p</span><span class="hljs-selector-attr">[1]</span>, <span class="hljs-built_in">str</span>(i))<br>        <span class="hljs-built_in">mkdir_p</span>(dir_full)<br>        <span class="hljs-keyword">for</span> f <span class="hljs-keyword">in</span> os<span class="hljs-selector-class">.listdir</span>(os<span class="hljs-selector-class">.path</span><span class="hljs-selector-class">.join</span>(<span class="hljs-selector-tag">p</span><span class="hljs-selector-attr">[0]</span>, d)):<br>            bin_full = os<span class="hljs-selector-class">.path</span><span class="hljs-selector-class">.join</span>(<span class="hljs-selector-tag">p</span><span class="hljs-selector-attr">[0]</span>, d, f)<br>            <span class="hljs-built_in">print</span>(bin_full)<br>            im = Image<span class="hljs-selector-class">.fromarray</span>(<span class="hljs-built_in">getMatrixfrom_pcap</span>(bin_full,PNG_SIZE))<br>            png_full = os<span class="hljs-selector-class">.path</span><span class="hljs-selector-class">.join</span>(dir_full, os<span class="hljs-selector-class">.path</span><span class="hljs-selector-class">.splitext</span>(f)<span class="hljs-selector-attr">[0]</span>+<span class="hljs-string">&#x27;.png&#x27;</span>)<br>            im<span class="hljs-selector-class">.save</span>(png_full)<br></code></pre></td></tr></table></figure>
+
+<h3 id="4、将PNG图片转为MNIST格式"><a href="#4、将PNG图片转为MNIST格式" class="headerlink" title="4、将PNG图片转为MNIST格式"></a>4、将PNG图片转为MNIST格式</h3><p>首先MNIST数据集格式查看以下连接：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_20936739/article/details/82011320">https://blog.csdn.net/qq_20936739&#x2F;article&#x2F;details&#x2F;82011320</a></p>
+<p>文件头：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment"># header for label array</span><br><span class="hljs-attribute">header</span> = array(&#x27;B&#x27;)<br><span class="hljs-attribute">header</span>.extend([<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">8</span>,<span class="hljs-number">1</span>])<br><span class="hljs-attribute">header</span>.append(int(&#x27;<span class="hljs-number">0</span>x&#x27;+hexval[<span class="hljs-number">2</span>:][<span class="hljs-number">0</span>:<span class="hljs-number">2</span>],<span class="hljs-number">16</span>))<br><span class="hljs-attribute">header</span>.append(int(&#x27;<span class="hljs-number">0</span>x&#x27;+hexval[<span class="hljs-number">2</span>:][<span class="hljs-number">2</span>:<span class="hljs-number">4</span>],<span class="hljs-number">16</span>))<br><span class="hljs-attribute">header</span>.append(int(&#x27;<span class="hljs-number">0</span>x&#x27;+hexval[<span class="hljs-number">2</span>:][<span class="hljs-number">4</span>:<span class="hljs-number">6</span>],<span class="hljs-number">16</span>))<br><span class="hljs-attribute">header</span>.append(int(&#x27;<span class="hljs-number">0</span>x&#x27;+hexval[<span class="hljs-number">2</span>:][<span class="hljs-number">6</span>:<span class="hljs-number">8</span>],<span class="hljs-number">16</span>))	<br><span class="hljs-attribute">data_label</span> = header + data_label<br><br><span class="hljs-comment"># additional header for images array	</span><br><span class="hljs-attribute">if</span> max([width,height]) &lt;= <span class="hljs-number">256</span>:<br>	<span class="hljs-attribute">header</span>.extend([<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,width,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,height])<br><span class="hljs-attribute">else</span>:<br>	<span class="hljs-attribute">raise</span> ValueError(&#x27;Image exceeds maximum size: <span class="hljs-number">256</span>x256 pixels&#x27;);<br><br><span class="hljs-attribute">header</span>[<span class="hljs-number">3</span>] = <span class="hljs-number">3</span> # Changing MSB for image data (<span class="hljs-number">0</span>x00000803)<br></code></pre></td></tr></table></figure>
+
+<p>数据：</p>
+<figure class="highlight sas"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs sas">for <span class="hljs-keyword">filename</span> <span class="hljs-keyword">in</span> FileList:<br>	pr<span class="hljs-meta">int</span>(<span class="hljs-keyword">filename</span>)<br>	<span class="hljs-keyword">label</span> = <span class="hljs-meta">int</span>(<span class="hljs-keyword">filename</span>.split(<span class="hljs-string">&#x27;\\&#x27;</span>)[2])<br>	Im = Image.<span class="hljs-meta">open</span>(<span class="hljs-keyword">filename</span>)<br>	pixel = Im.load()<br>	width, height = Im.size<br>	for <span class="hljs-keyword">x</span> <span class="hljs-keyword">in</span> <span class="hljs-meta">range</span>(0,width):<br>		for y <span class="hljs-keyword">in</span> <span class="hljs-meta">range</span>(0,height):<br>			data_image.append(pixel[y,<span class="hljs-keyword">x</span>])<br>	data_label.append(<span class="hljs-keyword">label</span>) # labels start (one unsigned byte each)<br>hexval = <span class="hljs-string">&quot;&#123;0:#0&#123;1&#125;x&#125;&quot;</span>.<span class="hljs-keyword">format</span>(le<span class="hljs-meta">n</span>(FileList),6) # number of files <span class="hljs-keyword">in</span> HEX<br>hexval = <span class="hljs-string">&#x27;0x&#x27;</span> + hexval[2:].zfill(8)<br></code></pre></td></tr></table></figure>
+
+<p>需要改Name，改为Test和Train，如下：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs lua">Names = <span class="hljs-string">[[&#x27;4_Png\t10k&#x27;,&#x27;5_Mnist\\t10k&#x27;]]</span><br># Names = <span class="hljs-string">[[&#x27;4_Png\train&#x27;,&#x27;5_Mnist\\test&#x27;]]</span><br></code></pre></td></tr></table></figure>
+
+<p>将PNG数据处理完，生成IDX-Ubyte格式的数据集，便可以根据神经网络来训练：</p>
+<p>值得一提的是，如果数据集中只有7个特征的话，数据集标签的维度还是10，10是通过one-hot形式标识的，只是7，8，9位只显示为0。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/3a9af54a05164b867b655a3b3c91ca98.png" srcset="/img/loading.gif" lazyload></p>
+<p>然后用CNN对其进行训练，</p>
+<p>本代码的运行环境如下：</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/552c35e03c81887e1665851c6a47d97f.png" srcset="/img/loading.gif" lazyload></p>
+<p>tensorflow源码如下：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br></pre></td><td class="code"><pre><code class="hljs vim">import time<br>import sys<br>import numpy <span class="hljs-keyword">as</span> np<br>import os<br><br>from tensorflow.examples.tutorials.mnist import input_data<br># start tensorflow interactiveSession<br>import tensorflow <span class="hljs-keyword">as</span> <span class="hljs-keyword">tf</span><br><br># Note: <span class="hljs-keyword">if</span> class numer <span class="hljs-keyword">is</span> <span class="hljs-number">2</span> <span class="hljs-built_in">or</span> <span class="hljs-number">20</span>, please <span class="hljs-keyword">edit</span> the variable named <span class="hljs-string">&quot;num_classes&quot;</span> in /usr/local/lib/python2.<span class="hljs-number">7</span>/dist-packages/tensorflow/contrib/learn/<span class="hljs-keyword">python</span>/learn/datasets/mnist.<span class="hljs-keyword">py</span><span class="hljs-comment">&quot;</span><br>DATA_DIR = sys.<span class="hljs-built_in">argv</span>[<span class="hljs-number">1</span>]<br>CLASS_NUM = <span class="hljs-keyword">int</span>(sys.<span class="hljs-built_in">argv</span>[<span class="hljs-number">2</span>])<br>TRAIN_ROUND = <span class="hljs-keyword">int</span>(sys.<span class="hljs-built_in">argv</span>[<span class="hljs-number">3</span>])<br><br>folder = os.path.<span class="hljs-keyword">split</span>(DATA_DIR)[<span class="hljs-number">1</span>]<br><br>sess = <span class="hljs-keyword">tf</span>.InteractiveSession()<br><br>flags = <span class="hljs-keyword">tf</span>.app.flags<br>FLAGS = flags.FLAGS<br>flags.DEFINE_string(<span class="hljs-string">&#x27;data_dir&#x27;</span>, DATA_DIR, <span class="hljs-string">&#x27;Directory for storing data&#x27;</span>)<br><br>mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)<br><br># <span class="hljs-keyword">function</span>: <span class="hljs-keyword">find</span> <span class="hljs-keyword">a</span> element in <span class="hljs-keyword">a</span> <span class="hljs-keyword">list</span><br>def find_element_in_list(element, list_element):<br>    <span class="hljs-keyword">try</span>:<br>        index_element = list_element.<span class="hljs-built_in">index</span>(element)<br>        <span class="hljs-keyword">return</span> index_element<br>    except ValueError:<br>        <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span><br><br># weight initialization<br>def weight_variable(shape):<br>    initial = <span class="hljs-keyword">tf</span>.truncated_normal(shape, stddev=<span class="hljs-number">0.1</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">tf</span>.Variable(initial)<br><br>def bias_variable(shape):<br>    initial = <span class="hljs-keyword">tf</span>.constant(<span class="hljs-number">0.1</span>, shape = shape)<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">tf</span>.Variable(initial)<br><br># convolution<br>def conv2d(<span class="hljs-keyword">x</span>, W):<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">tf</span>.<span class="hljs-keyword">nn</span>.conv2d(<span class="hljs-keyword">x</span>, W, strides=[<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>], padding=<span class="hljs-string">&#x27;SAME&#x27;</span>)<br># pooling<br>def max_pool_2x2(<span class="hljs-keyword">x</span>):<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">tf</span>.<span class="hljs-keyword">nn</span>.max_pool(<span class="hljs-keyword">x</span>, ksize=[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>], strides=[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>], padding=<span class="hljs-string">&#x27;SAME&#x27;</span>)<br><br># Create the model<br># placeholder<br><span class="hljs-keyword">x</span> = <span class="hljs-keyword">tf</span>.placeholder(<span class="hljs-string">&quot;float&quot;</span>, [None, <span class="hljs-number">784</span>])<br>y_ = <span class="hljs-keyword">tf</span>.placeholder(<span class="hljs-string">&quot;float&quot;</span>, [None, CLASS_NUM])<br><br># <span class="hljs-keyword">first</span> convolutinal layer<br>w_conv1 = weight_variable([<span class="hljs-number">5</span>, <span class="hljs-number">5</span>, <span class="hljs-number">1</span>, <span class="hljs-number">32</span>])<br>b_conv1 = bias_variable([<span class="hljs-number">32</span>])<br><br>x_image = <span class="hljs-keyword">tf</span>.reshape(<span class="hljs-keyword">x</span>, [-<span class="hljs-number">1</span>, <span class="hljs-number">28</span>, <span class="hljs-number">28</span>, <span class="hljs-number">1</span>])<br><br>h_conv1 = <span class="hljs-keyword">tf</span>.<span class="hljs-keyword">nn</span>.relu(conv2d(x_image, w_conv1) + b_conv1)<br>h_pool1 = max_pool_2x2(h_conv1)<br><br># second convolutional layer<br>w_conv2 = weight_variable([<span class="hljs-number">5</span>, <span class="hljs-number">5</span>, <span class="hljs-number">32</span>, <span class="hljs-number">64</span>])<br>b_conv2 = bias_variable([<span class="hljs-number">64</span>])<br><br>h_conv2 = <span class="hljs-keyword">tf</span>.<span class="hljs-keyword">nn</span>.relu(conv2d(h_pool1, w_conv2) + b_conv2)<br>h_pool2 = max_pool_2x2(h_conv2)<br><br># densely connected layer<br>w_fc1 = weight_variable([<span class="hljs-number">7</span>*<span class="hljs-number">7</span>*<span class="hljs-number">64</span>, <span class="hljs-number">1024</span>])<br>b_fc1 = bias_variable([<span class="hljs-number">1024</span>])<br><br>h_pool2_flat = <span class="hljs-keyword">tf</span>.reshape(h_pool2, [-<span class="hljs-number">1</span>, <span class="hljs-number">7</span>*<span class="hljs-number">7</span>*<span class="hljs-number">64</span>])<br>h_fc1 = <span class="hljs-keyword">tf</span>.<span class="hljs-keyword">nn</span>.relu(<span class="hljs-keyword">tf</span>.matmul(h_pool2_flat, w_fc1) + b_fc1)<br><br># dropout<br>keep_prob = <span class="hljs-keyword">tf</span>.placeholder(<span class="hljs-string">&quot;float&quot;</span>)<br>h_fc1_drop = <span class="hljs-keyword">tf</span>.<span class="hljs-keyword">nn</span>.dropout(h_fc1, keep_prob)<br><br># readout layer<br>w_fc2 = weight_variable([<span class="hljs-number">1024</span>, CLASS_NUM])<br>b_fc2 = bias_variable([CLASS_NUM])<br><br>y_conv = <span class="hljs-keyword">tf</span>.<span class="hljs-keyword">nn</span>.softmax(<span class="hljs-keyword">tf</span>.matmul(h_fc1_drop, w_fc2) + b_fc2)<br><br># define var&amp;op of training&amp;testing<br>actual_label = <span class="hljs-keyword">tf</span>.argmax(y_, <span class="hljs-number">1</span>)<br>label,idx,<span class="hljs-built_in">count</span> = <span class="hljs-keyword">tf</span>.unique_with_counts(actual_label)<br>cross_entropy = -<span class="hljs-keyword">tf</span>.reduce_sum(y_*<span class="hljs-keyword">tf</span>.<span class="hljs-built_in">log</span>(y_conv))<br>train_step = <span class="hljs-keyword">tf</span>.train.GradientDescentOptimizer(<span class="hljs-number">1</span><span class="hljs-keyword">e</span>-<span class="hljs-number">4</span>).minimize(cross_entropy)<br>predict_label = <span class="hljs-keyword">tf</span>.argmax(y_conv, <span class="hljs-number">1</span>)<br>label_p,idx_p,count_p = <span class="hljs-keyword">tf</span>.unique_with_counts(predict_label)<br>correct_prediction = <span class="hljs-keyword">tf</span>.equal(predict_label, actual_label)<br>accuracy = <span class="hljs-keyword">tf</span>.reduce_mean(<span class="hljs-keyword">tf</span>.cast(correct_prediction, <span class="hljs-string">&quot;float&quot;</span>))<br>correct_label=<span class="hljs-keyword">tf</span>.boolean_mask(actual_label,correct_prediction)<br>label_c,idx_c,count_c=<span class="hljs-keyword">tf</span>.unique_with_counts(correct_label)<br><br># <span class="hljs-keyword">if</span> model <span class="hljs-built_in">exists</span>: restore it<br># <span class="hljs-keyword">else</span>: train <span class="hljs-keyword">a</span> <span class="hljs-keyword">new</span> model <span class="hljs-built_in">and</span> save it<br>saver = <span class="hljs-keyword">tf</span>.train.Saver()<br>model_name = <span class="hljs-string">&quot;model_&quot;</span> + str(CLASS_NUM) + <span class="hljs-string">&quot;class_&quot;</span> + folder<br>model =  model_name + <span class="hljs-string">&#x27;/&#x27;</span> + model_name + <span class="hljs-string">&quot;.ckpt&quot;</span><br><span class="hljs-keyword">if</span> not os.path.<span class="hljs-built_in">exists</span>(model):<br>    sess.run(<span class="hljs-keyword">tf</span>.initialize_all_variables())<br>    <span class="hljs-keyword">if</span> not os.path.<span class="hljs-built_in">exists</span>(model_name):<br>        os.makedirs(model_name)<br>    # with <span class="hljs-keyword">open</span>(<span class="hljs-string">&#x27;out.txt&#x27;</span>,<span class="hljs-string">&#x27;a&#x27;</span>) <span class="hljs-keyword">as</span> <span class="hljs-keyword">f</span>:<br>    #     <span class="hljs-keyword">f</span>.<span class="hljs-keyword">write</span>(time.<span class="hljs-built_in">strftime</span>(<span class="hljs-string">&#x27;%Y-%m-%d %X&#x27;</span>,time.<span class="hljs-built_in">localtime</span>()) + <span class="hljs-string">&quot;\n&quot;</span>)<br>    #     <span class="hljs-keyword">f</span>.<span class="hljs-keyword">write</span>(<span class="hljs-string">&#x27;DATA_DIR: &#x27;</span> + DATA_DIR+ <span class="hljs-string">&quot;\n&quot;</span>)<br>    <span class="hljs-keyword">for</span> i in <span class="hljs-built_in">range</span>(TRAIN_ROUND+<span class="hljs-number">1</span>):<br>        batch = mnist.train.next_batch(<span class="hljs-number">50</span>)<br>        <span class="hljs-keyword">if</span> i%<span class="hljs-number">100</span> == <span class="hljs-number">0</span>:<br>            train_accuracy = accuracy.<span class="hljs-built_in">eval</span>(feed_dict=&#123;<span class="hljs-keyword">x</span>:batch[<span class="hljs-number">0</span>], y_:batch[<span class="hljs-number">1</span>], keep_pro<span class="hljs-variable">b:1</span>.<span class="hljs-number">0</span>&#125;)<br>            s = <span class="hljs-string">&quot;step %d, train accuracy %g&quot;</span> %(i, train_accuracy)<br>            <span class="hljs-keyword">print</span> (s)<br>            # <span class="hljs-keyword">if</span> i%<span class="hljs-number">2000</span> == <span class="hljs-number">0</span>:<br>            #     with <span class="hljs-keyword">open</span>(<span class="hljs-string">&#x27;out.txt&#x27;</span>,<span class="hljs-string">&#x27;a&#x27;</span>) <span class="hljs-keyword">as</span> <span class="hljs-keyword">f</span>:<br>            #         <span class="hljs-keyword">f</span>.<span class="hljs-keyword">write</span>(s + <span class="hljs-string">&quot;\n&quot;</span>)<br>        train_step.run(feed_dict=&#123;<span class="hljs-keyword">x</span>:batch[<span class="hljs-number">0</span>], y_:batch[<span class="hljs-number">1</span>], keep_pro<span class="hljs-variable">b:0</span>.<span class="hljs-number">5</span>&#125;)<br>    <br>    save_path = saver.save(sess, model)<br>    <span class="hljs-keyword">print</span>(<span class="hljs-string">&quot;Model saved in file:&quot;</span>, save_path)<br><span class="hljs-keyword">else</span>:        <br>    saver.restore(sess, model)<br>    <span class="hljs-keyword">print</span>(<span class="hljs-string">&quot;Model restored: &quot;</span> + model)<br></code></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> aifw\2.PreprocessedTools<br>.\1_Pcap2Session.ps1<br>.\2_ProcessSession.ps1<br>python .\3_Session2png.py<br>python .\4_Png2Mnist.py<br><br><span class="hljs-built_in">cd</span> aifw\4.TrainAndTest\1d_cnn_25+3<br>python.exe .\encrypt_traffic_cnn_1d_2.py  --data_dir ..\..\2.encrypted_traffic_classification\3.PerprocessResults\12class\SessionL7  --class_num 12 --train_round 2000<br>python.exe .\encrypt_traffic_cnn_1d_2.py  --data_dir ..\..\2.PreprocessedTools\5_Mnist\  --class_num 12 --train_round 2000<br><br><span class="hljs-built_in">cd</span> aifw\5.Invoke<br>python.exe .\convert.py<br><br><br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+<h2 id="Linux-C-实现方式"><a href="#Linux-C-实现方式" class="headerlink" title="Linux C++实现方式"></a>Linux C++实现方式</h2><h3 id="数据包解析"><a href="#数据包解析" class="headerlink" title="数据包解析"></a>数据包解析</h3><p>PCPP这个库将一个原始数据包解析为若干层，每一层的协议信息由一个变量来保存，我们可以自由读写这些解析后的数据。</p>
+<p>一个 <code>RawPacket</code> 表示原始的字节流，也就是我们最开始从 <code>pcap</code> 文件中读进来的一个数据包，经过解析，可以将这个数据包拆分成我们熟悉的若干层数据！PCPP的一个特性是它不保存多个副本，而只是在同一个数据包上标记各层协议的起点，这些起点可以由上一层解析结果访问到。</p>
+<p><a target="_blank" rel="noopener" href="https://xrg.fj.cn/p/pcapplusplus%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95%E4%BA%8C%E9%80%9A%E8%BF%87%E8%A7%A3%E6%9E%90%E6%95%B0%E6%8D%AE%E5%8C%85%E5%AE%9E%E7%8E%B0%E4%BC%9A%E8%AF%9D%E5%88%86%E5%89%B2/1.png"><img src="/AI/pcap%E4%BC%9A%E8%AF%9D%E9%A2%84%E5%A4%84%E7%90%86/1.png" srcset="/img/loading.gif" lazyload alt="示例"></a>示例</p>
+<p>例如这个图中的解析结果，首先是数据链路层的 <code>Ethernet Layer</code> ，它可以看到所有原始数据；由 <code>Ethernet Layer</code> 层扣除它的头部数据，就是整个 <code>IPv4</code> 层的数据；而由 <code>IPv4</code> 层再继续解析，就是 <code>UDP</code> 层啦！这样层层递推，实际上跟学习计算机网络的时候对数据包的解析顺序差不多。</p>
+<p>PCPP提供的数据包解析方法有两种，我们分别来看。</p>
+<p>首先还是需要先创建一个 <code>reader</code> ，如果你还记得第一章的内容，那就很简单了：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;IPv4Layer.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;Packet.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;PcapFileDevice.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>* argv[])</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">// Part 1</span><br>	<span class="hljs-comment">// open a pcap file for reading</span><br>	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::<span class="hljs-built_in">getReader</span>(<span class="hljs-string">&quot;test_file_1.pcap&quot;</span>);<br>	<span class="hljs-keyword">if</span> (!reader)<br>	&#123;<br>		std::cerr &lt;&lt; <span class="hljs-string">&quot;Cannot determine reader for file type&quot;</span> &lt;&lt; std::endl;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>	&#125;<br>	<span class="hljs-keyword">if</span> (!reader-&gt;<span class="hljs-built_in">open</span>())<br>	&#123;<br>		std::cerr &lt;&lt; <span class="hljs-string">&quot;Cannot open input.pcap for reading&quot;</span> &lt;&lt; std::endl;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>	&#125;<br>    <br>    <span class="hljs-comment">// read the first packet from the file</span><br>    pcpp::RawPacket rawPacket;<br>    <span class="hljs-keyword">if</span> (!reader-&gt;<span class="hljs-built_in">getNextPacket</span>(rawPacket))<br>    &#123;<br>        std::cerr &lt;&lt; <span class="hljs-string">&quot;Couldn&#x27;t read the first packet in the file&quot;</span> &lt;&lt; std::endl;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>    &#125;<br>    <br>    <span class="hljs-comment">// ===== Code to write =====</span><br><br>	reader-&gt;<span class="hljs-built_in">close</span>();<br>	<span class="hljs-keyword">delete</span> reader;<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>上面是程序的基本框架，已经写好了创建Reader、读取第一个数据包 <code>rawPacket</code> 的部分。接下来的所有代码都追加在 <em>Code to write</em> 那块地方~</p>
+<p>首先需要创建一个解析后的数据包：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-comment">// parse the raw packet into a parsed packet</span><br><span class="hljs-function">pcpp::Packet <span class="hljs-title">parsedPacket</span><span class="hljs-params">(&amp;rawPacket)</span></span>;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>在上面的介绍中，我们知道这个解析后的数据包是一层一层的结构，每一层都有一个指向下一层的指针，于是我们可以使用一个循环来遍历这些层：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-comment">// first let&#x27;s go over the layers one by one and find out its type, its total length, its header length and its payload length</span><br><span class="hljs-keyword">for</span> (pcpp::Layer* curLayer = parsedPacket.<span class="hljs-built_in">getFirstLayer</span>(); curLayer != <span class="hljs-literal">NULL</span>; curLayer = curLayer-&gt;<span class="hljs-built_in">getNextLayer</span>())<br>&#123;<br>    <span class="hljs-comment">// Code to write</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在这个循环中呢， <code>curLayer</code> 就是当前获取到的层了！假如说我们需要使用到TCP层的信息，那就需要用API获取一下当前层的协议，然后判断 <code>curLayer-&gt;getProtocol() == pcpp::TCP</code> ，真是有点麻烦！</p>
+<p>好在PCPP为我们提供了第二种获取协议层的方法：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C++">pcpp::IPv4Layer* ipLayer = parsedPakcet.<span class="hljs-built_in">getLayerOfType</span>&lt;IPv4Layer&gt;();<br></code></pre></td></tr></table></figure>
+
+<p>直接使用 <code>getLayerOfType</code> 这个接口来获取我们想要的层，很酷！</p>
+<p>在我接下来的场景中，使用到的是网络层的IP地址和传输层的端口，那么就只需要：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs C++">pcpp::TcpLayer* tcpLayer = parsedPakcet.<span class="hljs-built_in">getLayerOfType</span>&lt;TcpLayer&gt;();<br>pcpp::IPv4Layer* ipLayer = parsedPakcet.<span class="hljs-built_in">getLayerOfType</span>&lt;IPv4Layer&gt;();<br></code></pre></td></tr></table></figure>
+
+<p>当我们获取到某个特定的层之后，就可以来使用这一层的信息了。在VS环境中有自动补全，使用 <code>tcpLayer-&gt;getxxxxxx()</code> 这样的格式，一般就能看到这一层包含的信息。例如本次使用较多的有：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs C++">IPv4Address		ipLayer-&gt;<span class="hljs-built_in">getSrcIPv4Address</span>();<br><span class="hljs-type">uint16_t</span> 		tcpLayer-&gt;<span class="hljs-built_in">getSrcPort</span>();<br>tcphdr*			tcpLayer-&gt;<span class="hljs-built_in">getTcpHeader</span>()-&gt;synFlag<br></code></pre></td></tr></table></figure>
+
+<p>Copy</p>
+<p>这几个API从名字上就很容易看出它们是什么作用！如果想进行更多的解析，可以看参考资料 [<a target="_blank" rel="noopener" href="https://pcapplusplus.github.io/docs/tutorials/packet-parsing">1]</a> 和参考资料 [<a target="_blank" rel="noopener" href="https://pcapplusplus.github.io/api-docs/">3]</a> 😁 </p>
+<h3 id="并不成功的会话切分"><a href="#并不成功的会话切分" class="headerlink" title="并不成功的会话切分"></a>并不成功的会话切分</h3><p>所谓 <em>会话分割</em> ，就是说给出一个很大的 <code>pcap</code> 文件，里面有超级多的数据包，我们要把它按照一个个的TCP会话（或者叫TCP连接，whatever）整理好！</p>
+<p>这一工作很有意义！TCP会话一般是数据传输的一个基本单元，它以三次握手开始、以四次挥手结束。譬如以前的HTTP协议，传输一个文件就使用一个TCP会话，即使引入了长连接，也是在一个相对完整的语境中（如一个网页的加载）使用一次TCP会话，所以一个TCP会话的背后可能就是用户的一次网络行为！很多基于网络流量的行为分析技术都是基于TCP会话的，学者们提取TCP会话的各种特征信息，然后使用各种模型，希望把网络流量跟它背后的用户行为对应起来 😹 我们今天还做不到这么多啦，但是从 <code>pcap</code> 文件中整理出一个个TCP会话来，还是可以试试的~</p>
+<p><strong>实验目标：整理出会话的开始时间和结束时间，可以顺便计算一下时长</strong> 。</p>
+<p>All right？先讲思路，再说不足，最后慢慢改进。</p>
+<p>我基本的思路是使用一个 <em>四元组</em> 来保存连接信息。熟悉TCP的朋友应该知道，一个TCP连接可以由 <code>(SrcIP, DstIP, SrcPort, DstPort)</code> 这个元组唯一确定，其实就是两端的 <em>Socket</em> 啊！</p>
+<p>这么一个元组怎么储存呢？我的做法是进行一个简单的字符串拼接：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs C++">string keyTuple =<br>        ipLayer-&gt;<span class="hljs-built_in">getSrcIPv4Address</span>().<span class="hljs-built_in">toString</span>() + <span class="hljs-string">&quot; &quot;</span> +<br>        ipLayer-&gt;<span class="hljs-built_in">getDstIPv4Address</span>().<span class="hljs-built_in">toString</span>() + <span class="hljs-string">&quot; &quot;</span> +<br>        <span class="hljs-built_in">to_string</span>(tcpLayer-&gt;<span class="hljs-built_in">getSrcPort</span>()) + <span class="hljs-string">&quot; &quot;</span> +<br>        <span class="hljs-built_in">to_string</span>(tcpLayer-&gt;<span class="hljs-built_in">getDstPort</span>());<br></code></pre></td></tr></table></figure>
+
+<p>Copy</p>
+<p>我们要做的是 <strong>整理出会话的开始时间和结束时间</strong> ，还记得吗？</p>
+<p>我最初的想法是：对每个数据包进行分析，如果数据包中包含 <code>SYN</code> ，说明它是会话的开始，放入一个 <code>map</code> 中；如果数据包中包含 <code>FIN</code> ，说明它是会话的结束，依据这个数据包的四元组从 <code>map</code> 中获取开始时间，然后使用当前数据包的时间作为结束时间，打印！</p>
+<p>总的代码为：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;IPv4Layer.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;TcpLayer.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;Packet.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;PcapFileDevice.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;set&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;map&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;ctime&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cstdlib&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iomanip&gt;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> pcpp;<br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MY_FORMAT setw(18) &lt;&lt; setiosflags(ios::left)</span><br><span class="hljs-function">IFileReaderDevice* <span class="hljs-title">openFileReader</span><span class="hljs-params">(string fileName)</span></span><br><span class="hljs-function"></span>&#123;<br>	IFileReaderDevice* openedReader = IFileReaderDevice::<span class="hljs-built_in">getReader</span>(fileName);<br>	<span class="hljs-keyword">if</span> (!openedReader)<br>	&#123;<br>		cerr &lt;&lt; <span class="hljs-string">&quot;Cannot determine reader for file type&quot;</span> &lt;&lt; endl;<br>		<span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>	&#125;<br>	<span class="hljs-keyword">if</span> (!openedReader-&gt;<span class="hljs-built_in">open</span>())<br>	&#123;<br>		cerr &lt;&lt; <span class="hljs-string">&quot;Cannot open input.pcap for reading&quot;</span> &lt;&lt; endl;<br>		<span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> openedReader;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">printSplitedTuple</span><span class="hljs-params">(string s)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-type">int</span> prevFind = <span class="hljs-number">-1</span>;<br>	<span class="hljs-type">int</span> nowFind;<br>	<span class="hljs-keyword">while</span> ((nowFind = s.<span class="hljs-built_in">find</span>(<span class="hljs-string">&quot; &quot;</span>, prevFind + <span class="hljs-number">1</span>)) != string::npos)<br>	&#123;<br>		cout &lt;&lt; MY_FORMAT &lt;&lt; s.<span class="hljs-built_in">substr</span>(prevFind + <span class="hljs-number">1</span>, nowFind - prevFind);<br>		prevFind = nowFind;<br>	&#125;<br>	cout &lt;&lt; MY_FORMAT &lt;&lt; s.<span class="hljs-built_in">substr</span>(prevFind + <span class="hljs-number">1</span>);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>* argv[])</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-comment">// open a pcap file for reading</span><br>	string pcapFile = <span class="hljs-string">&quot;test_file_1.pcap&quot;</span>;<br>	IFileReaderDevice* reader = <span class="hljs-built_in">openFileReader</span>(pcapFile);<br><br>	<span class="hljs-keyword">if</span> (!reader-&gt;<span class="hljs-built_in">setFilter</span>(<span class="hljs-string">&quot;tcp&quot;</span>))<br>	&#123;<br>		cerr &lt;&lt; <span class="hljs-string">&quot;Cannot set filter for file reader&quot;</span> &lt;&lt; endl;<br>		<span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>	&#125;<br><br>	RawPacket rawPacket;<br>	multimap&lt;string, timespec&gt; sessionMap;<br>	<span class="hljs-keyword">auto</span> BEGIN = <span class="hljs-built_in">clock</span>();<br>	<span class="hljs-keyword">while</span> (reader-&gt;<span class="hljs-built_in">getNextPacket</span>(rawPacket))<br>	&#123;<br>		<span class="hljs-function">Packet <span class="hljs-title">parsedPakcet</span><span class="hljs-params">(&amp;rawPacket)</span></span>;<br>		TcpLayer* tcpLayer = parsedPakcet.<span class="hljs-built_in">getLayerOfType</span>&lt;TcpLayer&gt;();<br>		IPv4Layer* ipLayer = parsedPakcet.<span class="hljs-built_in">getLayerOfType</span>&lt;IPv4Layer&gt;();<br>		string keyTuple =<br>			ipLayer-&gt;<span class="hljs-built_in">getSrcIPv4Address</span>().<span class="hljs-built_in">toString</span>() + <span class="hljs-string">&quot; &quot;</span> +<br>			ipLayer-&gt;<span class="hljs-built_in">getDstIPv4Address</span>().<span class="hljs-built_in">toString</span>() + <span class="hljs-string">&quot; &quot;</span> +<br>			<span class="hljs-built_in">to_string</span>(tcpLayer-&gt;<span class="hljs-built_in">getSrcPort</span>()) + <span class="hljs-string">&quot; &quot;</span> +<br>			<span class="hljs-built_in">to_string</span>(tcpLayer-&gt;<span class="hljs-built_in">getDstPort</span>());<br>		<br>		<span class="hljs-keyword">if</span> (tcpLayer-&gt;<span class="hljs-built_in">getTcpHeader</span>()-&gt;synFlag == <span class="hljs-number">1</span>)<br>		&#123;<br>			sessionMap.<span class="hljs-built_in">insert</span>(<span class="hljs-built_in">pair</span>&lt;string, timespec&gt;(keyTuple, rawPacket.<span class="hljs-built_in">getPacketTimeStamp</span>()));<br>		&#125;<br>		<span class="hljs-keyword">if</span> (tcpLayer-&gt;<span class="hljs-built_in">getTcpHeader</span>()-&gt;finFlag == <span class="hljs-number">1</span>)<br>		&#123;<br>			<span class="hljs-keyword">auto</span> sessionStart = sessionMap.<span class="hljs-built_in">find</span>(keyTuple);<br>			<span class="hljs-keyword">if</span> (sessionStart != sessionMap.<span class="hljs-built_in">end</span>())<br>			&#123;<br>				cout &lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-string">&quot;Src&quot;</span> &lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-string">&quot;Dst&quot;</span><br>					&lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-string">&quot;SrcPort&quot;</span> &lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-string">&quot;DstPort&quot;</span><br>					&lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-string">&quot;Start&quot;</span> &lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-string">&quot;End&quot;</span>&lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-string">&quot;Duration&quot;</span><br>					&lt;&lt; endl;<br><br>				<span class="hljs-built_in">printSplitedTuple</span>(keyTuple);<br><br>				<span class="hljs-type">double</span> startTime = sessionStart-&gt;second.tv_sec + (<span class="hljs-type">double</span>)sessionStart-&gt;second.tv_nsec / <span class="hljs-number">1e9</span>;<br>				<span class="hljs-type">double</span> endTime = rawPacket.<span class="hljs-built_in">getPacketTimeStamp</span>().tv_sec + (<span class="hljs-type">double</span>)rawPacket.<span class="hljs-built_in">getPacketTimeStamp</span>().tv_nsec / <span class="hljs-number">1e9</span>;<br>				cout &lt;&lt; MY_FORMAT &lt;&lt; sessionStart-&gt;second.tv_sec<br>					&lt;&lt; MY_FORMAT &lt;&lt; rawPacket.<span class="hljs-built_in">getPacketTimeStamp</span>().tv_sec<br>					&lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-built_in">setprecision</span>(<span class="hljs-number">5</span>) &lt;&lt; (endTime - startTime)<br>					&lt;&lt; endl;<br>				sessionMap.<span class="hljs-built_in">erase</span>(sessionStart);<br>			&#125;<br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">auto</span> END = <span class="hljs-built_in">clock</span>();<br>	cout &lt;&lt; <span class="hljs-string">&quot;Total time: &quot;</span> &lt;&lt; <span class="hljs-built_in">double</span>(END - BEGIN) / CLK_TCK * <span class="hljs-number">1000</span> &lt;&lt; <span class="hljs-string">&quot;ms.&quot;</span> &lt;&lt; endl;<br><br>	reader-&gt;<span class="hljs-built_in">close</span>();<br>	<span class="hljs-keyword">delete</span> reader;<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Copy</p>
+<p>上面的代码使用了 <code>rawPacket.getPacketTimestamp()</code> 来获取数据包的时间戳，返回结果是一个 <a target="_blank" rel="noopener" href="https://www.gnu.org/software/libc/manual/html_node/Time-Types.html">timespec</a> 类型！这个类型表示从日历起点到现在所经过的秒数，它的第一部分是 <em>秒</em> ，第二部分是 <em>纳秒</em> ，我使用了 <em>秒</em> 来打印会话开始时间和结束时间，使用了 <em>纳秒</em> 来计算会话持续时间。</p>
+<p>此外，为了输出结果的美观，我定义了一个 <code>MY_FORMAT</code> 宏，将输出的字符串指定为 <code>18</code> 个宽度，方便对齐。</p>
+<p><a target="_blank" rel="noopener" href="https://xrg.fj.cn/p/pcapplusplus%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95%E4%BA%8C%E9%80%9A%E8%BF%87%E8%A7%A3%E6%9E%90%E6%95%B0%E6%8D%AE%E5%8C%85%E5%AE%9E%E7%8E%B0%E4%BC%9A%E8%AF%9D%E5%88%86%E5%89%B2/2.png"><img src="/AI/pcap%E4%BC%9A%E8%AF%9D%E9%A2%84%E5%A4%84%E7%90%86/2.png" srcset="/img/loading.gif" lazyload alt="输出结果"></a>输出结果</p>
+<p>这次的运行花了5秒多！结果看着蛮厉害，其实问题有很多 😢 这些问题是在我基本上完成了这个程序之后，逐渐意识到的。</p>
+<h4 id="元组的表示问题"><a href="#元组的表示问题" class="headerlink" title="元组的表示问题"></a>元组的表示问题</h4><p>首先是那个四元组的问题。我们说一个TCP会话是由一个元组确定的，这自然是没有错，但是在编程实现中，我把这四个元素简单地做了字符串拼接，这就带来问题了！本来 <code>(SrcIP, DstIP, SrcPort, DstPort)</code> 这四个元素的顺序是可以倒换的，也就是它跟 <code>(DstIP, SrcIP, DstPort, SrcPort)</code> 是同一个东西啊！更加具体地说，本来由 <code>192.168.0.102</code> 发往 <code>1.1.1.1</code> 的会话是双向的，也就是说 <code>(192.168.0.102, 1.1.1.1, 4321, 443)</code> 这么一个元组表示主机发往服务器的数据，而 <code>(1.1.1.1, 192.168.0.102, 443, 4321)</code> 表示的是服务器发往主机的数据，这两个元组表示的是同一个会话！而我 <strong>愚蠢地</strong> 做了字符串拼接，而且用这个拼接后的字符串来作为 <code>map</code> 的 <code>key</code> 。这种 <code>key</code> 表示出来的东西根本就不全啊？！会使得我们在取得一个 <code>FIN</code> 包时，只能找到 <strong>同向的</strong> <code>SYN</code> 包，也就是说，我们整理出来的会话，只能是 <strong>由主机发起、由主机断开</strong> 或者是 <strong>由服务器发起、由服务器断开</strong> 的会话，至于 <strong>由主机发起、由服务器断开</strong> 的会话，或者 <strong>由服务器发起、由主机断开</strong> 的会话，就整理不到了。</p>
+<h4 id="会话起止的问题"><a href="#会话起止的问题" class="headerlink" title="会话起止的问题"></a>会话起止的问题</h4><p>即便解决了元组的表示问题，还有会话起止的问题没有考虑到。</p>
+<p>TCP的三次握手和四次挥手中，会产生 <strong>两个SYN包、两个FIN包</strong> ！这是我在编程过程中遗漏的知识点，反应过来之后，头痛不已……</p>
+<p>会话的起止，应该表示为第一个 <code>SYN</code> 和最后一个 <code>FIN</code> ，第一个 <code>SYN</code> 是不含 <code>ack</code> 的，而最后一个 <code>FIN</code> 是在同一个元组下出现的第二个 <code>FIN</code> 。</p>
+<p>这样的算法 <strong>不考虑超时重传的情况、不考虑最后一个 <code>ack</code> 的传输、不考虑连接断开之前的 <code>2MSL</code> 等待</strong> 。</p>
+<p>感觉误差挺大的样子，不过这样的误差会作用到每一个会话上，相对来说是可以接受的。</p>
+<h3 id="比较成功的会话切分"><a href="#比较成功的会话切分" class="headerlink" title="比较成功的会话切分"></a>比较成功的会话切分</h3><p>在上面部分的代码宣告失败后，我翻看PCPP的 <a target="_blank" rel="noopener" href="https://pcapplusplus.github.io/docs/examples">示例应用</a> ，意外地发现了 <a target="_blank" rel="noopener" href="https://github.com/seladb/PcapPlusPlus/tree/master/Examples/PcapSplitter">PcapSplitter</a> 这个好东西，作者已经初步实现了按照会话切分 <code>pcap</code> 文件的功能。</p>
+<p>不过，作者的代码只能作为参考，因为他是将一个大的 <code>pcap</code> 文件按照一定规则切分为若干小的 <code>pcap</code> 文件，跟我的主要需求不太一致。</p>
+<p>当我阅读 <a target="_blank" rel="noopener" href="https://github.com/seladb/PcapPlusPlus/blob/master/Examples/PcapSplitter/ConnectionSplitters.h">ConnectionSplitter.h</a> 这个文件时，发现了一个重要的函数： <code>hash5Tuple()</code> 。</p>
+<p>有没有搞错？！搞了大半天的用四元组来表示一个会话，结果这个库自己就能够处理元组哈希？而且参数简单得要死，传入一个 <code>parsedPacket</code> 即可。</p>
+<p>行叭，就用这个函数来替代之前的愚蠢的元组表示方式，同时完善一下会话起止的判定方法，改写一下会话切分代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;IPv4Layer.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;TcpLayer.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;Packet.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;PcapFileDevice.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;PacketUtils.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;set&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;map&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;ctime&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cstdlib&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iomanip&gt;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> pcpp;<br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MY_FORMAT setw(18) &lt;&lt; setiosflags(ios::left)</span><br><span class="hljs-function">IFileReaderDevice* <span class="hljs-title">openFileReader</span><span class="hljs-params">(string fileName)</span></span><br><span class="hljs-function"></span>&#123;<br>	IFileReaderDevice* openedReader = IFileReaderDevice::<span class="hljs-built_in">getReader</span>(fileName);<br>	<span class="hljs-keyword">if</span> (!openedReader)<br>	&#123;<br>		cerr &lt;&lt; <span class="hljs-string">&quot;Cannot determine reader for file type&quot;</span> &lt;&lt; endl;<br>		<span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>	&#125;<br>	<span class="hljs-keyword">if</span> (!openedReader-&gt;<span class="hljs-built_in">open</span>())<br>	&#123;<br>		cerr &lt;&lt; <span class="hljs-string">&quot;Cannot open input.pcap for reading&quot;</span> &lt;&lt; endl;<br>		<span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> openedReader;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>* argv[])</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-comment">// open a pcap file for reading</span><br>	string pcapFile = <span class="hljs-string">&quot;test_file_1.pcap&quot;</span>;<br>	IFileReaderDevice* reader = <span class="hljs-built_in">openFileReader</span>(pcapFile);<br><br>	<span class="hljs-keyword">if</span> (!reader-&gt;<span class="hljs-built_in">setFilter</span>(<span class="hljs-string">&quot;tcp&quot;</span>))<br>	&#123;<br>		cerr &lt;&lt; <span class="hljs-string">&quot;Cannot set filter for file reader&quot;</span> &lt;&lt; endl;<br>		<span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>	&#125;<br><br>	RawPacket rawPacket;<br>	map&lt;<span class="hljs-type">uint32_t</span>, timespec&gt; sessionMap;<br>	map&lt;<span class="hljs-type">uint32_t</span>, <span class="hljs-type">int</span>&gt; finCount;<br>	<span class="hljs-type">int</span> outputCount = <span class="hljs-number">0</span>;<br>	<span class="hljs-keyword">auto</span> BEGIN = <span class="hljs-built_in">clock</span>();<br>	<span class="hljs-keyword">while</span> (reader-&gt;<span class="hljs-built_in">getNextPacket</span>(rawPacket))<br>	&#123;<br>		<span class="hljs-function">Packet <span class="hljs-title">parsedPakcet</span><span class="hljs-params">(&amp;rawPacket)</span></span>;<br>		TcpLayer* tcpLayer = parsedPakcet.<span class="hljs-built_in">getLayerOfType</span>&lt;TcpLayer&gt;();<br>		IPv4Layer* ipLayer = parsedPakcet.<span class="hljs-built_in">getLayerOfType</span>&lt;IPv4Layer&gt;();<br>		<span class="hljs-type">uint32_t</span> keyTuple = <span class="hljs-built_in">hash5Tuple</span>(&amp;parsedPakcet);<br>		<br>		<span class="hljs-keyword">if</span> (tcpLayer-&gt;<span class="hljs-built_in">getTcpHeader</span>()-&gt;synFlag == <span class="hljs-number">1</span> &amp;&amp; tcpLayer-&gt;<span class="hljs-built_in">getTcpHeader</span>()-&gt;ackFlag == <span class="hljs-number">0</span>)<br>		&#123;<br>			sessionMap[keyTuple] = rawPacket.<span class="hljs-built_in">getPacketTimeStamp</span>();<br>		&#125;<br>		<span class="hljs-keyword">if</span> (tcpLayer-&gt;<span class="hljs-built_in">getTcpHeader</span>()-&gt;finFlag == <span class="hljs-number">1</span> || tcpLayer-&gt;<span class="hljs-built_in">getTcpHeader</span>()-&gt;rstFlag == <span class="hljs-number">1</span>)<br>		&#123;<br>			<span class="hljs-keyword">if</span> (finCount.<span class="hljs-built_in">find</span>(keyTuple) != finCount.<span class="hljs-built_in">end</span>())<br>			&#123;<br>				finCount[keyTuple]++;<br>			&#125;<br>			<span class="hljs-keyword">else</span><br>			&#123;<br>				finCount[keyTuple] = <span class="hljs-number">1</span>;<br>			&#125;<br>			<br>			<span class="hljs-keyword">auto</span> sessionStart = sessionMap.<span class="hljs-built_in">find</span>(keyTuple);<br>			<span class="hljs-keyword">if</span> (finCount[keyTuple] == <span class="hljs-number">2</span> &amp;&amp; sessionStart != sessionMap.<span class="hljs-built_in">end</span>())<br>			&#123;<br>				cout &lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-string">&quot;Src&quot;</span> &lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-string">&quot;Dst&quot;</span><br>					&lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-string">&quot;SrcPort&quot;</span> &lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-string">&quot;DstPort&quot;</span><br>					&lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-string">&quot;Start&quot;</span> &lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-string">&quot;End&quot;</span>&lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-string">&quot;Duration&quot;</span><br>					&lt;&lt; endl<br>					&lt;&lt; MY_FORMAT &lt;&lt; ipLayer-&gt;<span class="hljs-built_in">getSrcIPv4Address</span>().<span class="hljs-built_in">toString</span>()<br>					&lt;&lt; MY_FORMAT &lt;&lt; ipLayer-&gt;<span class="hljs-built_in">getDstIPv4Address</span>().<span class="hljs-built_in">toString</span>()<br>					&lt;&lt; MY_FORMAT &lt;&lt; tcpLayer-&gt;<span class="hljs-built_in">getSrcPort</span>()<br>					&lt;&lt; MY_FORMAT &lt;&lt; tcpLayer-&gt;<span class="hljs-built_in">getDstPort</span>();<br><br>				<span class="hljs-type">double</span> startTime = sessionStart-&gt;second.tv_sec + (<span class="hljs-type">double</span>)sessionStart-&gt;second.tv_nsec / <span class="hljs-number">1e9</span>;<br>				<span class="hljs-type">double</span> endTime = rawPacket.<span class="hljs-built_in">getPacketTimeStamp</span>().tv_sec + (<span class="hljs-type">double</span>)rawPacket.<span class="hljs-built_in">getPacketTimeStamp</span>().tv_nsec / <span class="hljs-number">1e9</span>;<br>				cout &lt;&lt; MY_FORMAT &lt;&lt; sessionStart-&gt;second.tv_sec<br>					&lt;&lt; MY_FORMAT &lt;&lt; rawPacket.<span class="hljs-built_in">getPacketTimeStamp</span>().tv_sec<br>					&lt;&lt; MY_FORMAT &lt;&lt; <span class="hljs-built_in">setprecision</span>(<span class="hljs-number">5</span>) &lt;&lt; (endTime - startTime)<br>					&lt;&lt; endl;<br>				sessionMap.<span class="hljs-built_in">erase</span>(sessionStart);<br>				outputCount++;<br>			&#125;<br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">auto</span> END = <span class="hljs-built_in">clock</span>();<br><br>	cout &lt;&lt; <span class="hljs-string">&quot;Total time: &quot;</span> &lt;&lt; <span class="hljs-built_in">double</span>(END - BEGIN) / CLK_TCK * <span class="hljs-number">1000</span> &lt;&lt; <span class="hljs-string">&quot;ms.&quot;</span> &lt;&lt; endl;<br>	cout &lt;&lt; <span class="hljs-string">&quot;Total sessions: &quot;</span> &lt;&lt; outputCount &lt;&lt; endl;<br><br>	reader-&gt;<span class="hljs-built_in">close</span>();<br>	<span class="hljs-keyword">delete</span> reader;<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这次代码作出的改变主要有：</p>
+<ul>
+<li>使用 <code>uint32_t keyTuple = hash5Tuple(&amp;parsedPakcet);</code> 来表示会话元组，既节省空间（原先的 <code>String</code> 超级大）又节省时间（把 <code>String</code> 当做键值，比较起来很慢）；</li>
+<li>重新考虑会话起止的算法。会话起点为带有 <code>SYN</code> 但不带 <code>ack</code> 的包，会话终点为第二个 <code>FIN</code> 包；在后期观察时，发现 <strong>会话终点还可以是 <code>RST</code> 包</strong> 。</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://xrg.fj.cn/p/pcapplusplus%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95%E4%BA%8C%E9%80%9A%E8%BF%87%E8%A7%A3%E6%9E%90%E6%95%B0%E6%8D%AE%E5%8C%85%E5%AE%9E%E7%8E%B0%E4%BC%9A%E8%AF%9D%E5%88%86%E5%89%B2/3.png"><img src="/AI/pcap%E4%BC%9A%E8%AF%9D%E9%A2%84%E5%A4%84%E7%90%86/3.png" srcset="/img/loading.gif" lazyload alt="运行结果"></a>运行结果</p>
+<p>结果不坏。从时间上看，基本上比之前的切分方式快了一倍。</p>
+<h3 id="与WireShark统计结果的对比"><a href="#与WireShark统计结果的对比" class="headerlink" title="与WireShark统计结果的对比"></a>与WireShark统计结果的对比</h3><p>程序计算出来的结果是 <code>163</code> 个完整会话，而WireShark的统计结果是 <code>221</code> 个会话：</p>
+<p><a target="_blank" rel="noopener" href="https://xrg.fj.cn/p/pcapplusplus%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95%E4%BA%8C%E9%80%9A%E8%BF%87%E8%A7%A3%E6%9E%90%E6%95%B0%E6%8D%AE%E5%8C%85%E5%AE%9E%E7%8E%B0%E4%BC%9A%E8%AF%9D%E5%88%86%E5%89%B2/4.png"><img src="/AI/pcap%E4%BC%9A%E8%AF%9D%E9%A2%84%E5%A4%84%E7%90%86/4.png" srcset="/img/loading.gif" lazyload alt="WireShark–Statistics–Conversations"></a>WireShark–Statistics–Conversations</p>
+<p>但是将这些会话按照字节大小排序，跟踪前面的比较小的会话，发现这些会话并不完整：</p>
+<p><a target="_blank" rel="noopener" href="https://xrg.fj.cn/p/pcapplusplus%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95%E4%BA%8C%E9%80%9A%E8%BF%87%E8%A7%A3%E6%9E%90%E6%95%B0%E6%8D%AE%E5%8C%85%E5%AE%9E%E7%8E%B0%E4%BC%9A%E8%AF%9D%E5%88%86%E5%89%B2/5.png"><img src="/AI/pcap%E4%BC%9A%E8%AF%9D%E9%A2%84%E5%A4%84%E7%90%86/5.png" srcset="/img/loading.gif" lazyload alt="不完整的会话"></a>不完整的会话</p>
+<p>我推测WireShark仅仅是根据五元组来进行统计，根本没有去考虑会话的完整性。如果我们使用 <code>hash5Tuple()</code> ，计算出来的每一个 <code>uint_32</code> 值都表示一个会话，那么结果跟WireShark的统计应该是一样的。</p>
+<p>简单在代码中添加一个记录这些五元组的集合 <code>set&lt;uint32_t&gt; tupleSet;</code> ，然后每计算一个哈希值就往里放，最后打印一下：</p>
+<p><a target="_blank" rel="noopener" href="https://xrg.fj.cn/p/pcapplusplus%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95%E4%BA%8C%E9%80%9A%E8%BF%87%E8%A7%A3%E6%9E%90%E6%95%B0%E6%8D%AE%E5%8C%85%E5%AE%9E%E7%8E%B0%E4%BC%9A%E8%AF%9D%E5%88%86%E5%89%B2/6.png"><img src="/AI/pcap%E4%BC%9A%E8%AF%9D%E9%A2%84%E5%A4%84%E7%90%86/6.png" srcset="/img/loading.gif" lazyload alt="tupleSet.size()"></a>tupleSet.size()</p>
+<p>果不其然！</p>
+<p>WireShark这种统计方式没什么用啦！一个没头没尾的数据段能代表什么呢？还是按照之前提到的方法来表示一个会话，这样精确一点！</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p>[1] <a target="_blank" rel="noopener" href="https://pcapplusplus.github.io/docs/tutorials/packet-parsing">4. Packet Parsing - PcapPlusPlus</a></p>
+<p>[2] <a target="_blank" rel="noopener" href="https://pcapplusplus.github.io/docs/tutorials/intro">1. Introduction - PcapPlusPlus</a></p>
+<p>[3] <a target="_blank" rel="noopener" href="https://pcapplusplus.github.io/api-docs/">PcapPlusPlus: API Documentation</a></p>
+<p>[4] <a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhuimengle/p/5787345.html">一站式学习Wireshark（七）：Statistics统计工具功能详解与应用 - zhuimeng~ - 博客园 (cnblogs.com)</a></p>
+<p>[5] <a target="_blank" rel="noopener" href="https://github.com/seladb/PcapPlusPlus/tree/master/Examples/PcapSplitter">PcapPlusPlus&#x2F;Examples&#x2F;PcapSplitter at master · seladb&#x2F;PcapPlusPlus (github.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://xrg.fj.cn/tags/%E6%8A%80%E6%9C%AF/">技术</a><a target="_blank" rel="noopener" href="https://xrg.fj.cn/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fstream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unordered_map&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pcapplusplus/IPv4Layer.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pcapplusplus/Packet.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pcapplusplus/PcapFileDevice.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pcapplusplus/TcpLayer.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;filesystem&gt;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> pcpp;<br><span class="hljs-keyword">namespace</span> fs = std::filesystem;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">SessionKey</span> &#123;<br>    IPv4Address srcIp;<br>    IPv4Address dstIp;<br>    <span class="hljs-type">uint16_t</span> srcPort;<br>    <span class="hljs-type">uint16_t</span> dstPort;<br>    ProtocolType protocol;<br><br>    <span class="hljs-type">bool</span> <span class="hljs-keyword">operator</span>==(<span class="hljs-type">const</span> SessionKey&amp; other) <span class="hljs-type">const</span> &#123;<br>        <span class="hljs-keyword">return</span> srcIp == other.srcIp &amp;&amp; dstIp == other.dstIp &amp;&amp; srcPort == other.srcPort &amp;&amp; dstPort == other.dstPort &amp;&amp; protocol == other.protocol;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">namespace</span> std &#123;<br>    <span class="hljs-keyword">template</span> &lt;&gt;<br>    <span class="hljs-keyword">class</span> <span class="hljs-title class_">hash</span>&lt;SessionKey&gt; &#123;<br>    <span class="hljs-keyword">public</span>:<br>        <span class="hljs-function"><span class="hljs-type">size_t</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(<span class="hljs-type">const</span> SessionKey&amp; key)</span> <span class="hljs-type">const</span> </span>&#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-built_in">hash</span>&lt;string&gt;()(key.srcIp.<span class="hljs-built_in">toString</span>() + key.dstIp.<span class="hljs-built_in">toString</span>() + <span class="hljs-built_in">to_string</span>(key.srcPort) + <span class="hljs-built_in">to_string</span>(key.dstPort) + <span class="hljs-built_in">to_string</span>(<span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">int</span>&gt;(key.protocol)));<br>        &#125;<br>    &#125;;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>* argv[])</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (argc &lt; <span class="hljs-number">3</span>) &#123;<br>        cerr &lt;&lt; <span class="hljs-string">&quot;Usage: &quot;</span> &lt;&lt; argv[<span class="hljs-number">0</span>] &lt;&lt; <span class="hljs-string">&quot; &lt;input pcap file&gt; &lt;output directory&gt;&quot;</span> &lt;&lt; endl;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>    &#125;<br><br>    string inputPcapFile = argv[<span class="hljs-number">1</span>];<br>    string outputDir = argv[<span class="hljs-number">2</span>];<br><br>    <span class="hljs-comment">// 打开输入 pcap 文件</span><br>    IFileReaderDevice* reader = IFileReaderDevice::<span class="hljs-built_in">getReader</span>(inputPcapFile);<br>    <span class="hljs-keyword">if</span> (!reader) &#123;<br>        cerr &lt;&lt; <span class="hljs-string">&quot;Cannot determine reader for file type&quot;</span> &lt;&lt; endl;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (!reader-&gt;<span class="hljs-built_in">open</span>()) &#123;<br>        cerr &lt;&lt; <span class="hljs-string">&quot;Cannot open &quot;</span> &lt;&lt; inputPcapFile &lt;&lt; <span class="hljs-string">&quot; for reading&quot;</span> &lt;&lt; endl;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 创建输出目录</span><br>    <span class="hljs-keyword">try</span> &#123;<br>        fs::<span class="hljs-built_in">create_directories</span>(outputDir);<br>    &#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> fs::filesystem_error&amp; e) &#123;<br>        cerr &lt;&lt; <span class="hljs-string">&quot;Cannot create output directory: &quot;</span> &lt;&lt; outputDir &lt;&lt; endl;<br>        cerr &lt;&lt; <span class="hljs-string">&quot;Error: &quot;</span> &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; endl;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>    &#125;<br><br>    unordered_map&lt;SessionKey, vector&lt;RawPacket&gt;&gt; sessions;<br><br>    RawPacket rawPacket;<br>    <span class="hljs-keyword">while</span> (reader-&gt;<span class="hljs-built_in">getNextPacket</span>(rawPacket)) &#123;<br>        <span class="hljs-function">Packet <span class="hljs-title">parsedPacket</span><span class="hljs-params">(&amp;rawPacket)</span></span>;<br>        <span class="hljs-keyword">if</span> (parsedPacket.<span class="hljs-built_in">isPacketOfType</span>(pcpp::IPv4) &amp;&amp; parsedPacket.<span class="hljs-built_in">isPacketOfType</span>(pcpp::TCP)) &#123;<br>            IPv4Layer* ipLayer = parsedPacket.<span class="hljs-built_in">getLayerOfType</span>&lt;IPv4Layer&gt;();<br>            TcpLayer* tcpLayer = parsedPacket.<span class="hljs-built_in">getLayerOfType</span>&lt;TcpLayer&gt;();<br><br>            SessionKey key = &#123;<br>                ipLayer-&gt;<span class="hljs-built_in">getSrcIPv4Address</span>(),<br>                ipLayer-&gt;<span class="hljs-built_in">getDstIPv4Address</span>(),<br>                tcpLayer-&gt;<span class="hljs-built_in">getSrcPort</span>(),<br>                tcpLayer-&gt;<span class="hljs-built_in">getDstPort</span>(),<br>                pcpp::IPv4  <span class="hljs-comment">// 假设协议类型为 IPv4</span><br>            &#125;;<br><br>            sessions[key].<span class="hljs-built_in">push_back</span>(rawPacket);<br>        &#125;<br>    &#125;<br><br>    reader-&gt;<span class="hljs-built_in">close</span>();<br><br>    <span class="hljs-comment">// 保存每个会话到单独的 pcap 文件</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">const</span> <span class="hljs-keyword">auto</span>&amp; session : sessions) &#123;<br>        string sessionFileName = outputDir + <span class="hljs-string">&quot;/&quot;</span> + session.first.srcIp.<span class="hljs-built_in">toString</span>() + <span class="hljs-string">&quot;_&quot;</span> + session.first.dstIp.<span class="hljs-built_in">toString</span>() + <span class="hljs-string">&quot;_&quot;</span> + <span class="hljs-built_in">to_string</span>(session.first.srcPort) + <span class="hljs-string">&quot;_&quot;</span> + <span class="hljs-built_in">to_string</span>(session.first.dstPort) + <span class="hljs-string">&quot;.pcap&quot;</span>;<br>        <span class="hljs-function">PcapFileWriterDevice <span class="hljs-title">writer</span><span class="hljs-params">(sessionFileName, LINKTYPE_ETHERNET)</span></span>;<br>        <span class="hljs-keyword">if</span> (!writer.<span class="hljs-built_in">open</span>()) &#123;<br>            cerr &lt;&lt; <span class="hljs-string">&quot;Cannot open &quot;</span> &lt;&lt; sessionFileName &lt;&lt; <span class="hljs-string">&quot; for writing&quot;</span> &lt;&lt; endl;<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">const</span> <span class="hljs-keyword">auto</span>&amp; packet : session.second) &#123;<br>            writer.<span class="hljs-built_in">writePacket</span>(packet);<br>        &#125;<br><br>        writer.<span class="hljs-built_in">close</span>();<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>g++ splitpcap.cc -o splitpcap -I &#x2F;usr&#x2F;include&#x2F;pcapplusplus -L&#x2F;usr&#x2F;lib&#x2F;pcapplusplus -lPcap++ -lPacket++ -lCommon++  -lpcap </p>
+<p>session2png</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs makefile">CFLAGS = `pkg-config --cflags opencv4`<br>LIBS = `pkg-config --libs opencv4`<br> <br>session2png. : session2png.cc<br>	g++ <span class="hljs-variable">$(CFLAGS)</span> <span class="hljs-variable">$(LIBS)</span> -o <span class="hljs-variable">$@</span> <span class="hljs-variable">$&lt;</span> -lvtkCommonCore<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<p>.&#x2F;2.PreprocessedTools&#x2F;splitpcap .&#x2F;1.DataSet&#x2F;vpn_aim_chat1a.pcap 2_Session&#x2F;L7</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>pcap会话预处理</div>
+      <div>http://blog.uanet.cn/AI/pcap会话预处理.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85.html" title="tenserflow环境安装">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">tenserflow环境安装</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/AI/TensorFlow%20Lite%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90.html" title="TensorFlow Lite代码分析">
+                        <span class="hidden-mobile">TensorFlow Lite代码分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

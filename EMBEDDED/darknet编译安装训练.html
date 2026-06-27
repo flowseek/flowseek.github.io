@@ -1,0 +1,942 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、标注工具（labelimg****） 1.下载地址">
+<meta property="og:type" content="article">
+<meta property="og:title" content="darknet编译安装训练">
+<meta property="og:url" content="http://blog.uanet.cn/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="一、标注工具（labelimg****） 1.下载地址">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907151126370-1010274227.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907151430321-879794239.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907151517385-550275154.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907164308446-1457611086.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907161001423-836717463.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907161919361-1276777560.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907162109551-556669856.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190909094822129-1790893675.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190909095628738-1868491159.png">
+<meta property="article:published_time" content="2025-02-13T05:53:20.625Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.625Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907151126370-1010274227.png">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>darknet编译安装训练 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="darknet编译安装训练"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          15 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">darknet编译安装训练</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><strong>一、标注工具（labelimg****）</strong></p>
+<p><strong>1.<a target="_blank" rel="noopener" href="https://tzutalin.github.io/labelImg/">下载地址</a></strong></p>
+<p><img src="/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907151126370-1010274227.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><strong>2.双击运行</strong></p>
+<p><img src="/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907151430321-879794239.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><strong>3.保存后的文件为xml格式</strong></p>
+<p><img src="/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907151517385-550275154.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p> <strong>二、下载编译darknet</strong></p>
+<p>安装环境</p>
+<p>系统：archlinux</p>
+<p>显卡：nvidia-smi</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash">+-----------------------------------------------------------------------------------------+<br>| NVIDIA-SMI 550.120                Driver Version: 550.120        CUDA Version: 12.4     |<br>|-----------------------------------------+------------------------+----------------------+<br>| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |<br>| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |<br>|                                         |                        |               MIG M. |<br>|=========================================+========================+======================|<br>|   0  NVIDIA GeForce 920MX           Off |   00000000:01:00.0 Off |                  N/A |<br>| N/A   46C    P0             N/A /  200W |       0MiB /   2048MiB |      0%      Default |<br>|                                         |                        |                  N/A |<br>+-----------------------------------------+------------------------+----------------------+<br>                                                                                         <br>+-----------------------------------------------------------------------------------------+<br>| Processes:                                                                              |<br>|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |<br>|        ID   ID                                                               Usage      |<br>|=========================================================================================|<br>|  No running processes found                                                             |<br>+-----------------------------------------------------------------------------------------+<br></code></pre></td></tr></table></figure>
+
+<p>cuda：extra&#x2F;cuda 12.6.1-1 (1.7 GiB 4.7 GiB)</p>
+<p>cuda安装</p>
+<p>yay -s cuda </p>
+<p><strong>1.拉取darknet</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> https://github.com/pjreddie/darknet<br><span class="hljs-built_in">cd</span> darknet<br></code></pre></td></tr></table></figure>
+
+<p><strong>2.修改配置文件Makefile（<a target="_blank" rel="noopener" href="https://www.cnblogs.com/answerThe/p/11479618.html">如何使用gpu可参考</a>）</strong></p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs makefile">GPU=1 <span class="hljs-comment">#如果使用GPU设置为1，CPU设置为0</span><br>CUDNN=1  <span class="hljs-comment">#如果使用CUDNN设置为1，否则为0</span><br>OPENCV=0 <span class="hljs-comment">#如果调用摄像头，还需要设置OPENCV为1，否则为0</span><br>OPENMP=0  <span class="hljs-comment">#如果使用OPENMP设置为1，否则为0</span><br>DEBUG=0  <span class="hljs-comment">#如果使用DEBUG设置为1，否则为0</span><br><br><span class="hljs-comment">#注释掉不支持的平台</span><br><span class="hljs-comment">#ARCH= -gencode arch=compute_30,code=sm_30 \</span><br><span class="hljs-comment"># 		-gencode arch=compute_35,code=sm_35 \</span><br><br>ARCH= -gencode arch=compute_50,code=[sm_50,compute_50] \<br>      -gencode arch=compute_52,code=[sm_52,compute_52]<br><span class="hljs-comment">#      -gencode arch=compute_20,code=[sm_20,sm_21] \ This one is deprecated?</span><br><br><span class="hljs-comment">#修改编译器为GCC13</span><br>CC=gcc-13<br>CPP=g++-13<br>NVCC=/opt/cuda/bin/nvcc <br>AR=gcc-ar-13<br>ARFLAGS=rcs<br>OPTS=-Ofast<br>LDFLAGS= -lm -pthread <br>COMMON= -I/usr/lib/gcc/x86_64-pc-linux-gnu/13.3.0/<span class="hljs-keyword">include</span>/c++/x86_64-pc-linux-gnu/ -I/usr/lib/gcc/x86_64-pc-linux-gnu/13.3.0/<span class="hljs-keyword">include</span>/c++/ -Iinclude/ -Isrc/<br>CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -fPIC -Wno-deprecated-gpu-targets <br><br></code></pre></td></tr></table></figure>
+
+<p><strong>3.开始编译</strong></p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">make</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>4.下载yolov3预训练模型</strong></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">wget https:<span class="hljs-regexp">//</span>pjreddie.com<span class="hljs-regexp">/media/</span>files/yolov3.weights<br></code></pre></td></tr></table></figure>
+
+<p><strong>5.测试</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./darknet detect cfg/yolov3.cfg yolov3.weights data/dog.jpg<br></code></pre></td></tr></table></figure>
+
+<p>或者</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./darknet detector <span class="hljs-built_in">test</span> cfg/coco.data cfg/yolov3.cfg yolov3.weights data/dog.jpg<br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://pjreddie.com/darknet/yolo/">官网链接</a></p>
+<p>运行错误</p>
+<p>run yolov3 with GPU:CUDA Error: out of memory</p>
+<p>My solution to run Yolov3 perfectly was to : modify the cfg&#x2F;yolov3.cfg :</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">batch</span><span class="hljs-operator">=</span><span class="hljs-number">1</span><br><span class="hljs-attribute">subdivisions</span><span class="hljs-operator">=</span><span class="hljs-number">1</span><br><span class="hljs-attribute">width</span><span class="hljs-operator">=</span><span class="hljs-number">416</span><br><span class="hljs-attribute">height</span><span class="hljs-operator">=</span><span class="hljs-number">416</span><br></code></pre></td></tr></table></figure>
+
+<p> Layer before convolutional layer must output image.: No such file or directory</p>
+<p><strong>三、准备数据集、训练、测试</strong></p>
+<p><strong>1.在darknet目录下创建myData文件夹，目录结构如下，将之前标注好的图片和xml文件放到对应目录下</strong></p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">myData<br>  <span class="hljs-string">...JPEGImages</span><span class="hljs-comment">#存放图像</span><br> <br>  <span class="hljs-string">...Annotations</span><span class="hljs-comment">#存放图像对应的xml文件</span><br> <br>  <span class="hljs-string">...ImageSets/Main</span> <span class="hljs-comment"># 存放训练/验证图像的名字（格式如 000001.jpg或者000001），里面包括train.txt。这里给出的格式是: 000000，因为下面的代码中给出了图像的格式。</span><br></code></pre></td></tr></table></figure>
+
+<p>将自己的数据集图片拷贝到JPEGImages目录下。将数据集label文件拷贝到Annotations目录下。在myData下创建test.py，将下面代码拷贝进去运行，将生成四个文件：train.txt,val.txt,test.txt和trainval.txt。</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">import os<br>import <span class="hljs-built_in">random</span><br><br>trainval_percent = <span class="hljs-number">0.1</span><br>train_percent = <span class="hljs-number">0.9</span><br>xmlfilepath = <span class="hljs-string">&#x27;Annotations&#x27;</span><br>txtsavepath = <span class="hljs-string">&#x27;ImageSets\Main&#x27;</span><br>total_xml = os.listdir(xmlfilepath)<br><span class="hljs-built_in">num</span> = <span class="hljs-built_in">len</span>(total_xml)<br>list = range(<span class="hljs-built_in">num</span>)<br>tv = int(<span class="hljs-built_in">num</span> * trainval_percent)<br>tr = int(tv * train_percent)<br>trainval = <span class="hljs-built_in">random</span>.sample(list, tv)<br>train = <span class="hljs-built_in">random</span>.sample(trainval, tr)<br><br>ftrainval = <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;ImageSets/Main/trainval.txt&#x27;</span>, <span class="hljs-string">&#x27;w&#x27;</span>)<br>ftest = <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;ImageSets/Main/test.txt&#x27;</span>, <span class="hljs-string">&#x27;w&#x27;</span>)<br>ftrain = <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;ImageSets/Main/train.txt&#x27;</span>, <span class="hljs-string">&#x27;w&#x27;</span>)<br>fval = <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;ImageSets/Main/val.txt&#x27;</span>, <span class="hljs-string">&#x27;w&#x27;</span>)<br><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> list:<br>    name = total_xml[i][:<span class="hljs-number">-4</span>] + <span class="hljs-string">&#x27;\n&#x27;</span><br>    <span class="hljs-keyword">if</span> i <span class="hljs-keyword">in</span> trainval:<br>        ftrainval.<span class="hljs-built_in">write</span>(name)<br>        <span class="hljs-keyword">if</span> i <span class="hljs-keyword">in</span> train:<br>            ftest.<span class="hljs-built_in">write</span>(name)<br>        <span class="hljs-keyword">else</span>:<br>            fval.<span class="hljs-built_in">write</span>(name)<br>    <span class="hljs-keyword">else</span>:<br>        ftrain.<span class="hljs-built_in">write</span>(name)<br><br>ftrainval.<span class="hljs-built_in">close</span>()<br>ftrain.<span class="hljs-built_in">close</span>()<br>fval.<span class="hljs-built_in">close</span>()<br>ftest.<span class="hljs-built_in">close</span>()<br></code></pre></td></tr></table></figure>
+
+<p>运行test.py</p>
+<p><img src="/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907164308446-1457611086.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><strong>2.将数据转换成darknet支持的格式</strong></p>
+<p>yolov3提供了将VOC数据集转为YOLO训练所需要的格式的代码，在scripts&#x2F;voc_label.py文件中。这里提供一个修改版本的。在darknet文件夹下新建一个my_lables.py文件，内容如下：</p>
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs gams">import xml.etree.ElementTree as ET<br>import pickle<br>import os<br>from os import listdir, getcwd<br>from os.path import join<br> <br>#源代码<span class="hljs-keyword">sets</span>=[(<span class="hljs-string">&#x27;2012&#x27;</span>, <span class="hljs-string">&#x27;train&#x27;</span>), (<span class="hljs-string">&#x27;2012&#x27;</span>, <span class="hljs-string">&#x27;val&#x27;</span>), (<span class="hljs-string">&#x27;2007&#x27;</span>, <span class="hljs-string">&#x27;train&#x27;</span>), (<span class="hljs-string">&#x27;2007&#x27;</span>, <span class="hljs-string">&#x27;val&#x27;</span>), (<span class="hljs-string">&#x27;2007&#x27;</span>, <span class="hljs-string">&#x27;test&#x27;</span>)]<br><span class="hljs-keyword">sets</span>=[(<span class="hljs-string">&#x27;myData&#x27;</span>, <span class="hljs-string">&#x27;train&#x27;</span>)]  # 改成自己建立的myData<br> <br>classes <span class="hljs-comment">= [</span><span class="hljs-comment">&quot;person&quot;</span><span class="hljs-comment">,</span> <span class="hljs-comment">&quot;foot&quot;</span><span class="hljs-comment">,</span> <span class="hljs-comment">&quot;face&quot;</span><span class="hljs-comment">] #</span> 改成自己的类别<br> <br>def <span class="hljs-comment">convert(size, box):</span><br>    dw <span class="hljs-comment">= 1.</span>/(size[<span class="hljs-number">0</span>])<br>    dh = <span class="hljs-number">1.</span>/<span class="hljs-comment">(size[1])</span><br>    x <span class="hljs-comment">= (box[0] + box[1])</span>/<span class="hljs-number">2.0</span> - <span class="hljs-number">1</span><br>    y = (box[<span class="hljs-number">2</span>] + box[<span class="hljs-number">3</span>])/<span class="hljs-comment">2.0 - 1</span><br>    w <span class="hljs-comment">= box[1] - box[0]</span><br>    h <span class="hljs-comment">= box[3] - box[2]</span><br>    x <span class="hljs-comment">= x*dw</span><br>    w <span class="hljs-comment">= w*dw</span><br>    y <span class="hljs-comment">= y*dh</span><br>    h <span class="hljs-comment">= h*dh</span><br>    return <span class="hljs-comment">(x,y,w,h)</span><br> <br>def <span class="hljs-comment">convert_annotation(year, image_id):</span><br>    in_file <span class="hljs-comment">= open(</span><span class="hljs-comment">&#x27;myData/Annotations/%s.xml&#x27;</span><span class="hljs-comment">%(image_id))  #</span> 源代码<span class="hljs-comment">VOCdevkit</span>/VOC%s/<span class="hljs-comment">Annotations</span>/%s.xml<br>    out_file = open(<span class="hljs-comment">&#x27;myData/labels/%s.txt&#x27;</span>%(image_id), <span class="hljs-comment">&#x27;w&#x27;</span>)  # 源代码VOCdevkit/<span class="hljs-comment">VOC%s</span>/labels/<span class="hljs-comment">%s.txt</span><br>    tree=ET.parse(in_file)<br>    root <span class="hljs-comment">= tree.getroot()</span><br>    size <span class="hljs-comment">= root.find(</span><span class="hljs-comment">&#x27;size&#x27;</span><span class="hljs-comment">)</span><br>    w <span class="hljs-comment">= int(size.find(</span><span class="hljs-comment">&#x27;width&#x27;</span><span class="hljs-comment">).text)</span><br>    h <span class="hljs-comment">= int(size.find(</span><span class="hljs-comment">&#x27;height&#x27;</span><span class="hljs-comment">).text)</span><br> <br>    for <span class="hljs-comment">obj in root.iter(</span><span class="hljs-comment">&#x27;object&#x27;</span><span class="hljs-comment">):</span><br>        difficult <span class="hljs-comment">= obj.find(</span><span class="hljs-comment">&#x27;difficult&#x27;</span><span class="hljs-comment">).text</span><br>        cls <span class="hljs-comment">= obj.find(</span><span class="hljs-comment">&#x27;name&#x27;</span><span class="hljs-comment">).text</span><br>        if <span class="hljs-comment">cls not in classes or int(difficult)==1:</span><br>            continue<br>        cls_id <span class="hljs-comment">= classes.index(cls)</span><br>        xmlbox <span class="hljs-comment">= obj.find(</span><span class="hljs-comment">&#x27;bndbox&#x27;</span><span class="hljs-comment">)</span><br>        b <span class="hljs-comment">= (float(xmlbox.find(</span><span class="hljs-comment">&#x27;xmin&#x27;</span><span class="hljs-comment">).text), float(xmlbox.find(</span><span class="hljs-comment">&#x27;xmax&#x27;</span><span class="hljs-comment">).text), float(xmlbox.find(</span><span class="hljs-comment">&#x27;ymin&#x27;</span><span class="hljs-comment">).text), float(xmlbox.find(</span><span class="hljs-comment">&#x27;ymax&#x27;</span><span class="hljs-comment">).text))</span><br>        bb <span class="hljs-comment">= convert((w,h), b)</span><br>        out_file.write(str(cls_id) <span class="hljs-comment">+</span> <span class="hljs-comment">&quot; &quot;</span> <span class="hljs-comment">+</span> <span class="hljs-comment">&quot; &quot;</span><span class="hljs-comment">.join([str(a) for a in bb]) +</span> <span class="hljs-comment">&#x27;\n&#x27;</span><span class="hljs-comment">)</span><br> <br>wd <span class="hljs-comment">= getcwd()</span><br> <br>for <span class="hljs-comment">year, image_set in sets:</span><br>    if <span class="hljs-comment">not os.path.exists(</span><span class="hljs-comment">&#x27;myData/labels/&#x27;</span><span class="hljs-comment">):  #</span> 改成自己建立的<span class="hljs-comment">myData</span><br>        os.makedirs(<span class="hljs-string">&#x27;myData/labels/&#x27;</span>)<br>    image_ids <span class="hljs-comment">= open(</span><span class="hljs-comment">&#x27;myData/ImageSets/Main/%s.txt&#x27;</span><span class="hljs-comment">%(image_set)).read().strip().split()</span><br>    list_file <span class="hljs-comment">= open(</span><span class="hljs-comment">&#x27;myData/%s_%s.txt&#x27;</span><span class="hljs-comment">%(year, image_set),</span> <span class="hljs-comment">&#x27;w&#x27;</span><span class="hljs-comment">)</span><br>    for <span class="hljs-comment">image_id in image_ids:</span><br>        list_file.write(<span class="hljs-string">&#x27;%s/myData/JPEGImages/%s.jpg\n&#x27;</span>%(wd, image_id))<br>        convert_annotation(year, image_id)<br>    list_file.close()<br></code></pre></td></tr></table></figure>
+
+<p><strong>3.运行该脚本</strong></p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs vim"><span class="hljs-keyword">python</span> my_lables.<span class="hljs-keyword">py</span><br></code></pre></td></tr></table></figure>
+
+<p>会在.&#x2F;myData目录下生成一个labels文件夹一个txt文件(myData_train.txt)(内容是: 类别的编码和目标的相对位置)。</p>
+<p>lables文件中的‘txt文件的含义为：</p>
+<p><img src="/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907161001423-836717463.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>同理如果要生成训练数据 sets&#x3D;[(‘myData’, ‘train’)] 改为sets&#x3D;[(‘myData’, ‘train’), (‘myData’, ‘test’)] </p>
+<p>具体的每一个值的计算方式是这样的：假设一个标注的boundingbox的左下角和右上角坐标分别为（x1,y1）(x2,y2)，图像的宽和高分别为w,h</p>
+<p>归一化的中心点x坐标计算公式：（(x2+x1) &#x2F; 2.0）&#x2F; w</p>
+<p>归一化的中心点y坐标计算公式：（(y2+y1) &#x2F; 2.0）&#x2F; h</p>
+<p>归一化的目标框宽度的计算公式： (x2-x1) &#x2F; w</p>
+<p>归一化的目标框高度计算公式：（(y2-y1)&#x2F; h</p>
+<p><strong>4.修改darknet&#x2F;cfg下的voc.data和yolov3-voc.cfg文件</strong></p>
+<p>为了保险起见，复制这两个文件，并分别重命名为my_data.data和my_yolov3.cfg</p>
+<p>my_data.data内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">classes= 3 <span class="hljs-comment">##改为自己的分类个数</span><br><span class="hljs-comment">##下面都改为自己的路径</span><br>train  = /home/XXX/darknet/myData/myData_train.txt  <br>names = /home/XXX/darknet/myData/myData.names <span class="hljs-comment">#稍后需要创建这个文件</span><br>backup = /home/XXX/darknet/myData/weights<br></code></pre></td></tr></table></figure>
+
+<p>my_yolov3.cfg的内容：</p>
+<p>&#x2F;yolo, 总共会搜出3个含有yolo的地方。<br>每个地方都必须要改2处， filters：3*（5+len（classes））；<br>其中：classes: len(classes) &#x3D; 3，这里以我的工程为例<br>filters &#x3D; 24<br>classes &#x3D; 3<br>可修改：random &#x3D; 1：原来是1，显存小改为0。（是否要多尺度输出。）</p>
+<p><img src="/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907161919361-1276777560.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p> <strong>5.可以指定训练批次和训练轮数</strong></p>
+<p><img src="/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190907162109551-556669856.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[net]</span><br><span class="hljs-comment"># Testing            ### 测试模式                                          </span><br><span class="hljs-comment"># batch=1</span><br><span class="hljs-comment"># subdivisions=1</span><br><span class="hljs-comment"># Training           ### 训练模式，每次前向的图片数目 = batch/subdivisions </span><br><span class="hljs-attr">batch</span>=<span class="hljs-number">64</span><br><span class="hljs-attr">subdivisions</span>=<span class="hljs-number">16</span><br><span class="hljs-attr">width</span>=<span class="hljs-number">416</span>            <span class="hljs-comment">### 网络的输入宽、高、通道数</span><br><span class="hljs-attr">height</span>=<span class="hljs-number">416</span><br><span class="hljs-attr">channels</span>=<span class="hljs-number">3</span><br><span class="hljs-attr">momentum</span>=<span class="hljs-number">0.9</span>         <span class="hljs-comment">### 动量 </span><br><span class="hljs-attr">decay</span>=<span class="hljs-number">0.0005</span>         <span class="hljs-comment">### 权重衰减</span><br><span class="hljs-attr">angle</span>=<span class="hljs-number">0</span><br><span class="hljs-attr">saturation</span> = <span class="hljs-number">1.5</span>     <span class="hljs-comment">### 饱和度</span><br><span class="hljs-attr">exposure</span> = <span class="hljs-number">1.5</span>       <span class="hljs-comment">### 曝光度 </span><br><span class="hljs-attr">hue</span>=.<span class="hljs-number">1</span>               <span class="hljs-comment">### 色调</span><br><span class="hljs-attr">learning_rate</span>=<span class="hljs-number">0.001</span>  <span class="hljs-comment">### 学习率 </span><br><span class="hljs-attr">burn_in</span>=<span class="hljs-number">1000</span>         <span class="hljs-comment">### 学习率控制的参数</span><br><span class="hljs-attr">max_batches</span> = <span class="hljs-number">50200</span>  <span class="hljs-comment">### 迭代次数                                          </span><br><span class="hljs-attr">policy</span>=steps         <span class="hljs-comment">### 学习率策略 </span><br><span class="hljs-attr">steps</span>=<span class="hljs-number">40000</span>,<span class="hljs-number">45000</span>    <span class="hljs-comment">### 学习率变动步长 </span><br></code></pre></td></tr></table></figure>
+
+<p>因为是训练，所以注释Testing,打开Training，其中</p>
+<p>batch&#x3D;64             每batch个样本更新一次参数。</p>
+<p>subdivisions&#x3D;16        如果内存不够大，将batch分割为subdivisions个子batch，每个子batch的大小为batch&#x2F;subdivisions。</p>
+<p><strong>6.在myData文件夹下新建myData.names文件</strong></p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">people</span><br><span class="hljs-attribute">foot</span><br><span class="hljs-attribute">car</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>7.下载预训练权重</strong></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">wget https:<span class="hljs-regexp">//</span>pjreddie.com<span class="hljs-regexp">/media/</span>files/darknet53.conv.<span class="hljs-number">74</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>8.开始训练</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./darknet detector train cfg/my_data.data cfg/my_yolov3.cfg darknet53.conv.74<br></code></pre></td></tr></table></figure>
+
+<p><strong>或者指定gpu训练，默认使用gpu0</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./darknet detector train cfg/my_data.data cfg/my_yolov3.cfg darknet53.conv.74 -gups 0,1,2,3<br></code></pre></td></tr></table></figure>
+
+<p>查看gpu信息</p>
+<p><img src="/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190909094822129-1790893675.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><strong>从停止处重新训练</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./darknet detector train cfg/my_data.data cfg/my_yolov3.cfg darknet53.conv.74 -gups 0,1,2,3 myData/weights/my_yolov3.backup -gpus 0,1,2,3<br></code></pre></td></tr></table></figure>
+
+<p><strong>9.测试</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./darknet detect cfg/my_yolov3.cfg weights/my_yolov3.weights 1.jpg<br></code></pre></td></tr></table></figure>
+
+<p><strong>10.效果</strong></p>
+<p><strong><img src="/EMBEDDED/darknet%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%AE%AD%E7%BB%83/1620624-20190909095628738-1868491159.png" srcset="/img/loading.gif" lazyload alt="img"></strong></p>
+<p><strong>11.关于opencv调用yolo模型，参考<a target="_blank" rel="noopener" href="https://www.cnblogs.com/answerThe/p/11486090.html">https://www.cnblogs.com/answerThe/p/11486090.html</a></strong></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/EMBEDDED/" class="category-chain-item">EMBEDDED</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>darknet编译安装训练</div>
+      <div>http://blog.uanet.cn/EMBEDDED/darknet编译安装训练.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/EMBEDDED/YOLO%E5%9C%A8Jetson%20Nano%E5%92%8CZynq%E5%B9%B3%E5%8F%B0%E4%B8%8A%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%90%84%E6%9C%89%E4%BC%98%E7%BC%BA%E7%82%B9.html" title="YOLO在Jetson Nano和Zynq平台上的实现各有优缺点">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">YOLO在Jetson Nano和Zynq平台上的实现各有优缺点</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/EMBEDDED/CAN%E4%B8%8E%E4%BB%A5%E5%A4%AA%E7%BD%91%E5%8C%BA%E5%88%AB.html" title="CAN与以太网区别">
+                        <span class="hidden-mobile">CAN与以太网区别</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

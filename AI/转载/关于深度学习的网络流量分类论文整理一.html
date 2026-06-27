@@ -1,0 +1,886 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Paper：Malware Traffic Classification Using Convolutional Neural Network for Representation Learning论文：使用卷积神经网络进行表示学习的恶意软件流量分类 论文下载：https:&#x2F;&#x2F;ieeexplore.ieee.org&#x2F;document&#x2F;7899588 代码下载：https:&#x2F;&#x2F;github.com&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于深度学习的网络流量分类论文整理一">
+<meta property="og:url" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="Paper：Malware Traffic Classification Using Convolutional Neural Network for Representation Learning论文：使用卷积神经网络进行表示学习的恶意软件流量分类 论文下载：https:&#x2F;&#x2F;ieeexplore.ieee.org&#x2F;document&#x2F;7899588 代码下载：https:&#x2F;&#x2F;github.com&#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/1280dc81338ee690b8753d25ca7d59ca.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/ffd70f845479e98a68419920a48d58dc.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/025dbff22f83773a6b0349c44edf6136.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/144688fc2f092a333112f782b903ba4b.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/4636c99f47d9a55494db858506c2aaf9.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/a8c228fd28e169559de51722bee755cb.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/8a8c0c15f041e89fe688b7ae8457f684.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/faf4515f39340cfb2b58711f05dc568e.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/47d0db7e7f92b830b95b112e138b20cd.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/1f87297eebfd149ca649277dc9bcffa4.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/b60e19b6b54ad97d00112d0f48c6ed7e.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/666ed23b0259495e780bdb7a48bbf904.png">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/66820e227d7ddc557c760839f7dfc40b.png">
+<meta property="article:published_time" content="2025-02-13T05:53:20.572Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.572Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/1280dc81338ee690b8753d25ca7d59ca.png">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>关于深度学习的网络流量分类论文整理一 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="关于深度学习的网络流量分类论文整理一"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          9 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">关于深度学习的网络流量分类论文整理一</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><strong>Paper：Malware Traffic Classification Using Convolutional Neural Network for Representation Learning</strong><br>论文：使用卷积神经网络进行表示学习的恶意软件流量分类</p>
+<p>论文下载：<a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/document/7899588">https://ieeexplore.ieee.org/document/7899588</a></p>
+<p>代码下载：<a target="_blank" rel="noopener" href="https://github.com/echowei/DeepTraffic">https://github.com/echowei/DeepTraffic</a></p>
+<p>数据处理工具包使用方法：<a target="_blank" rel="noopener" href="https://github.com/yungshenglu/USTC-TK2016">https://github.com/yungshenglu/USTC-TK2016</a></p>
+<p>作者博士毕业论文收录于知网：<a target="_blank" rel="noopener" href="https://kns.cnki.net/kcms/detail/detail.aspx?dbcode=CDFD&dbname=CDFDLAST2018&filename=1018088279.nh&v=p9e7dmiK6pFYHhd0%25mmd2F6XZhKX%25mmd2BLT1BBgUj%25mmd2FWa%25mmd2B1YaDoAC7Fs68AJKJwwEry0eGSb%25mmd2BX">基于深度学习的网络流量分类及异常检测方法研究</a></p>
+<h4 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h4><p>一、介绍<br>二、数据集<br>三、数据预处理<br>四、模型结构<br>五、扩展性研究<br>六、实验结果及分析</p>
+<h2 id="一、介绍"><a href="#一、介绍" class="headerlink" title="一、介绍"></a>一、介绍</h2><p>如图一，流量分类方法主要有四种：基于端口号、基于深度包检测（DPI）、基于统计特征、基于行为特征。其中基于端口号和基于DPI方法是基于规则的方法，通过匹配预定义的硬编码规则来进行流量分类，而基于统计特征和基于行为特征的方法是经典机器学习的方法。这篇文章研究的则是机器学习中的表示学习。</p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/1280dc81338ee690b8753d25ca7d59ca.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>图二介绍了不同方法的工作流程，相比于传统方法需要手工设计特征，这篇文章使用的是表示学习方法中的深度学习，可以自动提取特征，使用的是卷积神经网络。</p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/ffd70f845479e98a68419920a48d58dc.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="二、数据集"><a href="#二、数据集" class="headerlink" title="二、数据集"></a>二、数据集</h2><p>作者参考文献【16】和【17】制作了一个数据集USTC-TFC2016，分为恶意流量和正常流量，一共有10种流量包含8类应用，如下表1和表2。</p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/025dbff22f83773a6b0349c44edf6136.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>接下来介绍了数据包的拆分和组合。  </p>
+<p>一个flow（流）包含5元组：源IP、源端口号、目的IP、目的端口号和传输协议，一个session（会话）就是双向的flow。  </p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/144688fc2f092a333112f782b903ba4b.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>原始traffic由一些flow或session构成，而flow或session又由x、b、t分别为五元组、包的大小和开始传输的时间构成。</p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/4636c99f47d9a55494db858506c2aaf9.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>这里还提到每个flow或session只使用前784个字节，因为CNN输入的数据大小必须统一，而他们的长度可能会不一样，至于为何选取784字节，文中也给出了解释。因为流或会话的前面部分一般是建立连接的数据和一部分内容数据，更能反映流量特征，而之后部分更多的是数据，不能很好地体现流量类型特征。</p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/a8c228fd28e169559de51722bee755cb.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="三、数据预处理"><a href="#三、数据预处理" class="headerlink" title="三、数据预处理"></a>三、数据预处理</h2><p>从协议角度来说，可以选取部分某几层的数据，一般有两种分法：只选取应用层的数据（TCP&#x2F;IP的应用层即OSI的第七层），选取全部数据。这样选的依据是应用层会包含大部分流量的信息，另外底层的信息也会对流量的分类起到一定作用。另外还会将流量依据方向分为两种：session和flow。所以就有4种流量表示方法：Flow+All，Flow + L7, Session + All, Session + L7。</p>
+<p>数据预处理部分分为四步：traffic split, traffic clean, image generation, IDX conversion</p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/8a8c0c15f041e89fe688b7ae8457f684.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>使用数据预处理工具USTC-TK2016对数据集USTC-TFC2016进行处理后，如下表，共产生752040条记录。</p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/faf4515f39340cfb2b58711f05dc568e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>在预处理环节的image conversion，对数据进行了可视化，结果如下图，可以看到不同的数据流有明显的区分度，同一种数据流有高度相似的图片表示。</p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/47d0db7e7f92b830b95b112e138b20cd.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="四、模型结构"><a href="#四、模型结构" class="headerlink" title="四、模型结构"></a>四、模型结构</h2><p>因为模型的输入数据大小为784（28x28），和用于MNIST手写数字识别的网络LetNet-5的输入数据大小（32x32）差不多，因此使用的网络和LetNet-5类似。有2个卷积层，2个池化层，2个全连接层，文中也给出了具体的网络模型参数。</p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/1f87297eebfd149ca649277dc9bcffa4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/b60e19b6b54ad97d00112d0f48c6ed7e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="五、扩展性研究"><a href="#五、扩展性研究" class="headerlink" title="五、扩展性研究"></a>五、扩展性研究</h2><p>使用了三种分类器：2分类、10分类、20分类，对流量好坏和类型进行分类，如图6。</p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/666ed23b0259495e780bdb7a48bbf904.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="六、实验结果及分析"><a href="#六、实验结果及分析" class="headerlink" title="六、实验结果及分析"></a>六、实验结果及分析</h2><p>使用accuracy (A), precision ( P ), recall ( R ), f1 value (F1)对模型优劣进行评估。  </p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/66820e227d7ddc557c760839f7dfc40b.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><strong>结论：session表现优于flow，all layer优于只有应用层</strong></p>
+<p>参考：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/pnnngchg/article/details/79826949">流量分类方法设计（一）——参考论文整理</a></li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/AI/%E8%BD%AC%E8%BD%BD/" class="category-chain-item">转载</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>关于深度学习的网络流量分类论文整理一</div>
+      <div>http://blog.uanet.cn/AI/转载/关于深度学习的网络流量分类论文整理一.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%BA%8C.html" title="关于深度学习的网络流量分类论文整理二">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">关于深度学习的网络流量分类论文整理二</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/AI/%E8%BD%AC%E8%BD%BD/%E4%BB%80%E4%B9%88%E6%98%AFAI%E9%98%B2%E7%81%AB%E5%A2%99AIFW%EF%BC%9F.html" title="什么是AI防火墙AIFW？">
+                        <span class="hidden-mobile">什么是AI防火墙AIFW？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

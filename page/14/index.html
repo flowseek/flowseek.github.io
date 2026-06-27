@@ -1,0 +1,1025 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta property="og:type" content="website">
+<meta property="og:title" content="DNSNAT">
+<meta property="og:url" content="http://blog.uanet.cn/page/14/index.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="醉后不知天在水,满船清梦压星河"></span>
+          
+        </div>
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      <div class="container nopadding-x-md">
+        <div id="board"
+          style="margin-top: 0">
+          
+          <div class="container">
+            <div class="row">
+              <div class="col-12 col-md-10 m-auto">
+                
+
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/LIVE/%E5%BF%83%E6%83%85%E8%AE%B0%E5%BD%95.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="心情记录">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/LIVE/%E5%BF%83%E6%83%85%E8%AE%B0%E5%BD%95.html" target="_self">
+          心情记录
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/LIVE/%E5%BF%83%E6%83%85%E8%AE%B0%E5%BD%95.html" target="_self">
+        <div>
+          覆巢之下安有完卵
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/LIVE/" class="category-chain-item">LIVE</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/LIVE/%E6%9B%BE%E5%9B%BD%E8%97%A9%E7%9A%84%E6%B0%94%E5%9C%BA.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="曾国藩的气场">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/LIVE/%E6%9B%BE%E5%9B%BD%E8%97%A9%E7%9A%84%E6%B0%94%E5%9C%BA.html" target="_self">
+          曾国藩的气场
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/LIVE/%E6%9B%BE%E5%9B%BD%E8%97%A9%E7%9A%84%E6%B0%94%E5%9C%BA.html" target="_self">
+        <div>
+          曾国藩三十岁以前，是碌碌无为的三十年，除了每天苦读圣贤书和钻研市场需要的如古玩鉴定、麻衣神相等技术外，几乎与世隔绝。 这样一个迂腐的文人，为什么能在短时间内步步高升，一步步走到权力顶峰？这除了他后期善于经营自己，也与他修炼气场有很大关系。 那么，曾国藩是如何修炼气场的呢？
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/LIVE/" class="category-chain-item">LIVE</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/LIVE/%E6%B6%9B%E6%80%9D%E6%95%B0%E6%8D%AE.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="涛思数据">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/LIVE/%E6%B6%9B%E6%80%9D%E6%95%B0%E6%8D%AE.html" target="_self">
+          涛思数据
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/LIVE/%E6%B6%9B%E6%80%9D%E6%95%B0%E6%8D%AE.html" target="_self">
+        <div>
+          笔记  要找未来5年会爆发的领域 要聚焦和结合跨界 针对自己的程序要有自己的测试引擎 第一单客户要有绝对的痛点 创业前要多看书 做为技术人员要看几本经典的营销和市场的书  技术人员推荐的营销书籍
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/LIVE/" class="category-chain-item">LIVE</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/LIVE/%E6%BF%80%E5%85%89%E9%9B%B7%E8%BE%BE%E5%92%8C%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="激光雷达和人工智能">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/LIVE/%E6%BF%80%E5%85%89%E9%9B%B7%E8%BE%BE%E5%92%8C%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD.html" target="_self">
+          激光雷达和人工智能
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/LIVE/%E6%BF%80%E5%85%89%E9%9B%B7%E8%BE%BE%E5%92%8C%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD.html" target="_self">
+        <div>
+          几十年来，激光雷达一直是许多行业中非常有用的工具，但直到最近，随着人工智能（AI）解决方案的引入，我们才开始认识到它的真正潜力。激光雷达，又称光探测和测距，是一种遥感技术。它利用激光扫描器，测量传感器与建筑物或行人等目标物体之间的距离和尺寸。随着AI与激光雷达的结合使用，技术团队正在针对各种场景优化技术，以达到超乎想象的速度和精度。 20世纪60年代，激光雷达第一次问世，当时人们把它安装在飞机上
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/LIVE/" class="category-chain-item">LIVE</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/LIVE/%E9%AC%BC%E8%B0%B7%E5%AD%90-%E9%A9%AD%E4%BA%BA%E6%9C%AF.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="鬼谷子-驭人术">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/LIVE/%E9%AC%BC%E8%B0%B7%E5%AD%90-%E9%A9%AD%E4%BA%BA%E6%9C%AF.html" target="_self">
+          鬼谷子-驭人术
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/LIVE/%E9%AC%BC%E8%B0%B7%E5%AD%90-%E9%A9%AD%E4%BA%BA%E6%9C%AF.html" target="_self">
+        <div>
+          鬼谷子被后世推崇为谋圣，因为他是研究谋略的大家，虽然他一生隐居，在当时才不显，名不彰，但是他教导的四大高徒张仪、苏秦、庞涓、孙膑却叱诧战国，成为当世无可匹敌的纵横家，为老师扬名天下！ 鬼谷子最厉害的就是识人术，修行大成，可以洞悉人心，天下人才皆为其用，这就是得人心者得天下的道理。用别人的缺点成就自己，用人性的弱点驾驭别人，今天为大家分享不可不学的六个驭人术，让你驾驭六类人：
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/LIVE/" class="category-chain-item">LIVE</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="arm环境u-boot功能和linux启动过程">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B.html" target="_self">
+          arm环境u-boot功能和linux启动过程
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B.html" target="_self">
+        <div>
+          1. U-BOOT概况总结一、 启动代码为start.S 二、 由于u-boot为裸板上第一个程序，所以要初始化各个外设，由于u-boot已经初始化了，
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/KERNEL/" class="category-chain-item">KERNEL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/FPGA/vnote.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="vnote">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/FPGA/vnote.html" target="_self">
+          vnote
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/FPGA/vnote.html" target="_self">
+        <div>
+          从卷积层、激活层、池化层到全连接层解析卷积神经网络的原理（转载）局部连接+权值共享全连接神经网络需要非常多的计算资源才能支撑它来做反向传播和前向传播，所以说全连接神经网络可以存储非常多的参数，如果你给它的样本如果没有达到它的量级的时候，它可以轻轻松松把你给他的样本全部都记下来，这会出现过拟合的情况。 所以我们应该把神经元和神经元之间的连接的权重个数降下来，但是降下来我们又不能保证它有较强的学习能力
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/FPGA/" class="category-chain-item">FPGA</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/FPGA/xilinx_pin.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="xilinx_pin">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/FPGA/xilinx_pin.html" target="_self">
+          xilinx_pin
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/FPGA/xilinx_pin.html" target="_self">
+        <div>
+          ug471_7Series_SelectIO.pdf 介绍了i&#x2F;o特性和逻辑资源 ug475_7Series_Pkg_Pinout.pdf
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/FPGA/" class="category-chain-item">FPGA</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="什么是TinyML">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML.html" target="_self">
+          什么是TinyML
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML.html" target="_self">
+        <div>
+          TinyML 也是机器学习的一种，他的特点就是缩小深度学习网络可以在微型硬件中使用，主要应用在智能设备上。 超低功耗嵌入式设备正在“入侵”我们的世界，借助新的嵌入式机器学习框架，它们将进一步推动人工智能驱动的物联网设备的普及。 FPGA一直以低功耗、可重构的特点在各个领域内应用，同时也可以大大增加物联网应用环境，所以在FPGA上应用TinyML是否是FPGA方便的最佳应用？我们接下来分析一下Tin
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/FPGA/" class="category-chain-item">FPGA</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/FPGA/vivado_debug.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="vivado_debug">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/FPGA/vivado_debug.html" target="_self">
+          vivado_debug
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/FPGA/vivado_debug.html" target="_self">
+        <div>
+          debug状态下无法抓取数据 dbg_hub &gt;&#x3D; ila时钟 &gt; jtag时钟
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/FPGA/" class="category-chain-item">FPGA</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <a class="extend prev" rel="prev" href="/page/13/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/#board">12</a><a class="page-number" href="/page/13/#board">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/#board">15</a><a class="page-number" href="/page/16/#board">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/#board">23</a><a class="extend next" rel="next" href="/page/15/#board"><i class="iconfont icon-arrowright"></i></a>
+    </span>
+  </nav>
+
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

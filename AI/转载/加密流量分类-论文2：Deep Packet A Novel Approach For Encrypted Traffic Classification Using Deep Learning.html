@@ -1,0 +1,908 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="加密流量分类-论文2：Deep Packet: A Novel Approach For Encrypted Traffic Classification Using Deep Learning 0、摘要 1、介绍 2、相关工作 3、深度学习背景  3.1 自编码器（Autoencoder，AE） 3.2 卷积神经网络(Convolutional Neural Network, CNN)   4、">
+<meta property="og:type" content="article">
+<meta property="og:title" content="加密流量分类-论文2：Deep Packet A Novel Approach For Encrypted Traffic Classification Using Deep Learning">
+<meta property="og:url" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB-%E8%AE%BA%E6%96%872%EF%BC%9ADeep%20Packet%20A%20Novel%20Approach%20For%20Encrypted%20Traffic%20Classification%20Using%20Deep%20Learning.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="加密流量分类-论文2：Deep Packet: A Novel Approach For Encrypted Traffic Classification Using Deep Learning 0、摘要 1、介绍 2、相关工作 3、深度学习背景  3.1 自编码器（Autoencoder，AE） 3.2 卷积神经网络(Convolutional Neural Network, CNN)   4、">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-13T05:53:20.592Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.592Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>加密流量分类-论文2：Deep Packet A Novel Approach For Encrypted Traffic Classification Using Deep Learning - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="加密流量分类-论文2：Deep Packet A Novel Approach For Encrypted Traffic Classification Using Deep Learning"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          17 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">加密流量分类-论文2：Deep Packet A Novel Approach For Encrypted Traffic Classification Using Deep Learning</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="加密流量分类-论文2：Deep-Packet-A-Novel-Approach-For-Encrypted-Traffic-Classification-Using-Deep-Learning"><a href="#加密流量分类-论文2：Deep-Packet-A-Novel-Approach-For-Encrypted-Traffic-Classification-Using-Deep-Learning" class="headerlink" title="加密流量分类-论文2：Deep Packet: A Novel Approach For Encrypted Traffic Classification Using Deep Learning"></a>加密流量分类-论文2：Deep Packet: A Novel Approach For Encrypted Traffic Classification Using Deep Learning</h4><ul>
+<li><a href="#0_1">0、摘要</a></li>
+<li><a href="#1_3">1、介绍</a></li>
+<li><a href="#2_10">2、相关工作</a></li>
+<li><a href="#3_18">3、深度学习背景</a></li>
+<li><ul>
+<li><a href="#31_AutoencoderAE_20">3.1 自编码器（Autoencoder，AE）</a></li>
+<li><a href="#32_Convolutional_Neural_Network_CNN_25">3.2 卷积神经网络(Convolutional Neural Network, CNN)</a></li>
+</ul>
+</li>
+<li><a href="#4_29">4、方法</a></li>
+<li><ul>
+<li><a href="#41__30">4.1 数据集</a></li>
+<li><a href="#42__33">4.2 预处理</a></li>
+<li><a href="#43__43">4.3 网络架构</a></li>
+</ul>
+</li>
+<li><a href="#5_52">5、实验</a></li>
+<li><a href="#6_60">6、总结</a></li>
+</ul>
+<h2 id="0、摘要"><a href="#0、摘要" class="headerlink" title="0、摘要"></a>0、摘要</h2><p>  论文提出的方案称为“深度包”(deep packet)，可以处理网络流量分类为主要类别(如FTP和P2P)的流量表征，以及需要终端用户应用程序(如BitTorrent和Skype)识别的应用程序识别。与现有的大多数方法不同，深度报文不仅可以识别加密流量，还可以区分VPN网络流量和非VPN网络流量。网络架构基于CNN与SAE，能同时进行<strong>应用识别</strong>与<strong>流量类型</strong>的分类任务。</p>
+<p>​	代码路径：<a target="_blank" rel="noopener" href="https://github.com/munhouiani/Deep-Packet">munhouiani&#x2F;Deep-Packet: Pytorch implementation of deep packet: a novel approach for encrypted traffic classification using deep learning</a></p>
+<h2 id="1、介绍"><a href="#1、介绍" class="headerlink" title="1、介绍"></a>1、介绍</h2><p>  准确的流量分类已成为提供适当的服务质量(quality of service, QoS)、异常检测等高级网络管理任务的先决条件之一。流量分类在与网络管理相关的学术界和工业界都引起了极大的兴趣。</p>
+<p>  本文贡献：</p>
+<ul>
+<li>在Deep Packet中，不需要专家来提取与网络流量相关的特征。这种方法省去了查找和提取特征的繁琐步骤。（只要是基于DL的方法都能做到这一点）</li>
+<li>Deep Packet可以在两个粒度级别(应用程序识别和流量表征)上识别流量，并获得最先进的结果。</li>
+<li>深度数据包可以准确地分类最难的一类应用程序，已知是P2P。</li>
+</ul>
+<h2 id="2、相关工作"><a href="#2、相关工作" class="headerlink" title="2、相关工作"></a>2、相关工作</h2><p>  等于是一个综述，概览了之前流量分类的一些方法以及它的适用性与优缺点。可以参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45125356/article/details/126592812?spm=1001.2014.3001.5502">论文解读1</a></p>
+<ul>
+<li>Port-based approach（基于端口）：提取过程简单，端口号不受加密方案的影响。然而，端口混淆、网络地址转换(NAT)、端口转发、协议嵌入和端口随机分配的普遍存在大大降低了这种方法的准确性，<strong>目前已经不适用</strong>。</li>
+<li>Payload Inspection Techniques（基于有效载荷）:即深度包检测（DPI）。</li>
+<li>Statistical and machine learning approach（基于统计特征+机器学习方法）：这些方法依赖于流量的统计或时间序列特性，能够处理加密和未加密的流量。</li>
+</ul>
+<p>  <strong>总之，以前的方法，特征提取阶段依赖于人类的特征工程，耗时、昂贵且出错率高。</strong></p>
+<h2 id="3、深度学习背景"><a href="#3、深度学习背景" class="headerlink" title="3、深度学习背景"></a>3、深度学习背景</h2><p>  依旧是综述，关于神经网络的。这里主要介绍了两种神经网络结构。</p>
+<h3 id="3-1-自编码器（Autoencoder，AE）"><a href="#3-1-自编码器（Autoencoder，AE）" class="headerlink" title="3.1 自编码器（Autoencoder，AE）"></a>3.1 <a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E8%87%AA%E7%BC%96%E7%A0%81%E5%99%A8&spm=1001.2101.3001.7020">自编码器</a>（Autoencoder，AE）</h3><p>  AE是一种无监督框架。考虑一个训练集{x1, x2，…， xn}其中对于每个训练数据我们有xi∈Rn。自编码器目标定义为yi &#x3D; xi，对于i∈{1,2，…， n}，即网络的输出等于输入。自动编码器试图学习数据集的压缩表示，即<strong>将高维数据通过编码器降维，然后降维后的数据通过解码器升维，输出尽量与输入相同。这样。降维后的数据则包含了原始输入数据的信息</strong>。一般地，编码器与解码器的结构都是对称的。  </p>
+<p>![AE结构](加密流量分类-论文2：Deep Packet A Novel Approach For Encrypted Traffic Classification Using Deep Learning&#x2F;a57bcb557b1cfb21494d25a156f8cad0.png)</p>
+<p>  在实践中，为了获得更好的性能，一般使用**堆栈式自动编码器(SAE)**。将多个自动编码器堆叠起来，每个编码器的输出都是连续层的输入，而连续层本身就是一个自动编码器。堆叠式自动编码器的训练过程采用贪婪的分层方式完成。首先，该方法训练网络的每一层，同时冻结其他层的权值。在训练完所有层之后，为了得到更准确的结果，对整个神经网络进行微调。在微调阶段，利用反向传播算法调整各层权重。此外，对于分类任务，可以在最后一层应用额外的softmax层。 </p>
+<p>![SAE](加密流量分类-论文2：Deep Packet A Novel Approach For Encrypted Traffic Classification Using Deep Learning&#x2F;1dfcc58af7e7e1281455e99fc9a311b3.png)</p>
+<h3 id="3-2-卷积神经网络-Convolutional-Neural-Network-CNN"><a href="#3-2-卷积神经网络-Convolutional-Neural-Network-CNN" class="headerlink" title="3.2 卷积神经网络(Convolutional Neural Network, CNN)"></a>3.2 卷积神经网络(Convolutional Neural Network, CNN)</h3><ul>
+<li>卷积：进行特征抽取</li>
+<li>池化：聚合低级特征，获得局部不变性，并且能降低网络训练与测试的参数量。<br>  一维卷积神经网络（1D-CNNs）可以捕获网络数据包中相邻字节之间的空间依赖关系，从而找到每一类协议&#x2F;应用程序的区别模式，从而对流量进行准确的分类。</li>
+</ul>
+<h2 id="4、方法"><a href="#4、方法" class="headerlink" title="4、方法"></a>4、方法</h2><h3 id="4-1-数据集"><a href="#4-1-数据集" class="headerlink" title="4.1 数据集"></a>4.1 数据集</h3><p>  <strong>ISCX VPN-nonVPN</strong>：该数据集实在数据链路层捕获的，因此，每个数据包都包含一个以太网报头、一个IP数据报报头、一个TCP&#x2F;UDP报头。</p>
+<h3 id="4-2-预处理"><a href="#4-2-预处理" class="headerlink" title="4.2 预处理"></a>4.2 预处理</h3><ol>
+<li>删除以太网报头</li>
+<li>将UDP报头填充0至20字节长度（TCP通常具有20字节长度的报头，而UDP具有8字节长度的报头。为了使传输层的段一致，在UDP段的报头末尾注入0，使它们的长度与TCP报头相等）</li>
+<li>屏蔽IP数据报报头的IP</li>
+<li>删除不相关的数据包，例如没有负载的数据包（TCP握手时SYN、ACK设置为1以及FIN设置为1的数据包）或者DNS数据段（将url转为IP地址的）</li>
+<li>将原始数据包转为字节向量</li>
+<li>截断超过1500的向量，不足1500长度的填充0</li>
+<li>将向量的每个元素除以255来规范化字节向量</li>
+<li>针对样本不均衡问题，对样本更多的类进行欠采样，直到类相对平衡。  </li>
+<li>![每个类别中的样本数量](加密流量分类-论文2：Deep Packet A Novel Approach For Encrypted Traffic Classification Using Deep Learning&#x2F;4757ac1b1097b430c4a591a7d7e34c1c.png)</li>
+</ol>
+<h3 id="4-3-网络架构"><a href="#4-3-网络架构" class="headerlink" title="4.3 网络架构"></a>4.3 网络架构</h3><p>![Deep Packet网络架构](加密流量分类-论文2：Deep Packet A Novel Approach For Encrypted Traffic Classification Using Deep Learning&#x2F;21906645e966fd1835b14b8b3bfd362d.png)</p>
+<ul>
+<li><p>关于SAE的部分：<br>由五个全连接层（FC）,分别由400、300、200、100和50个神经元组成。为防止过拟合问题，每层后采用dropout技术，dropout率为0.05。针对应用识别和流量表征任务，在SAE的最后一层，分别添加了一个包含17个神经元和12个神经元的softmax分类器。</p>
+</li>
+<li><p>关于CNN的部分：<br>包括两个连续的卷积层，然后是池化层。将二维张量压缩为一维矢量，并将其送入三层全连接神经元网络，该网络采用dropout技术以避免过拟合。最后，将类似于SAE架构的softmax分类器应用于分类任务。  </p>
+<p>![CNN架构](加密流量分类-论文2：Deep Packet A Novel Approach For Encrypted Traffic Classification Using Deep Learning&#x2F;cbd104513f0e2800befc8c1e5122e1e5.png)</p>
+<p>CNN的超参数如下： </p>
+<p>![CNN的超参数](加密流量分类-论文2：Deep Packet A Novel Approach For Encrypted Traffic Classification Using Deep Learning&#x2F;4ab05d0229ef126db46f15800657d628.png)</p>
+</li>
+</ul>
+<h2 id="5、实验"><a href="#5、实验" class="headerlink" title="5、实验"></a>5、实验</h2><ul>
+<li>对于CNN的调参，此处改变了两个卷积层的滤波器大小、滤波器数量和步幅。总共评估了116个应用识别和交通表征任务的加权平均F1分数模型。通过结果得出如下结论：<strong>对于流量分类任务，无法选择最优模型，因为“最优模型”的定义是不明确的，而且模型的精度和它的复杂性(即训练速度和测试速度)之间存在权衡</strong>。</li>
+<li><strong>增加神经网络的复杂度并不一定会带来更好的性能</strong>。可能的原因有：<br>  一个复杂的模型在训练阶段更容易遇到梯度消失问题，从而导致模型的<strong>欠拟合</strong>。<br>     一个学习模型变得更复杂，而训练数据的大小保持不变，就会出现<strong>过拟合</strong>问题。</li>
+<li>该工作与Wang W, Zhu M, Wang J, Zeng X, Yang Z (2017)<br>End-to-end encrypted traffic classification with one-dimensional convolution neural networks. In: Intel-ligence and Security Informatics (ISI), 2017 IEEE International Conference on, IEEE. 的方法类似，但Wang等人在流量表征的任务上获得了100%的精度，可能的原因是<strong>预处理过程中没有屏蔽IP地址字段，导致模型仅仅用IP地址这一特征来进行分类</strong>。</li>
+</ul>
+<h2 id="6、总结"><a href="#6、总结" class="headerlink" title="6、总结"></a>6、总结</h2><p>![总结](加密流量分类-论文2：Deep Packet A Novel Approach For Encrypted Traffic Classification Using Deep Learning&#x2F;8005f7e29a984b570f0ba2561514b901.png)</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/AI/%E8%BD%AC%E8%BD%BD/" class="category-chain-item">转载</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>加密流量分类-论文2：Deep Packet A Novel Approach For Encrypted Traffic Classification Using Deep Learning</div>
+      <div>http://blog.uanet.cn/AI/转载/加密流量分类-论文2：Deep Packet A Novel Approach For Encrypted Traffic Classification Using Deep Learning.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/DEVELOP/PCI-DMA%E5%8E%9F%E7%90%86%E6%80%BB%E7%BB%93.html" title="PCI-DMA原理总结">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">PCI-DMA原理总结</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/AI/%E8%BD%AC%E8%BD%BD/%E5%B5%8C%E5%85%A5%E5%BC%8FTensorFlow%20Lite%20C++%E9%83%A8%E7%BD%B2%E6%8E%A8%E7%90%86.html" title="嵌入式TensorFlow Lite C++部署推理">
+                        <span class="hidden-mobile">嵌入式TensorFlow Lite C++部署推理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

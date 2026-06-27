@@ -1,0 +1,1052 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="这是 TensorFlow Lite C++ 源代码中的一段实现，用于 Interpreter::Invoke() 函数。这段代码执行了模型的推理过程，并对一些性能和安全性进行了处理。下面是对这段代码功能的逐步解读：  1. 函数的主要作用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TensorFlow Lite代码分析">
+<meta property="og:url" content="http://blog.uanet.cn/AI/TensorFlow%20Lite%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="这是 TensorFlow Lite C++ 源代码中的一段实现，用于 Interpreter::Invoke() 函数。这段代码执行了模型的推理过程，并对一些性能和安全性进行了处理。下面是对这段代码功能的逐步解读：  1. 函数的主要作用">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-13T05:53:20.412Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.412Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>TensorFlow Lite代码分析 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="TensorFlow Lite代码分析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          3.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          28 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">TensorFlow Lite代码分析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>这是 TensorFlow Lite C++ 源代码中的一段实现，用于 <code>Interpreter::Invoke()</code> 函数。这段代码执行了模型的推理过程，并对一些性能和安全性进行了处理。下面是对这段代码功能的逐步解读：</p>
+<hr>
+<h3 id="1-函数的主要作用"><a href="#1-函数的主要作用" class="headerlink" title="1. 函数的主要作用"></a><strong>1. 函数的主要作用</strong></h3><p><code>Interpreter::Invoke()</code> 是 TensorFlow Lite 的核心方法，用于执行模型推理。通过调用它，可以处理输入数据并获取模型的输出。</p>
+<hr>
+<h3 id="2-代码分析"><a href="#2-代码分析" class="headerlink" title="2. 代码分析"></a><strong>2. 代码分析</strong></h3><h4 id="ScopedRuntimeInstrumentationProfile"><a href="#ScopedRuntimeInstrumentationProfile" class="headerlink" title="ScopedRuntimeInstrumentationProfile"></a><strong>ScopedRuntimeInstrumentationProfile</strong></h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">ScopedRuntimeInstrumentationProfile <span class="hljs-title">scoped_runtime_event</span><span class="hljs-params">(root_profiler_.get(), <span class="hljs-string">&quot;invoke&quot;</span>)</span></span>;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>作用</strong>：创建一个性能跟踪器，记录推理过程的性能指标（如运行时间）。</li>
+<li>**<code>root_profiler_</code>**：这是用于跟踪模型推理性能的分析器。</li>
+<li>**<code>&quot;invoke&quot;</code>**：指定当前分析器记录的事件名称。</li>
+</ul>
+<hr>
+<h4 id="处理取消标志"><a href="#处理取消标志" class="headerlink" title="处理取消标志"></a><strong>处理取消标志</strong></h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">if</span> (cancellation_enabled_) (<span class="hljs-type">void</span>)continue_invocation_.<span class="hljs-built_in">test_and_set</span>();<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>作用</strong>：在支持取消推理功能的场景下，重置取消标志以确保本次推理能够正常执行。</li>
+<li>**<code>cancellation_enabled_</code>**：表示是否启用取消功能。</li>
+<li>**<code>continue_invocation_</code>**：是一个原子标志，用于检查推理是否被取消。</li>
+</ul>
+<hr>
+<h4 id="抑制非正规浮点数（Denormal-Floating-Point-Numbers）"><a href="#抑制非正规浮点数（Denormal-Floating-Point-Numbers）" class="headerlink" title="抑制非正规浮点数（Denormal Floating Point Numbers）"></a><strong>抑制非正规浮点数（Denormal Floating Point Numbers）</strong></h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">ruy::ScopedSuppressDenormals suppress_denormals;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>作用</strong>：抑制非正规浮点数（Denormals）的影响。</li>
+<li><strong>原因</strong>：在某些架构（如 x86）上，处理非正规浮点数可能会导致严重的性能下降。</li>
+<li>**<code>ruy::ScopedSuppressDenormals</code>**：确保推理期间所有浮点运算不会生成非正规值。</li>
+</ul>
+<hr>
+<h4 id="执行模型主图的推理"><a href="#执行模型主图的推理" class="headerlink" title="执行模型主图的推理"></a><strong>执行模型主图的推理</strong></h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">TF_LITE_ENSURE_STATUS_WITH_SCOPED_INSTRUMENTATION</span>(<br>    scoped_runtime_event, <span class="hljs-built_in">primary_subgraph</span>().<span class="hljs-built_in">Invoke</span>());<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>**<code>primary_subgraph().Invoke()</code>**：调用模型的主子图进行推理。</li>
+<li>**<code>TF_LITE_ENSURE_STATUS_WITH_SCOPED_INSTRUMENTATION</code>**：检查推理状态，并将状态与性能分析工具关联。</li>
+</ul>
+<hr>
+<h4 id="处理输出张量数据"><a href="#处理输出张量数据" class="headerlink" title="处理输出张量数据"></a><strong>处理输出张量数据</strong></h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">if</span> (!allow_buffer_handle_output_) &#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> tensor_index : <span class="hljs-built_in">outputs</span>()) &#123;<br>        <span class="hljs-built_in">TF_LITE_ENSURE_STATUS_WITH_SCOPED_INSTRUMENTATION</span>(<br>            scoped_runtime_event,<br>            <span class="hljs-built_in">primary_subgraph</span>().<span class="hljs-built_in">EnsureTensorDataIsReadable</span>(tensor_index));<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>allow_buffer_handle_output_</code></p>
+<p>：用于控制是否直接允许访问输出缓冲区的句柄。</p>
+<ul>
+<li>**<code>true</code>**：跳过对输出数据的进一步检查。</li>
+<li>**<code>false</code>**：确保输出张量的数据可以被正确读取。</li>
+</ul>
+</li>
+<li><p>**<code>EnsureTensorDataIsReadable</code>**：检查并确保输出张量数据是可访问的。</p>
+</li>
+</ul>
+<hr>
+<h4 id="返回状态"><a href="#返回状态" class="headerlink" title="返回状态"></a><strong>返回状态</strong></h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">return</span> kTfLiteOk;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>表示推理执行成功，返回 <code>kTfLiteOk</code> 状态。</li>
+</ul>
+<hr>
+<h3 id="3-函数中的关键点"><a href="#3-函数中的关键点" class="headerlink" title="3. 函数中的关键点"></a><strong>3. 函数中的关键点</strong></h3><ol>
+<li><p>性能优化</p>
+<p>：</p>
+<ul>
+<li>使用 <code>ScopedRuntimeInstrumentationProfile</code> 记录性能数据。</li>
+<li>抑制非正规浮点数以提高计算速度。</li>
+</ul>
+</li>
+<li><p>取消功能支持</p>
+<p>：</p>
+<ul>
+<li>提供了取消推理执行的机制，适用于长时间运行的模型。</li>
+</ul>
+</li>
+<li><p>安全性检查</p>
+<p>：</p>
+<ul>
+<li>确保输出数据的可读性，防止缓冲区访问错误。</li>
+</ul>
+</li>
+<li><p>模块化设计</p>
+<p>：</p>
+<ul>
+<li>调用主子图的推理逻辑，使得模型支持多子图和模块化扩展。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="4-适用场景"><a href="#4-适用场景" class="headerlink" title="4. 适用场景"></a><strong>4. 适用场景</strong></h3><ul>
+<li><strong>移动和嵌入式设备</strong>：适合资源受限环境，优化了性能并支持运行时监控。</li>
+<li><strong>大规模推理系统</strong>：支持性能分析和取消操作，用于高效调试和部署。</li>
+</ul>
+<p>这段代码体现了 TensorFlow Lite 在性能、安全性和功能支持上的深度设计。如果需要修改此函数（如自定义推理逻辑），需确保遵循 TensorFlow Lite 的架构和 API 规范。</p>
+<p>TfLiteStatus Subgraph::Invoke() {<br>  auto status &#x3D; InvokeImpl();<br>  telemetry::TelemetryReportEvent(&amp;context_, “Invoke”, status);<br>  return status;<br>}</p>
+<p>这段代码是 TensorFlow Lite 的核心实现之一，<code>Subgraph::InvokeImpl()</code>，用于执行子图的推理过程（子图是 TensorFlow Lite 中支持多子图模型运行的核心结构之一）。以下是逐步分析和解读：</p>
+<hr>
+<h2 id="1-函数的主要作用-1"><a href="#1-函数的主要作用-1" class="headerlink" title="1. 函数的主要作用"></a><strong>1. 函数的主要作用</strong></h2><p><code>Subgraph::InvokeImpl()</code> 是 TFLite 的底层实现，负责按照执行计划依次执行子图中的每个节点操作，并管理相关的资源分配、错误处理和性能跟踪。</p>
+<hr>
+<h2 id="2-代码分解与详细解读"><a href="#2-代码分解与详细解读" class="headerlink" title="2. 代码分解与详细解读"></a><strong>2. 代码分解与详细解读</strong></h2><h3 id="2-1-初步一致性检查"><a href="#2-1-初步一致性检查" class="headerlink" title="2.1. 初步一致性检查"></a><strong>2.1. 初步一致性检查</strong></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">if</span> (!consistent_) &#123;<br>    <span class="hljs-built_in">ReportError</span>(<span class="hljs-string">&quot;Invoke called on model that is not consistent.&quot;</span>);<br>    <span class="hljs-keyword">return</span> kTfLiteError;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>检查子图是否处于一致状态（<code>consistent_</code>）。</li>
+<li>如果子图不一致，说明模型结构可能被破坏，立即返回错误。</li>
+</ul>
+<hr>
+<h3 id="2-2-状态检查"><a href="#2-2-状态检查" class="headerlink" title="2.2. 状态检查"></a><strong>2.2. 状态检查</strong></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">if</span> (state_ == kStateUninvokable) &#123;<br>    <span class="hljs-built_in">ReportError</span>(<span class="hljs-string">&quot;Invoke called on model that is not ready.&quot;</span>);<br>    <span class="hljs-keyword">return</span> kTfLiteError;<br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (memory_planner_ &amp;&amp; !memory_planner_-&gt;<span class="hljs-built_in">HasNonPersistentMemory</span>()) &#123;<br>    <span class="hljs-built_in">ReportError</span>(<span class="hljs-string">&quot;Non-persistent memory is not available.&quot;</span>);<br>    <span class="hljs-keyword">return</span> kTfLiteError;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>模型状态检查</strong>：<code>kStateUninvokable</code> 表示子图未准备好运行，可能因为没有完成内存分配。</li>
+<li><strong>内存检查</strong>：确保内存规划器存在且已分配非持久性内存（动态内存）。</li>
+</ul>
+<hr>
+<h3 id="2-3-性能跟踪"><a href="#2-3-性能跟踪" class="headerlink" title="2.3. 性能跟踪"></a><strong>2.3. 性能跟踪</strong></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">TFLITE_SCOPED_TAGGED_DEFAULT_PROFILE</span>(profiler_.<span class="hljs-built_in">get</span>(), <span class="hljs-string">&quot;Invoke&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>启动性能跟踪，用于记录当前子图的执行性能数据。</li>
+</ul>
+<hr>
+<h3 id="2-4-执行计划的遍历"><a href="#2-4-执行计划的遍历" class="headerlink" title="2.4. 执行计划的遍历"></a><strong>2.4. 执行计划的遍历</strong></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> execution_plan_index = <span class="hljs-number">0</span>; <br>     execution_plan_index &lt; execution_plan_.<span class="hljs-built_in">size</span>(); <br>     execution_plan_index++) &#123;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>遍历子图的执行计划</strong>：<code>execution_plan_</code> 是一组节点索引的列表，定义了模型操作的执行顺序。</li>
+<li>对每个节点进行如下处理：</li>
+</ul>
+<hr>
+<h4 id="2-4-1-节点准备"><a href="#2-4-1-节点准备" class="headerlink" title="2.4.1. 节点准备"></a><strong>2.4.1. 节点准备</strong></h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">if</span> (execution_plan_index == next_execution_plan_index_to_prepare_) &#123;<br>    <span class="hljs-built_in">TF_LITE_ENSURE_STATUS</span>(<span class="hljs-built_in">PrepareOpsAndTensors</span>());<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果当前节点需要重新准备资源（例如张量或操作），调用 <code>PrepareOpsAndTensors()</code> 准备。</li>
+</ul>
+<hr>
+<h4 id="2-4-2-读取节点和操作"><a href="#2-4-2-读取节点和操作" class="headerlink" title="2.4.2. 读取节点和操作"></a><strong>2.4.2. 读取节点和操作</strong></h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> node_index = execution_plan_[execution_plan_index];<br>TfLiteNode&amp; node = nodes_and_registration_[node_index].first;<br><span class="hljs-type">const</span> TfLiteRegistration&amp; registration = nodes_and_registration_[node_index].second;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>通过 <code>node_index</code> 获取节点和其对应的操作注册信息。</li>
+</ul>
+<hr>
+<h4 id="2-4-3-数据完整性检查"><a href="#2-4-3-数据完整性检查" class="headerlink" title="2.4.3. 数据完整性检查"></a><strong>2.4.3. 数据完整性检查</strong></h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; node.inputs-&gt;size; ++i) &#123;<br>    <span class="hljs-type">int</span> tensor_index = node.inputs-&gt;data[i];<br>    <span class="hljs-keyword">if</span> (tensor-&gt;data.raw == <span class="hljs-literal">nullptr</span> &amp;&amp; tensor-&gt;bytes &gt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-built_in">ReportError</span>(<span class="hljs-string">&quot;Input tensor %d lacks data&quot;</span>, tensor_index);<br>        <span class="hljs-keyword">return</span> kTfLiteError;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>确保节点输入张量的内存数据完整。</li>
+<li>如果发现某个输入张量缺少必要数据，则报错返回。</li>
+</ul>
+<hr>
+<h4 id="2-4-4-执行节点操作"><a href="#2-4-4-执行节点操作" class="headerlink" title="2.4.4. 执行节点操作"></a><strong>2.4.4. 执行节点操作</strong></h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">if</span> (<span class="hljs-keyword">auto</span> s = <span class="hljs-built_in">OpInvoke</span>(registration, &amp;node); s != kTfLiteOk) &#123;<br>    <span class="hljs-keyword">auto</span> err = <span class="hljs-built_in">ReportOpError</span>(&amp;context_, node, registration, node_index, <span class="hljs-string">&quot;failed to invoke&quot;</span>);<br>    <span class="hljs-keyword">return</span> s == kTfLiteCancelled ? s : err;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>调用 <code>OpInvoke()</code>，执行注册的操作。</li>
+<li>如果操作失败，报告错误并返回状态。</li>
+</ul>
+<hr>
+<h4 id="2-4-5-动态张量调整"><a href="#2-4-5-动态张量调整" class="headerlink" title="2.4.5. 动态张量调整"></a><strong>2.4.5. 动态张量调整</strong></h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">if</span> (tensor_resized_since_op_invoke_ &amp;&amp; <br>    <span class="hljs-built_in">HasDynamicTensor</span>(context_, node.outputs, <span class="hljs-literal">nullptr</span>)) &#123;<br>    next_execution_plan_index_to_prepare_ = execution_plan_index + <span class="hljs-number">1</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>检测动态张量大小是否发生变化。</li>
+<li>如果发生变化，更新执行计划以重新准备相关节点。</li>
+</ul>
+<hr>
+<h3 id="2-5-取消操作的支持"><a href="#2-5-取消操作的支持" class="headerlink" title="2.5. 取消操作的支持"></a><strong>2.5. 取消操作的支持</strong></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">if</span> (check_cancelled_func_ != <span class="hljs-literal">nullptr</span> &amp;&amp; <span class="hljs-built_in">check_cancelled_func_</span>(cancellation_data_)) &#123;<br>    <span class="hljs-built_in">ReportError</span>(<span class="hljs-string">&quot;Client requested cancel during Invoke()&quot;</span>);<br>    <span class="hljs-keyword">return</span> kTfLiteError;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果用户请求取消当前推理操作，通过回调函数处理取消逻辑并终止执行。</li>
+</ul>
+<hr>
+<h2 id="3-关键特性总结"><a href="#3-关键特性总结" class="headerlink" title="3. 关键特性总结"></a><strong>3. 关键特性总结</strong></h2><ol>
+<li><strong>执行计划管理</strong>：通过遍历执行计划，依次调用子图中的每个操作。</li>
+<li><strong>动态内存管理</strong>：支持动态张量的大小调整，并重新规划内存。</li>
+<li><strong>错误和取消处理</strong>：在推理过程中随时检查错误状态和取消请求。</li>
+<li><strong>性能监控</strong>：内置性能跟踪机制，帮助开发者优化推理性能。</li>
+</ol>
+<hr>
+<h2 id="4-适用场景-1"><a href="#4-适用场景-1" class="headerlink" title="4. 适用场景"></a><strong>4. 适用场景</strong></h2><ul>
+<li><strong>嵌入式设备推理</strong>：适合资源受限环境下的高效执行。</li>
+<li><strong>分布式推理框架</strong>：支持多子图和动态内存的灵活运行。</li>
+<li><strong>调试与优化</strong>：通过内置的错误报告和性能跟踪，便于开发者发现问题和优化性能。</li>
+</ul>
+<h1 id="Conv2D实现"><a href="#Conv2D实现" class="headerlink" title="Conv2D实现"></a>Conv2D实现</h1><p>在 TensorFlow Lite 中，<code>Conv2D</code> 操作并不是直接定义在 <code>interpreter</code> 类本身，而是由 TensorFlow Lite 的操作集合（operations）来实现。TensorFlow Lite 的 <code>Interpreter</code> 类是用于加载和执行 <code>.tflite</code> 模型的，它通过解析模型中的操作（例如 <code>Conv2D</code>）来执行推理。</p>
+<h3 id="1-Conv2D-操作在-TensorFlow-Lite-中的位置"><a href="#1-Conv2D-操作在-TensorFlow-Lite-中的位置" class="headerlink" title="1. Conv2D 操作在 TensorFlow Lite 中的位置"></a>1. <strong><code>Conv2D</code> 操作在 TensorFlow Lite 中的位置</strong></h3><p>Conv2D注册 tensorflow&#x2F;core&#x2F;kernels&#x2F;conv_ops.cc</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-built_in">REGISTER_OP</span>(<span class="hljs-string">&quot;Conv2D&quot;</span>)<br>    .<span class="hljs-built_in">Input</span>(<span class="hljs-string">&quot;input: T&quot;</span>)<br>    .<span class="hljs-built_in">Input</span>(<span class="hljs-string">&quot;filter: T&quot;</span>)<br>    .<span class="hljs-built_in">Output</span>(<span class="hljs-string">&quot;output: T&quot;</span>)<br>    .<span class="hljs-built_in">Attr</span>(<span class="hljs-string">&quot;T: &#123;half, bfloat16, float, double, int32&#125;&quot;</span>)<br>    .<span class="hljs-built_in">Attr</span>(<span class="hljs-string">&quot;strides: list(int)&quot;</span>)<br>    .<span class="hljs-built_in">Attr</span>(<span class="hljs-string">&quot;use_cudnn_on_gpu: bool = true&quot;</span>)<br>    .<span class="hljs-built_in">Attr</span>(<span class="hljs-built_in">GetPaddingAttrStringWithExplicit</span>())<br>    .<span class="hljs-built_in">Attr</span>(<span class="hljs-built_in">GetExplicitPaddingsAttrString</span>())<br>    .<span class="hljs-built_in">Attr</span>(<span class="hljs-built_in">GetConvnetDataFormatAttrString</span>())<br>    .<span class="hljs-built_in">Attr</span>(<span class="hljs-string">&quot;dilations: list(int) = [1, 1, 1, 1]&quot;</span>)<br>    .<span class="hljs-built_in">SetShapeFn</span>(shape_inference::Conv2DShapeWithExplicitPadding);<br><br></code></pre></td></tr></table></figure>
+
+<p>Conv2D实现</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-built_in">REGISTER_KERNEL_BUILDER</span>(<br>    <span class="hljs-built_in">Name</span>(<span class="hljs-string">&quot;Conv&quot;</span>).<span class="hljs-built_in">Device</span>(DEVICE_CPU).<span class="hljs-built_in">TypeConstraint</span>&lt;bfloat16&gt;(<span class="hljs-string">&quot;T&quot;</span>),<br>    ConvOp&lt;CPUDevice, bfloat16&gt;);<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">tensorflow-master/tensorflow/core/kernels/conv_ops_bfloat16.cc:    Name(<span class="hljs-string">&quot;Conv2D&quot;</span>).Device(DEVICE_CPU).TypeConstraint&lt;bfloat16&gt;(<span class="hljs-string">&quot;T&quot;</span>),<br>tensorflow-master/tensorflow/core/kernels/conv_ops_bfloat16.cc:    Name(<span class="hljs-string">&quot;Conv2D&quot;</span>).Device(DEVICE_GPU).TypeConstraint&lt;Eigen::bfloat16&gt;(<span class="hljs-string">&quot;T&quot;</span>),<br>tensorflow-master/tensorflow/core/kernels/conv_ops_double.cc:    Name(<span class="hljs-string">&quot;Conv2D&quot;</span>).Device(DEVICE_CPU).TypeConstraint&lt;double&gt;(<span class="hljs-string">&quot;T&quot;</span>),<br>tensorflow-master/tensorflow/core/kernels/conv_ops_double.cc:    Name(<span class="hljs-string">&quot;Conv2D&quot;</span>).Device(DEVICE_GPU).TypeConstraint&lt;double&gt;(<span class="hljs-string">&quot;T&quot;</span>),<br>tensorflow-master/tensorflow/core/kernels/conv_ops_float.cc:    Name(<span class="hljs-string">&quot;Conv2D&quot;</span>).Device(DEVICE_CPU).TypeConstraint&lt;<span class="hljs-built_in">float</span>&gt;(<span class="hljs-string">&quot;T&quot;</span>),<br>tensorflow-master/tensorflow/core/kernels/conv_ops_float.cc:    Name(<span class="hljs-string">&quot;Conv2D&quot;</span>).Device(DEVICE_GPU).TypeConstraint&lt;<span class="hljs-built_in">float</span>&gt;(<span class="hljs-string">&quot;T&quot;</span>),<br>tensorflow-master/tensorflow/core/kernels/conv_ops_half.cc:    Name(<span class="hljs-string">&quot;Conv2D&quot;</span>).Device(DEVICE_CPU).TypeConstraint&lt;Eigen::half&gt;(<span class="hljs-string">&quot;T&quot;</span>),<br>tensorflow-master/tensorflow/core/kernels/conv_ops_half.cc:    Name(<span class="hljs-string">&quot;Conv2D&quot;</span>).Device(DEVICE_GPU).TypeConstraint&lt;Eigen::half&gt;(<span class="hljs-string">&quot;T&quot;</span>),<br>tensorflow-master/tensorflow/core/kernels/conv_ops_int32.cc:    Name(<span class="hljs-string">&quot;Conv2D&quot;</span>).Device(DEVICE_CPU).TypeConstraint&lt;int32&gt;(<span class="hljs-string">&quot;T&quot;</span>),<br>tensorflow-master/tensorflow/core/kernels/conv_ops_int32.cc:    Name(<span class="hljs-string">&quot;Conv2D&quot;</span>).Device(DEVICE_GPU).TypeConstraint&lt;int32&gt;(<span class="hljs-string">&quot;T&quot;</span>),<br>tensorflow-master/tensorflow/core/kernels/conv_ops_using_gemm.cc:      Name(<span class="hljs-string">&quot;Conv2D&quot;</span>).Device(DEVICE_CPU).TypeConstraint&lt;T&gt;(<span class="hljs-string">&quot;T&quot;</span>), \<br></code></pre></td></tr></table></figure>
+
+
+<p>在 TensorFlow Lite 中，卷积操作 <code>Conv2D</code> 是一个内部实现的操作，它是由 <code>TFLite</code> 操作库提供的。具体来说，TensorFlow Lite 会根据模型中 <code>.tflite</code> 文件的结构，自动解析卷积操作，并调用对应的底层实现。卷积操作的实现通常会通过一个 <strong>操作委托（delegate）</strong> 来完成（如 GPU、EdgeTPU、CPU 上的优化）。</p>
+<h3 id="2-卷积操作的实现机制"><a href="#2-卷积操作的实现机制" class="headerlink" title="2. 卷积操作的实现机制"></a>2. <strong>卷积操作的实现机制</strong></h3><p><code>Conv2D</code> 操作的实现通常会依赖于 <strong>操作节点</strong>（operation node），每个操作节点定义了要执行的计算。在 TensorFlow Lite 中，这些操作节点在模型的解析和推理过程中被逐一执行。卷积层的实现涉及以下几个步骤：</p>
+<ol>
+<li><strong>在解析 <code>.tflite</code> 模型时</strong>，TensorFlow Lite 会解析出一个或多个 <code>Conv2D</code> 操作，并为每个操作分配相应的输入张量（图像数据）和权重（卷积核）。</li>
+<li><strong><code>Interpreter</code> 类会管理模型执行的流程</strong>，它会在调用 <code>invoke()</code> 方法时，根据每个操作的定义，依次执行卷积操作。这些操作会触发内部的执行机制，卷积操作会通过优化的数学算法来计算卷积输出。</li>
+<li><strong>卷积操作的底层实现</strong>：具体的实现和优化（如矩阵乘法、Winograd 算法、手写优化等）是在 TensorFlow Lite 中的 <strong>操作实现函数</strong> 中定义的。这些函数在执行时会被调用，并通过 <code>invoke()</code> 执行模型计算。</li>
+</ol>
+<h3 id="3-查找-Conv2D-操作定义"><a href="#3-查找-Conv2D-操作定义" class="headerlink" title="3. 查找 Conv2D 操作定义"></a>3. <strong>查找 <code>Conv2D</code> 操作定义</strong></h3><p>在 TensorFlow Lite 的源代码中，<code>Conv2D</code> 的具体实现通常位于 <code>tensorflow/lite/kernels</code> 文件夹中的实现文件里。例如：</p>
+<ul>
+<li><strong><code>conv_2d.cc</code></strong> 文件：包含 <code>Conv2D</code> 操作的具体实现。</li>
+<li><strong><code>kernels</code> 子模块</strong>：TensorFlow Lite 在 <code>kernels</code> 文件夹中定义了各种操作（包括 <code>Conv2D</code>），这些操作用于处理低级别的张量计算。</li>
+</ul>
+<p>例如，你可以在 TensorFlow Lite 的源代码中看到像以下这样的函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 在 `conv_2d.cc` 文件中的 Conv2D 实现：</span><br><span class="hljs-function">TfLiteStatus <span class="hljs-title">Conv2DPrepare</span><span class="hljs-params">(TfLiteContext* context, TfLiteNode* node)</span> </span>&#123;<br>    <span class="hljs-comment">// 卷积层准备工作</span><br>&#125;<br><br><span class="hljs-function">TfLiteStatus <span class="hljs-title">Conv2DInvoke</span><span class="hljs-params">(TfLiteContext* context, TfLiteNode* node)</span> </span>&#123;<br>    <span class="hljs-comment">// 卷积操作的实际执行函数</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-调用机制"><a href="#4-调用机制" class="headerlink" title="4. 调用机制"></a>4. <strong>调用机制</strong></h3><p>当你在 <code>Interpreter</code> 中调用 <code>invoke()</code> 时，TensorFlow Lite 会依次遍历每一层，识别每个操作（例如 <code>Conv2D</code>）。对于 <code>Conv2D</code> 操作，它会调用底层的执行函数（如 <code>Conv2DInvoke</code>）来完成卷积运算。这个函数会执行以下任务：</p>
+<ul>
+<li>提取输入张量和卷积核。</li>
+<li>使用卷积算法（例如，直接卷积、GEMM、Winograd 等）执行卷积计算。</li>
+<li>计算并存储输出结果。</li>
+</ul>
+<h3 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. <strong>总结</strong></h3><ul>
+<li><strong><code>Conv2D</code></strong> 操作并不在 <code>interpreter</code> 类本身定义，而是在 TensorFlow Lite 的 <code>kernels</code> 目录下的实现文件中（例如 <code>conv_2d.cc</code>）。</li>
+<li><strong><code>Interpreter</code> 类</strong> 会解析 <code>.tflite</code> 模型并执行对应的操作（如 <code>Conv2D</code>）。它会在 <code>invoke()</code> 方法中触发卷积操作的执行，调用相应的底层实现函数来完成计算。</li>
+<li>TensorFlow Lite 中的卷积操作会通过优化的算法执行，如 GEMM、Winograd 或硬件加速（GPU、EdgeTPU）来提高性能。</li>
+</ul>
+<p>要在 TensorFlow 中注册自己实现的 <code>Conv2D</code> 操作，可以参考以下步骤：</p>
+<h1 id="注册自己的Conv2D"><a href="#注册自己的Conv2D" class="headerlink" title="注册自己的Conv2D"></a>注册自己的Conv2D</h1><h3 id="1-定义-Op-的接口"><a href="#1-定义-Op-的接口" class="headerlink" title="1. 定义 Op 的接口"></a>1. 定义 Op 的接口</h3><p>首先，需要定义一个新的 Op 接口。这通常涉及到编写一个 <code>.cc</code> 文件，其中包含对 <code>REGISTER_OP</code> 宏的调用，以定义操作的输入、输出和属性。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;tensorflow/core/framework/op.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;tensorflow/core/framework/op_kernel.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;tensorflow/core/framework/shape_inference.h&quot;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> tensorflow;<br><br><span class="hljs-built_in">REGISTER_OP</span>(<span class="hljs-string">&quot;CustomConv2D&quot;</span>)<br>    .<span class="hljs-built_in">Input</span>(<span class="hljs-string">&quot;input: T&quot;</span>)<br>    .<span class="hljs-built_in">Input</span>(<span class="hljs-string">&quot;filter: T&quot;</span>)<br>    .<span class="hljs-built_in">Output</span>(<span class="hljs-string">&quot;output: T&quot;</span>)<br>    .<span class="hljs-built_in">Attr</span>(<span class="hljs-string">&quot;T: &#123;half, bfloat16, float, double, int32&#125;&quot;</span>)<br>    .<span class="hljs-built_in">Attr</span>(<span class="hljs-string">&quot;strides: list(int)&quot;</span>)<br>    .<span class="hljs-built_in">Attr</span>(<span class="hljs-string">&quot;padding: &#123;&#x27;SAME&#x27;, &#x27;VALID&#x27;&#125;&quot;</span>)<br>    .<span class="hljs-built_in">Attr</span>(<span class="hljs-string">&quot;use_cudnn_on_gpu: bool = true&quot;</span>)<br>    .<span class="hljs-built_in">Attr</span>(<span class="hljs-string">&quot;data_format: &#123;&#x27;NHWC&#x27;, &#x27;NCHW&#x27;&#125; = &#x27;NHWC&#x27;&quot;</span>)<br>    .<span class="hljs-built_in">Attr</span>(<span class="hljs-string">&quot;dilations: list(int) = [1, 1, 1, 1]&quot;</span>)<br>    .<span class="hljs-built_in">SetShapeFn</span>([](shape_inference::InferenceContext* c) &#123;<br>        <span class="hljs-comment">// Implement shape inference here</span><br>        <span class="hljs-keyword">return</span> Status::<span class="hljs-built_in">OK</span>();<br>    &#125;);<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-实现-Kernel"><a href="#2-实现-Kernel" class="headerlink" title="2. 实现 Kernel"></a>2. 实现 Kernel</h3><p>接下来，需要实现该 Op 的具体计算逻辑。这通常涉及到编写一个继承自 <code>OpKernel</code> 的类，并重写 <code>Compute</code> 方法。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomConv2DKernel</span> : <span class="hljs-keyword">public</span> OpKernel &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-title">CustomConv2DKernel</span><span class="hljs-params">(OpKernelConstruction* ctx)</span> : OpKernel(ctx) &#123;</span><br>        <span class="hljs-comment">// Initialization code here</span><br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Compute</span><span class="hljs-params">(OpKernelContext* ctx)</span> <span class="hljs-keyword">override</span> </span>&#123;<br>        <span class="hljs-comment">// Get the input tensors</span><br>        <span class="hljs-type">const</span> Tensor&amp; input = ctx-&gt;<span class="hljs-built_in">input</span>(<span class="hljs-number">0</span>);<br>        <span class="hljs-type">const</span> Tensor&amp; filter = ctx-&gt;<span class="hljs-built_in">input</span>(<span class="hljs-number">1</span>);<br><br>        <span class="hljs-comment">// Get the attributes</span><br>        int32 strides[<span class="hljs-number">4</span>];<br>        <span class="hljs-built_in">OP_REQUIRES_OK</span>(ctx, ctx-&gt;<span class="hljs-built_in">GetAttr</span>(<span class="hljs-string">&quot;strides&quot;</span>, &amp;strides));<br>        string padding;<br>        <span class="hljs-built_in">OP_REQUIRES_OK</span>(ctx, ctx-&gt;<span class="hljs-built_in">GetAttr</span>(<span class="hljs-string">&quot;padding&quot;</span>, &amp;padding));<br>        <span class="hljs-type">bool</span> use_cudnn_on_gpu;<br>        <span class="hljs-built_in">OP_REQUIRES_OK</span>(ctx, ctx-&gt;<span class="hljs-built_in">GetAttr</span>(<span class="hljs-string">&quot;use_cudnn_on_gpu&quot;</span>, &amp;use_cudnn_on_gpu));<br>        string data_format;<br>        <span class="hljs-built_in">OP_REQUIRES_OK</span>(ctx, ctx-&gt;<span class="hljs-built_in">GetAttr</span>(<span class="hljs-string">&quot;data_format&quot;</span>, &amp;data_format));<br>        int32 dilations[<span class="hljs-number">4</span>];<br>        <span class="hljs-built_in">OP_REQUIRES_OK</span>(ctx, ctx-&gt;<span class="hljs-built_in">GetAttr</span>(<span class="hljs-string">&quot;dilations&quot;</span>, &amp;dilations));<br><br>        <span class="hljs-comment">// Perform the convolution operation</span><br>        <span class="hljs-comment">// This is where you would call your custom convolution implementation</span><br>        <span class="hljs-comment">// For example, using tf.nn.conv2d or a custom CUDA kernel</span><br><br>        <span class="hljs-comment">// Create the output tensor</span><br>        Tensor* output = <span class="hljs-literal">nullptr</span>;<br>        <span class="hljs-built_in">OP_REQUIRES_OK</span>(ctx, ctx-&gt;<span class="hljs-built_in">allocate_output</span>(<span class="hljs-number">0</span>, <span class="hljs-built_in">TensorShape</span>(&#123;<span class="hljs-comment">/* output shape */</span>&#125;), &amp;output));<br><br>        <span class="hljs-comment">// Fill the output tensor with the result of the convolution</span><br>        <span class="hljs-comment">// ...</span><br>    &#125;<br>&#125;;<br><br><span class="hljs-built_in">REGISTER_KERNEL_BUILDER</span>(<span class="hljs-built_in">Name</span>(<span class="hljs-string">&quot;CustomConv2D&quot;</span>).<span class="hljs-built_in">Device</span>(DEVICE_CPU), CustomConv2DKernel);<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-编译为共享库"><a href="#3-编译为共享库" class="headerlink" title="3. 编译为共享库"></a>3. 编译为共享库</h3><p>将上述代码编译为一个共享库（<code>.so</code> 文件）。这通常涉及到编写一个 <code>BUILD</code> 文件，使用 Bazel 进行编译。例如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">cc_binary(<br>    name = <span class="hljs-string">&quot;custom_conv2d_op.so&quot;</span>,<br>    srcs = [<span class="hljs-string">&quot;custom_conv2d_op.cc&quot;</span>, <span class="hljs-string">&quot;custom_conv2d_kernel.cc&quot;</span>],<br>    copts = [<span class="hljs-string">&quot;-fPIC&quot;</span>],<br>    linkshared = <span class="hljs-number">1</span>,<br>    deps = [<br>        <span class="hljs-string">&quot;//tensorflow/core:framework&quot;</span>,<br>        <span class="hljs-string">&quot;//tensorflow/core:lib&quot;</span>,<br>    ],<br>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-加载共享库"><a href="#4-加载共享库" class="headerlink" title="4. 加载共享库"></a>4. 加载共享库</h3><p>在 Python 代码中，使用 <code>tf.load_op_library</code> 加载编译好的共享库：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> tensorflow <span class="hljs-keyword">as</span> tf<br><br>custom_conv2d_module = tf.load_op_library(<span class="hljs-string">&#x27;./custom_conv2d_op.so&#x27;</span>)<br>custom_conv2d = custom_conv2d_module.custom_conv2d<br></code></pre></td></tr></table></figure>
+
+<h3 id="5-使用自定义-Op"><a href="#5-使用自定义-Op" class="headerlink" title="5. 使用自定义 Op"></a>5. 使用自定义 Op</h3><p>现在可以在 TensorFlow 图中使用自定义的 <code>Conv2D</code> 操作了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">input_tensor = tf.random.normal([<span class="hljs-number">1</span>, <span class="hljs-number">28</span>, <span class="hljs-number">28</span>, <span class="hljs-number">1</span>])<br>filter_tensor = tf.random.normal([<span class="hljs-number">3</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>, <span class="hljs-number">32</span>])<br>output_tensor = custom_conv2d(<span class="hljs-built_in">input</span>=input_tensor, <span class="hljs-built_in">filter</span>=filter_tensor, strides=[<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>], padding=<span class="hljs-string">&#x27;SAME&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>通过上述步骤，你可以成功注册并使用自己实现的 <code>Conv2D</code> 操作。这涉及到定义 Op 接口、实现 Kernel、编译为共享库、加载共享库以及在 TensorFlow 图中使用自定义 Op。希望这些步骤能帮助你实现自定义的卷积操作。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>TensorFlow Lite代码分析</div>
+      <div>http://blog.uanet.cn/AI/TensorFlow Lite代码分析.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/pcap%E4%BC%9A%E8%AF%9D%E9%A2%84%E5%A4%84%E7%90%86.html" title="pcap会话预处理">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">pcap会话预处理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/AI/fpga%E5%8A%A0%E9%80%9Fyolo%E6%96%B9%E6%A1%88%E8%B0%83%E7%A0%94.html" title="fpga加速yolo方案调研">
+                        <span class="hidden-mobile">fpga加速yolo方案调研</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

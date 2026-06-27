@@ -1,0 +1,894 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="NAPI 是 Linux 上采用的一种提高网络处理效率的技术，它的核心概念就是不采用中断的方式读取数据，而代之以首先采用中断唤醒数据接收的服务程序，然后 POLL 的方法来轮询数据。随着网络的接收速度的增加，NIC 触发的中断能做到不断减少，目前 NAPI 技术已经在网卡驱动层和网络层得到了广泛的应用，驱动层次上已经有 E1000 系列网卡，RTL8139 系列网卡，3c50X 系列等主流的网络适">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux协议栈NAPI机制分析">
+<meta property="og:url" content="http://blog.uanet.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88NAPI%E6%9C%BA%E5%88%B6%E5%88%86%E6%9E%90.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="NAPI 是 Linux 上采用的一种提高网络处理效率的技术，它的核心概念就是不采用中断的方式读取数据，而代之以首先采用中断唤醒数据接收的服务程序，然后 POLL 的方法来轮询数据。随着网络的接收速度的增加，NIC 触发的中断能做到不断减少，目前 NAPI 技术已经在网卡驱动层和网络层得到了广泛的应用，驱动层次上已经有 E1000 系列网卡，RTL8139 系列网卡，3c50X 系列等主流的网络适">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-13T05:53:20.812Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.812Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>linux协议栈NAPI机制分析 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="linux协议栈NAPI机制分析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          5.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          46 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">linux协议栈NAPI机制分析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>NAPI 是 Linux 上采用的一种提高网络处理效率的技术，它的核心概念就是不采用中断的方式读取数据，而代之以首先采用中断唤醒数据接收的服务程序，然后 POLL 的方法来轮询数据。随着网络的接收速度的增加，NIC 触发的中断能做到不断减少，目前 NAPI 技术已经在网卡驱动层和网络层得到了广泛的应用，驱动层次上已经有 E1000 系列网卡，RTL8139 系列网卡，3c50X 系列等主流的网络适配器都采用了这个技术，而在网络层次上，NAPI 技术已经完全被应用到了著名的netif_rx 函数中间，并且提供了专门的 POLL 方法–process_backlog 来处理轮询的方法；根据实验数据表明采用NAPI技术可以大大改善短长度数据包接收的效率，减少中断触发的时间。</p>
+<p>这里重点要分清硬中断和软中断区别。上半部分下半部分就是说的：</p>
+<ol>
+<li>接收时硬中断过程到软中断过程，也是从关中断到开中断。</li>
+<li>发送时用户进程陷入内核到软中断发送。</li>
+</ol>
+<h5 id="非NAPI方式"><a href="#非NAPI方式" class="headerlink" title="非NAPI方式"></a><strong>非NAPI方式</strong></h5><p>旧版本可以参考道系统方式，新版本netif_rx已集成NAPI技术了。每个数据包到来，都会产生硬件中断，中断处理程序netif_rx-&gt;enqueue_to_backlog将收到的包放入当前cpu的收包队列softnet_data-&gt;input_pkt_queue中，并且通过enqueue_to_backlog-&gt;____napi_schedule将非napi设备对应的虚拟设备napi结构softnet-&gt;backlog结构挂在当前cpu的待收包设备链表softnet_data-&gt;poll_list中，并触发软中断，软中断处理过程中，所以会调用默认初始化backlog的回调处理函数process_backlog，如果NAPI则是自己注册的。将收包队列input_pkt_queue合并到softdata-&gt;process_queue后面，并依次处理该队列中的数据包</p>
+<h5 id="NAPI方式"><a href="#NAPI方式" class="headerlink" title="NAPI方式"></a><strong>NAPI方式</strong></h5><p>数据包到来，第一个数据包产生硬件中断，中断处理程序将设备的napi_struct结构挂在当前cpu的待收包设备链表softnet_data-&gt;poll_list中，并触发软中断，软中断执行过程中，遍历softnet_data-&gt;poll_list中的所有设备，依次调用其收包函数napi_sturct-&gt;poll，处理收包过程；</p>
+<p><strong>中断上半部</strong></p>
+<p>e100_intr(中断处理程序)–&gt;__napi_schedule–&gt;____napi_schedule(将设备对应的napi结构加入到当前cpu的待收包处理队列softnet_data-&gt;poll_list中，并触发软中断)</p>
+<p>数据包到来，第一包产生中断，中断处理程序得到执行，其中关键步骤为调用__napi_schedule(&amp;nic-&gt;napi)将设备对应的napi加入到当前cpu的softnet_data-&gt;poll_list中；</p>
+<p><strong>中断下半部</strong></p>
+<p>net_rx_action(软中断收包处理程序) (执行设备包处理回调napi_struct-&gt;poll_list中napi函数）。</p>
+<p>但是 NAPI 存在一些比较严重的缺陷：</p>
+<ol>
+<li><p>对于上层的应用程序而言，系统不能在每个数据包接收到的时候都可以及时地去处理它，而且随<br>着传输速度增加，累计的数据包将会耗费大量的内存，经过实验表明在 Linux 平台上这个问题会比<br>在 FreeBSD 上要严重一些；</p>
+</li>
+<li><p>另外一个问题是对于大的数据包处理比较困难，原因是大的数据包传送到网络层上的时候耗费的<br>时间比短数据包长很多（即使是采用 DMA 方式），所以正如前面所说的那样，NAPI 技术适用于对<br>高速率的短长度数据包的处理。</p>
+</li>
+</ol>
+<p>使用 NAPI 先决条件：</p>
+<p>驱动可以继续使用老的 2.4 内核的网络驱动程序接口，NAPI 的加入并不会导致向前兼容性的丧失，但是 NAPI 的使用至少要得到下面的保证：</p>
+<ol>
+<li>要使用 DMA 的环形输入队列（也就是 ring_dma，这个在 2.4 驱动中关于 Ethernet 的部<br>分有详细的介绍），或者是有足够的内存空间缓存驱动获得的包。</li>
+<li>在发送&#x2F;接收数据包产生中断的时候有能力关断 NIC 中断的事件处理，并且在关断 NIC 以后，并不影响数据包接收到网络设备的环形缓冲区（以下简称 rx-ring）处理队列中。NAPI 对数据包到达的事件的处理采用轮询方法，在数据包达到的时候，NAPI 就会强制执行dev-&gt;poll方法。而和不像以前的驱动那样为了减少包到达时间的处理延迟，通常采用中断的方法来<br>进行。</li>
+</ol>
+<p>E1000网卡驱动程序对NAPI的支持：上面已经介绍过了，使用NAPI需要在编译内核的时候选择打开相应网卡设备的NAPI支持选项，对于E1000网卡来说就是CONFIG_E1000_NAPI宏。E1000网卡的初始化函数，也就是通常所说的probe方法，定义为e1000_probe（）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> __devinit <span class="hljs-title function_">e1000_probe</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> pci_dev *pdev, <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> pci_device_id *ent)</span><br>&#123;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">net_device</span> *<span class="hljs-title">netdev</span>;</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">e1000_adapter</span> *<span class="hljs-title">adapter</span>;</span><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> cards_found = <span class="hljs-number">0</span>;<br><span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> mmio_start;<br><span class="hljs-type">int</span> mmio_len;<br><span class="hljs-type">int</span> pci_using_dac;<br><span class="hljs-type">int</span> i;<br><span class="hljs-type">int</span> err;<br><span class="hljs-type">uint16_t</span> eeprom_data;<br><br><span class="hljs-keyword">if</span>((err = pci_enable_device(pdev)))<br>    <span class="hljs-keyword">return</span> err;<br><span class="hljs-comment">/*</span><br><span class="hljs-comment">在这里设置PCI设备的DMA掩码，如果这个设备支持DMA传输，则掩码置位。</span><br><span class="hljs-comment">*/</span><br><span class="hljs-keyword">if</span>(!(err = pci_set_dma_mask(pdev, PCI_DMA_64BIT))) &#123;<br>    pci_using_dac = <span class="hljs-number">1</span>;<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">if</span>((err = pci_set_dma_mask(pdev, PCI_DMA_32BIT))) &#123;<br>        E1000_ERR(<span class="hljs-string">&quot;No usable DMA configuration, aborting\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br>    pci_using_dac = <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-keyword">if</span>((err = pci_request_regions(pdev, e1000_driver_name)))<br>    <span class="hljs-keyword">return</span> err;<br><br>pci_set_master(pdev);<br><span class="hljs-comment">/*</span><br><span class="hljs-comment">为e1000网卡对应的net_device结构分配内存。</span><br><span class="hljs-comment">*/</span><br>netdev = alloc_etherdev(<span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> e1000_adapter));<br><span class="hljs-keyword">if</span>(!netdev) &#123;<br>    err = -ENOMEM;<br>    <span class="hljs-keyword">goto</span> err_alloc_etherdev;<br>&#125;<br><br>SET_MODULE_OWNER(netdev);<br><br>pci_set_drvdata(pdev, netdev);<br>adapter = netdev-&gt;priv;<br>adapter-&gt;netdev = netdev;<br>adapter-&gt;pdev = pdev;<br>adapter-&gt;hw.back = adapter;<br><br>mmio_start = pci_resource_start(pdev, BAR_0);<br>mmio_len = pci_resource_len(pdev, BAR_0);<br><br>adapter-&gt;hw.hw_addr = ioremap(mmio_start, mmio_len);<br><span class="hljs-keyword">if</span>(!adapter-&gt;hw.hw_addr) &#123;<br>    err = -EIO;<br>    <span class="hljs-keyword">goto</span> err_ioremap;<br>&#125;<br><br><span class="hljs-keyword">for</span>(i = BAR_1; i &lt;= BAR_5; i++) &#123;<br>    <span class="hljs-keyword">if</span>(pci_resource_len(pdev, i) == <span class="hljs-number">0</span>)<br>        <span class="hljs-keyword">continue</span>;<br>    <span class="hljs-keyword">if</span>(pci_resource_flags(pdev, i) &amp; IORESOURCE_IO) &#123;<br>        adapter-&gt;hw.io_base = pci_resource_start(pdev, i);<br>        <span class="hljs-keyword">break</span>;<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment">将e1000网卡驱动程序的相应函数注册到net_device结构的成员函数上。这里值得注意的</span><br><span class="hljs-comment">是如果定义了设备的CONFIG_E1000_NAPI宏，则设备对应的poll方法被注册为e1000_clean。</span><br><span class="hljs-comment">在网络设备初始化时（net_dev_init()函数）将所有的设备的poll方法注册为系统默认</span><br><span class="hljs-comment">函数process_backlog（），该函数的处理方法就是从CPU相关队列softnet_data的输入</span><br><span class="hljs-comment">数据包队列中读取skb，然后调用netif_receive_skb（）函数提交给上层协议继续处</span><br><span class="hljs-comment">理。设备的poll方法是在软中断处理函数中调用的。</span><br><span class="hljs-comment">*/</span><br>netdev-&gt;open = &amp;e1000_open;<br>netdev-&gt;stop = &amp;e1000_close;<br>netdev-&gt;hard_start_xmit = &amp;e1000_xmit_frame;<br>netdev-&gt;get_stats = &amp;e1000_get_stats;<br>netdev-&gt;set_multicast_list = &amp;e1000_set_multi;<br>netdev-&gt;set_mac_address = &amp;e1000_set_mac;<br>netdev-&gt;change_mtu = &amp;e1000_change_mtu;<br>netdev-&gt;do_ioctl = &amp;e1000_ioctl;<br>netdev-&gt;tx_timeout = &amp;e1000_tx_timeout;<br>netdev-&gt;watchdog_timeo = <span class="hljs-number">5</span> * HZ;<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_E1000_NAPI</span><br>netdev-&gt;poll = &amp;e1000_clean;<br>netdev-&gt;weight = <span class="hljs-number">64</span>;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>netdev-&gt;vlan_rx_register = e1000_vlan_rx_register;<br>netdev-&gt;vlan_rx_add_vid = e1000_vlan_rx_add_vid;<br>netdev-&gt;vlan_rx_kill_vid = e1000_vlan_rx_kill_vid;<br><span class="hljs-comment">/*</span><br><span class="hljs-comment">这些就是利用ifconfig能够看到的内存起始地址，以及基地址。</span><br><span class="hljs-comment">*/</span><br>netdev-&gt;irq = pdev-&gt;irq;<br>netdev-&gt;mem_start = mmio_start;<br>netdev-&gt;mem_end = mmio_start + mmio_len;<br>netdev-&gt;base_addr = adapter-&gt;hw.io_base;<br><br>adapter-&gt;bd_number = cards_found;<br><br><span class="hljs-keyword">if</span>(pci_using_dac)<br>netdev-&gt;features |= NETIF_F_HIGHDMA;<br><br><span class="hljs-comment">/* MAC地址是存放在网卡设备的EEPROM上的，现在将其拷贝出来。 */</span><br>e1000_read_mac_addr(&amp;adapter-&gt;hw);<br><span class="hljs-built_in">memcpy</span>(netdev-&gt;dev_addr, adapter-&gt;hw.mac_addr, netdev-&gt;addr_len);<br><span class="hljs-keyword">if</span>(!is_valid_ether_addr(netdev-&gt;dev_addr)) &#123;<br>err = -EIO;<br><span class="hljs-keyword">goto</span> err_eeprom;<br>&#125;<br><span class="hljs-comment">/*</span><br><span class="hljs-comment">这里初始化三个定时器列表，以后对内核Timer的实现进行分析，这里就不介绍了。</span><br><span class="hljs-comment">*/</span><br>init_timer(&amp;adapter-&gt;tx_fifo_stall_timer);<br>adapter-&gt;tx_fifo_stall_timer.function = &amp;e1000_82547_tx_fifo_stall;<br>adapter-&gt;tx_fifo_stall_timer.data = (<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>) adapter;<br><br>init_timer(&amp;adapter-&gt;watchdog_timer);<br>adapter-&gt;watchdog_timer.function = &amp;e1000_watchdog;<br>adapter-&gt;watchdog_timer.data = (<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>) adapter;<br><br>init_timer(&amp;adapter-&gt;phy_info_timer);<br>adapter-&gt;phy_info_timer.function = &amp;e1000_update_phy_info;<br>adapter-&gt;phy_info_timer.data = (<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>) adapter;<br><br>INIT_TQUEUE(&amp;adapter-&gt;tx_timeout_task,<br>(<span class="hljs-type">void</span> (*)(<span class="hljs-type">void</span> *))e1000_tx_timeout_task, netdev);<br><span class="hljs-comment">/*</span><br><span class="hljs-comment">这里调用网络设备注册函数将当前网络设备注册到系统的dev_base[]设备数组当中，</span><br><span class="hljs-comment">并且调用设备的probe函数，对于以太网来说，就是ethif_probe（）函数。相关的说明</span><br><span class="hljs-comment">见内核网络设备操作部分的分析。</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">调用关系：register_netdev （）-&gt;register_netdevice（）</span><br><span class="hljs-comment">*/</span><br>register_netdev(netdev);<br><br>netif_carrier_off(netdev);<br>netif_stop_queue(netdev);<br><br>e1000_check_options(adapter);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在分析网卡接收数据包的过程中，设备的open方法是值得注意的，因为在这里对网卡设备的各种数据<br>结构进行了初始化，特别是环形缓冲区队列。E1000网卡驱动程序的open方法注册为e1000_open（）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">e1000_open</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> net_device *netdev)</span><br>&#123;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">e1000_adapter</span> *<span class="hljs-title">adapter</span> =</span> netdev-&gt;priv;<br><span class="hljs-type">int</span> err;<br><br><span class="hljs-comment">/* allocate transmit descriptors */</span><br><br><span class="hljs-keyword">if</span>((err = e1000_setup_tx_resources(adapter)))<br>    <span class="hljs-keyword">goto</span> err_setup_tx;<br><br><span class="hljs-comment">/* allocate receive descriptors */</span><br><br><span class="hljs-keyword">if</span>((err = e1000_setup_rx_resources(adapter)))<br>    <span class="hljs-keyword">goto</span> err_setup_rx;<br><br><span class="hljs-keyword">if</span>((err = e1000_up(adapter)))<br>    <span class="hljs-keyword">goto</span> err_up;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>事实上e1000_open（） 函数调用了e1000_setup_rx_resources（）函数为其环形缓冲区分配资源。<br>e1000设备的接收方式是一种缓冲方式，能显著的降低 CPU接收数据造成的花费，接收数据之前，软件需要预<br>先分配一个 DMA 缓冲区，一般对于传输而言，缓冲区最大为 8Kbyte 并且把物理地址链接在描述符的 DMA<br> 地址描述单元，另外还有两个双字的单元表示对应的 DMA 缓冲区的接收状态。</p>
+<p>在 &#x2F;driver&#x2F;net&#x2F;e1000&#x2F;e1000&#x2F;e1000.h 中对于环形缓冲队列描述符的数据单元如下表示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">e1000_desc_ring</span> &#123;</span><br><span class="hljs-type">void</span> *desc; <span class="hljs-comment">/* 指向描述符环状缓冲区的指针。*/</span><br><span class="hljs-type">dma_addr_t</span> dma; <span class="hljs-comment">/* 描述符环状缓冲区物理地址，也就是DMA缓冲区地址*/</span><br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> size; <span class="hljs-comment">/* 描述符环状缓冲区的长度（用字节表示）*/</span><br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> count; <span class="hljs-comment">/* 缓冲区内描述符的数量，这个是系统初始化时规定好的，它</span><br><span class="hljs-comment">决定该环形缓冲区有多少描述符（或者说缓冲区）可用*/</span><br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> next_to_use; <span class="hljs-comment">/* 下一个要使用的描述符。*/</span><br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> next_to_clean; <span class="hljs-comment">/* 下一个待删除描述符。*/</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">e1000_buffer</span> *<span class="hljs-title">buffer_info</span>;</span> <span class="hljs-comment">/* 缓冲区信息结构数组。*/</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">e1000_setup_rx_resources</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> e1000_adapter *adapter)</span><br>&#123;<br><span class="hljs-comment">/*将环形缓冲区取下来*/</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">e1000_desc_ring</span> *<span class="hljs-title">rxdr</span> =</span> &amp;adapter-&gt;rx_ring;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pci_dev</span> *<span class="hljs-title">pdev</span> =</span> adapter-&gt;pdev;<br><span class="hljs-type">int</span> size;<br><br>size = <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> e1000_buffer) * rxdr-&gt;count;<br><span class="hljs-comment">/*</span><br><span class="hljs-comment">为每一个描述符缓冲区分配内存，缓冲区的数量由count决定。</span><br><span class="hljs-comment">*/</span><br>rxdr-&gt;buffer_info = kmalloc(size, GFP_KERNEL);<br><span class="hljs-keyword">if</span>(!rxdr-&gt;buffer_info) &#123;<br>    <span class="hljs-keyword">return</span> -ENOMEM;<br>&#125;<br><span class="hljs-built_in">memset</span>(rxdr-&gt;buffer_info, <span class="hljs-number">0</span>, size);<br><br><span class="hljs-comment">/* Round up to nearest 4K */</span><br><br>rxdr-&gt;size = rxdr-&gt;count * <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> e1000_rx_desc);<br>E1000_ROUNDUP(rxdr-&gt;size, <span class="hljs-number">4096</span>);<br><span class="hljs-comment">/*</span><br><span class="hljs-comment">调用pci_alloc_consistent（）函数为系统分配DMA缓冲区。</span><br><span class="hljs-comment">*/</span><br>rxdr-&gt;desc = pci_alloc_consistent(pdev, rxdr-&gt;size, &amp;rxdr-&gt;dma);<br><br><span class="hljs-keyword">if</span>(!rxdr-&gt;desc) &#123;<br>    kfree(rxdr-&gt;buffer_info);<br>    <span class="hljs-keyword">return</span> -ENOMEM;<br>&#125;<br><span class="hljs-built_in">memset</span>(rxdr-&gt;desc, <span class="hljs-number">0</span>, rxdr-&gt;size);<br><br>rxdr-&gt;next_to_clean = <span class="hljs-number">0</span>;<br>rxdr-&gt;next_to_use = <span class="hljs-number">0</span>;<br><br><span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在e1000_up（）函数中，调用request_irq（）向系统申请irq中断号，然后将e1000_intr（）中断处理<br>函数注册到系统当中，系统有一个中断向量表irq_desc[]。然后使能网卡的中断。</p>
+<p>接下来就是网卡处于响应中断的模式，这里重要的函数是 e1000_intr（）中断处理函数，关于这个<br>函数的说明在内核网络设备操作笔记当中，这里就不重复了，但是重点强调的是中断处理函数中对<br>NAPI部分 的处理方法，因此还是将该函数的源码列出，不过省略了与NAPI无关的处理过程：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">irqreturn_t</span> <span class="hljs-title function_">e1000_intr</span><span class="hljs-params">(<span class="hljs-type">int</span> irq, <span class="hljs-type">void</span> *data, <span class="hljs-keyword">struct</span> pt_regs *regs)</span><br>&#123;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">net_device</span> *<span class="hljs-title">netdev</span> =</span> data;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">e1000_adapter</span> *<span class="hljs-title">adapter</span> =</span> netdev-&gt;priv;<br><span class="hljs-type">uint32_t</span> icr = E1000_READ_REG(&amp;adapter-&gt;hw, ICR);<br><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> CONFIG_E1000_NAPI</span><br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> i;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br><span class="hljs-keyword">if</span>(!icr)<br>    <span class="hljs-keyword">return</span> IRQ_NONE; <span class="hljs-comment">/* Not our interrupt */</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_E1000_NAPI</span><br><span class="hljs-comment">/*</span><br><span class="hljs-comment">如果定义了采用NAPI模式接收数据包，则进入这个调用点。</span><br><span class="hljs-comment">首先调用netif_rx_schedule_prep(dev)，确定设备处于运行，而且设备还没有被添加</span><br><span class="hljs-comment">到网络层的 POLL 处理队列中，在调用 netif_rx_schedule之前会调用这个函数。接下来调用 __netif_rx_schedule(dev)，将设备的 POLL 方法添加到网络层次的POLL 处理队列中去，排队并且准备接收数据包，</span><br><span class="hljs-comment">在使用之前需要调用netif_rx_reschedule_prep，并且返回的数为1，</span><br><span class="hljs-comment">并且触发一个 NET_RX_SOFTIRQ 的软中断通知网络层接收数据包。处理完成。</span><br><span class="hljs-comment">*/</span><br><span class="hljs-keyword">if</span>(netif_rx_schedule_prep(netdev)) &#123;<br><br><span class="hljs-comment">/* Disable interrupts and register for poll. The flush</span><br><span class="hljs-comment">of the posted write is intentionally left out.</span><br><span class="hljs-comment">*/</span><br><br><span class="hljs-type">atomic_inc</span>(&amp;adapter-&gt;irq_sem);<br>E1000_WRITE_REG(&amp;adapter-&gt;hw, IMC, ~<span class="hljs-number">0</span>);<br>__netif_rx_schedule(netdev);<br>&#125;<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br><span class="hljs-comment">/*</span><br><span class="hljs-comment">在中断模式下，就会调用net_if（）函数将数据包插入接收队列中，等待软中断处理。</span><br><span class="hljs-comment">*/</span><br><span class="hljs-keyword">for</span>(i = <span class="hljs-number">0</span>; i &lt; E1000_MAX_INTR; i++)<br>    <span class="hljs-keyword">if</span>(!e1000_clean_rx_irq(adapter) &amp;!e1000_clean_tx_irq(adapter))<br>        <span class="hljs-keyword">break</span>;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br><span class="hljs-keyword">return</span> IRQ_HANDLED;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>下面介绍一下__netif_rx_schedule(netdev)函数的作用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> __netif_rx_schedule(<span class="hljs-keyword">struct</span> net_device *dev)<br>&#123;<br><span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> flags;<br><span class="hljs-comment">/* 获取当前CPU。 */</span><br><span class="hljs-type">int</span> cpu = smp_processor_id();<br><br>local_irq_save(flags);<br>dev_hold(dev);<br><span class="hljs-comment">/*将当前设备加入CPU相关全局队列softnet_data的轮询设备列表中，不过值得注意的</span><br><span class="hljs-comment">是，这个列表中的设备不一定都执行轮询接收数据包，这里的poll_list只是表示当前设</span><br><span class="hljs-comment">备需要接收数据，具体采用中断还是轮询的方式，取决于设备提供的poll方法。*/</span><br>list_add_tail(&amp;dev-&gt;poll_list, &amp;softnet_data[cpu].poll_list);<br><span class="hljs-keyword">if</span> (dev-&gt;quota &lt; <span class="hljs-number">0</span>)<br><span class="hljs-comment">/*对于e1000网卡的轮询机制，weight(是权，负担的意思)这个参数是64。而quota的意</span><br><span class="hljs-comment">思是配额，限额。这两个参数在随后的轮询代码中出现频繁。*/</span><br>    dev-&gt;quota += dev-&gt;weight;<br><span class="hljs-keyword">else</span><br>    dev-&gt;quota = dev-&gt;weight;<br><span class="hljs-comment">/*</span><br><span class="hljs-comment">调用函数产生网络接收软中断。也就是系统将运行net_rx_action（）处理网络数据。</span><br><span class="hljs-comment">*/</span><br>__cpu_raise_softirq(cpu, NET_RX_SOFTIRQ);<br>local_irq_restore(flags);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在内核网络设备操作阅读笔记当中已经介绍过net_rx_action（）这个重要的网络接收软中断处理函数了，</p>
+<p>不过这里为了清楚的分析轮询机制，需要再次分析这段代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">net_rx_action</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> softirq_action *h)</span><br>&#123;<br><span class="hljs-type">int</span> this_cpu = smp_processor_id();<br><span class="hljs-comment">/*获取当前CPU的接收数据队列。*/</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">softnet_data</span> *<span class="hljs-title">queue</span> =</span> &amp;softnet_data[this_cpu];<br><span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> start_time = jiffies;<br><span class="hljs-comment">/*呵呵，这里先做个预算，限定我们只能处理这么多数据（300个）。*/</span><br><span class="hljs-type">int</span> budget = netdev_max_backlog;<br><br>br_read_lock(BR_NETPROTO_LOCK);<br>local_irq_disable();<br><span class="hljs-comment">/*</span><br><span class="hljs-comment">进入一个循环，因为软中断处理函数与硬件中断并不是同步的，因此，我们此时并不知道</span><br><span class="hljs-comment">数据包属于哪个设备，因此只能采取逐个查询的方式，遍历整个接收设备列表。</span><br><span class="hljs-comment">*/</span><br><span class="hljs-keyword">while</span> (!list_empty(&amp;<span class="hljs-built_in">queue</span>-&gt;poll_list)) &#123;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">net_device</span> *<span class="hljs-title">dev</span>;</span><br><span class="hljs-comment">/*如果花费超过预算，或者处理时间超过1秒，立刻从软中断处理函数跳出，我想</span><br><span class="hljs-comment">这可能是系统考虑效率和实时性，一次不能做过多的工作或者浪费过多的时间。*/</span><br><span class="hljs-keyword">if</span> (budget &lt;= <span class="hljs-number">0</span> || jiffies - start_time &gt; <span class="hljs-number">1</span>)<br>    <span class="hljs-keyword">goto</span> softnet_break;<br><br>local_irq_enable();<br><span class="hljs-comment">/*从当前列表中取出一个接收设备。并根据其配额判断是否能够继续接收数据，如</span><br><span class="hljs-comment">果配额不足（&lt;=0），则立刻将该设备从设备列表中删除。并且再次插入队列当</span><br><span class="hljs-comment">中，同时为该设备分配一定的配额，允许它继续处理数据包。</span><br><span class="hljs-comment">如果此时配额足够，则调用设备的 poll方法，对于e1000网卡来说，如果采用中</span><br><span class="hljs-comment">断方式处理数据，则调用系统默认poll方法process_backlog（），而对于采用</span><br><span class="hljs-comment">NAPI 来说，则是调用e1000_clean（）函数了。记住这里第一次传递的预算是300</span><br><span class="hljs-comment"> ^_^。*/</span><br>dev = list_entry(<span class="hljs-built_in">queue</span>-&gt;poll_list.next, <span class="hljs-keyword">struct</span> net_device, poll_list);<br><br><span class="hljs-keyword">if</span> (dev-&gt;quota &lt;= <span class="hljs-number">0</span> || dev-&gt;poll(dev, &amp;budget)) &#123;<br>    local_irq_disable();<br>    list_del(&amp;dev-&gt;poll_list);<br>    list_add_tail(&amp;dev-&gt;poll_list, &amp;<span class="hljs-built_in">queue</span>-&gt;poll_list);<br>    <span class="hljs-keyword">if</span> (dev-&gt;quota &lt; <span class="hljs-number">0</span>)<br>        dev-&gt;quota += dev-&gt;weight;<br>    <span class="hljs-keyword">else</span><br>        dev-&gt;quota = dev-&gt;weight;<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>    dev_put(dev);<br>    local_irq_disable();<br>&#125;<br>&#125;<br><br>local_irq_enable();<br>br_read_unlock(BR_NETPROTO_LOCK);<br><span class="hljs-keyword">return</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>下面介绍一下e1000网卡的轮询poll处理函数e1000_clean（），这个函数只有定义了NAPI宏的情况下才有效：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_E1000_NAPI</span><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">e1000_clean</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> net_device *netdev, <span class="hljs-type">int</span> *budget)</span><br>&#123;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">e1000_adapter</span> *<span class="hljs-title">adapter</span> =</span> netdev-&gt;priv;<br><span class="hljs-comment">/*计算一下我们要做的工作量，取系统给定预算（300）和我们网卡设备的配额之间的最</span><br><span class="hljs-comment">小值，这样做同样是为了效率和实时性考虑，不能让一个设备在接收设备上占用太多的资</span><br><span class="hljs-comment">源和时间。*/</span><br><span class="hljs-type">int</span> work_to_do = min(*budget, netdev-&gt;quota);<br><span class="hljs-type">int</span> work_done = <span class="hljs-number">0</span>;<br><span class="hljs-comment">/*处理网卡向外发送的数据，这里我们暂时不讨论。*/</span><br>e1000_clean_tx_irq(adapter);<br><span class="hljs-comment">/*处理网卡中断收到的数据包，下面详细讨论这个函数的处理方法。*/</span><br>e1000_clean_rx_irq(adapter, &amp;work_done, work_to_do);<br><span class="hljs-comment">/*从预算中减掉我们已经完成的任务，预算在被我们支出，^_^。同时设备的配额也不断</span><br><span class="hljs-comment">的削减。*/</span><br>*budget -= work_done;<br>netdev-&gt;quota -= work_done;<br><span class="hljs-comment">/* 如果函数返回时，完成的工作没有达到预期的数量，表明接收的数据包并不多，很快</span><br><span class="hljs-comment">就全部处理完成了，我们就彻底完成了这次轮询任务，调用 netif_rx_complete（），</span><br><span class="hljs-comment">把当前指定的设备从 POLL 队列中清除（注意如果在 POLL 队列处于工作状态的时候是</span><br><span class="hljs-comment">不能把指定设备清除的，否则将会出错），然后使能网卡中断。*/</span><br><span class="hljs-keyword">if</span>(work_done &lt; work_to_do) &#123;<br>    netif_rx_complete(netdev);<br>    e1000_irq_enable(adapter);<br>&#125;<br><span class="hljs-comment">/*如果完成的工作大于预期要完成的工作，则表明存在问题，返回1，否则正常返回0。*/</span><br><br>    <span class="hljs-keyword">return</span> (work_done &gt;= work_to_do);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>设备轮询接收机制中最重要的函数就是下面这个函数，当然它同时也可以为中断接收机制所用，只不过处理过<br>程有一定的差别。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">boolean_t</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_E1000_NAPI</span><br>e1000_clean_rx_irq(<span class="hljs-keyword">struct</span> e1000_adapter *adapter, <span class="hljs-type">int</span> *work_done,<br><span class="hljs-type">int</span> work_to_do)<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>e1000_clean_rx_irq(<span class="hljs-keyword">struct</span> e1000_adapter *adapter)<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>&#123;<br><span class="hljs-comment">/*这里很清楚，获取设备的环形缓冲区指针。*/</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">e1000_desc_ring</span> *<span class="hljs-title">rx_ring</span> =</span> &amp;adapter-&gt;rx_ring;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">net_device</span> *<span class="hljs-title">netdev</span> =</span> adapter-&gt;netdev;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pci_dev</span> *<span class="hljs-title">pdev</span> =</span> adapter-&gt;pdev;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">e1000_rx_desc</span> *<span class="hljs-title">rx_desc</span>;</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">e1000_buffer</span> *<span class="hljs-title">buffer_info</span>;</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sk_buff</span> *<span class="hljs-title">skb</span>;</span><br><span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> flags;<br><span class="hljs-type">uint32_t</span> length;<br><span class="hljs-type">uint8_t</span> last_byte;<br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> i;<br><span class="hljs-type">boolean_t</span> cleaned = FALSE;<br><span class="hljs-comment">/*把i置为下一个要清除的描述符索引，因为在环形缓冲区队列当中，我们即使已经处理</span><br><span class="hljs-comment">完一个缓冲区描述符，也不是将其删除，而是标记为已经处理，这样如果有新的数据需要</span><br><span class="hljs-comment">使用缓冲区，只是将已经处理的缓冲区覆盖而已。*/</span><br>i = rx_ring-&gt;next_to_clean;<br>rx_desc = E1000_RX_DESC(*rx_ring, i);<br><span class="hljs-comment">/*如果i对应的描述符状态是已经删除，则将这个缓冲区取出来给新的数据使用*/</span><br><span class="hljs-keyword">while</span>(rx_desc-&gt;status &amp; E1000_RXD_STAT_DD) &#123;<br>      buffer_info = &amp;rx_ring-&gt;buffer_info[i];<br><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_E1000_NAPI</span><br><span class="hljs-comment">/*在配置了NAPI的情况下，判断是否已经完成的工作？，因为是轮询机制，所以我</span><br><span class="hljs-comment">们必须自己计算我们已经处理了多少数据。*/</span><br>    <span class="hljs-keyword">if</span>(*work_done &gt;= work_to_do)<br>        <span class="hljs-keyword">break</span>;<br><br>    (*work_done)++;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br>cleaned = TRUE;<br><span class="hljs-comment">/*这个是DMA函数，目的是解除与DMA缓冲区的映射关系，这样我们就可以访问这个</span><br><span class="hljs-comment">缓冲区，获取通过DMA传输过来的数据包（skb）。驱动程序在分配环形缓冲区的时</span><br><span class="hljs-comment">候就将缓冲区与DMA进行了映射。*/</span><br>pci_unmap_single(pdev,<br>buffer_info-&gt;dma,<br>buffer_info-&gt;length,<br>PCI_DMA_FROMDEVICE);<br><br>skb = buffer_info-&gt;skb;<br>length = le16_to_cpu(rx_desc-&gt;length);<br><span class="hljs-comment">/*对接收的数据包检查一下正确性。确认是一个正确的数据包以后，将skb的数据</span><br><span class="hljs-comment">指针进行偏移。*/</span><br>skb_put(skb, length - ETHERNET_FCS_SIZE);<br><br><span class="hljs-comment">/* Receive Checksum Offload */</span><br>e1000_rx_checksum(adapter, rx_desc, skb);<br><span class="hljs-comment">/*获取skb的上层协议类型。这里指的是IP层的协议类型。*/</span><br>skb-&gt;protocol = eth_type_trans(skb, netdev);<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_E1000_NAPI</span><br><span class="hljs-comment">/*调用函数直接将skb向上层协议处理函数递交，而不是插入什么队列等待继续处</span><br><span class="hljs-comment">理，因此这里可能存在一个问题，如果数据包比较大，处理时间相对较长，则可能</span><br><span class="hljs-comment">造成系统效率的下降。*/</span><br>netif_receive_skb(skb);<br><br><span class="hljs-meta">#<span class="hljs-keyword">else</span> <span class="hljs-comment">/* CONFIG_E1000_NAPI */</span></span><br><span class="hljs-comment">/*如果采用中断模式，则调用netif_rx（）将数据包插入队列中，在随后的软中</span><br><span class="hljs-comment">断处理函数中调用netif_receive_skb（skb）向上层协议处理函数递交。这里就</span><br><span class="hljs-comment">体现出了中断处理机制和轮询机制之间的差别。*/</span><br>netif_rx(skb);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">/* CONFIG_E1000_NAPI */</span></span><br><span class="hljs-comment">/*用全局时间变量修正当前设备的最后数据包接收时间。*/</span><br>netdev-&gt;last_rx = jiffies;<br><br>rx_desc-&gt;status = <span class="hljs-number">0</span>;<br>buffer_info-&gt;skb = <span class="hljs-literal">NULL</span>;<br><span class="hljs-comment">/*这里是处理环形缓冲区达到队列末尾的情况，因为是环形的，所以到达末尾的下</span><br><span class="hljs-comment">一个就是队列头，这样整个环形队列就不断的循环处理。然后获取下一个描述符的</span><br><span class="hljs-comment">状态，看看是不是处于删除状态。如果处于这种状态就会将新到达的数据覆盖旧的</span><br><span class="hljs-comment">的缓冲区，如果不处于这种状态跳出循环。并且将当前缓冲区索引号置为下一次查</span><br><span class="hljs-comment">询的目标。*/</span><br><span class="hljs-keyword">if</span>(++i == rx_ring-&gt;count) i = <span class="hljs-number">0</span>;<br><br>rx_desc = E1000_RX_DESC(*rx_ring, i);<br>&#125;<br><br>rx_ring-&gt;next_to_clean = i;<br><span class="hljs-comment">/*为下一次接收skb做好准备，分配sk_buff内存。出于效率的考虑，如果下一个要使用</span><br><span class="hljs-comment">的缓冲区的sk_buff还没有分配，就分配，如果已经分配，则可以重用。*/</span><br>e1000_alloc_rx_buffers(adapter);<br><br><span class="hljs-keyword">return</span> cleaned;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>下面分析的这个函数有助于我们了解环形接收缓冲区的结构和工作原理：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">e1000_alloc_rx_buffers</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> e1000_adapter *adapter)</span><br>&#123;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">e1000_desc_ring</span> *<span class="hljs-title">rx_ring</span> =</span> &amp;adapter-&gt;rx_ring;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">net_device</span> *<span class="hljs-title">netdev</span> =</span> adapter-&gt;netdev;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pci_dev</span> *<span class="hljs-title">pdev</span> =</span> adapter-&gt;pdev;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">e1000_rx_desc</span> *<span class="hljs-title">rx_desc</span>;</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">e1000_buffer</span> *<span class="hljs-title">buffer_info</span>;</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sk_buff</span> *<span class="hljs-title">skb</span>;</span><br><span class="hljs-type">int</span> reserve_len = <span class="hljs-number">2</span>;<br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> i;<br><span class="hljs-comment">/*接收队列中下一个用到的缓冲区索引，初始化是0。并且获取该索引对应的缓冲区信息</span><br><span class="hljs-comment">结构指针buffer_info。*/</span><br>i = rx_ring-&gt;next_to_use;<br>buffer_info = &amp;rx_ring-&gt;buffer_info[i];<br><span class="hljs-comment">/*如果该缓冲区还没有为sk_buff分配内存，则调用dev_alloc_skb函数分配内存，默认</span><br><span class="hljs-comment">的e1000网卡的接收缓冲区长度是2048字节加上保留长度。</span><br><span class="hljs-comment">注意：在e1000_open（）-&gt;e1000_up（）中已经调用了这个函数为环形缓冲区队列中的</span><br><span class="hljs-comment">每一个缓冲区分配了sk_buff内存，但是如果接收到数据以后，调用netif_receive_skb</span><br><span class="hljs-comment"> (skb)向上层提交数据以后，这段内存将始终被这个skb占用（直到上层处理完以后才会</span><br><span class="hljs-comment">调用__kfree_skb释放，但已经跟这里没有关系了），换句话说，就是当前缓冲区必须重</span><br><span class="hljs-comment">新申请分配sk_buff内存，为了下一个数据做准备。*/</span><br><span class="hljs-keyword">while</span>(!buffer_info-&gt;skb) &#123;<br>      rx_desc = E1000_RX_DESC(*rx_ring, i)<br>      skb = dev_alloc_skb(adapter-&gt;rx_buffer_len + reserve_len);<br><br><span class="hljs-keyword">if</span>(!skb) &#123;<br><span class="hljs-comment">/* Better luck next round */</span><br>    <span class="hljs-keyword">break</span>;<br>&#125;<br>skb_reserve(skb, reserve_len);<br><br>skb-&gt;dev = netdev;<br><span class="hljs-comment">/*映射DMA缓冲区，DMA通道直接将收到的数据写到我们提供的这个缓冲区内，每次</span><br><span class="hljs-comment">必须将缓冲区与DMA通道解除映射关系，才能读取缓冲区内容。*/</span><br>buffer_info-&gt;skb = skb;<br>buffer_info-&gt;length = adapter-&gt;rx_buffer_len;<br>buffer_info-&gt;dma =<br>pci_map_single(pdev,<br>skb-&gt;data,<br>adapter-&gt;rx_buffer_len,<br>PCI_DMA_FROMDEVICE);<br><br>rx_desc-&gt;buffer_addr = cpu_to_le64(buffer_info-&gt;dma);<br><br><span class="hljs-keyword">if</span>(++i == rx_ring-&gt;count) i = <span class="hljs-number">0</span>;<br>buffer_info = &amp;rx_ring-&gt;buffer_info[i];<br>&#125;<br>rx_ring-&gt;next_to_use = i;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>Linux内核中的软中断、tasklet和工作队列详解（超详细~）</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/507462533">Linux内核中的软中断、tasklet和工作队列详解（超详细~） - 知乎 (zhihu.com)</a></p>
+<p>Linux系统e1000e网络驱动源码（最深入）分析过程</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Luckiers/article/details/123645030">https://blog.csdn.net/Luckiers/article/details/123645030</a></p>
+<p>设备收发包之NAPI&#x2F;非NAPI方式收包 </p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/wanpengcoder/p/7419143.html">http://www.cnblogs.com/wanpengcoder/p/7419143.html</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/NETWORK/" class="category-chain-item">NETWORK</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>linux协议栈NAPI机制分析</div>
+      <div>http://blog.uanet.cn/NETWORK/linux协议栈NAPI机制分析.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/NETWORK/linux-iptables%20nat%E8%AE%BE%E7%BD%AE%E8%B7%AF%E7%94%B1%E8%BD%AC%E6%8D%A2.html" title="linux-iptables nat设置路由转换">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">linux-iptables nat设置路由转换</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88RDS%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B.html" title="linux协议栈RDS代码流程">
+                        <span class="hidden-mobile">linux协议栈RDS代码流程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

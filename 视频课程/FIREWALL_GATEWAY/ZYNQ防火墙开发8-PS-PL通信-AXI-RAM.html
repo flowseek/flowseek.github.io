@@ -1,0 +1,1058 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="AXI协议AXI4 、 AXI4-Lite 、AXI4-Stream接口">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZYNQ防火墙开发8-PS-PL通信-AXI-RAM">
+<meta property="og:url" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="AXI协议AXI4 、 AXI4-Lite 、AXI4-Stream接口">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/pIYBAF9qvVCAPFqTAAHAX7I-9fU342.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/wKgZomTnBuOAX2n2AADq8TTGrLg899.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/33e1afc9f00f4f1d83c62f8a32dda5b0.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/ff6f18102ff349b381fb7ae2447821da.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Create-Project.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-1.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-4-1717121250688-1.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_162553.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_162807.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_163008.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_164025.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_164228.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_164308.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_164448.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_164529.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_164628.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_164731.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_165122.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Create-Project.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-1.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-4-1717121250688-1.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-1-1712316894897-12.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-2.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-3.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_172653.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_172846.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_165422.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_171828.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_172044.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_165729.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_172239.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_172321.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_172407.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_172529.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_173101.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_173236.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_173312.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_173431.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_173554.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-24.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-21.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-22.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-23.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-25-1717121250690-2.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-26.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_173908.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-44.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-42.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-43.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_174138.png">
+<meta property="article:published_time" content="2025-02-13T05:53:21.152Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:21.152Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/pIYBAF9qvVCAPFqTAAHAX7I-9fU342.png">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>ZYNQ防火墙开发8-PS-PL通信-AXI-RAM - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ZYNQ防火墙开发8-PS-PL通信-AXI-RAM"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          24 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">ZYNQ防火墙开发8-PS-PL通信-AXI-RAM</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <iframe src="//player.bilibili.com/player.html?isOutside=true&aid=112790975087133&bvid=BV1r3bXe7Emw&cid=500001616425955&p=1" width="100%" height="480" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+
+
+
+<h2 id="AXI协议"><a href="#AXI协议" class="headerlink" title="AXI协议"></a>AXI协议</h2><h3 id="AXI4-、-AXI4-Lite-、AXI4-Stream接口"><a href="#AXI4-、-AXI4-Lite-、AXI4-Stream接口" class="headerlink" title="AXI4 、 AXI4-Lite 、AXI4-Stream接口"></a>AXI4 、 AXI4-Lite 、AXI4-Stream接口</h3><p>​	AXI 作为 ARM AMBA 微控制器总线的一部分，第一次出现在AMBA 3.0中。后面AMBA 4.0发布，AXI4出现了。</p>
+<p>AXI 4总线和别的总线一样，都用来传输bits信息（包含了数据或者地址）。AXI4总线有三种类型，分别是AXI4、AXI4-Lite、AXI4-Stream。</p>
+<p>​	AXI4 是一种高性能memory-mapped总线，AXI4-Lite是一只简单的、低通量的memory-mapped 总线，而 AXI4-Stream 可以传输高速数据流。从字面意思去理解，AXI4-Lite是AXI4的轻量版。这里保留了memory-mapped的写法，主要是为了与AXI4-Stream区分开。</p>
+<p>memory-mapped 可以这样去理解，假设有master A , 和 slave B, A与B通过AXI4或者AXI4-Lite连接通讯，A可以把B这个外设看作A上的某个地址。当A向B传输数据时，就等同于A向这个地址传输数据。</p>
+<p>​	AXI4-Stream与AXI4、AXI4-Lite不同， 它不需要地址通道。</p>
+<p>AXI4 和 AXI4-Lite接口包含5个不同的通道：两个读通道和三个写通道。</p>
+<p>两个读通道：读地址通道(read address channel)、读数据通道(read data channel)；</p>
+<p>三个写通道：写地址通道(write address channel)、写数据通道(write data channel)、写响应通道(write response channel)；</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/pIYBAF9qvVCAPFqTAAHAX7I-9fU342.png" srcset="/img/loading.gif" lazyload alt="接口协议"></p>
+<p>​	读通道和写通道是分开的，因此可以完成数据的双向传输。此外AXI4能够实现bu<a target="_blank" rel="noopener" href="https://www.elecfans.com/tags/rs/">rs</a>t传输，换句说就是，可以在一个地址后传输多个数据，最多可以达256 字节。AXI4-Lite不支持burst传输。</p>
+<p>​	AXI4-Stream 只有一个通道，不需要地址，可以burst 传输无限的数据。</p>
+<h3 id="常见的辅助IP"><a href="#常见的辅助IP" class="headerlink" title="常见的辅助IP"></a>常见的辅助IP</h3><p>AXI Interconnect IP 和AXI SmartConnect IP ：</p>
+<p>​	AXI Interconnect IP允许将任意组合的AXI主设备和从设备连接到它，这些设备在数据宽度、时钟域和AXI子协议（AXI4、AXI3或AXI4-Lite）方面可能互不相同。当任何连接的主设备或从设备的接口特性与互连内部的交叉开关不同时，将自动推断并连接适当的基础架构 IP在互连内执行必要的转换。</p>
+<p>Vivado中的smartConnect和InterConnect有什么区别？</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">Both IP have <span class="hljs-keyword">the</span> same functionnalities.<br>AXI SmartConnect is <span class="hljs-keyword">the</span> successor <span class="hljs-built_in">to</span> AXI Interconnect, <span class="hljs-keyword">it</span> uses <span class="hljs-keyword">a</span> different IP technology. You should use <span class="hljs-keyword">it</span> <span class="hljs-keyword">for</span> <span class="hljs-keyword">any</span> <span class="hljs-built_in">new</span> design.<br></code></pre></td></tr></table></figure>
+
+<p>UG994</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">The AMD LogiCORE™ IP AXI InterConnect <span class="hljs-keyword">and </span>SmartConnect cores <span class="hljs-keyword">both </span>connect one <span class="hljs-keyword">or </span>more AXI memory-mapped master devices to one <span class="hljs-keyword">or </span>more memory-mapped slave devices<span class="hljs-comment">; however, the SmartConnect is more tightly integrated into the Vivado design environment to automatically configure and adapt to connected AXI master and slave IP with minimal user intervention. The AXI Interconnect can be used in all memory-mapped designs.</span><br><br>There are certain cases for high <span class="hljs-keyword">bandwidth </span>application where using a SmartConnect provides <span class="hljs-keyword">better </span>optimization. The SmartConnect IP delivers the maximum system throughput <span class="hljs-built_in">at</span> low latency <span class="hljs-keyword">by </span>synthesizing a low area custom interconnect that is optimized for important interfaces.<br></code></pre></td></tr></table></figure>
+
+<p>SmartConnect比InterConnect的性能更好，延时更低，带宽更大。</p>
+<p>AXI FIFOs ：</p>
+<p>​	缓存数据，或者跨<a target="_blank" rel="noopener" href="https://www.elecfans.com/tags/%E6%97%B6%E9%92%9F/">时钟</a>域时有用。</p>
+<p>AXI Direct Memory <a target="_blank" rel="noopener" href="https://m.hqchip.com/app/1703">Ac</a>cess (<a target="_blank" rel="noopener" href="http://www.elecfans.com/tags/dma/">DMA</a>) engines</p>
+<p>​	当我们有一个AXI4-stream接口的IP想与AXI4接口的IP相连时，可以通过AXI DMA完成转换。</p>
+<p>ZYNQ上的AXI接口</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/wKgZomTnBuOAX2n2AADq8TTGrLg899.jpg" srcset="/img/loading.gif" lazyload alt="7be432f0-fb2e-11ec-ba43-dac502259ad0.jpg"></p>
+<p>图片源自 zynq 7 processing system ip</p>
+<p>zynq的ps上共留了9个AXI接口，其中两个GP AXI master、两个GP AXI slave、四个HP AXI slave、以及一个ACP AXI slave。</p>
+<p>这些接口都是AXI3类型的，但使用AXI4-Lite、AXI4 的IP仍然可以与这些接口通讯，因为在实际使用中，软件会使用AXI Interconnect ip帮助我们完成接口的转换。</p>
+<p>主要参考</p>
+<p>[1] ug1037-vivado-axi-reference-guide</p>
+<p>[2] ug585-Zynq-7000-TRM</p>
+<p>AXI LITE</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/33e1afc9f00f4f1d83c62f8a32dda5b0.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="AXI4和AXI3的主要区别"><a href="#AXI4和AXI3的主要区别" class="headerlink" title="AXI4和AXI3的主要区别"></a>AXI4和AXI3的主要区别</h3><p>主要区别如下：</p>
+<ul>
+<li>AXI4支持更长的突发传输（AxLEN从4bit扩展为8bit，相应的突发长度最大可以到256）；</li>
+<li>增加了QoS信号，以提供服务质量。减少延迟，便于仲裁；</li>
+<li>多Slave Region（即AxRegion信号）；</li>
+<li>移除了WID信号，因此不支持写数据interleave；</li>
+<li>AxLOCK从2bit变为1bit，不再支持Lock Transfer；</li>
+<li>写响应必须在写数据和写地址全部给了以后才允许返回（之前可以在给了写数据以后就返回写响应）；</li>
+<li>将Cacheable改为Modifyable</li>
+</ul>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/ff6f18102ff349b381fb7ae2447821da.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>Write</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs bash">            ___     ___     ___     ___     ___    <br>clk     ___/   \___/   \___/   \___/   \___/   \___<br>            _______<br>awid    XXXX_ID____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>awaddr  XXXX_ADDR__XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>awlen   XXXX_00____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>awsize  XXXX_0_____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>awburst XXXX_0_____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>awprot  XXXX_PROT__XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>awvalid ___/       \_______________________________<br>        ___________         _______________________<br>awready            \_______/<br>            _______________<br>wdata   XXXX_DATA__________XXXXXXXXXXXXXXXXXXXXXXXX<br>            _______________<br>wstrb   XXXX_STRB__________XXXXXXXXXXXXXXXXXXXXXXXX<br>            _______________<br>wvalid  ___/               \_______________________<br>                    _______<br>wready  ___________/       \_______________________<br>                                    _______<br>bid     XXXXXXXXXXXXXXXXXXXXXXXXXXXX_ID____XXXXXXXX<br>                                    _______<br>bresp   XXXXXXXXXXXXXXXXXXXXXXXXXXXX_RESP__XXXXXXXX<br>                                    _______<br>bvalid  ___________________________/       \_______<br>        ___________________________________________<br>bready<br></code></pre></td></tr></table></figure>
+
+
+
+<p>Read</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs bash">            ___     ___     ___     ___     ___    <br>clk     ___/   \___/   \___/   \___/   \___/   \___<br>            _______<br>arid    XXXX_ID____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>araddr  XXXX_ADDR__XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>arlen   XXXX_00____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>arsize  XXXX_0_____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>arburst XXXX_0_____XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>arprot  XXXX_PROT__XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>            _______<br>arvalid ___/       \_______________________________<br>        ___________________________________________<br>arready<br>                                    _______<br>rid     XXXXXXXXXXXXXXXXXXXXXXXXXXXX_ID____XXXXXXXX<br>                                    _______<br>rdata   XXXXXXXXXXXXXXXXXXXXXXXXXXXX_DATA__XXXXXXXX<br>                                    _______<br>rresp   XXXXXXXXXXXXXXXXXXXXXXXXXXXX_RESP__XXXXXXXX<br>                                    _______<br>rvalid  ___________________________/       \_______<br>        ___________________________________________<br>rready<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="1-创建Vivado-IP工程"><a href="#1-创建Vivado-IP工程" class="headerlink" title="1 创建Vivado IP工程"></a>1 <strong>创建Vivado IP工程</strong></h2><p>1 ) 具体步骤 新建一个VIVADO 工程，打开软件 选中Create Project, 如下图所示</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Create-Project.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>2）点击NEXT ，在出现的第二个对话框“Project name”中输入工程名；在“Project location”中选择保存路径；勾选“Create project subdirectory”，最后点击“Next” <strong>备注，所有的路径均不能出现中文名称</strong></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>3） 第四步Add Sources 选项直接留空，NEXT</p>
+<p>4）第五步Add Constraints 选项直接留空，NEXT</p>
+<p>5）选择芯片型号 我们板子上用的芯片是XC7Z010 ，并在列表栏中选择对应的封装型号，完整型号是XC7Z010CLG400-1 如下所示，选中后点NEXT</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-1.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>6）确认所选信息 点击“Finish”，完成vivado的工程创建</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-4-1717121250688-1.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>7）创建verilog源文件</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_162553.png" srcset="/img/loading.gif" lazyload></p>
+<p>8）创建文件并命名为axi_ram.v</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_162807.png" srcset="/img/loading.gif" lazyload></p>
+<p>9）提示添加约束接口留空即可。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_163008.png" srcset="/img/loading.gif" lazyload></p>
+<p>10）编辑axi_ram.v,代码如下：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">module</span> axi_ram #<br>(<br>    <span class="hljs-comment">// Width of data bus in bits</span><br>    <span class="hljs-keyword">parameter</span> DATA_WIDTH = <span class="hljs-number">32</span>,<br>    <span class="hljs-comment">// Width of address bus in bits</span><br>    <span class="hljs-keyword">parameter</span> ADDR_WIDTH = <span class="hljs-number">16</span>,<br>    <span class="hljs-comment">// Width of wstrb (width of data bus in words)</span><br>    <span class="hljs-keyword">parameter</span> STRB_WIDTH = (DATA_WIDTH/<span class="hljs-number">8</span>),<br>    <span class="hljs-comment">// Width of ID signal</span><br>    <span class="hljs-keyword">parameter</span> ID_WIDTH = <span class="hljs-number">8</span>,<br>    <span class="hljs-comment">// Extra pipeline register on output</span><br>    <span class="hljs-keyword">parameter</span> PIPELINE_OUTPUT = <span class="hljs-number">0</span><br>)<br>(<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   clk,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   rst,<br><br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [ID_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]    s_axi_awid,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [ADDR_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]  s_axi_awaddr,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>]             s_axi_awlen,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>]             s_axi_awsize,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]             s_axi_awburst,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   s_axi_awlock,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>]             s_axi_awcache,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>]             s_axi_awprot,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   s_axi_awvalid,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>                   s_axi_awready,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [DATA_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]  s_axi_wdata,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [STRB_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]  s_axi_wstrb,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   s_axi_wlast,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   s_axi_wvalid,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>                   s_axi_wready,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> [ID_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]    s_axi_bid,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]             s_axi_bresp,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>                   s_axi_bvalid,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   s_axi_bready,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [ID_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]    s_axi_arid,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [ADDR_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]  s_axi_araddr,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>]             s_axi_arlen,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>]             s_axi_arsize,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]             s_axi_arburst,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   s_axi_arlock,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>]             s_axi_arcache,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>]             s_axi_arprot,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   s_axi_arvalid,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>                   s_axi_arready,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> [ID_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]    s_axi_rid,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> [DATA_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]  s_axi_rdata,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]             s_axi_rresp,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>                   s_axi_rlast,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>                   s_axi_rvalid,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>                   s_axi_rready<br>);<br><br><span class="hljs-keyword">parameter</span> VALID_ADDR_WIDTH = ADDR_WIDTH - <span class="hljs-built_in">$clog2</span>(STRB_WIDTH);<br><span class="hljs-keyword">parameter</span> WORD_WIDTH = STRB_WIDTH;<br><span class="hljs-keyword">parameter</span> WORD_SIZE = DATA_WIDTH/WORD_WIDTH;<br><br><span class="hljs-comment">// bus width assertions</span><br><span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span><br>    <span class="hljs-keyword">if</span> (WORD_SIZE * STRB_WIDTH != DATA_WIDTH) <span class="hljs-keyword">begin</span><br>        <span class="hljs-built_in">$error</span>(<span class="hljs-string">&quot;Error: AXI data width not evenly divisble (instance %m)&quot;</span>);<br>        <span class="hljs-built_in">$finish</span>;<br>    <span class="hljs-keyword">end</span><br><br>    <span class="hljs-keyword">if</span> (<span class="hljs-number">2</span>**<span class="hljs-built_in">$clog2</span>(WORD_WIDTH) != WORD_WIDTH) <span class="hljs-keyword">begin</span><br>        <span class="hljs-built_in">$error</span>(<span class="hljs-string">&quot;Error: AXI word width must be even power of two (instance %m)&quot;</span>);<br>        <span class="hljs-built_in">$finish</span>;<br>    <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><br><span class="hljs-keyword">localparam</span> [<span class="hljs-number">0</span>:<span class="hljs-number">0</span>]<br>    READ_STATE_IDLE = <span class="hljs-number">1&#x27;d0</span>,<br>    READ_STATE_BURST = <span class="hljs-number">1&#x27;d1</span>;<br><br><span class="hljs-keyword">reg</span> [<span class="hljs-number">0</span>:<span class="hljs-number">0</span>] read_state_reg = READ_STATE_IDLE, read_state_next;<br><br><span class="hljs-keyword">localparam</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]<br>    WRITE_STATE_IDLE = <span class="hljs-number">2&#x27;d0</span>,<br>    WRITE_STATE_BURST = <span class="hljs-number">2&#x27;d1</span>,<br>    WRITE_STATE_RESP = <span class="hljs-number">2&#x27;d2</span>;<br><br><span class="hljs-keyword">reg</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] write_state_reg = WRITE_STATE_IDLE, write_state_next;<br><br><span class="hljs-keyword">reg</span> mem_wr_en;<br><span class="hljs-keyword">reg</span> mem_rd_en;<br><br><span class="hljs-keyword">reg</span> [ID_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] read_id_reg = &#123;ID_WIDTH&#123;<span class="hljs-number">1&#x27;b0</span>&#125;&#125;, read_id_next;<br><span class="hljs-keyword">reg</span> [ADDR_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] read_addr_reg = &#123;ADDR_WIDTH&#123;<span class="hljs-number">1&#x27;b0</span>&#125;&#125;, read_addr_next;<br><span class="hljs-keyword">reg</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] read_count_reg = <span class="hljs-number">8&#x27;d0</span>, read_count_next;<br><span class="hljs-keyword">reg</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] read_size_reg = <span class="hljs-number">3&#x27;d0</span>, read_size_next;<br><span class="hljs-keyword">reg</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] read_burst_reg = <span class="hljs-number">2&#x27;d0</span>, read_burst_next;<br><span class="hljs-keyword">reg</span> [ID_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] write_id_reg = &#123;ID_WIDTH&#123;<span class="hljs-number">1&#x27;b0</span>&#125;&#125;, write_id_next;<br><span class="hljs-keyword">reg</span> [ADDR_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] write_addr_reg = &#123;ADDR_WIDTH&#123;<span class="hljs-number">1&#x27;b0</span>&#125;&#125;, write_addr_next;<br><span class="hljs-keyword">reg</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] write_count_reg = <span class="hljs-number">8&#x27;d0</span>, write_count_next;<br><span class="hljs-keyword">reg</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] write_size_reg = <span class="hljs-number">3&#x27;d0</span>, write_size_next;<br><span class="hljs-keyword">reg</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] write_burst_reg = <span class="hljs-number">2&#x27;d0</span>, write_burst_next;<br><br><span class="hljs-keyword">reg</span> s_axi_awready_reg = <span class="hljs-number">1&#x27;b0</span>, s_axi_awready_next;<br><span class="hljs-keyword">reg</span> s_axi_wready_reg = <span class="hljs-number">1&#x27;b0</span>, s_axi_wready_next;<br><span class="hljs-keyword">reg</span> [ID_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] s_axi_bid_reg = &#123;ID_WIDTH&#123;<span class="hljs-number">1&#x27;b0</span>&#125;&#125;, s_axi_bid_next;<br><span class="hljs-keyword">reg</span> s_axi_bvalid_reg = <span class="hljs-number">1&#x27;b0</span>, s_axi_bvalid_next;<br><span class="hljs-keyword">reg</span> s_axi_arready_reg = <span class="hljs-number">1&#x27;b0</span>, s_axi_arready_next;<br><span class="hljs-keyword">reg</span> [ID_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] s_axi_rid_reg = &#123;ID_WIDTH&#123;<span class="hljs-number">1&#x27;b0</span>&#125;&#125;, s_axi_rid_next;<br><span class="hljs-keyword">reg</span> [DATA_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] s_axi_rdata_reg = &#123;DATA_WIDTH&#123;<span class="hljs-number">1&#x27;b0</span>&#125;&#125;, s_axi_rdata_next;<br><span class="hljs-keyword">reg</span> s_axi_rlast_reg = <span class="hljs-number">1&#x27;b0</span>, s_axi_rlast_next;<br><span class="hljs-keyword">reg</span> s_axi_rvalid_reg = <span class="hljs-number">1&#x27;b0</span>, s_axi_rvalid_next;<br><span class="hljs-keyword">reg</span> [ID_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] s_axi_rid_pipe_reg = &#123;ID_WIDTH&#123;<span class="hljs-number">1&#x27;b0</span>&#125;&#125;;<br><span class="hljs-keyword">reg</span> [DATA_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] s_axi_rdata_pipe_reg = &#123;DATA_WIDTH&#123;<span class="hljs-number">1&#x27;b0</span>&#125;&#125;;<br><span class="hljs-keyword">reg</span> s_axi_rlast_pipe_reg = <span class="hljs-number">1&#x27;b0</span>;<br><span class="hljs-keyword">reg</span> s_axi_rvalid_pipe_reg = <span class="hljs-number">1&#x27;b0</span>;<br><br><span class="hljs-comment">// (* RAM_STYLE=&quot;BLOCK&quot; *)</span><br><span class="hljs-keyword">reg</span> [DATA_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] mem[(<span class="hljs-number">2</span>**VALID_ADDR_WIDTH)-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>];<br><br><span class="hljs-keyword">wire</span> [VALID_ADDR_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] s_axi_awaddr_valid = s_axi_awaddr &gt;&gt; (ADDR_WIDTH - VALID_ADDR_WIDTH);<br><span class="hljs-keyword">wire</span> [VALID_ADDR_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] s_axi_araddr_valid = s_axi_araddr &gt;&gt; (ADDR_WIDTH - VALID_ADDR_WIDTH);<br><span class="hljs-keyword">wire</span> [VALID_ADDR_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] read_addr_valid = read_addr_reg &gt;&gt; (ADDR_WIDTH - VALID_ADDR_WIDTH);<br><span class="hljs-keyword">wire</span> [VALID_ADDR_WIDTH-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] write_addr_valid = write_addr_reg &gt;&gt; (ADDR_WIDTH - VALID_ADDR_WIDTH);<br><br><span class="hljs-keyword">assign</span> s_axi_awready = s_axi_awready_reg;<br><span class="hljs-keyword">assign</span> s_axi_wready = s_axi_wready_reg;<br><span class="hljs-keyword">assign</span> s_axi_bid = s_axi_bid_reg;<br><span class="hljs-keyword">assign</span> s_axi_bresp = <span class="hljs-number">2&#x27;b00</span>;<br><span class="hljs-keyword">assign</span> s_axi_bvalid = s_axi_bvalid_reg;<br><span class="hljs-keyword">assign</span> s_axi_arready = s_axi_arready_reg;<br><span class="hljs-keyword">assign</span> s_axi_rid = PIPELINE_OUTPUT ? s_axi_rid_pipe_reg : s_axi_rid_reg;<br><span class="hljs-keyword">assign</span> s_axi_rdata = PIPELINE_OUTPUT ? s_axi_rdata_pipe_reg : s_axi_rdata_reg;<br><span class="hljs-keyword">assign</span> s_axi_rresp = <span class="hljs-number">2&#x27;b00</span>;<br><span class="hljs-keyword">assign</span> s_axi_rlast = PIPELINE_OUTPUT ? s_axi_rlast_pipe_reg : s_axi_rlast_reg;<br><span class="hljs-keyword">assign</span> s_axi_rvalid = PIPELINE_OUTPUT ? s_axi_rvalid_pipe_reg : s_axi_rvalid_reg;<br><br><span class="hljs-keyword">integer</span> i, j;<br><br><span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span><br>    <span class="hljs-comment">// two nested loops for smaller number of iterations per loop</span><br>    <span class="hljs-comment">// workaround for synthesizer complaints about large loop counts</span><br>    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">2</span>**VALID_ADDR_WIDTH; i = i + <span class="hljs-number">2</span>**(VALID_ADDR_WIDTH/<span class="hljs-number">2</span>)) <span class="hljs-keyword">begin</span><br>        <span class="hljs-keyword">for</span> (j = i; j &lt; i + <span class="hljs-number">2</span>**(VALID_ADDR_WIDTH/<span class="hljs-number">2</span>); j = j + <span class="hljs-number">1</span>) <span class="hljs-keyword">begin</span><br>            mem[j] = <span class="hljs-number">0</span>;<br>        <span class="hljs-keyword">end</span><br>    <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><br><span class="hljs-keyword">always</span> @* <span class="hljs-keyword">begin</span><br>    write_state_next = WRITE_STATE_IDLE;<br><br>    mem_wr_en = <span class="hljs-number">1&#x27;b0</span>;<br><br>    write_id_next = write_id_reg;<br>    write_addr_next = write_addr_reg;<br>    write_count_next = write_count_reg;<br>    write_size_next = write_size_reg;<br>    write_burst_next = write_burst_reg;<br><br>    s_axi_awready_next = <span class="hljs-number">1&#x27;b0</span>;<br>    s_axi_wready_next = <span class="hljs-number">1&#x27;b0</span>;<br>    s_axi_bid_next = s_axi_bid_reg;<br>    s_axi_bvalid_next = s_axi_bvalid_reg &amp;&amp; !s_axi_bready;<br><br>    <span class="hljs-keyword">case</span> (write_state_reg)<br>        WRITE_STATE_IDLE: <span class="hljs-keyword">begin</span><br>            s_axi_awready_next = <span class="hljs-number">1&#x27;b1</span>;<br><br>            <span class="hljs-keyword">if</span> (s_axi_awready &amp;&amp; s_axi_awvalid) <span class="hljs-keyword">begin</span><br>                write_id_next = s_axi_awid;<br>                write_addr_next = s_axi_awaddr;<br>                write_count_next = s_axi_awlen;<br>                write_size_next = s_axi_awsize &lt; <span class="hljs-built_in">$clog2</span>(STRB_WIDTH) ? s_axi_awsize : <span class="hljs-built_in">$clog2</span>(STRB_WIDTH);<br>                write_burst_next = s_axi_awburst;<br><br>                s_axi_awready_next = <span class="hljs-number">1&#x27;b0</span>;<br>                s_axi_wready_next = <span class="hljs-number">1&#x27;b1</span>;<br>                write_state_next = WRITE_STATE_BURST;<br>            <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>                write_state_next = WRITE_STATE_IDLE;<br>            <span class="hljs-keyword">end</span><br>        <span class="hljs-keyword">end</span><br>        WRITE_STATE_BURST: <span class="hljs-keyword">begin</span><br>            s_axi_wready_next = <span class="hljs-number">1&#x27;b1</span>;<br><br>            <span class="hljs-keyword">if</span> (s_axi_wready &amp;&amp; s_axi_wvalid) <span class="hljs-keyword">begin</span><br>                mem_wr_en = <span class="hljs-number">1&#x27;b1</span>;<br>                <span class="hljs-keyword">if</span> (write_burst_reg != <span class="hljs-number">2&#x27;b00</span>) <span class="hljs-keyword">begin</span><br>                    write_addr_next = write_addr_reg + (<span class="hljs-number">1</span> &lt;&lt; write_size_reg);<br>                <span class="hljs-keyword">end</span><br>                write_count_next = write_count_reg - <span class="hljs-number">1</span>;<br>                <span class="hljs-keyword">if</span> (write_count_reg &gt; <span class="hljs-number">0</span>) <span class="hljs-keyword">begin</span><br>                    write_state_next = WRITE_STATE_BURST;<br>                <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>                    s_axi_wready_next = <span class="hljs-number">1&#x27;b0</span>;<br>                    <span class="hljs-keyword">if</span> (s_axi_bready || !s_axi_bvalid) <span class="hljs-keyword">begin</span><br>                        s_axi_bid_next = write_id_reg;<br>                        s_axi_bvalid_next = <span class="hljs-number">1&#x27;b1</span>;<br>                        s_axi_awready_next = <span class="hljs-number">1&#x27;b1</span>;<br>                        write_state_next = WRITE_STATE_IDLE;<br>                    <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>                        write_state_next = WRITE_STATE_RESP;<br>                    <span class="hljs-keyword">end</span><br>                <span class="hljs-keyword">end</span><br>            <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>                write_state_next = WRITE_STATE_BURST;<br>            <span class="hljs-keyword">end</span><br>        <span class="hljs-keyword">end</span><br>        WRITE_STATE_RESP: <span class="hljs-keyword">begin</span><br>            <span class="hljs-keyword">if</span> (s_axi_bready || !s_axi_bvalid) <span class="hljs-keyword">begin</span><br>                s_axi_bid_next = write_id_reg;<br>                s_axi_bvalid_next = <span class="hljs-number">1&#x27;b1</span>;<br>                s_axi_awready_next = <span class="hljs-number">1&#x27;b1</span>;<br>                write_state_next = WRITE_STATE_IDLE;<br>            <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>                write_state_next = WRITE_STATE_RESP;<br>            <span class="hljs-keyword">end</span><br>        <span class="hljs-keyword">end</span><br>    <span class="hljs-keyword">endcase</span><br><span class="hljs-keyword">end</span><br><br><span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span><br>    write_state_reg &lt;= write_state_next;<br><br>    write_id_reg &lt;= write_id_next;<br>    write_addr_reg &lt;= write_addr_next;<br>    write_count_reg &lt;= write_count_next;<br>    write_size_reg &lt;= write_size_next;<br>    write_burst_reg &lt;= write_burst_next;<br><br>    s_axi_awready_reg &lt;= s_axi_awready_next;<br>    s_axi_wready_reg &lt;= s_axi_wready_next;<br>    s_axi_bid_reg &lt;= s_axi_bid_next;<br>    s_axi_bvalid_reg &lt;= s_axi_bvalid_next;<br><br>    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; WORD_WIDTH; i = i + <span class="hljs-number">1</span>) <span class="hljs-keyword">begin</span><br>        <span class="hljs-keyword">if</span> (mem_wr_en &amp; s_axi_wstrb[i]) <span class="hljs-keyword">begin</span><br>            mem[write_addr_valid][WORD_SIZE*i +: WORD_SIZE] &lt;= s_axi_wdata[WORD_SIZE*i +: WORD_SIZE];<br>        <span class="hljs-keyword">end</span><br>    <span class="hljs-keyword">end</span><br><br>    <span class="hljs-keyword">if</span> (rst) <span class="hljs-keyword">begin</span><br>        write_state_reg &lt;= WRITE_STATE_IDLE;<br><br>        s_axi_awready_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>        s_axi_wready_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>        s_axi_bvalid_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>    <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><br><span class="hljs-keyword">always</span> @* <span class="hljs-keyword">begin</span><br>    read_state_next = READ_STATE_IDLE;<br><br>    mem_rd_en = <span class="hljs-number">1&#x27;b0</span>;<br><br>    s_axi_rid_next = s_axi_rid_reg;<br>    s_axi_rlast_next = s_axi_rlast_reg;<br>    s_axi_rvalid_next = s_axi_rvalid_reg &amp;&amp; !(s_axi_rready || (PIPELINE_OUTPUT &amp;&amp; !s_axi_rvalid_pipe_reg));<br><br>    read_id_next = read_id_reg;<br>    read_addr_next = read_addr_reg;<br>    read_count_next = read_count_reg;<br>    read_size_next = read_size_reg;<br>    read_burst_next = read_burst_reg;<br><br>    s_axi_arready_next = <span class="hljs-number">1&#x27;b0</span>;<br><br>    <span class="hljs-keyword">case</span> (read_state_reg)<br>        READ_STATE_IDLE: <span class="hljs-keyword">begin</span><br>            s_axi_arready_next = <span class="hljs-number">1&#x27;b1</span>;<br><br>            <span class="hljs-keyword">if</span> (s_axi_arready &amp;&amp; s_axi_arvalid) <span class="hljs-keyword">begin</span><br>                read_id_next = s_axi_arid;<br>                read_addr_next = s_axi_araddr;<br>                read_count_next = s_axi_arlen;<br>                read_size_next = s_axi_arsize &lt; <span class="hljs-built_in">$clog2</span>(STRB_WIDTH) ? s_axi_arsize : <span class="hljs-built_in">$clog2</span>(STRB_WIDTH);<br>                read_burst_next = s_axi_arburst;<br><br>                s_axi_arready_next = <span class="hljs-number">1&#x27;b0</span>;<br>                read_state_next = READ_STATE_BURST;<br>            <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>                read_state_next = READ_STATE_IDLE;<br>            <span class="hljs-keyword">end</span><br>        <span class="hljs-keyword">end</span><br>        READ_STATE_BURST: <span class="hljs-keyword">begin</span><br>            <span class="hljs-keyword">if</span> (s_axi_rready || (PIPELINE_OUTPUT &amp;&amp; !s_axi_rvalid_pipe_reg) || !s_axi_rvalid_reg) <span class="hljs-keyword">begin</span><br>                mem_rd_en = <span class="hljs-number">1&#x27;b1</span>;<br>                s_axi_rvalid_next = <span class="hljs-number">1&#x27;b1</span>;<br>                s_axi_rid_next = read_id_reg;<br>                s_axi_rlast_next = read_count_reg == <span class="hljs-number">0</span>;<br>                <span class="hljs-keyword">if</span> (read_burst_reg != <span class="hljs-number">2&#x27;b00</span>) <span class="hljs-keyword">begin</span><br>                    read_addr_next = read_addr_reg + (<span class="hljs-number">1</span> &lt;&lt; read_size_reg);<br>                <span class="hljs-keyword">end</span><br>                read_count_next = read_count_reg - <span class="hljs-number">1</span>;<br>                <span class="hljs-keyword">if</span> (read_count_reg &gt; <span class="hljs-number">0</span>) <span class="hljs-keyword">begin</span><br>                    read_state_next = READ_STATE_BURST;<br>                <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>                    s_axi_arready_next = <span class="hljs-number">1&#x27;b1</span>;<br>                    read_state_next = READ_STATE_IDLE;<br>                <span class="hljs-keyword">end</span><br>            <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>                read_state_next = READ_STATE_BURST;<br>            <span class="hljs-keyword">end</span><br>        <span class="hljs-keyword">end</span><br>    <span class="hljs-keyword">endcase</span><br><span class="hljs-keyword">end</span><br><br><span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span><br>    read_state_reg &lt;= read_state_next;<br><br>    read_id_reg &lt;= read_id_next;<br>    read_addr_reg &lt;= read_addr_next;<br>    read_count_reg &lt;= read_count_next;<br>    read_size_reg &lt;= read_size_next;<br>    read_burst_reg &lt;= read_burst_next;<br><br>    s_axi_arready_reg &lt;= s_axi_arready_next;<br>    s_axi_rid_reg &lt;= s_axi_rid_next;<br>    s_axi_rlast_reg &lt;= s_axi_rlast_next;<br>    s_axi_rvalid_reg &lt;= s_axi_rvalid_next;<br><br>    <span class="hljs-keyword">if</span> (mem_rd_en) <span class="hljs-keyword">begin</span><br>        s_axi_rdata_reg &lt;= mem[read_addr_valid];<br>    <span class="hljs-keyword">end</span><br><br>    <span class="hljs-keyword">if</span> (!s_axi_rvalid_pipe_reg || s_axi_rready) <span class="hljs-keyword">begin</span><br>        s_axi_rid_pipe_reg &lt;= s_axi_rid_reg;<br>        s_axi_rdata_pipe_reg &lt;= s_axi_rdata_reg;<br>        s_axi_rlast_pipe_reg &lt;= s_axi_rlast_reg;<br>        s_axi_rvalid_pipe_reg &lt;= s_axi_rvalid_reg;<br>    <span class="hljs-keyword">end</span><br><br>    <span class="hljs-keyword">if</span> (rst) <span class="hljs-keyword">begin</span><br>        read_state_reg &lt;= READ_STATE_IDLE;<br><br>        s_axi_arready_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>        s_axi_rvalid_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>        s_axi_rvalid_pipe_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>    <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><br><span class="hljs-keyword">endmodule</span><br></code></pre></td></tr></table></figure>
+
+<p>11） 点击Create and package New IP创建我们自己ip</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_164025.png" srcset="/img/loading.gif" lazyload></p>
+<p>12） 直接下一步</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_164228.png" srcset="/img/loading.gif" lazyload></p>
+<p>13）选择打包当前工程</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_164308.png" srcset="/img/loading.gif" lazyload></p>
+<p>14）默认下一步即可</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_164448.png" srcset="/img/loading.gif" lazyload></p>
+<p>14）点击finish</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_164529.png" srcset="/img/loading.gif" lazyload></p>
+<p>15）配置IP核参数，保持默认即可。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_164628.png" srcset="/img/loading.gif" lazyload></p>
+<p>16） 直接到最后一步 package IP。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_164731.png" srcset="/img/loading.gif" lazyload></p>
+<p>17）显示打包完成，到此创建完成我们自己的axi ram ip核。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_165122.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2-创建Vivado-BLOCK工程"><a href="#2-创建Vivado-BLOCK工程" class="headerlink" title="2 创建Vivado  BLOCK工程"></a><strong>2 创建Vivado  BLOCK工程</strong></h2><p>1 ) 具体步骤 新建一个VIVADO 工程，打开软件 选中Create Project, 如下图所示</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Create-Project.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>2）点击NEXT ，在出现的第二个对话框“Project name”中输入工程名；在“Project location”中选择保存路径；勾选“Create project subdirectory”，最后点击“Next” <strong>备注，所有的路径均不能出现中文名称</strong></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>3） 第四步Add Sources 选项直接留空，NEXT</p>
+<p>4）第五步Add Constraints 选项直接留空，NEXT</p>
+<p>5）选择芯片型号 我们板子上用的芯片是XC7Z010 ，并在列表栏中选择对应的封装型号，完整型号是XC7Z010CLG400-1 如下所示，选中后点NEXT</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-1.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>6）确认所选信息 点击“Finish”，完成vivado的工程创建</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-4-1717121250688-1.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>7）IP INTEGRATOR→Create Block Design，在弹出的对话框中输入设计名，最后点击“OK”，如下图所示</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-1-1712316894897-12.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>8）在右侧的窗口里 ，点击加号，在选择框里搜索ZYNQ，并找到ZYNQ7 PROCESSING SYSTEM ，双击并打开</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-2.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>9）软件自动生成了一个 zynq的block 如下图所示，接下来要做一些相应的设置，双击下图中的ZYNQ核</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-3.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>10）添加串口UART 1引脚为MIO 24-24, 串口在调试时用到。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_172653.png" srcset="/img/loading.gif" lazyload></p>
+<p>11）此项目没有用到DDR,可以取消ENABLE</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_172846.png" srcset="/img/loading.gif" lazyload></p>
+<p>12）加入上面我们自己创建的axi ram ip核到当前工程，选择Tool下的Settings.</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_165422.png" srcset="/img/loading.gif" lazyload></p>
+<p>13）添加IP工程路径到Repository。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_171828.png" srcset="/img/loading.gif" lazyload></p>
+<p>14）提示添加路径下包含的IP核。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_172044.png" srcset="/img/loading.gif" lazyload></p>
+<p>15）完成IP的添加</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_165729.png" srcset="/img/loading.gif" lazyload></p>
+<p>16）在BLOCK设计中添加我们自己的IP核。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_172239.png" srcset="/img/loading.gif" lazyload></p>
+<p>17）点击自动连接</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_172321.png" srcset="/img/loading.gif" lazyload></p>
+<p>17）选择a_axi后确认。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_172407.png" srcset="/img/loading.gif" lazyload></p>
+<p>18）自动连接完成后的框图</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_172529.png" srcset="/img/loading.gif" lazyload></p>
+<p>18）由于我们的IP核的rst是高有效，所以重新连接rst引脚。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_173101.png" srcset="/img/loading.gif" lazyload></p>
+<p>19）到此完成了我们的BLOCK设计，点击生成顶层工程</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_173236.png" srcset="/img/loading.gif" lazyload></p>
+<p>20） 选择自动更新</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_173312.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3-生成bit文件"><a href="#3-生成bit文件" class="headerlink" title="3.生成bit文件"></a>3.生成bit文件</h2><p>21 ）按下Generate Bitstream 完成综合以及生成bit文件</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_173431.png" srcset="/img/loading.gif" lazyload></p>
+<p>22） 生成bit流后，选择导出Hardware</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_173554.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4-SDK程序编写"><a href="#4-SDK程序编写" class="headerlink" title="4.SDK程序编写"></a>4.SDK程序编写</h2><p>1）File→Export→Export hardware…，在弹出的对话框中勾选“include bitstream”，点击“OK”确认，如下图所示。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-24.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>2）File→Lauch SDK，在弹出的对话框中，保存默认，点击“OK”，如下图所示。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-21.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>系统将自动打开SDK开发环境</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-22.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>3）新建一个工程 file→new→Application Project，来新建一个“Application Project”，如下图所示。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-23.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>4）在新建工程名中输入自己的工程名称，点击NEXT</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-25-1717121250690-2.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>5）选择空工程，点击完成FINISH</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-26.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>6）编写测试程序</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_173908.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;platform.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;xil_printf.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;xparameters.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;xil_io.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sleep.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PhyRead(addr) Xil_In32(addr)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PhyWrite(addr, value) Xil_Out32(addr, value)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> AXILITE_BASEADDR XPAR_AXI_RAM_0_BASEADDR</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    init_platform();<br><br>    print(<span class="hljs-string">&quot;Hello World\n\r&quot;</span>);<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;i&lt;<span class="hljs-number">20</span>;i++)<br>    &#123;<br>        sleep(<span class="hljs-number">1</span>);<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;i is %d\n\r&quot;</span>,i);<br>    &#125;<br>    <span class="hljs-type">int</span> reg0in  = <span class="hljs-number">320</span>;<br>    <span class="hljs-type">int</span> reg0out = <span class="hljs-number">0</span>;<br><br>    <span class="hljs-comment">//*(volatile u32 *) XPAR_AXI_RAM_0_BASEADDR = reg0in;</span><br>    <span class="hljs-comment">//reg0out = *(volatile u32 *) XPAR_AXI_RAM_0_BASEADDR;</span><br><br>    PhyWrite(AXILITE_BASEADDR, reg0in);<br>    reg0out = PhyRead(AXILITE_BASEADDR);<br><br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;reg0out is %d\r\n&quot;</span>,reg0out);<br><br>    cleanup_platform();<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-下载到板子上进行验证"><a href="#5-下载到板子上进行验证" class="headerlink" title="5.下载到板子上进行验证"></a>5.下载到板子上进行验证</h2><p>选中工程中的硬件平台，并点击右键→Program FPGA，在弹出的对话框中选择默认，点击“program”，完成FPGA PL部分的Program工作</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-44.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-42.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>2）选中我们生成的GPIO工程 展开绿色箭头（RUN）右边的图标，选择Run As→1 Launch on Hardware（System Debugger）</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/image-43.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="6-查看串口打印"><a href="#6-查看串口打印" class="headerlink" title="6.查看串口打印"></a>6.查看串口打印</h2><p>显示读写成功</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM/Screenshot_20240531_174138.png" srcset="/img/loading.gif" lazyload></p>
+<p>AXI4 、 AXI4-Lite 、AXI4-Stream接口</p>
+<p><a target="_blank" rel="noopener" href="https://www.elecfans.com/d/1856571.html">https://www.elecfans.com/d/1856571.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_46897065/article/details/136951676">FPGA - AXI4_Lite（实现用户端与axi4_lite之间的交互逻辑）_axi4-lite-CSDN博客</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/" class="category-chain-item">视频课程</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" class="category-chain-item">FIREWALL_GATEWAY</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ZYNQ防火墙开发8-PS-PL通信-AXI-RAM</div>
+      <div>http://blog.uanet.cn/视频课程/FIREWALL_GATEWAY/ZYNQ防火墙开发8-PS-PL通信-AXI-RAM.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR.html" title="ZYNQ防火墙开发9-PS-PL通信-AXI-DDR">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">ZYNQ防火墙开发9-PS-PL通信-AXI-DDR</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%917-PS-PL%E9%80%9A%E4%BF%A1-AXI-LED.html" title="ZYNQ防火墙开发7-PS-PL通信-AXI-LED">
+                        <span class="hidden-mobile">ZYNQ防火墙开发7-PS-PL通信-AXI-LED</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,882 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="介绍​	要通过 TensorFlow Decision Forests (TF-DF) 和 CICIDS 数据集训练决策树模型，我们需要先准备数据集，并进行必要的预处理。然后，我们使用 TF-DF 训练模型并进行评估。以下是一个逐步的指南： 模型训练">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TensorFlow基于CICIDS实现流量识别">
+<meta property="og:url" content="http://blog.uanet.cn/NETWORK/TensorFlow%E5%9F%BA%E4%BA%8ECICIDS%E5%AE%9E%E7%8E%B0%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="介绍​	要通过 TensorFlow Decision Forests (TF-DF) 和 CICIDS 数据集训练决策树模型，我们需要先准备数据集，并进行必要的预处理。然后，我们使用 TF-DF 训练模型并进行评估。以下是一个逐步的指南： 模型训练">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-13T05:53:20.805Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.805Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>TensorFlow基于CICIDS实现流量识别 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="TensorFlow基于CICIDS实现流量识别"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          18 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">TensorFlow基于CICIDS实现流量识别</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>​	要通过 <strong>TensorFlow Decision Forests (TF-DF)</strong> 和 <strong>CICIDS</strong> 数据集训练决策树模型，我们需要先准备数据集，并进行必要的预处理。然后，我们使用 <strong>TF-DF</strong> 训练模型并进行评估。以下是一个逐步的指南：</p>
+<h1 id="模型训练"><a href="#模型训练" class="headerlink" title="模型训练"></a>模型训练</h1><h3 id="步骤-1：安装必要的库"><a href="#步骤-1：安装必要的库" class="headerlink" title="步骤 1：安装必要的库"></a>步骤 1：安装必要的库</h3><p>首先，您需要安装 <strong>TensorFlow Decision Forests</strong> 和 <strong>pandas</strong>（如果还没有安装）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">pip install tensorflow-decision-forests pandas<br></code></pre></td></tr></table></figure>
+
+<h3 id="步骤-2：准备数据集"><a href="#步骤-2：准备数据集" class="headerlink" title="步骤 2：准备数据集"></a>步骤 2：准备数据集</h3><p>CICIDS 数据集包含许多网络流量特征，可以直接用于分类任务。假设您已经下载并准备了 <strong>CICIDS 2017</strong> 数据集中的 CSV 文件，接下来我们将进行数据加载、预处理并准备 TensorFlow 数据集。</p>
+<h3 id="步骤-3：加载和预处理-CICIDS-数据集"><a href="#步骤-3：加载和预处理-CICIDS-数据集" class="headerlink" title="步骤 3：加载和预处理 CICIDS 数据集"></a>步骤 3：加载和预处理 CICIDS 数据集</h3><p>假设您已经下载了 <strong>CICIDS 2017</strong> 的数据集，并且文件名为 <code>cicids_2017.csv</code>。我们将使用 pandas 来加载数据并进行一些简单的预处理。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd<br><br><span class="hljs-comment"># 加载CICIDS数据集（此处假设文件名为 &#x27;cicids_2017.csv&#x27;）</span><br>data = pd.read_csv(<span class="hljs-string">&quot;cicids_2017.csv&quot;</span>)<br><br><span class="hljs-comment"># 查看数据结构</span><br><span class="hljs-built_in">print</span>(data.head())<br><br><span class="hljs-comment"># 可以选择特征列和标签列进行训练，假设 &#x27;label&#x27; 列是目标变量</span><br><span class="hljs-comment"># 删除可能不需要的列，例如数据集中的 ID 或时间戳等</span><br>data = data.drop(columns=[<span class="hljs-string">&quot;ID&quot;</span>, <span class="hljs-string">&quot;Timestamp&quot;</span>, <span class="hljs-string">&quot;some_other_unwanted_column&quot;</span>])<br><br><span class="hljs-comment"># 检查是否存在缺失值</span><br><span class="hljs-built_in">print</span>(data.isnull().<span class="hljs-built_in">sum</span>())<br><br><span class="hljs-comment"># 填充缺失值（如有的话）</span><br>data = data.fillna(<span class="hljs-number">0</span>)<br><br><span class="hljs-comment"># 确保目标列为字符串类型（分类任务）</span><br>data[<span class="hljs-string">&#x27;label&#x27;</span>] = data[<span class="hljs-string">&#x27;label&#x27;</span>].astype(<span class="hljs-built_in">str</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="步骤-4：将数据转换为-TensorFlow-数据集"><a href="#步骤-4：将数据转换为-TensorFlow-数据集" class="headerlink" title="步骤 4：将数据转换为 TensorFlow 数据集"></a>步骤 4：将数据转换为 TensorFlow 数据集</h3><p>TensorFlow Decision Forests 需要将数据转换为 TensorFlow 数据集格式。我们可以使用 <code>pd_dataframe_to_tf_dataset</code> 函数进行转换。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> tensorflow_decision_forests <span class="hljs-keyword">as</span> tfdf<br><br><span class="hljs-comment"># 将 pandas DataFrame 转换为 TensorFlow 数据集</span><br>dataset = tfdf.keras.pd_dataframe_to_tf_dataset(data, task=tfdf.keras.Task.CLASSIFICATION, label=<span class="hljs-string">&quot;label&quot;</span>)<br><br><span class="hljs-comment"># 查看数据集格式</span><br><span class="hljs-built_in">print</span>(dataset)<br></code></pre></td></tr></table></figure>
+
+<h3 id="步骤-5：训练决策树模型"><a href="#步骤-5：训练决策树模型" class="headerlink" title="步骤 5：训练决策树模型"></a>步骤 5：训练决策树模型</h3><p>在数据集准备好后，我们可以使用 <strong>TensorFlow Decision Forests</strong> 来训练模型。可以选择 <strong>随机森林</strong> 或 <strong>梯度提升决策树</strong>（GBDT）。在这里，我们将使用 <strong>RandomForestModel</strong>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 创建并训练随机森林模型</span><br>model = tfdf.keras.RandomForestModel(task=tfdf.keras.Task.CLASSIFICATION)<br>model.fit(dataset)<br><br><span class="hljs-comment"># 打印模型概述</span><br>model.summary()<br></code></pre></td></tr></table></figure>
+
+<h3 id="步骤-6：评估模型"><a href="#步骤-6：评估模型" class="headerlink" title="步骤 6：评估模型"></a>步骤 6：评估模型</h3><p>训练完成后，我们可以在同一数据集或单独的测试集上评估模型的表现。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 评估模型性能</span><br>evaluation = model.evaluate(dataset)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Model Evaluation:&quot;</span>, evaluation)<br></code></pre></td></tr></table></figure>
+
+<h3 id="步骤-7：使用模型进行推理"><a href="#步骤-7：使用模型进行推理" class="headerlink" title="步骤 7：使用模型进行推理"></a>步骤 7：使用模型进行推理</h3><p>您可以使用训练好的模型进行推理，给定新的输入数据进行分类预测。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 假设有一个新的测试数据集 &#x27;new_data&#x27;</span><br>new_data = pd.read_csv(<span class="hljs-string">&quot;new_cicids_data.csv&quot;</span>)<br>new_dataset = tfdf.keras.pd_dataframe_to_tf_dataset(new_data, task=tfdf.keras.Task.CLASSIFICATION, label=<span class="hljs-string">&quot;label&quot;</span>)<br><br><span class="hljs-comment"># 使用训练好的模型进行预测</span><br>predictions = model.predict(new_dataset)<br><br><span class="hljs-comment"># 输出预测结果</span><br><span class="hljs-keyword">for</span> prediction <span class="hljs-keyword">in</span> predictions:<br>    <span class="hljs-built_in">print</span>(prediction)<br></code></pre></td></tr></table></figure>
+
+<h3 id="步骤-8：导出模型"><a href="#步骤-8：导出模型" class="headerlink" title="步骤 8：导出模型"></a>步骤 8：导出模型</h3><p>如果您希望将训练好的模型保存并在其他平台（如 TensorFlow Lite 或 ONNX）上使用，您可以将其保存为 <strong>SavedModel</strong> 格式：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 导出模型</span><br>model.save(<span class="hljs-string">&quot;cicids_random_forest_model&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>通过使用 <strong>TensorFlow Decision Forests</strong>（TF-DF），您可以非常方便地在 <strong>CICIDS 数据集</strong> 上训练一个决策树模型。此方法适用于网络流量识别任务，并且可以利用 <strong>随机森林</strong> 或 <strong>梯度提升树（GBDT）</strong> 等先进的决策树算法。</p>
+<p>如果您有更多需求，可以根据需要调整模型的配置、数据预处理和评估方式。</p>
+<h1 id="模型部署"><a href="#模型部署" class="headerlink" title="模型部署"></a>模型部署</h1><p>要在 <strong>C++</strong> 中调用 <strong>TensorFlow Lite Micro</strong> 进行推理，您需要设置 TensorFlow Lite Micro 库并进行必要的代码集成。以下是如何使用 <strong>TensorFlow Lite Micro</strong>（TFLite Micro）进行推理的详细步骤。</p>
+<h3 id="1-准备工作"><a href="#1-准备工作" class="headerlink" title="1. 准备工作"></a>1. <strong>准备工作</strong></h3><p>在 C++ 中使用 <strong>TensorFlow Lite Micro</strong> 进行推理时，首先确保您已安装和配置好 <strong>TensorFlow Lite Micro</strong> 库。您可以通过以下几种方式获取 <strong>TFLite Micro</strong>：</p>
+<ul>
+<li><strong>官方 TensorFlow GitHub 仓库</strong>：可以从 <a target="_blank" rel="noopener" href="https://github.com/tensorflow/tensorflow/tree/master/tensorflow/lite/micro">TensorFlow GitHub</a> 获取源码并编译。</li>
+<li><strong>直接编译</strong>：根据平台（如嵌入式设备）选择合适的编译方法。</li>
+</ul>
+<h3 id="2-创建项目"><a href="#2-创建项目" class="headerlink" title="2. 创建项目"></a>2. <strong>创建项目</strong></h3><p>创建一个 C++ 项目，并确保将 TensorFlow Lite Micro 库的路径添加到项目中。</p>
+<h3 id="3-下载或准备模型"><a href="#3-下载或准备模型" class="headerlink" title="3. 下载或准备模型"></a>3. <strong>下载或准备模型</strong></h3><p>您可以使用 <strong>TensorFlow Lite</strong> 模型，并将其转换为 TFLite 格式。如果您有一个预训练的 TensorFlow 模型，可以使用 <code>tflite_convert</code> 工具将其转换为 <code>.tflite</code> 格式。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">tflite_convert --saved_model_dir=/path/to/saved_model --output_file=model.tflite<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-C-代码实现"><a href="#4-C-代码实现" class="headerlink" title="4. C++ 代码实现"></a>4. <strong>C++ 代码实现</strong></h3><p>以下是一个 C++ 示例代码，演示如何使用 <strong>TensorFlow Lite Micro</strong> 加载 <code>.tflite</code> 模型并进行推理。</p>
+<h4 id="代码步骤："><a href="#代码步骤：" class="headerlink" title="代码步骤："></a>代码步骤：</h4><ul>
+<li>加载 TFLite 模型。</li>
+<li>分配输入和输出张量。</li>
+<li>执行推理并获取结果。</li>
+</ul>
+<h4 id="示例代码："><a href="#示例代码：" class="headerlink" title="示例代码："></a>示例代码：</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fstream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;tensorflow/lite/model.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;tensorflow/lite/interpreter.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;tensorflow/lite/kernels/register.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;tensorflow/lite/string_util.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;tensorflow/lite/micro/micro_interpreter.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;tensorflow/lite/micro/micro_tensor.h&quot;</span></span><br><br><span class="hljs-comment">// 你可以根据需要调整输入和输出的尺寸</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> INPUT_SIZE 784  <span class="hljs-comment">// 例如 28x28 的图片输入</span></span><br><br><span class="hljs-comment">// 读取tflite模型的文件</span><br><span class="hljs-function">std::vector&lt;<span class="hljs-type">char</span>&gt; <span class="hljs-title">ReadModelFile</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; model_path)</span> </span>&#123;<br>    <span class="hljs-function">std::ifstream <span class="hljs-title">model_file</span><span class="hljs-params">(model_path, std::ios::binary)</span></span>;<br>    <span class="hljs-keyword">if</span> (!model_file) &#123;<br>        std::cerr &lt;&lt; <span class="hljs-string">&quot;Failed to open model file: &quot;</span> &lt;&lt; model_path &lt;&lt; std::endl;<br>        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);<br>    &#125;<br>    <span class="hljs-function">std::vector&lt;<span class="hljs-type">char</span>&gt; <span class="hljs-title">model_data</span><span class="hljs-params">((std::istreambuf_iterator&lt;<span class="hljs-type">char</span>&gt;(model_file)),</span></span><br><span class="hljs-params"><span class="hljs-function">                                 std::istreambuf_iterator&lt;<span class="hljs-type">char</span>&gt;())</span></span>;<br>    <span class="hljs-keyword">return</span> model_data;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 加载模型文件</span><br>    std::string model_path = <span class="hljs-string">&quot;model.tflite&quot;</span>;  <span class="hljs-comment">// 替换为你的模型路径</span><br>    std::vector&lt;<span class="hljs-type">char</span>&gt; model_data = <span class="hljs-built_in">ReadModelFile</span>(model_path);<br><br>    <span class="hljs-comment">// 解析模型</span><br>    <span class="hljs-type">const</span> tflite::Model* model = tflite::<span class="hljs-built_in">GetModel</span>(model_data.<span class="hljs-built_in">data</span>());<br>    <span class="hljs-keyword">if</span> (model == <span class="hljs-literal">nullptr</span>) &#123;<br>        std::cerr &lt;&lt; <span class="hljs-string">&quot;Failed to map model data!&quot;</span> &lt;&lt; std::endl;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 创建 TensorFlow Lite interpreter</span><br>    tflite::ops::micro::OpResolver resolver;<br>    <span class="hljs-function">tflite::MicroInterpreter <span class="hljs-title">interpreter</span><span class="hljs-params">(model, resolver, tensor_arena, kTensorArenaSize)</span></span>;<br><br>    <span class="hljs-comment">// 分配张量</span><br>    interpreter.<span class="hljs-built_in">AllocateTensors</span>();<br><br>    <span class="hljs-comment">// 获取输入张量</span><br>    <span class="hljs-type">float</span>* input = interpreter.<span class="hljs-built_in">input</span>(<span class="hljs-number">0</span>)-&gt;data.f;  <span class="hljs-comment">// 获取输入数据（根据模型的输入类型调整）</span><br><br>    <span class="hljs-comment">// 设置输入数据（以 MNIST 为例，28x28 的图像）</span><br>    <span class="hljs-comment">// 这里你可以用你的输入数据来替换</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; INPUT_SIZE; i++) &#123;<br>        input[i] = <span class="hljs-number">0.0f</span>;  <span class="hljs-comment">// 设置为适当的输入数据</span><br>    &#125;<br><br>    <span class="hljs-comment">// 执行推理</span><br>    <span class="hljs-keyword">if</span> (interpreter.<span class="hljs-built_in">Invoke</span>() != kTfLiteOk) &#123;<br>        std::cerr &lt;&lt; <span class="hljs-string">&quot;Error during inference!&quot;</span> &lt;&lt; std::endl;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 获取输出</span><br>    <span class="hljs-type">float</span>* output = interpreter.<span class="hljs-built_in">output</span>(<span class="hljs-number">0</span>)-&gt;data.f;  <span class="hljs-comment">// 获取输出数据</span><br><br>    <span class="hljs-comment">// 输出推理结果（示例为分类问题的输出）</span><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Inference results:&quot;</span> &lt;&lt; std::endl;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++) &#123;  <span class="hljs-comment">// 假设是分类任务，有 10 类输出</span><br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Class &quot;</span> &lt;&lt; i &lt;&lt; <span class="hljs-string">&quot;: &quot;</span> &lt;&lt; output[i] &lt;&lt; std::endl;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="5-重要说明："><a href="#5-重要说明：" class="headerlink" title="5. 重要说明："></a>5. <strong>重要说明</strong>：</h3><ul>
+<li><strong>TensorFlow Lite Micro 需要嵌入式设备支持</strong>：对于 <strong>嵌入式设备</strong>（例如 ARM、Raspberry Pi 或其他单片机），需要配置相应的硬件平台和工具链。</li>
+<li><strong>输入和输出张量</strong>：输入和输出张量的类型及尺寸应该与您的模型匹配。在代码中，我们假设输入是一个 28x28 的图像（如 MNIST），输出是一个 10 类的分类问题。根据您的模型，您需要调整输入和输出数据。</li>
+<li><strong>内存管理</strong>：在嵌入式设备上，内存管理非常重要。<code>tensor_arena</code> 是用来存储所有中间数据（张量）的位置。您需要为该张量区域分配足够的内存。这里的 <code>kTensorArenaSize</code> 是分配的内存大小，您需要根据模型的要求来设置。</li>
+</ul>
+<h3 id="6-编译和运行"><a href="#6-编译和运行" class="headerlink" title="6. 编译和运行"></a>6. <strong>编译和运行</strong></h3><p>确保您的编译器能够链接到 <strong>TensorFlow Lite Micro</strong> 库，并根据目标平台设置适当的编译选项。例如，您可能需要为 ARM 架构配置交叉编译工具链。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">g++ -o tflite_inference tflite_inference.cpp -ltensorflowlite_micro -std=c++11 -I/path/to/tensorflow/lite -L/path/to/tensorflow/lite/libs<br>./tflite_inference<br></code></pre></td></tr></table></figure>
+
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><p>通过 <strong>TensorFlow Lite Micro</strong>，您可以在嵌入式设备上执行推理。上面的代码展示了如何在 C++ 中加载 <code>.tflite</code> 模型并进行推理，适用于小型设备或资源受限环境。要确保正确配置内存和硬件资源，以确保推理过程能够顺利进行。如果您的平台支持硬件加速（如通过 <strong>Arm Neon</strong> 或 <strong>DSP</strong>），也可以配置相应的加速选项来提高推理效率。</p>
+<p>TensorFlow Lite 和 TensorFlow Lite for Microcontrollers 之间的区别在于它们的目标平台。TFLite针对移动用例，如Android和iOS设备。顾名思义，TFLite-Micro 针对嵌入式用例的低功耗微控制器和数字信号处理器。这些甚至可以是裸机用例，因为 TFLM 不依赖于操作系统。</p>
+<p>TFLM 支持与 TFLite 相同的 .tflite 模型格式。但是，有一些运算符未实现。在大多数情况下，这些可以根据需要从 TFLite 移植，并且有有关如何执行此操作的指南。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/NETWORK/" class="category-chain-item">NETWORK</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>TensorFlow基于CICIDS实现流量识别</div>
+      <div>http://blog.uanet.cn/NETWORK/TensorFlow基于CICIDS实现流量识别.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/NETWORK/Tcpdump%20capturing%20Ethernet%20frames.html" title="Tcpdump capturing Ethernet frames">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Tcpdump capturing Ethernet frames</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/NETWORK/TensorFlow%E6%8E%A8%E7%90%86scikit-learn.html" title="TensorFlow推理scikit-learn">
+                        <span class="hidden-mobile">TensorFlow推理scikit-learn</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

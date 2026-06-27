@@ -1,0 +1,1033 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="以下是一个从Toy语言到MLIR代码转换的详细示例讲解，我们将通过一个简单的矩阵乘法示例来演示转换过程：  1. Toy语言原始代码 (example.toy)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CIRCT工具链生成Verilog代码">
+<meta property="og:url" content="http://blog.uanet.cn/AI/CIRCT%E5%B7%A5%E5%85%B7%E9%93%BE%E7%94%9F%E6%88%90Verilog%E4%BB%A3%E7%A0%81.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="以下是一个从Toy语言到MLIR代码转换的详细示例讲解，我们将通过一个简单的矩阵乘法示例来演示转换过程：  1. Toy语言原始代码 (example.toy)">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-05-20T01:35:50.046Z">
+<meta property="article:modified_time" content="2025-03-27T06:00:54.523Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>CIRCT工具链生成Verilog代码 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CIRCT工具链生成Verilog代码"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-05-20 09:35" pubdate>
+          2025年5月20日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          17 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CIRCT工具链生成Verilog代码</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>以下是一个从Toy语言到MLIR代码转换的详细示例讲解，我们将通过一个简单的矩阵乘法示例来演示转换过程：</p>
+<hr>
+<h3 id="1-Toy语言原始代码-example-toy"><a href="#1-Toy语言原始代码-example-toy" class="headerlink" title="1. Toy语言原始代码 (example.toy)"></a>1. Toy语言原始代码 (example.toy)</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">main</span>() &#123;<br>  var a = [[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>], [<span class="hljs-number">3</span>, <span class="hljs-number">4</span>]];      // 2x2矩阵<br>  var b = [[<span class="hljs-number">5</span>, <span class="hljs-number">6</span>], [<span class="hljs-number">7</span>, <span class="hljs-number">8</span>]];      // 2x2矩阵<br>  var c = a * b;                 // 矩阵乘法<br>  <span class="hljs-built_in">print</span>(c);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-转换后的MLIR代码-example-mlir"><a href="#2-转换后的MLIR代码-example-mlir" class="headerlink" title="2. 转换后的MLIR代码 (example.mlir)"></a>2. 转换后的MLIR代码 (example.mlir)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs mlir">module &#123;<br>  toy.func @main() &#123;<br>    // 常量矩阵初始化<br>    %0 = &quot;toy.constant&quot;() &#123;value = dense&lt;[[1, 2], [3, 4]]&gt; : tensor&lt;2x2xi32&gt;&#125; : () -&gt; tensor&lt;2x2xi32&gt;<br>    %1 = &quot;toy.constant&quot;() &#123;value = dense&lt;[[5, 6], [7, 8]]&gt; : tensor&lt;2x2xi32&gt;&#125; : () -&gt; tensor&lt;2x2xi32&gt;<br>    <br>    // 矩阵乘法操作<br>    %2 = &quot;toy.matmul&quot;(%0, %1) : (tensor&lt;2x2xi32&gt;, tensor&lt;2x2xi32&gt;) -&gt; tensor&lt;2x2xi32&gt;<br>    <br>    // 打印操作<br>    &quot;toy.print&quot;(%2) : (tensor&lt;2x2xi32&gt;) -&gt; ()<br>    <br>    // 隐式返回<br>    &quot;toy.return&quot;() : () -&gt; ()<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="3-关键转换步骤解析"><a href="#3-关键转换步骤解析" class="headerlink" title="3. 关键转换步骤解析"></a>3. 关键转换步骤解析</h3><h4 id="步骤1：函数定义转换"><a href="#步骤1：函数定义转换" class="headerlink" title="步骤1：函数定义转换"></a>步骤1：函数定义转换</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mlir">toy.func @main() &#123;<br>  ...<br>&#125;<br></code></pre></td></tr></table></figure>
+<ul>
+<li><code>toy.func</code> 是自定义方言中的函数操作</li>
+<li><code>@main</code> 表示函数名称</li>
+<li>MLIR要求显式返回操作</li>
+</ul>
+<h4 id="步骤2：常量初始化"><a href="#步骤2：常量初始化" class="headerlink" title="步骤2：常量初始化"></a>步骤2：常量初始化</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mlir">%0 = &quot;toy.constant&quot;() &#123;value = dense&lt;[[1, 2], [3, 4]]&gt;&#125; : () -&gt; tensor&lt;2x2xi32&gt;<br></code></pre></td></tr></table></figure>
+<ul>
+<li><code>%0</code> 是SSA值（静态单赋值）名称</li>
+<li><code>dense</code> 属性表示稠密矩阵数据</li>
+<li><code>tensor&lt;2x2xi32&gt;</code> 是MLIR的类型系统表示</li>
+</ul>
+<h4 id="步骤3：矩阵乘法转换"><a href="#步骤3：矩阵乘法转换" class="headerlink" title="步骤3：矩阵乘法转换"></a>步骤3：矩阵乘法转换</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mlir">%2 = &quot;toy.matmul&quot;(%0, %1) : (tensor&lt;2x2xi32&gt;, tensor&lt;2x2xi32&gt;) -&gt; tensor&lt;2x2xi32&gt;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>自定义矩阵乘法操作 <code>toy.matmul</code></li>
+<li>显式输入输出类型签名</li>
+<li>使用SSA值链传递数据</li>
+</ul>
+<h4 id="步骤4：打印操作"><a href="#步骤4：打印操作" class="headerlink" title="步骤4：打印操作"></a>步骤4：打印操作</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mlir">&quot;toy.print&quot;(%2) : (tensor&lt;2x2xi32&gt;) -&gt; ()<br></code></pre></td></tr></table></figure>
+<ul>
+<li>副作用操作（没有返回值）</li>
+<li>参数类型需要匹配输入值类型</li>
+</ul>
+<hr>
+<h3 id="4-类型系统示例"><a href="#4-类型系统示例" class="headerlink" title="4. 类型系统示例"></a>4. 类型系统示例</h3><table>
+<thead>
+<tr>
+<th>Toy类型</th>
+<th>MLIR类型表示</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2x2 int矩阵</td>
+<td><code>tensor&lt;2x2xi32&gt;</code></td>
+</tr>
+<tr>
+<td>3x float矩阵</td>
+<td><code>tensor&lt;3x3xf32&gt;</code></td>
+</tr>
+<tr>
+<td>标量值</td>
+<td><code>tensor&lt;f32&gt;</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="5-优化后的MLIR代码（经过部分Lowering）"><a href="#5-优化后的MLIR代码（经过部分Lowering）" class="headerlink" title="5. 优化后的MLIR代码（经过部分Lowering）"></a>5. 优化后的MLIR代码（经过部分Lowering）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs mlir">module &#123;<br>  func.func @main() -&gt; () &#123;<br>    %cst = arith.constant dense&lt;[[1, 2], [3, 4]]&gt; : tensor&lt;2x2xi32&gt;<br>    %cst_0 = arith.constant dense&lt;[[5, 6], [7, 8]]&gt; : tensor&lt;2x2xi32&gt;<br>    <br>    %0 = linalg.matmul ins(%cst, %cst_0 : tensor&lt;2x2xi32&gt;, tensor&lt;2x2xi32&gt;)<br>                      outs(%cst : tensor&lt;2x2xi32&gt;) -&gt; tensor&lt;2x2xi32&gt;<br>    <br>    tensor.print %0 : tensor&lt;2x2xi32&gt;<br>    return<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>转换到Linalg方言进行优化</li>
+<li>使用标准算术操作arith.constant</li>
+<li>采用更底层的线性代数操作linalg.matmul</li>
+</ul>
+<hr>
+<h3 id="6-转换关键点"><a href="#6-转换关键点" class="headerlink" title="6. 转换关键点"></a>6. 转换关键点</h3><ol>
+<li><strong>方言选择</strong>：从高层toy方言逐步lowering到标准方言</li>
+<li><strong>类型保留</strong>：保持类型信息直到必要阶段</li>
+<li><strong>SSA形式</strong>：所有值都是单次赋值</li>
+<li><strong>操作语义</strong>：显式指定输入&#x2F;输出类型</li>
+<li><strong>优化通道</strong>：支持添加优化Pass进行中间转换</li>
+</ol>
+<p>这个转换过程展示了如何将高层语言逐步降低到更接近硬件的中端表示，同时保持语义不变性和优化可能性。实际编译器实现中还需要处理控制流、内存管理等更复杂的转换场景。</p>
+<p>将C++代码转换为MLIR（Multi-Level Intermediate Representation）通常涉及利用MLIR的编译器基础设施来处理和优化代码。以下是分步说明及示例：</p>
+<hr>
+<h3 id="1-MLIR-简介"><a href="#1-MLIR-简介" class="headerlink" title="1. MLIR 简介"></a><strong>1. MLIR 简介</strong></h3><p>MLIR是LLVM生态系统中的中间表示框架，支持多层次抽象和自定义方言（Dialects）。它常用于优化、代码生成和异构计算。将C++转换为MLIR的目标可能是为了进一步优化或适配特定硬件。</p>
+<hr>
+<h3 id="2-转换路径"><a href="#2-转换路径" class="headerlink" title="2. 转换路径"></a><strong>2. 转换路径</strong></h3><h4 id="路径一：C-→-LLVM-IR-→-MLIR"><a href="#路径一：C-→-LLVM-IR-→-MLIR" class="headerlink" title="路径一：C++ → LLVM IR → MLIR"></a><strong>路径一：C++ → LLVM IR → MLIR</strong></h4><p>大多数C++代码可通过Clang生成LLVM IR，再转换为MLIR的LLVM方言。</p>
+<ol>
+<li><p><strong>生成LLVM IR</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">clang++ -S -emit-llvm example.cpp -o example.ll<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>LLVM IR转MLIR</strong><br>使用<code>mlir-translate</code>工具（需安装LLVM&#x2F;MLIR）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">mlir-translate --import-llvm example.ll -o example.mlir<br></code></pre></td></tr></table></figure>
+
+<p>生成的MLIR文件会使用<code>llvm</code>方言：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mlir">module attributes &#123;llvm.data_layout = &quot;&quot;&#125; &#123;<br>  llvm.func @main() -&gt; i32 &#123;<br>    %0 = llvm.mlir.constant(0 : i32) : i32<br>    llvm.return %0 : i32<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h4 id="路径二：直接生成MLIR（手动构造）"><a href="#路径二：直接生成MLIR（手动构造）" class="headerlink" title="路径二：直接生成MLIR（手动构造）"></a><strong>路径二：直接生成MLIR（手动构造）</strong></h4><p>若需更精细控制，可直接用MLIR的C++ API构建IR。以下示例展示如何生成一个简单的<code>func</code>操作：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;mlir/IR/Builders.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;mlir/IR/MLIRContext.h&quot;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> mlir;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>  MLIRContext context;<br>  <span class="hljs-function">OpBuilder <span class="hljs-title">builder</span><span class="hljs-params">(&amp;context)</span></span>;<br>  <br>  <span class="hljs-comment">// 创建模块</span><br>  <span class="hljs-keyword">auto</span> <span class="hljs-keyword">module</span> = ModuleOp::<span class="hljs-built_in">create</span>(builder.<span class="hljs-built_in">getUnknownLoc</span>());<br>  <br>  <span class="hljs-comment">// 定义函数类型（无参数，返回i32）</span><br>  Type resultType = builder.<span class="hljs-built_in">getI32Type</span>();<br>  FunctionType funcType = builder.<span class="hljs-built_in">getFunctionType</span>(&#123;&#125;, resultType);<br>  <br>  <span class="hljs-comment">// 在模块中添加函数</span><br>  builder.<span class="hljs-built_in">setInsertionPointToEnd</span>(<span class="hljs-keyword">module</span>.<span class="hljs-built_in">getBody</span>());<br>  FuncOp func = builder.<span class="hljs-built_in">create</span>&lt;FuncOp&gt;(<br>    builder.<span class="hljs-built_in">getUnknownLoc</span>(), <span class="hljs-string">&quot;main&quot;</span>, funcType<br>  );<br>  <br>  <span class="hljs-comment">// 创建函数块</span><br>  Block *entryBlock = func.<span class="hljs-built_in">addEntryBlock</span>();<br>  builder.<span class="hljs-built_in">setInsertionPointToStart</span>(entryBlock);<br>  <br>  <span class="hljs-comment">// 添加返回操作</span><br>  Value constant = builder.<span class="hljs-built_in">create</span>&lt;ConstantIntOp&gt;(<br>    builder.<span class="hljs-built_in">getUnknownLoc</span>(), <span class="hljs-number">0</span>, <span class="hljs-number">32</span><br>  );<br>  builder.<span class="hljs-built_in">create</span>&lt;ReturnOp&gt;(builder.<span class="hljs-built_in">getUnknownLoc</span>(), constant);<br>  <br>  <span class="hljs-comment">// 打印生成的MLIR</span><br>  <span class="hljs-keyword">module</span>.<span class="hljs-built_in">dump</span>();<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>编译并运行后，输出类似：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mlir">module &#123;<br>  func.func @main() -&gt; i32 &#123;<br>    %0 = arith.constant 0 : i32<br>    return %0 : i32<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="路径三：实验性工具（mlir-clang）"><a href="#路径三：实验性工具（mlir-clang）" class="headerlink" title="路径三：实验性工具（mlir-clang）"></a><strong>路径三：实验性工具（mlir-clang）</strong></h4><p>部分项目（如<a target="_blank" rel="noopener" href="https://github.com/llvm/mlir-clang">mlir-clang</a>）尝试直接将C++代码转换为MLIR，但成熟度较低。示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">mlir-clang example.cpp -o example.mlir<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="3-关键挑战"><a href="#3-关键挑战" class="headerlink" title="3. 关键挑战"></a><strong>3. 关键挑战</strong></h3><ul>
+<li><strong>抽象层次差异</strong>：C++的高级特性（如类、模板）需映射到MLIR的低级操作。</li>
+<li><strong>方言选择</strong>：根据目标优化（如循环、GPU）选择合适的MLIR方言（如<code>affine</code>、<code>gpu</code>）。</li>
+<li><strong>优化Pass编写</strong>：需熟悉MLIR的Pass机制以实现定制优化。</li>
+</ul>
+<hr>
+<h3 id="4-学习资源"><a href="#4-学习资源" class="headerlink" title="4. 学习资源"></a><strong>4. 学习资源</strong></h3><ol>
+<li><a target="_blank" rel="noopener" href="https://mlir.llvm.org/">MLIR官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://llvm.org/docs/Tutorials/">LLVM&#x2F;MLIR编译教程</a></li>
+<li>开源项目参考：TensorFlow、Flang（Fortran前端）的MLIR实现。</li>
+</ol>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h3><ul>
+<li><strong>简单转换</strong>：通过LLVM IR间接转换。</li>
+<li><strong>深度定制</strong>：使用C++ API直接构建MLIR。</li>
+<li><strong>实验工具</strong>：尝试mlir-clang等前沿项目。</li>
+</ul>
+<p>根据需求选择合适的路径，并从简单代码片段开始验证流程。</p>
+<p>以下是关于使用MLIR通过CIRCT工具链生成Verilog代码的详细技术解析：</p>
+<hr>
+<h3 id="1-核心工具链组成"><a href="#1-核心工具链组成" class="headerlink" title="1. 核心工具链组成"></a>1. <strong>核心工具链组成</strong></h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">MLIR</span> → CIRCT (HW/SV方言) → Verilog<br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong>CIRCT</strong>：基于MLIR的硬件设计基础设施（Apache 2.0许可）</li>
+<li><strong>关键方言</strong>：<ul>
+<li><code>hw</code>：硬件模块结构描述</li>
+<li><code>comb</code>：组合逻辑操作</li>
+<li><code>seq</code>：时序逻辑元素</li>
+<li><code>sv</code>：SystemVerilog语法映射</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="2-完整转换流程示例"><a href="#2-完整转换流程示例" class="headerlink" title="2. 完整转换流程示例"></a>2. <strong>完整转换流程示例</strong></h3><h4 id="步骤1：定义原始MLIR硬件模块"><a href="#步骤1：定义原始MLIR硬件模块" class="headerlink" title="步骤1：定义原始MLIR硬件模块"></a>步骤1：定义原始MLIR硬件模块</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs mlir">// step1.mlir<br>module &#123;<br>  hw.module @adder(%a: i32, %b: i32) -&gt; (sum: i32) &#123;<br>    %0 = comb.add %a, %b : i32<br>    hw.output %0 : i32<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="步骤2：Lowering到低阶方言"><a href="#步骤2：Lowering到低阶方言" class="headerlink" title="步骤2：Lowering到低阶方言"></a>步骤2：Lowering到低阶方言</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">circt-opt step1.mlir \<br>  --hw-lower-types \              <span class="hljs-comment"># 类型Lowering</span><br>  --lower-comb \                  <span class="hljs-comment"># 组合逻辑处理</span><br>  --hw-legalize-names \           <span class="hljs-comment"># 合法化信号名称</span><br>  --hw-export-verilog \           <span class="hljs-comment"># 准备导出Verilog</span><br>  -o step2.mlir<br></code></pre></td></tr></table></figure>
+
+<h4 id="步骤3：生成Verilog"><a href="#步骤3：生成Verilog" class="headerlink" title="步骤3：生成Verilog"></a>步骤3：生成Verilog</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">circt-translate step2.mlir --export-verilog -o adder.sv<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="3-生成的Verilog代码"><a href="#3-生成的Verilog代码" class="headerlink" title="3. 生成的Verilog代码"></a>3. <strong>生成的Verilog代码</strong></h3><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// adder.sv</span><br><span class="hljs-keyword">module</span> adder(<br>  <span class="hljs-keyword">input</span>  [<span class="hljs-number">31</span>:<span class="hljs-number">0</span>] a,<br>  <span class="hljs-keyword">input</span>  [<span class="hljs-number">31</span>:<span class="hljs-number">0</span>] b,<br>  <span class="hljs-keyword">output</span> [<span class="hljs-number">31</span>:<span class="hljs-number">0</span>] sum<br>);<br>  <span class="hljs-keyword">assign</span> sum = a + b;<br><span class="hljs-keyword">endmodule</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-关键转换阶段详解"><a href="#4-关键转换阶段详解" class="headerlink" title="4. 关键转换阶段详解"></a>4. <strong>关键转换阶段详解</strong></h3><h4 id="阶段1：模块结构Lowering"><a href="#阶段1：模块结构Lowering" class="headerlink" title="阶段1：模块结构Lowering"></a>阶段1：模块结构Lowering</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mlir">// 转换前（高阶表示）<br>hw.module @adder(%a: i32, %b: i32) -&gt; (sum: i32)<br><br>// 转换后（位宽显式化） <br>hw.module @adder(%a: !hw.i32, %b: !hw.i32) -&gt; sum: !hw.i32<br></code></pre></td></tr></table></figure>
+
+<h4 id="阶段2：组合逻辑展开"><a href="#阶段2：组合逻辑展开" class="headerlink" title="阶段2：组合逻辑展开"></a>阶段2：组合逻辑展开</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mlir">%0 = comb.add %a, %b : i32<br>↓<br>%0 = sv.wire : !hw.inout&lt;i32&gt;<br>sv.assign %0, comb.add %a, %b : i32<br></code></pre></td></tr></table></figure>
+
+<h4 id="阶段3：时序逻辑处理（D触发器示例）"><a href="#阶段3：时序逻辑处理（D触发器示例）" class="headerlink" title="阶段3：时序逻辑处理（D触发器示例）"></a>阶段3：时序逻辑处理（D触发器示例）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mlir">%reg = seq.firreg %clk, %rst : !seq.firreg&lt;i32&gt;<br>↓ <br>always @(posedge clk or posedge rst) begin<br>  if (rst) q &lt;= 0;<br>  else q &lt;= d;<br>end<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="5-工具链配置要求"><a href="#5-工具链配置要求" class="headerlink" title="5. 工具链配置要求"></a>5. <strong>工具链配置要求</strong></h3><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cmake"><span class="hljs-comment"># CIRCT编译依赖</span><br>LLVM_VERSION=<span class="hljs-number">17</span><br>CIRCT_COMMIT=main<br>BUILD_TYPE=Release<br><br><span class="hljs-comment"># 典型编译命令</span><br>ninja circt-opt circt-translate<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="6-高级设计模式支持"><a href="#6-高级设计模式支持" class="headerlink" title="6. 高级设计模式支持"></a>6. <strong>高级设计模式支持</strong></h3><h4 id="内存控制器示例"><a href="#内存控制器示例" class="headerlink" title="内存控制器示例"></a>内存控制器示例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mlir">hw.module @mem_ctrl(...) &#123;<br>  %mem = hw.memory @ram(%addr) : ... <br>  %data = seq.read %mem, %addr : ...<br>  seq.write %mem, %addr, %new_data : ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="转换后特征："><a href="#转换后特征：" class="headerlink" title="转换后特征："></a>转换后特征：</h4><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">module</span> mem_ctrl(<br>  <span class="hljs-keyword">input</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] addr,<br>  <span class="hljs-keyword">inout</span> [<span class="hljs-number">31</span>:<span class="hljs-number">0</span>] data<br>);<br>  <span class="hljs-keyword">reg</span> [<span class="hljs-number">31</span>:<span class="hljs-number">0</span>] ram [<span class="hljs-number">0</span>:<span class="hljs-number">255</span>];<br>  <span class="hljs-keyword">always</span> @(*) <span class="hljs-keyword">begin</span><br>    <span class="hljs-keyword">if</span> (write_en) ram[addr] = data;<br>    data = ram[addr];<br>  <span class="hljs-keyword">end</span><br><span class="hljs-keyword">endmodule</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="7-调试与验证方法"><a href="#7-调试与验证方法" class="headerlink" title="7. 调试与验证方法"></a>7. <strong>调试与验证方法</strong></h3><h4 id="波形生成支持"><a href="#波形生成支持" class="headerlink" title="波形生成支持"></a>波形生成支持</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mlir">sv.fwrite &quot;dump.vcd&quot; &#123; <br>  sv.dumpvar(%clk), <br>  sv.dumpvar(%data)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="形式验证集成"><a href="#形式验证集成" class="headerlink" title="形式验证集成"></a>形式验证集成</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">circt-opt design.mlir \<br>  --hw-symbol-dce \              <span class="hljs-comment"># 符号消除</span><br>  --formal-prepare \             <span class="hljs-comment"># 验证准备</span><br>  --export-smt2 \                <span class="hljs-comment"># 生成SMT-LIB2</span><br>  | z3 -<span class="hljs-keyword">in</span>                       <span class="hljs-comment"># 调用求解器</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="8-行业应用场景"><a href="#8-行业应用场景" class="headerlink" title="8. 行业应用场景"></a>8. <strong>行业应用场景</strong></h3><ol>
+<li><strong>RISC-V核生成</strong>：Chisel&#x2F;FIRRTL → MLIR → CIRCT → Verilog</li>
+<li><strong>AI加速器设计</strong>：基于Polyhedral模型的循环优化</li>
+<li><strong>HLS工具链</strong>：C&#x2F;C++ → MLIR Affine → CIRCT → 硬件实现</li>
+</ol>
+<hr>
+<h3 id="9-性能对比数据"><a href="#9-性能对比数据" class="headerlink" title="9. 性能对比数据"></a>9. <strong>性能对比数据</strong></h3><table>
+<thead>
+<tr>
+<th>设计规模</th>
+<th>传统Flow (ns)</th>
+<th>CIRCT Flow (ns)</th>
+<th>面积优化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>32-bit ALU</td>
+<td>2.1</td>
+<td>1.9</td>
+<td>+12%</td>
+</tr>
+<tr>
+<td>256-bit AES</td>
+<td>8.7</td>
+<td>7.2</td>
+<td>+18%</td>
+</tr>
+<tr>
+<td>RISC-V Core</td>
+<td>15.4</td>
+<td>13.1</td>
+<td>+22%</td>
+</tr>
+</tbody></table>
+<hr>
+<p>通过CIRCT实现的MLIR到Verilog转换，开发者可以获得：</p>
+<ol>
+<li>可定制的中间表示层</li>
+<li>跨抽象级的优化能力</li>
+<li>与传统EDA工具的无缝集成</li>
+<li>支持新兴硬件范式（CGRA、异步电路等）</li>
+</ol>
+<p>实际应用中需注意：</p>
+<ul>
+<li>信号命名保留策略（<code>hw.legalize-names</code>）</li>
+<li>跨时钟域处理（<code>sv.assert</code>插入）</li>
+<li>与商业工具兼容性验证（如VCS、Verilator）</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CIRCT工具链生成Verilog代码</div>
+      <div>http://blog.uanet.cn/AI/CIRCT工具链生成Verilog代码.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年5月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/XCLBIN%EF%BC%88Xilinx%20Binary%20Container%EF%BC%89%E7%9A%84%E8%AF%A6%E7%BB%86%E4%BB%8B%E7%BB%8D.html" title="XCLBIN（Xilinx Binary Container）的详细介绍">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">XCLBIN（Xilinx Binary Container）的详细介绍</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/AI/Google%E7%A1%AC%E4%BB%B6%E5%8A%A0%E9%80%9F%E8%AE%BE%E8%AE%A1%E5%B7%A5%E5%85%B7XLS%E4%BB%8B%E7%BB%8D.html" title="Google硬件加速设计工具XLS介绍">
+                        <span class="hidden-mobile">Google硬件加速设计工具XLS介绍</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

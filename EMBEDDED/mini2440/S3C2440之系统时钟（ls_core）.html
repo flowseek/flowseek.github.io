@@ -1,0 +1,900 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="今天笔者开始总结S3C2440的学习笔记，对于S3C2440的学习，笔者的着手点仍然是系统时钟，毕竟时钟是一个微机系统的时间标尺。微机没有了时钟，也就没有了时间尺度，那他也就无法有秩序的运行下去了。如果把CPU的所有工作任务作为纵坐标（y轴），那么时钟就是他的横坐标（x轴）了，如下图1 时钟概念所示。  图 1 时钟概念">
+<meta property="og:type" content="article">
+<meta property="og:title" content="S3C2440之系统时钟（ls_core）">
+<meta property="og:url" content="http://blog.uanet.cn/EMBEDDED/mini2440/S3C2440%E4%B9%8B%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%EF%BC%88ls_core%EF%BC%89.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="今天笔者开始总结S3C2440的学习笔记，对于S3C2440的学习，笔者的着手点仍然是系统时钟，毕竟时钟是一个微机系统的时间标尺。微机没有了时钟，也就没有了时间尺度，那他也就无法有秩序的运行下去了。如果把CPU的所有工作任务作为纵坐标（y轴），那么时钟就是他的横坐标（x轴）了，如下图1 时钟概念所示。  图 1 时钟概念">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/mini2440/S3C2440%E4%B9%8B%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%EF%BC%88ls_core%EF%BC%89/072348f6579t996w357546.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/mini2440/S3C2440%E4%B9%8B%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%EF%BC%88ls_core%EF%BC%89/072349lubdpyy7z7jppjq2.jpg">
+<meta property="og:image" content="http://www.dnsnat.com/bbs/static/image/smiley/default/tongue.gif">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/mini2440/S3C2440%E4%B9%8B%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%EF%BC%88ls_core%EF%BC%89/072351as77sazesto5e0s4.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/mini2440/S3C2440%E4%B9%8B%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%EF%BC%88ls_core%EF%BC%89/072352npd80dq8ho0podph.jpg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/mini2440/S3C2440%E4%B9%8B%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%EF%BC%88ls_core%EF%BC%89/072353wg3sw37s7o073soa.jpg">
+<meta property="article:published_time" content="2025-02-13T05:53:20.655Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.655Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/EMBEDDED/mini2440/S3C2440%E4%B9%8B%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%EF%BC%88ls_core%EF%BC%89/072348f6579t996w357546.jpg">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>S3C2440之系统时钟（ls_core） - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="S3C2440之系统时钟（ls_core）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          3.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          27 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">S3C2440之系统时钟（ls_core）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>今天笔者开始总结S3C2440的学习笔记，对于S3C2440的学习，笔者的着手点仍然是系统时钟，毕竟时钟是一个微机系统的时间标尺。微机没有了时钟，也就没有了时间尺度，那他也就无法有秩序的运行下去了。如果把CPU的所有工作任务作为纵坐标（y轴），那么时钟就是他的横坐标（x轴）了，如下图1 时钟概念所示。</p>
+<p><img src="/EMBEDDED/mini2440/S3C2440%E4%B9%8B%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%EF%BC%88ls_core%EF%BC%89/072348f6579t996w357546.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>图 1 时钟概念</p>
+<p>  也就是说时钟就是一个微机（小到8位的51单片机大到32位的S3C2440等）在时域上的一个衡量标准。学过FPGA的朋友都很清楚，微机是以对输入的时钟源的脉冲计数的方式来确定时间的。S3C2440也一样，拿到他之后首先从时钟入手，一定要养成这种系统学习的好方法，否则再学一百款单片机也是感觉再学新的，做不到举一反三。只有把握这其中的通理才能达到事半功倍的效果。</p>
+<p><strong>一 、硬件</strong></p>
+<p>  S3c2440的时钟系统主要由外部晶振和外部时钟，时钟源选择和锁相环三部分组成。如下图2 S3c2440系统时钟框图所示：</p>
+<p><img src="/EMBEDDED/mini2440/S3C2440%E4%B9%8B%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%EF%BC%88ls_core%EF%BC%89/072349lubdpyy7z7jppjq2.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>图2 S3c2440系统时钟框图</p>
+<p>1 时钟源</p>
+<p>  时钟源由外部晶振和外部时钟组成，外部晶振分别接在S3c2440的XTIPLL和XTOPLL引脚上面，外部时钟由S3c2440的EXTCLK引脚输入。</p>
+<p>2 时钟源的选择</p>
+<p>  既然时钟源由两部分组成，那么在系统工作时到底怎么选择所需的时钟源呢。查看 S3c2440的手册不难找到，时钟源的选择由S3c2440的OM2和OM3输入引脚的电平决定，其关系如下表1 时钟源的选择所示：</p>
+<p>表1 时钟源的选择</p>
+<p>OM3OM2主时钟源USB时钟源00外部晶振外部晶振01外部晶振外部时钟10外部时钟外部晶振11外部时钟外部时钟</p>
+<p>  在一般的开发板上，主时钟和USB时钟全部是由外部的12M晶体振荡器提供的。所以在定制硬件的时候，直接将OM3和OM2接于地上，以选择外部的晶振作为主时钟源和USB时钟源。</p>
+<p>3 锁相环</p>
+<p>  S3c2440内部集成了2个PLL锁相环以生成内部所需的高频时钟，其中一个锁相环MPLL倍频出的高频时钟有FCLK、PCLK、HCLK 。另一个锁相环UPLL倍频出的高频时钟为UCLK。那么，锁相环的输入时钟和输出时钟的关系怎么确定呢？通过查阅S3c2440的手册可知，锁相环的输入时钟为外部晶振或外部时钟Fin，输出时钟为FCLK。其关系为：FCLK&#x3D;(2<em>m</em>Fin)&#x2F;(p* )。其中，m&#x3D;M(分频器M的值)+8；p&#x3D;(分频器P的值)+2。</p>
+<p>4 内部时钟</p>
+<p>  经锁相环MPLL和UPLL倍频后得到的内部时钟有FCLK、PCLK、HCLK和UCLK。其用途如下表2 内部时钟用途所示：</p>
+<p>表2 内部时钟用途</p>
+<p>内部时钟应用场合应用举例FCLK—arm920tHCLK高速AHB总线内存控制，中断控制，LCD控制，DMA等PCLK低速APB总线看门狗，IIS，IIC，PWD，MMC接口，ADC，UARTGPIO，RTC以及SPI等UCLKUSB设备USB主、从接口</p>
+<p>  该内部时钟的关系可通过寄存器CLKDIVN控制得到不同比例的时钟，其关系如下表3 分频比所示：</p>
+<p>表3 分频比</p>
+<p>HDIVNPDIVNFCLK：HCLK：PCLK比例HDIVNPDIVNFCLK：HCLK：PCLK比例001:1:1301:6:6011:1:2311:6:12101:2:2201:4:4111:2:4211:4:8301:3:3201:8:8311:3:6211:8:16</p>
+<p><strong>二、软件</strong></p>
+<p>  对S3c2440的硬件结构有了整体把握之后，让我们来简单应用一下。手里有S3c2440开发板的朋友，在跑裸机程序的时候大都是用的windows环境下的CodeWarrior for ARM这一开发环境，这个开发环境的强大不再多说。今天笔者，要使用另一种方法对其进行编程开发。笔者使用的环境为：RedHatEnterPrise6与交叉编译环境arm-linux-gcc。在这个环境下，笔者得自己编写由ARM汇编构成的S3c2440初始化汇编文件head.S，编译时所需的Makefile文件和一些C文件以及头文件。</p>
+<p>  首先来梳理一下本次总结所需的内容，该内容是要配置S3c2440的CPU工作频率FCLK为200MHz，FCLK:HCLK<img src="http://www.dnsnat.com/bbs/static/image/smiley/default/tongue.gif" srcset="/img/loading.gif" lazyload alt="img">CLK的比例为1:2:4，这样一来，PCLK的频率为50MHz，然后配置定时器Timer0的输入时钟为PCLK，并配置其为PWM输出，通过示波器可以观察到PWD的频率，从而验证时钟配置的正确性。好了，首先来介绍一下该工程文件组成如下图3 工程文件所示：</p>
+<p><img src="/EMBEDDED/mini2440/S3C2440%E4%B9%8B%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%EF%BC%88ls_core%EF%BC%89/072351as77sazesto5e0s4.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>图3 工程文件</p>
+<p>  其中，head.S文件为由ARM汇编语言编写的引导系统初始化文件；init.c和main.c为由C语言编写的顶层应用文件，s3c24xx.h为S3c2440的头文件；Makefile为编译、链接所需的文件。接下来首先给出引导系统初始化的汇编文件head.S：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><code class="hljs assembly">@**********************************************************************************************<br><br>@ File name        : head.S<br><br>@ Function        : 初始化，设置中断模式、系统模式的栈<br><br>@ Creating time     : 2012-6-7/16:36<br><br>@ Author          : 李帅<br><br>@ Pen-name        : 亦然<br><br>@ Organization      ：济南大学（2013本科毕业）<br><br>@ E-mail          ：[ls_core@sina.cn](mailto:ls_core@sina.cn)<br><br>@ Contact way      : QQ 1021480125    博客 http://blog.sina.com.cn/lscore<br><br>**********************************************************************************************<br><br>.extern main          @定义一个外部符号main 表示该符号不是第一次出现。<br><br>.text               @表示以下语句表示代码段。<br><br>.global _start         @定义程序标号_start为全局的。<br><br>_start:              @起始代码段<br><br>    b   Reset      @b指令无条件跳转到Reset代码段<br><br>@**********************************************************************************************<br><br>@                          7种中断向量的中断向量表<br><br>@**********************************************************************************************<br><br>@ 0x04:未定义指令终止模式的向量地址<br><br>HandleUndef:<br><br>    b   HandleUndef<br><br>@ 0x08:管理模式的向量地址，通过SWI指令进入此模式<br><br>HandleSWI:<br><br>    b   HandleSWI<br><br>@ 0x0c：指令预取终止导致的异常向量地址<br><br>HandlePrefetchAbort:<br><br>    b  HandlePrefetchAbort<br><br>@ 0x10 :数据访问终止导致的异常向量地址<br><br>HandleDataAbort:<br><br>    b   HandleDataAbort<br><br>@ 0x14 :保留<br><br>HandleNotUsed:<br><br>    b   HandleNotUsed<br><br>@ 0x18:中断模式的向量地址<br><br>HandleIRQ:<br><br>    b   HandleIRQ<br><br>@ 0x1C:快速中断模式的向量地址<br><br>HandleFIQ: <br><br>    b   HandleFIQ<br><br>@**********************************************************************************************<br><br>@                        代码段<br><br>@**********************************************************************************************<br><br>Reset:<br><br>    @********************************************************************************<br><br>    @系统一上电从此处开始在内存中执行，首先控制器为系统模式下设置<br><br>    @栈指针sp指向4K（steppingstone顶端处），然后关闭看门狗，初始化<br><br>    @系统时钟，始化定时器0<br><br>    @********************************************************************************<br><br>    ldr  sp,  =4096                @设置堆栈，以便调用C函数<br><br>    bl  disable_watch_dog            @调用C文件关闭看门狗<br><br>    bl  clock_init                @调用C文件设置系统时钟<br><br>    bl  timer0_init                @调用C文件初始化定时器0<br><br>halt_loop:<br><br>    b   halt_loop<br><br>@**********************************  end of file  **********************************************<br></code></pre></td></tr></table></figure>
+
+<p>  其中，需要将的地方就是堆栈地方，为什么要设置栈指针sp为4096呢？因为此次工程文件在编译链接生成的可执行文件clock.bin文件要在S3c2440的内部ram中执行，而内部ram的总大小为4K。所以此处的sp最大只能设为4096。设置好堆栈后就可以方便地调用C函数了。</p>
+<p>接下来给出用C编写的C文件init .c，该文件中的C函数被汇编文件head.S调用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br></pre></td><td class="code"><pre><code class="hljs assembly">#include&quot;s3c24xx.h&quot;<br><br>void disable_watch_dog(void);<br><br>void clock_init(void);<br><br>void timer0_init(void);<br><br>/ ********************************************************************<br><br>\*  关闭看门狗<br><br>*******************************************************************/<br><br>void disable_watch_dog(void)<br><br>&#123;<br><br>    WTCON=0;<br><br>&#125;<br><br>/ *******************************************************************<br><br>\*           时钟初始化函数<br><br>\* 对于MPLLCON寄存器，[19:12]为MDIV，[9:4]为PDIV[1:0]为SDIV<br><br>\* 计算公式如下：<br><br>\* S3C2410 : MPLL(FCLK)=(m*fin)/(p*2^s)<br><br>\* S3C2440 : MPLL(FCLK)=(2*m*Fin)/(p*2^s)<br><br>\* 其中：m=MDIV+8;  p=PDIV+2; s=SDIV<br><br>\* 设置CLKDIVN，令分频比为：FCLK：HCLK：PCLK=1:2:4<br><br>\* 由于开发板的输入时钟为12MHz，而且设置MDIV PDIV SDIV分别为<br><br>\* S3C2410 : MDIV=0x5C    PDIV=0x04  SDIV=0x00<br><br>\* S3C2440 ：MDIV=0x12  PDIV=0x01  SDIV=0x02<br><br>\* 则有：FCLK=200MHz    HCLK=100MHz  PCLK=50MHz<br><br>*******************************************************************/<br><br>\#define S3C2410_MPLL_200MHZ ((0x5C&lt;&lt;12) | (0x04&lt;&lt;4) | (0x00&lt;&lt;0))<br><br>\#define S3C2440_MPLL_200MHZ ((0x5C&lt;&lt;12) | (0x01&lt;&lt;4) | (0x02&lt;&lt;0))<br><br>void clock_init(void)<br><br>&#123;<br><br>    CLKDIVN=0x03;      <br><br>    / ***********************************************************<br><br>    \* 如果HDIVN非0，CPU总线模式应该从“fast mode”转变成“<br><br>    \* asynchronous bus mode”<br><br>    \* ARM920T有三种时钟总线模式：快速总线模式、同步总线<br><br>    \* 模式和异步总线模式。<br><br>    \* 当处理器上电或是复位时一开始使用快总线模式，由BCLK提供时钟。<br><br>    \* 然后设置PLL使得FCLK达到目标频率并且稳定之后，通过设置CP15<br><br>    \* 寄存器的c1寄存器来改变时钟驱动为同步驱动或是异步驱动。<br><br>    \* 1.如果FCLK是BCLK的整数倍，则采用同步模式<br><br>    \* 2.如果FCLK不是BCLK的整数倍，则采用异步模式<br><br>    ************************************************************/<br><br>    __asm__<br><br>    (<br><br>         &quot;mrc    p15, 0, r1, c1, c0, 0\n&quot;    <br><br>         &quot;orr r1, r1, #0xC0000000\n&quot;      <br><br>         &quot;mcr    p15, 0, r1, c1, c0, 0\n&quot;      <br><br>    );<br><br>    MPLLCON=S3C2440_MPLL_200MHZ;<br><br>&#125;<br><br>/ ********************************************************************<br><br>\* 初始化定时0<br><br>\* 定时器0输入时钟Fin=PCLK/&#123;prescaler value+1&#125;/&#123;divider value&#125;<br><br>\* 其中：&#123;prescaler value&#125;=0~255<br><br>\*    &#123;divider vaalue&#125;=2 4 8 16<br><br>*******************************************************************/<br><br>void timer0_init(void)<br><br>&#123;<br><br>    GPBCON &amp;=~(0x03);<br><br>    GPBCON |=(0x02);<br><br>    / ****************************************************************<br><br>     \*      TCFG0寄存器<br><br>     \* 31~24       23~16       15~8        7~0<br><br>     \* Reserved    DeadZoon   Prescaler1  Prescaler0<br><br>     \* DeadZoon  :死区长度<br><br>     \* Prescaler1  :定时器2、3、4的预分频值（0~255）<br><br>     \* Prescaler0  :定时器0、1的预分频值（0~255）<br><br>     \* ************************************************************/<br><br>    TCFG0=99;<br><br>    / ***************************************************************<br><br>    \*        TCFG1寄存器<br><br>    \*   31~24       23~20       19~16      15~12<br><br>    \*   Reserved    DMA mode  MUX4       MUX3<br><br>    \*   11~8        7~4     3~0<br><br>    \*   MUX2       MUX1       MUX0<br><br>    \* DMA mode  ![img](http://www.dnsnat.com/bbs/static/image/smiley/default/biggrin.gif)MA请求通道选择<br><br>    \* MUX4     :为Timer4选择输入时钟的分频系数。<br><br>    \*          0000 2分频 0001 4分频 0010 8分频<br><br>    \*          0011 16分频  01xx 外部时钟TCLK1作为Timer4的时钟<br><br>    \* *************************************************************/<br><br>    TCFG1=0x03;<br><br>    / **************************************************************<br><br>    \*        TCNTB0计数缓存寄存器<br><br>    \* 该值决定了PWM的周期（16位）。<br><br>    \* ************************************************************/<br><br>    TCNTB0=32;<br><br>    / *************************************************************<br><br>    \*        TCMPB0 比较缓冲寄存器<br><br>    \* 该值在PWM模式下，决定了PWM的占空比。<br><br>    \* ***********************************************************/<br><br>    TCMPB0=24;<br><br>    / *************************************************************<br><br>    \*        TCON 定时器的控制寄存器<br><br>    \* [4]    :设置死区长度<br><br>    \* [3]    :timer0自动重装的开关<br><br>    \* [2]    :timer0输出PWD开关<br><br>    \* [1]    :人工更新<br><br>    \* [0]    :Timer0的启动、停止开关<br><br>    \* ************************************************************/<br><br>    TCON |=(1&lt;&lt;1);      //手动更新各寄存器<br><br>    TCON =0x09;         //自动加载，启动定时器0<br><br>&#125;<br><br>/ ***************  end of file  **********************************/<br></code></pre></td></tr></table></figure>
+
+
+
+<p>最后来看看编译链接文件Makefile。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs assembly">objs := head.o init.o main.o<br><br>clock.bin: $(objs)<br><br>      arm-linux-ld -Ttext 0x00000000 -o clock_elf $^<br><br>      arm-linux-objcopy -O binary -S clock_elf $@<br><br>      arm-linux-objdump -D -m arm clock_elf &gt; clock.dis<br><br>  %.o:%.c<br><br>       arm-linux-gcc -Wall -nostdlib -O2 -c -o $@ $&lt;<br><br>  %.o:%.S<br><br>       arm-linux-gcc -Wall -nostdlib -O2 -c -o $@ $&lt;<br><br> clean:<br><br>      rm -f clock.bin clock_elf clock.dis *.o<br></code></pre></td></tr></table></figure>
+
+<p>  拿到Makefile文件之后，初试者肯定会很头疼，总感觉这既不是C语言也不是其他常用语言，这到底是什么东西啊？呵呵，请不要着急，这个文件中只是安排了一些编译的规则而已。见得多了，读的多了，写的多了，自然就熟悉了。</p>
+<p>  首先来看第1行，该行定义了一个变量objs并为其赋值为3个编译后的.o文件。那这些.o文件从何而来呢？来看第6~9行，便知，通过arm-linux-gcc编译器将工程中的所有.s和.c文件编译之后形成对应的.o文件。</p>
+<p>  再来看第2行，第2行讲的是要根据三个.o文件最终要生成clock.bin二进制文件。那么这个过程的规则又是什么呢?来看第3~5行，第3行讲要将编译得到了3个.o文件从地址0x00000000开始通过命令arm-linux-ld连接起来生成一个clock_elf格式文件。第4行讲将clock_elf文件通过命令arm-linux-objcopy转化成为二进制文件clock.bin。第5行讲将clock_elf文件通过命令arm-linux-objdump转化成为汇编文件clock.dis以便查看。</p>
+<p>  最10~11行讲的是编写一个make clean命令将编译生成中间文件全部删除。</p>
+<p>  这里只给出重要的文件程序进行讲解，s3c24xx.h和main.c不再做详细讲解。编写好这几个文件之后执行make命令，即可得到Makefile文件中提到的所有文件包括可执行的二进制文件clock.bin文件。编译过程如下图4 编译过程所示：</p>
+<p><img src="/EMBEDDED/mini2440/S3C2440%E4%B9%8B%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%EF%BC%88ls_core%EF%BC%89/072352npd80dq8ho0podph.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>图4 编译过程</p>
+<p>  然后，将生成clock.bin二进制文件烧写到NandFlash中，运行并用普源示波器测试由S3c2440的TOUT0引脚输出的PWM的频率如下图5 实测PWM所示：</p>
+<p><img src="/EMBEDDED/mini2440/S3C2440%E4%B9%8B%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%EF%BC%88ls_core%EF%BC%89/072353wg3sw37s7o073soa.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>图5 实测PWM</p>
+<p><strong>三 数据分析</strong></p>
+<p>  通过示波器可以清晰的看到频率为947.052Hz，占空比为75%的PWM波。回顾init.c文件中对定时器的配置有TCFG0&#x3D;99; TCFG1&#x3D;0x03; TCNTB0&#x3D;32; TCMPB0&#x3D;24;可以计算出：</p>
+<p>PWM的频率：PWM_CLK&#x3D;(PCLK&#x2F;( TCFG0+1))&#x2F;16&#x2F;TCNTB0&#x3D;976.5625Hz</p>
+<p>PWM占空比：PWM_D&#x3D;TCMPB0&#x2F;TCNTB0&#x3D;75%</p>
+<p>  通过理论数据和实际数据对比得知，PWM的实际频率小于理论值，推究其原因，由于计算理论值时PCLK的取值为50MHz，分析其原因可知，PCLK的实际值应小于50MHz。那么PCLK的实际值到底是多大呢？根据PWM的实际频率和配置相关系数安照PWM的频率公式可反推出PCLK&#x3D;48.5MHz。那么根据FCLK：HCLK：PCLK&#x3D;1:2:4可得出，FCLK、HCLK、PCLK的频率分别为194MHz、97Hz和48.5MHz。</p>
+<p>  结论：时钟系统的各个频率值的实际大小和理论值还是存在一定的偏差。</p>
+<p>  好啦，讲了这些希望初学者对对系统时钟有一个整体把握，希望前辈能多多指正，谢谢！我在后面还会将我的学习心得整理成文，包括FPGA和ARM等。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/EMBEDDED/" class="category-chain-item">EMBEDDED</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/EMBEDDED/mini2440/" class="category-chain-item">mini2440</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>S3C2440之系统时钟（ls_core）</div>
+      <div>http://blog.uanet.cn/EMBEDDED/mini2440/S3C2440之系统时钟（ls_core）.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/EMBEDDED/mini2440/%E7%BC%96%E5%86%99%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E6%80%9D%E8%B7%AF.html" title="编写操作系统思路">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">编写操作系统思路</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/EMBEDDED/mini2440/qemu%E6%A8%A1%E6%8B%9Fmini2440%E8%B0%83%E8%AF%95%E6%89%8B%E5%86%8C.html" title="qemu模拟mini2440调试手册">
+                        <span class="hidden-mobile">qemu模拟mini2440调试手册</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

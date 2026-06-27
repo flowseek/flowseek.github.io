@@ -1,0 +1,890 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="PS和PL通信机制 ​        所有 Zynq-7000 AP芯片上的存储器接口单元包括一个动态存储器控制器和几个  静态存储器接口模块。动态存储器控制器可以用于 DDR3、DDR3L、DDR2 和 LPDDR2。 静态存储器控制器支持一个 NAND 闪存接口、一个 Quad-SPI 闪存接口、一个并行数 据总线和并行 NOR 闪存接口 [9]。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZYNQ防火墙开发9-PS-PL通信-AXI-DDR">
+<meta property="og:url" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="PS和PL通信机制 ​        所有 Zynq-7000 AP芯片上的存储器接口单元包括一个动态存储器控制器和几个  静态存储器接口模块。动态存储器控制器可以用于 DDR3、DDR3L、DDR2 和 LPDDR2。 静态存储器控制器支持一个 NAND 闪存接口、一个 Quad-SPI 闪存接口、一个并行数 据总线和并行 NOR 闪存接口 [9]。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/image-20240323150812473.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/Screenshot_20240424_140715-1713941576337-3.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/image-20240917122258095.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/d7a1c876115081365ea489f40cc15a8dfe504995.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/Screenshot_20240320_162638.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/Screenshot_20240408_161415.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/image-20240919105239482.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/image-20240919105731729.png">
+<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/image-20240919105426227.png">
+<meta property="article:published_time" content="2025-02-13T05:53:21.179Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:21.179Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/image-20240323150812473.png">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>ZYNQ防火墙开发9-PS-PL通信-AXI-DDR - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ZYNQ防火墙开发9-PS-PL通信-AXI-DDR"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          10 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">ZYNQ防火墙开发9-PS-PL通信-AXI-DDR</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="PS和PL通信机制"><a href="#PS和PL通信机制" class="headerlink" title="PS和PL通信机制"></a>PS和PL通信机制</h4><p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/image-20240323150812473.png" srcset="/img/loading.gif" lazyload alt="image-20240323150812473"></p>
+<p>​        所有 Zynq-7000 AP芯片上的存储器接口单元包括一个动态存储器控制器和几个  静态存储器接口模块。动态存储器控制器可以用于 DDR3、DDR3L、DDR2 和 LPDDR2。 静态存储器控制器支持一个 NAND 闪存接口、一个 Quad-SPI 闪存接口、一个并行数 据总线和并行 NOR 闪存接口 [9]。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/Screenshot_20240424_140715-1713941576337-3.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240424_140715"></p>
+<p>​	之前课程我们用到的都是GP接口，这节课开始使用HP接口进行访问。通过上图可以知道HP是直接连接到存储控制器上的，然后再连接到DDR。由于PS侧是DDR，所以对于AXI，PL侧的HP接口都是Master。</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/image-20240917122258095.png" srcset="/img/loading.gif" lazyload alt="image-20240917122258095"></p>
+<h4 id="地址空间"><a href="#地址空间" class="headerlink" title="地址空间"></a>地址空间</h4><p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/d7a1c876115081365ea489f40cc15a8dfe504995.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id><a href="#" class="headerlink" title></a></h4><h4 id="OCM"><a href="#OCM" class="headerlink" title="OCM"></a>OCM</h4><p>The on-chip memory (OCM) module contains 256 KB of RAM and 128 KB of ROM (BootROM). It supports two 64-bit AXI slave interface ports, one dedicated for CPU&#x2F;ACP access via the APU snoop control unit (SCU), and the other shared by all other bus masters within the processing system (PS) and programmable logic (PL). The BootROM memory is used exclusively by the boot process and is not visible to the user.</p>
+<h4 id="zynq启动流程"><a href="#zynq启动流程" class="headerlink" title="zynq启动流程"></a>zynq启动流程</h4><p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/Screenshot_20240320_162638.png" srcset="/img/loading.gif" lazyload></p>
+<p>​        动态存储器接口 这个多协议双数据速率 （Double Data Rate，DDR）存储器控制器包括三个主 要的模块：一个核心存储器控制器和调度器 （DDRC） 、一个 AXI 存储器端口接口 （DDRI）和一个数字 PHY 以及控制器 （DDRP）[3]。 </p>
+<p>​	DDR 存储器控制器可以被配置为 16 位或 32 位模式，能在配置为 8、16 或 32 位  的单个块的 DRAM 存储器中访问 1GB 地址空间。也支持 EEC 存储器，但是只能以 32 位模式访问。用 DDR3 的时候支持最大 1333Mb&#x2F;s 的速度 [9]。 对 PS 和 PL 的共享存储器的共享访问是通过多端口 DDRI 来支持的，它具有四个  AXI 从机端口来满足这个要求 [9]： • PL 通过两个专用的 64 位端口 （AXI_HP）来访问。 • 一个 64 位端口通过 L2 cache 控制器专用于 ARM CPU。这个端口可以被配置为  低延迟。 • 所有其他 AXI 主机通过中央互联共享剩下的端口。 每个 AXI 接口配备有专用的事务 FIFO。</p>
+<p>​        DDRP PHY 处理从控制器来的读 &#x2F; 写请求，并在 DDR 存储器的时序约束下，把请 求翻译为信号。PHY 用控制器来的信号创建内部信号，通过数字 PHY 传递到 DDR 引 脚上。最后通过 PCB 上的走线把 DDR 引脚接到实际的 DDR 芯片上。</p>
+<p>图 10.3 是 DDR 存储器控制器的框图        <img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/Screenshot_20240408_161415.png" srcset="/img/loading.gif" lazyload alt="Screenshot_20240408_161415"></p>
+<p>​        </p>
+<p>​	将寄存器AXI TARGET SLAVE BASE ADDR的值修改为0x8000000，这个地址将作为我们PL对DDR进行读写的起始地址，这里有个值得注意的地方，用0x8000000而不是0x00000000 是因为0x00000000这个地址属于OCM 片内存储器的， 又因为DDR的前面部分地址需要给程序堆栈使用，所以这里我们才选地址为0x8000000。</p>
+<p>​	对于 DDR 存储器控制器的深入信息，请参考 《Zynq-7000 All Programmable SoC Technical Reference Manual》的第 10 章 [3]。</p>
+<p>DDR初始化大致分为2个步骤</p>
+<p>1、在Vavido中配置好DDR型号，位宽等。生成ps_init.c初始化文件。</p>
+<p>2、在Board.c(u-boot-xlnx-xilinx-v2014.4\board\xilinx\zynq)路径下的dram_init函数中。设置dram大小。</p>
+<p>​    有2种方式设置 （1、可以从设备树中获取，通过打开CONFIG_OF_CONTROL宏 2、可以通过代码中写死的宏定义CONFIG_SYS_SDRAM_SIZE（zynq_zed.c）来修改。）。</p>
+<p>fsbl_hwproj</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c">ps7_init() <br>&#123;<br>  <span class="hljs-comment">// MIO init</span><br>  ret = ps7_config (ps7_mio_init_data);  <br>  <span class="hljs-keyword">if</span> (ret != PS7_INIT_SUCCESS) <span class="hljs-keyword">return</span> ret;<br><br>  <span class="hljs-comment">// PLL init</span><br>  ret = ps7_config (ps7_pll_init_data); <br>  <span class="hljs-keyword">if</span> (ret != PS7_INIT_SUCCESS) <span class="hljs-keyword">return</span> ret;<br><br>  <span class="hljs-comment">// Clock init</span><br>  ret = ps7_config (ps7_clock_init_data);<br>  <span class="hljs-keyword">if</span> (ret != PS7_INIT_SUCCESS) <span class="hljs-keyword">return</span> ret;<br><br>  <span class="hljs-comment">// DDR init</span><br>  ret = ps7_config (ps7_ddr_init_data);<br>  <span class="hljs-keyword">if</span> (ret != PS7_INIT_SUCCESS) <span class="hljs-keyword">return</span> ret;<br><br>  <span class="hljs-comment">// Peripherals init</span><br>  ret = ps7_config (ps7_peripherals_init_data);<br>  <span class="hljs-keyword">if</span> (ret != PS7_INIT_SUCCESS) <span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>​    Ps7_init.c和ps7_init.h，用于初始化CLK，DDR和MIO。Ps7_init.tcl完成的初始化和ps7_init.c代码完成的初始化是相同的。</p>
+<p>​    Ps7_init.tcl文件，可以用来初始化CLK，DDR和MIO。它所完成的初始化和ps7_init.c代码完成的初始化是相同的。</p>
+<p>​    注意：当使用XMD调试应用程序的时候tcl文件是很有用的。例如，你可以执行Ps7_init.tcl文件然后将应用程序加载到DDR中并调试。在这种情况下，就不需要进行FSBL的全过程。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">Following operations will be performed before launching the debugger.<br>1. Resets entire system. Clears the FPGA fabric (PL).<br>2. Program FPGA fabric (PL).<br>3. Runs ps7_init to initialize PS.<br>4. Runs ps7_post_config. Enables level shifters from PL to PS. (Recommended to use this option only after system reset or board power ON).<br>5. All processors <span class="hljs-keyword">in</span> the system will be suspended, and Applications will be downloaded to the following processors as specified <span class="hljs-keyword">in</span> the Applications tab.<br>    1) ps7_cortexa9_0 (/home/dnsnat/workspace/database/source/fpga_project/ZYNQ/gateway_src/PS_AXI_DDR/PS_AXI_DDR.sdk/PS_AXI_DDR/Debug/PS_AXI_DDR.elf)<br></code></pre></td></tr></table></figure>
+
+<p>Initialize the PS</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs vim"><span class="hljs-number">1</span>. Load ps7_init. <span class="hljs-keyword">tcl</span> using the <span class="hljs-keyword">command</span> “<span class="hljs-keyword">source</span> ps7_init. ...<br><span class="hljs-number">2</span>. Use the “connect” <span class="hljs-keyword">command</span> <span class="hljs-keyword">to</span> connect <span class="hljs-keyword">to</span> the Zedboard.<br><span class="hljs-number">3</span>. Use the “targets” <span class="hljs-keyword">command</span> <span class="hljs-keyword">to</span> <span class="hljs-built_in">get</span> <span class="hljs-keyword">a</span> <span class="hljs-keyword">list</span> of targets (you could skip this).<br><span class="hljs-number">4</span>. Use the <span class="hljs-keyword">command</span> “target <span class="hljs-number">1</span>” <span class="hljs-keyword">to</span> select your target.<br><span class="hljs-number">5</span>. Call “ps_init” <span class="hljs-built_in">and</span> then “ps_post_config”.<br><span class="hljs-number">6</span>. The PS <span class="hljs-keyword">is</span> now initialized.<br></code></pre></td></tr></table></figure>
+
+
+
+<p>AXI-DDR工程和上一节AXI-RAM相似，附件包含了AXI_DRR_IP核,</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/image-20240919105239482.png" srcset="/img/loading.gif" lazyload alt="image-20240919105239482"></p>
+<p>EBAZ4205开发板配置</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/image-20240919105731729.png" srcset="/img/loading.gif" lazyload alt="image-20240919105731729"></p>
+<p>sdr开发板配置</p>
+<p><img src="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/image-20240919105426227.png" srcset="/img/loading.gif" lazyload alt="image-20240919105426227"></p>
+<p>以下为vtis代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;platform.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;xil_printf.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;xparameters.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;xil_io.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sleep.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PhyRead(addr) Xil_In32(addr)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PhyWrite(addr, value) Xil_Out32(addr, value)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> AXILITE_BASEADDR XPAR_AXI_ADAPTER_0_BASEADDR + 0x8000000</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    init_platform();<br><br>    print(<span class="hljs-string">&quot;Hello World\n\r&quot;</span>);<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;i&lt;<span class="hljs-number">3</span>;i++)<br>    &#123;<br>        sleep(<span class="hljs-number">1</span>);<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;i is %d\n\r&quot;</span>,i);<br>    &#125;<br>    <span class="hljs-type">int</span> reg0in  = <span class="hljs-number">320</span>;<br>    <span class="hljs-type">int</span> reg0out = <span class="hljs-number">0</span>;<br><br>    <span class="hljs-comment">//可以通过debug模式查看memory，对比没有disable的情况</span><br>    Xil_DCacheDisable();<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">32</span>; i+=<span class="hljs-number">4</span>)<br>    &#123;<br>    	reg0out = PhyRead(AXILITE_BASEADDR + i);<br>    	PhyWrite(AXILITE_BASEADDR + i, reg0out + <span class="hljs-number">4</span>);<br>    	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;reg0out %x is %d\r\n&quot;</span>, AXILITE_BASEADDR + i, reg0out + <span class="hljs-number">4</span>);<br>    &#125;<br><br>    cleanup_platform();<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>附件：</p>
+<p> <a href="ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%919-PS-PL%E9%80%9A%E4%BF%A1-AXI-DDR/axi_adapter.rar">axi_adapter.rar</a> </p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/" class="category-chain-item">视频课程</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" class="category-chain-item">FIREWALL_GATEWAY</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ZYNQ防火墙开发9-PS-PL通信-AXI-DDR</div>
+      <div>http://blog.uanet.cn/视频课程/FIREWALL_GATEWAY/ZYNQ防火墙开发9-PS-PL通信-AXI-DDR.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88CNN%EF%BC%89%E3%80%81%E5%BE%AA%E7%8E%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88RNN%EF%BC%89%E3%80%81%E6%B7%B1%E5%BA%A6%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88DNN%EF%BC%89%E5%92%8C%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%EF%BC%88DL%EF%BC%89.html" title="卷积神经网络（CNN）、循环神经网络（RNN）、深度神经网络（DNN）和深度学习（DL）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">卷积神经网络（CNN）、循环神经网络（RNN）、深度神经网络（DNN）和深度学习（DL）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%918-PS-PL%E9%80%9A%E4%BF%A1-AXI-RAM.html" title="ZYNQ防火墙开发8-PS-PL通信-AXI-RAM">
+                        <span class="hidden-mobile">ZYNQ防火墙开发8-PS-PL通信-AXI-RAM</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

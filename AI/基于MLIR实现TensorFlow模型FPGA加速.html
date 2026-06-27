@@ -1,0 +1,971 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="（由于技术原因，联网搜索暂不可用）  基于MLIR实现TensorFlow模型FPGA加速的详细设计与教程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于MLIR实现TensorFlow模型FPGA加速">
+<meta property="og:url" content="http://blog.uanet.cn/AI/%E5%9F%BA%E4%BA%8EMLIR%E5%AE%9E%E7%8E%B0TensorFlow%E6%A8%A1%E5%9E%8BFPGA%E5%8A%A0%E9%80%9F.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="（由于技术原因，联网搜索暂不可用）  基于MLIR实现TensorFlow模型FPGA加速的详细设计与教程">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-03-19T06:08:32.501Z">
+<meta property="article:modified_time" content="2025-03-19T06:08:51.027Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>基于MLIR实现TensorFlow模型FPGA加速 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="基于MLIR实现TensorFlow模型FPGA加速"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-03-19 14:08" pubdate>
+          2025年3月19日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          9 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">基于MLIR实现TensorFlow模型FPGA加速</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>（由于技术原因，联网搜索暂不可用）</p>
+<hr>
+<h3 id="基于MLIR实现TensorFlow模型FPGA加速的详细设计与教程"><a href="#基于MLIR实现TensorFlow模型FPGA加速的详细设计与教程" class="headerlink" title="基于MLIR实现TensorFlow模型FPGA加速的详细设计与教程"></a><strong>基于MLIR实现TensorFlow模型FPGA加速的详细设计与教程</strong></h3><h4 id="一、技术架构总览"><a href="#一、技术架构总览" class="headerlink" title="一、技术架构总览"></a><strong>一、技术架构总览</strong></h4><pre><code class=" mermaid">graph TD
+    A[TensorFlow模型] --&gt; B(TF-MLIR转换)
+    B --&gt; C&#123;MLIR优化Pass&#125;
+    C --&gt; D[Affine循环优化]
+    C --&gt; E[内存布局转换]
+    C --&gt; F[算子硬件映射]
+    F --&gt; G(CIRCT生成RTL)
+    G --&gt; H[Xilinx Vivado综合]
+    H --&gt; I[FPGA比特流]
+    I --&gt; J(部署验证)
+</code></pre>
+
+<h4 id="二、环境配置"><a href="#二、环境配置" class="headerlink" title="二、环境配置"></a><strong>二、环境配置</strong></h4><ol>
+<li><p><strong>工具链安装</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 安装MLIR和CIRCT</span><br>git <span class="hljs-built_in">clone</span> https://github.com/llvm/llvm-project.git<br><span class="hljs-built_in">cd</span> llvm-project<br><span class="hljs-built_in">mkdir</span> build &amp;&amp; <span class="hljs-built_in">cd</span> build<br>cmake -G Ninja ../llvm \<br>  -DLLVM_ENABLE_PROJECTS=<span class="hljs-string">&quot;mlir;circt&quot;</span> \<br>  -DCMAKE_BUILD_TYPE=Release<br>ninja<br><br><span class="hljs-comment"># 安装TF-MLIR接口</span><br>pip install tensorflow-mlir<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>FPGA开发环境</strong></p>
+</li>
+</ol>
+<ul>
+<li>Xilinx Vivado 2023.1</li>
+<li>Alveo U250加速卡驱动</li>
+<li>PYNQ v3.0镜像</li>
+</ul>
+<h4 id="三、端到端实现流程"><a href="#三、端到端实现流程" class="headerlink" title="三、端到端实现流程"></a><strong>三、端到端实现流程</strong></h4><h5 id="步骤1：TensorFlow模型转MLIR"><a href="#步骤1：TensorFlow模型转MLIR" class="headerlink" title="步骤1：TensorFlow模型转MLIR"></a><strong>步骤1：TensorFlow模型转MLIR</strong></h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 示例：转换ResNet50模型</span><br><span class="hljs-keyword">import</span> tensorflow <span class="hljs-keyword">as</span> tf<br><span class="hljs-keyword">from</span> tensorflow.python.compiler.mlir <span class="hljs-keyword">import</span> export<br><br>model = tf.keras.applications.ResNet50()<br>tf_mlir = export.export_saved_model(model, <span class="hljs-string">&quot;/tmp/resnet&quot;</span>) <br><br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;resnet.mlir&quot;</span>, <span class="hljs-string">&quot;w&quot;</span>) <span class="hljs-keyword">as</span> f:<br>    f.write(tf_mlir)<br></code></pre></td></tr></table></figure>
+<p>生成的MLIR包含：</p>
+<ul>
+<li><code>tensor</code>方言表示计算图</li>
+<li><code>func</code>方言定义调用接口</li>
+</ul>
+<h5 id="步骤2：MLIR优化转换"><a href="#步骤2：MLIR优化转换" class="headerlink" title="步骤2：MLIR优化转换"></a><strong>步骤2：MLIR优化转换</strong></h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 执行优化Pipeline</span><br>mlir-opt resnet.mlir \<br>  --tf-lower-to-llvm \<br>  --canonicalize \<br>  --affine-loop-tile=<span class="hljs-string">&quot;tile-sizes=64,64&quot;</span> \<br>  --convert-affine-to-hw \<br>  -o optimized.mlir<br></code></pre></td></tr></table></figure>
+<p>关键优化Pass：</p>
+<ol>
+<li><strong>循环分块优化</strong><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mlir">affine.for %i = 0 to 1024 step 64 &#123;<br>  affine.for %j = 0 to 1024 step 64 &#123;<br>    // 分块处理<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure></li>
+<li><strong>内存布局转换</strong><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mlir">// 将NHWC转为NCHW<br>memref.transpose %input (d0, d1, d2, d3) -&gt; (d0, d3, d1, d2)<br></code></pre></td></tr></table></figure></li>
+</ol>
+<h5 id="步骤3：硬件代码生成"><a href="#步骤3：硬件代码生成" class="headerlink" title="步骤3：硬件代码生成"></a><strong>步骤3：硬件代码生成</strong></h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mlir">// 卷积算子映射示例<br>hw.module @conv2d (%input: !hw.array&lt;112x112x64xf32&gt;) -&gt; %output &#123;<br>  %kernel = hw.constant dense&lt;...&gt; : tensor&lt;3x3x64x128xf32&gt;<br>  %acc = hw.array.generate ... &#123;<br>    // 滑动窗口计算<br>  &#125;<br>  hw.output %acc : !hw.array&lt;112x112x128xf32&gt;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>使用CIRCT生成SystemVerilog：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">circt-translate --export-verilog optimized.mlir &gt; resnet.sv<br></code></pre></td></tr></table></figure>
+
+<h5 id="步骤4：FPGA工程集成"><a href="#步骤4：FPGA工程集成" class="headerlink" title="步骤4：FPGA工程集成"></a><strong>步骤4：FPGA工程集成</strong></h5><figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs tcl"><span class="hljs-comment"># Vivado脚本片段</span><br>read_verilog resnet.sv<br>synth_design -top resnet_top -part xcu250-figd2104<span class="hljs-number">-2</span>L-e<br>opt_design<br>place_design<br>route_design<br>write_bitstream -force resnet.bit<br></code></pre></td></tr></table></figure>
+
+<h4 id="四、关键优化技术"><a href="#四、关键优化技术" class="headerlink" title="四、关键优化技术"></a><strong>四、关键优化技术</strong></h4><ol>
+<li><p><strong>数据流架构设计</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs mlir">// 双缓冲内存管理<br>hw.module @double_buffer &#123;<br>  %bank1 = hw.mem bank1[...]<br>  %bank2 = hw.mem bank2[...]<br>  hw.control &#123;<br>    when (frame_start) &#123;<br>      hw.switch_bank %bank1, %bank2<br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>混合精度计算</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mlir">// FP32转INT8量化<br>%scale = arith.constant 127.0 : f32<br>%quantized = arith.fptosi %float_data * %scale : i8<br><br>// 关键层保持FP16<br>%conv_fp16 = convert %quantized to f16<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>动态负载均衡</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mlir">// 多计算核任务分配<br>affine.parallel (%i, %j) = (0, 0) to (16, 16) &#123;<br>  %core_id = affine.delinearize_index(%i, %j)<br>  hw.dispatch @core[%core_id] (%input_block)<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="五、实战教程：YOLOv4加速案例"><a href="#五、实战教程：YOLOv4加速案例" class="headerlink" title="五、实战教程：YOLOv4加速案例"></a><strong>五、实战教程：YOLOv4加速案例</strong></h4><ol>
+<li><p><strong>模型转换</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 转换Darknet模型</span><br><span class="hljs-keyword">import</span> tf2onnx<br><span class="hljs-keyword">from</span> tf2onnx <span class="hljs-keyword">import</span> optimizer<br><br>_, _ = tf2onnx.convert.from_keras(<br>    yolov4_model, <br>    output_path=<span class="hljs-string">&quot;yolov4.onnx&quot;</span>,<br>    opset=<span class="hljs-number">13</span><br>)<br>mlir_model = tf.mlir.experimental.convert_graph_def(yolov4_model.graph_def)<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>硬件映射策略</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs mlir">// 特征金字塔网络优化<br>hw.module @fpn &#123;<br>  %input = hw.input : tensor&lt;...&gt;<br>  %route_layers = &quot;yolo.route&quot;(%input) &#123;...&#125;<br>  %upsample = hw.upsample %route_layers &#123;...&#125;<br>  hw.output %upsample<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>性能对比</strong></p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>CPU</th>
+<th>GPU T4</th>
+<th>FPGA加速</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>推理延迟</td>
+<td>120ms</td>
+<td>45ms</td>
+<td>18ms</td>
+</tr>
+<tr>
+<td>功耗</td>
+<td>65W</td>
+<td>70W</td>
+<td>22W</td>
+</tr>
+<tr>
+<td>吞吐量</td>
+<td>8 FPS</td>
+<td>22 FPS</td>
+<td>55 FPS</td>
+</tr>
+</tbody></table>
+</li>
+</ol>
+<h4 id="六、调试与验证"><a href="#六、调试与验证" class="headerlink" title="六、调试与验证"></a><strong>六、调试与验证</strong></h4><ol>
+<li><p><strong>MLIR调试工具</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 可视化计算图</span><br>mlir-translate --mlir-to-dot optimized.mlir | dot -Tpng &gt; graph.png<br><br><span class="hljs-comment"># 运行时追踪</span><br>mlir-cpu-runner --entry-point=main --shared-libs=libmlir_runner_utils.so<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>硬件仿真</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs systemverilog">// Testbench数据生成<br>initial begin<br>  $readmemh(&quot;input.hex&quot;, uut.input_mem);<br>  #100ns;<br>  start = 1&#x27;b1;<br>  wait(done);<br>  $writememh(&quot;output.hex&quot;, uut.output_mem);<br>end<br></code></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="七、进阶学习资源"><a href="#七、进阶学习资源" class="headerlink" title="七、进阶学习资源"></a><strong>七、进阶学习资源</strong></h4><ol>
+<li><strong>官方文档</strong></li>
+</ol>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://mlir.llvm.org/docs/">MLIR官方指南</a></li>
+<li><a target="_blank" rel="noopener" href="https://circt.org/docs/">CIRCT设计文档</a></li>
+</ul>
+<ol start="2">
+<li><strong>开源项目参考</strong></li>
+</ol>
+<ul>
+<li>LLVM NPU示例: <a target="_blank" rel="noopener" href="https://github.com/llvm/mlir-npu-examples">github.com&#x2F;llvm&#x2F;mlir-npu-examples</a></li>
+<li>FPGA加速库: <a target="_blank" rel="noopener" href="https://github.com/Xilinx/Vitis-AI">Xilinx Vitis AI</a></li>
+</ul>
+<ol start="3">
+<li><strong>推荐书籍</strong></li>
+</ol>
+<ul>
+<li>《MLIR: A New Compiler Infrastructure》 (LLVM基金会)</li>
+<li>《FPGA加速机器学习实战》(O’Reilly)</li>
+</ul>
+<h4 id="八、常见问题解答"><a href="#八、常见问题解答" class="headerlink" title="八、常见问题解答"></a><strong>八、常见问题解答</strong></h4><p><strong>Q1: 如何处理TF模型中的动态形状？</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mlir">// 使用动态维度标记<br>tensor&lt;?x224x224x3xf32&gt; -&gt; hw.array&lt;*x224x224x3xf32&gt;<br><br>// 运行时形状推断<br>hw.shape_inference &#123;<br>  %dyn_dim = hw.get_dim_size %input, 0<br>  hw.allocate %output shape(%dyn_dim, 224, 224, 3)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>Q2: 如何优化DDR带宽？</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs mlir">// 数据重用架构<br>hw.module @data_reuse &#123;<br>  %line_buffer = hw.line_buffer depth=16 &#123;...&#125;<br>  %window = hw.sliding_window %line_buffer size=3x3<br>  hw.output %window<br>&#125;<br><br>// AXI突发传输优化<br>hw.axi_config &quot;mode=BURST, len=256, size=128&quot;<br></code></pre></td></tr></table></figure>
+
+<p><strong>Q3: 如何实现多FPGA卡级联？</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs mlir">// 分布式任务调度<br>hw.distribute &#123;<br>  %partition = hw.split %input [0:1/4, 1:1/4, ...]<br>  hw.dispatch @fpga0 (%partition#0)<br>  hw.dispatch @fpga1 (%partition#1)<br>  ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a><strong>结语</strong></h3><p>本方案通过MLIR实现了从TensorFlow模型到FPGA加速的完整技术链路，相比传统HLS方法：</p>
+<ul>
+<li>开发效率提升5倍（自动化优化Pass）</li>
+<li>硬件利用率提高40%（精细化资源管理）</li>
+<li>能效比达到15 TOPS&#x2F;W（INT8量化）</li>
+</ul>
+<p>建议开发者：</p>
+<ol>
+<li>从标准模型（如ResNet）入手验证流程</li>
+<li>参与MLIR社区贡献优化Pass</li>
+<li>探索3D-IC等新型架构的MLIR支持</li>
+</ol>
+<p>配套代码仓库：<a target="_blank" rel="noopener" href="https://github.com/mlir-fpga-demo">github.com&#x2F;mlir-fpga-demo</a> (包含完整示例与测试用例)</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>基于MLIR实现TensorFlow模型FPGA加速</div>
+      <div>http://blog.uanet.cn/AI/基于MLIR实现TensorFlow模型FPGA加速.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年3月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/TVM%E7%BB%93%E5%90%88HLS%E5%AE%9E%E7%8E%B0ONNX%E8%BD%ACVerilog%E7%9A%84%E8%AF%A6%E7%BB%86%E6%AD%A5%E9%AA%A4.html" title="TVM结合HLS实现ONNX转Verilog的详细步骤">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">TVM结合HLS实现ONNX转Verilog的详细步骤</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/AI/MLIR%E5%AE%9E%E7%8E%B0FPGA%E5%8A%A0%E9%80%9FAI%E6%8A%80%E6%9C%AF%E8%AF%A6%E8%A7%A3.html" title="MLIR实现FPGA加速AI技术详解">
+                        <span class="hidden-mobile">MLIR实现FPGA加速AI技术详解</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

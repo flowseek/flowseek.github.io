@@ -1,0 +1,977 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="引  言    随着公众网络安全意识的增强，加密技术被广泛应用。在加密技术保护数据安全和用户隐私的同时，也掩盖了数据的特征，有助于攻击者滥用其逃避识别，给网络安全防护及监管带来新的挑战。准备识别加密的恶意流量对于保护网络资源、维护网络空间安全具有重要意义。     本文对加密恶意流量识别方法进行介绍，主要包括基于规则、基于传统机器学习和基于深度学习的方法。其中，基于深度学习的方法可以自动从原始流量">
+<meta property="og:type" content="article">
+<meta property="og:title" content="加密恶意流量识别及对抗研究">
+<meta property="og:url" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="引  言    随着公众网络安全意识的增强，加密技术被广泛应用。在加密技术保护数据安全和用户隐私的同时，也掩盖了数据的特征，有助于攻击者滥用其逃避识别，给网络安全防护及监管带来新的挑战。准备识别加密的恶意流量对于保护网络资源、维护网络空间安全具有重要意义。     本文对加密恶意流量识别方法进行介绍，主要包括基于规则、基于传统机器学习和基于深度学习的方法。其中，基于深度学习的方法可以自动从原始流量">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640.webp">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640-1740385322326-3.webp">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640-1740385338869-6.webp">
+<meta property="article:published_time" content="2025-02-28T03:39:22.956Z">
+<meta property="article:modified_time" content="2025-02-28T03:39:22.956Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640.webp">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>加密恶意流量识别及对抗研究 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="加密恶意流量识别及对抗研究"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-28 11:39" pubdate>
+          2025年2月28日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          4.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          40 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">加密恶意流量识别及对抗研究</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><strong>引  言</strong></p>
+<pre><code class="hljs">   随着公众网络安全意识的增强，加密技术被广泛应用。在加密技术保护数据安全和用户隐私的同时，也掩盖了数据的特征，有助于攻击者滥用其逃避识别，给网络安全防护及监管带来新的挑战。准备识别加密的恶意流量对于保护网络资源、维护网络空间安全具有重要意义。
+
+   本文对加密恶意流量识别方法进行介绍，主要包括基于规则、基于传统机器学习和基于深度学习的方法。其中，基于深度学习的方法可以自动从原始流量中提取特征，并发现不同特征间的非直观联系，而被广泛应用。另一方面，加密恶意流量识别具有高对抗性，基于深度学习的加密恶意流量识别模型易受到对抗攻击，大都缺少处理对抗样本的鲁棒性。攻击者可以通过在原始样本上添加一些微小的扰动，生成对抗样本，误导识别系统做出错误决策，增大了防御方识别恶意流量的难度。为抵御对抗攻击带来的安全威胁，防御方也发展了相应的对抗防御措施。本文将从攻击和防御两个视角对加密恶意流量的对抗研究进行介绍。
+</code></pre>
+<p><strong>1加密恶意流量识别技术</strong></p>
+<p>在加密恶意流量识别研究中，对加密负载进行解密再识别的方法会消耗大量资源并侵犯用户隐私。因此，在不解密的条件下对加密流量进行有效识别是当前网络安全领域的重点。如图1所示，目前的加密恶意流量识别研究主要分为三类：基于规则的方法、基于传统机器学习(Machine Learning, ML)的方法和基于深度学习(Deep Learning, DL)的方法[1]。</p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640.webp" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p>图1 加密恶意流量识别研究</p>
+<p>(1) 基于规则的方法</p>
+<p>基于规则的方法，利用加密流量的字段组合、排序或者固定模式等作为指纹进行模式匹配，如加密通信中剩余的明文信息[2]，高度依赖规则库，易被绕过。随着网络流量加密化进程的推进，明文信息越来越稀疏，基于规则的方法变得更加困难，研究人员渐渐致力于将机器学习和深度学习方法应用到加密恶意流量识别的问题上。</p>
+<p>(2) 基于传统机器学习的方法</p>
+<p>基于传统ML的方法，可以从样本中获取规则用于推理和决策，具有较高的可解释性。常用的ML算法模型包括：朴素贝叶斯、决策树、支持向量机、随机森林、线性回归、逻辑回归、XGBoost算法等有监督算法和K-means聚类等无监督算法。</p>
+<p>李慧慧等人[3]通过提取加密流量会话的包长与时间统计特征结合加密协议特征作为逻辑回归、决策树和随机森林的输入，提高改识别准确率，但手动设计、提取特征仍需耗费较大的资源。</p>
+<p>Chen等人[4]提出一种改进密度峰值聚类算法(DPC-GSMND)，可以有效地降低计算复杂度，提高加密恶意流量识别精度。然而，无监督模型的训练依赖大量样本的支撑，当样本数量不足时，识别精度可能会下降。</p>
+<p>基于传统ML的方法取得了不错的成果，但它是对流量特征的浅层学习，且依赖于人工的特征工程，泛化能力有限。同时，部分流量特征容易过时，需要不断更新。</p>
+<p>(3) 基于深度学习的方法</p>
+<p>深度学习的迅速发展为加密恶意流量的识别研究提供了新的可行的思路。基于DL的方法，以原始流量数据或流量的统计特征作为DL模型的输入，自动从从原始流量中提取特征或发现不同流量特征间的非直观联系。</p>
+<p>在加密恶意流量识别研究中，常用的深度学习模型包括：</p>
+<p>多层感知机(Multilayer Perceptron, MLP)、</p>
+<p>卷积神经网络(Convolutional Neural Network, CNN)、</p>
+<p>循环神经网络(Recurrent Neural Network, RNN)、</p>
+<p>自动编码器(Auto Encoder, AE)</p>
+<p>和生成对抗模型（Generative Adversarial Networks, GAN）等等。</p>
+<ul>
+<li><p>MLP可用于加密流量识别。Wang等人[5]将原始数据包字节向量作为MLP的输入，实现了加密流量分类。然而，MLP的结构较为简单，无法处理高维输入和隐藏层参数过多的问题。</p>
+</li>
+<li><p>CNN通过卷积和池化操作可以有效减少模型参数数量，较好地处理高维输入。Lucia 等人[6]使用CNN进行恶意TLS流量识别，结合早停法避免过拟合，最终准确率达到99%以上。但此研究需提取 TLS 流的大小和方向作为模型输入，增加了人工成本。另一方面，CNN能够有效提取流量的空间特征。Wang等人[7]首次将原始流量处理成二维灰度图像作为2D-CNN的输入，以提取流量的深层空间特征，实现对流量的准确识别。之后，Bazuhair等人[8]将流量特征转换为灰度图像，并使用Perlin噪声对图像进行增强，从而改进流量表示。23年又出了机器学习和深度学习结合的加密流量识别，参考Wang等人[30]。</p>
+</li>
+<li><p>GNN也可以有效提取流量的空间特征。GCN-ETA[9]在两个流有着相同的IP时构建图的边，以实现恶意流量识别，但这可能导致整个图非常密集。同时，图的构造通常需要大量的计算和时间成本。</p>
+</li>
+<li><p>RNN可以有效提取流量的时序特征。Li 等人[10]提出的 HALNet使用卷积块提取字节特征，使用多头注意机制和BiLSTM提取全局时序特征，使用skip-LSTM提取局部时序特征，有着更好的泛化能力。</p>
+</li>
+<li><p>AE常用于降维和特征提取。Deep-Full Range(DFR)[11]由CNN、LSTM和栈式自编码器(Stacked Auto Encoder, SAE)组成，通过CNN提取空间特征，通过LSTM提取时序特征，通过SAE提取编码特征，具有较好的入侵检测性能。然而，DFR 仅针对非加密恶意流量，针对加密恶意流量的识别性能有待提升。</p>
+</li>
+<li><p>GAN是一种常用的数据生成方法，可以生成流量样本，扩充数据集，解决加密恶意流量识别中的数据不平衡问题。PacketCGAN[12]以条件 GAN为基础，可以将应用程序类型作为条件输入模型，一次生成多种类样本，但其训练存在不稳定和易崩溃的问题。CTTGAN[13]不需要将网络流量数据转换为图像，而是提取其有效特征，再通过CTGAN扩展生成特征数据，降低了存储成本和计算复杂度，但其对于数量过少的流量类别的生成性能有待提升，且特征提取会增加时间成本。</p>
+</li>
+</ul>
+<p>除了上述常用的深度学习模型，Zhang等人[14]基于深度森林提出DF-IDS，以会话为粒度对流量进行切分，再转换为二维图像作为深度森林的输入，最终实现对SSL&#x2F;TSL加密恶意流量的细粒度识别。</p>
+<p>基于深度学习的识别方法具有以下优点：</p>
+<ol>
+<li><p>自动提取流量特征，减少人工成本；</p>
+</li>
+<li><p>深层学习，发现流量特征间的非直观联系；</p>
+</li>
+<li><p>在一定程度上解决数据不平衡问题。</p>
+</li>
+</ol>
+<p>同时也存在一定的局限性：</p>
+<ol>
+<li><p>计算存储开销大，大部分DL模型依赖大规模数据的长时间训练；</p>
+</li>
+<li><p>DL模型属于黑盒模型，可解释性较差；</p>
+</li>
+</ol>
+<p>现实网络环境动态多变，如何对模型进行实时训练和动态调整仍有待研究。</p>
+<p><strong>2加密恶意流量对抗技术</strong></p>
+<p>加密恶意流量识别具有高对抗性，而基于深度学习的流量识别方法易受到对抗攻击导致识别错误，缺少应对对抗样本（对抗样本指的是，在原始样本上添加一些微小扰动而生成的新的输入样本[15]）的鲁棒性。对抗样本和原始样本在人为观察上无明显差异，可以误导识别模型。攻击者常将恶意流量伪装成正常流量，生成对抗样本，增大了防御方识别恶意流量的难度。为抵御对抗攻击带来的安全威胁，防御方也发展了相应的对抗防御措施。</p>
+<p>(1) 对抗攻击技术</p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640-1740385322326-3.webp" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p>图2 对抗攻击方法分类</p>
+<p>如图2所示，对抗攻击可分为白盒，灰盒和黑盒攻击方法。其中，白盒攻击方法，指攻击方完全掌握防御方的训练数据、样本特征、算法模型和参数权重等详细信息，包括快速梯度符号方法 (Fast Gradient SignMethod, FGSM)[16]、投影梯度下降法 (Projected Gradient Descent, PGD)[17]、基于雅可比矩阵的显著图攻击方法 (Jacobian-based Saliency Map Attack, JSMA)[18]和C&amp;W 攻击方法 (Carlini and Wagner Attack, C&amp;W)[19]等。黑盒攻击方法，指攻击方没有防御方识别模型的先验知识，仅能通过访问模型获取模型输出。灰盒攻击方法，指攻击方能够通过访问模型获得不同程度的模型信息，包括模型的特征空间和训练集分布，但没有模型的确切信息。常用的黑盒&#x2F;灰盒攻击有：通用对抗扰动 (UniversalAdversarial Perturbation, UAP)[20]、零阶优化 (Zeroth Order Optimization, ZOO)[21]、GAN 及其变种和强化学习等方法。</p>
+<ul>
+<li><p>FGSM、JSMA和PGD是基于梯度的攻击方法，沿分类模型的梯度上升方向对原始样本添加扰动，使模型损失函数增加，从而导致模型识别错误。</p>
+</li>
+<li><p>C&amp;W是基于优化的攻击方法，在范数L0、L2和L∞上均有较大改善，能够生成更优的对抗样本。</p>
+</li>
+<li><p>UAP通过对数据点进行迭代DeepFool攻击，直至错误率达标，从而得到能使大部分数据都被误判的通用扰动，具有很强的泛化能力。Sadeghzadeh等人[22]应用UAP生成对抗流量，仅将扰动注入到输入的某些特定部分，例如数据包的末尾或虚拟数据包的情况下，生成对抗流量，降低1D-CNN模型的识别性能。</p>
+</li>
+<li><p>ZOO，使用零阶优化对目标模型的梯度进行估计，而无需训练替代模型。</p>
+</li>
+<li><p>GAN及其变种，通过生成器学习对抗特征，或生成扰动构造对抗样本。李杰等人[23]使用WGAN生成目标流量的伪装特征，构造相应的目标流量模式，再通过代理系统依据流量模式将流量变形，能够将流量伪装成任意正常目标流量，屏蔽流量识别。</p>
+</li>
+<li><p>强化学习[24]，通过智能体依据目前识别模型的奖励反馈从动作空间选取下一个动作，其中动作空间包括：对流量样本数据包的增减操作，对目标主机的网络服务类型、连接进程的端口号等进行修改的操作等等，从而实现对恶意流量样本的迭代修改，直到目标识别模型被成功绕过。</p>
+</li>
+</ul>
+<p>对抗样本的出现暴露了基于深度学习的加密恶意流量识别模型的脆弱性。其中，以真实对抗流量为输出的攻击方法更具现实价值。而以流量向量表示为输出的攻击方法，虽然对识别模型的实际威胁较弱，但由于恶意流量特征的选择具有代表性和相似性，经验丰富的领域专家可以对典型的恶意特征进行扰动，进而实现对模型的攻击，也具有一定的意义。</p>
+<p>（2）对抗防御技术</p>
+<p><img src="/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640-1740385338869-6.webp" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p>图3 对抗防御方法分类</p>
+<p>为降低对抗攻击对识别模型的影响，相应的对抗防御方法包括如图3所示的处理数据和改进识别模型。</p>
+<ul>
+<li><p>处理数据，指在对抗样本输入识别模型前，对输入数据进行处理，包括：数据压缩和消除扰动等方法。Han等人[25]选择删除鲁棒性得分较低的特征进行特征压缩，以减少攻击者可扰动的范围，起到了较好的防御效果。消除扰动，即将对抗样本恢复成原始样本，如APE-GAN[26]等。被动防御不需要修改识别模型的结构和参数，更易被部署，但无法提高整体模型的鲁棒性[27]。</p>
+</li>
+<li><p>改进识别模型，指通过在深度神经网络中添加更多的层，或者对模型进行再训练，从而提升识别模型的泛化能力和鲁棒性，包括：深度压缩网络、防御蒸馏和对抗训练等方法。Gu等人[28]提出了一种融合了平滑惩罚的端到端训练深度压缩网络，从而在保证不会显著降低性能的前提下，增加了网络对对抗样本的稳健性。而防御蒸馏[29]，原是网络模型压缩技术，能够在保持网络性能的条件下把大网络压缩成小网络。通过在蒸馏的过程中调整温度，产生更加平滑、对扰动更加不敏感的模型，从而提升模型的鲁棒性。对抗训练[17]通过在模型的训练数据集添加预先构造的对抗样本，提升模型针对对抗样本的稳健性。根据加入对抗样本的不同，又可进一步分为 FGSM 对抗训练、PGD 对抗训练和集成对抗训练防御方法。</p>
+</li>
+</ul>
+<p><strong>3总  结</strong></p>
+<p>深度学习的迅速发展为加密恶意流量识别与对抗带来了新的机遇与挑战。基于深度学习的加密恶意流量识别方法能够自动提取流量特征，有效减少人工成本、提高识别的准确率和精度，是领域内研究的主流方向。然而，现实网络环境中恶意流量具有动态性和隐蔽性，能够进行实时训练和快速动态调整的自适应模型值得进一步深入研究。另一方面，加密恶意流量识别具有高对抗性。尤其，基于深度学习的流量识别模型易受到对抗攻击，缺少应对对抗样本的鲁棒性。因此，如何进一步利用深度学习模型进行对抗防御、提升防御措施的泛化能力，抵御更多种类的对抗攻击，以及如何进行真实对抗流量样本的构造，从原始流量生成的角度进行攻防研究，是未来有待突破的研究难点。</p>
+<p><strong>参考文献</strong></p>
+<p>[1] 樊祖薇,张顺亮,赵泓策.基于深度学习的恶意加密流量检测及对抗技术综述[J].信息安全学报,已采用.</p>
+<p>[2] Van Ede T, Bortolameotti R, Continella A, et al. Flowprint: Semi-supervised mobile-app fingerprinting on encrypted network traffic [C] Network and Distributed System Security Symposium (NDSS), 2020.</p>
+<p>[3] 李慧慧, 张士庚, 宋虹, et al. 结合多特征识别的恶意加密流量检测方法[J].信息安全学报, 2021, 6(2) :129-142.</p>
+<p>[4] Chen L, Gao S, Liu B, et al. THS-IDPC: A three-stage hierarchical sampling method based on improved density peaks clustering algorithm for encrypted malicious traffic detection [J]. The Journal of Supercomputing, 2020, 76(9): 7489-518.</p>
+<p>[5] Wang P, Ye F, Chen X, et al. Datanet: Deep learning based encrypted network traffic classification in sdn home gateway [J]. IEEE Access, 2018, 6: 55380-55391.</p>
+<p>[6]  De Lucia M J, Cotton C. Detection of encrypted malicious network traffic using machine learning [C]&#x2F;&#x2F;MILCOM 2019-2019 IEEE Military Communications Conference (MILCOM). IEEE: 1-6.</p>
+<p>[7] Wang W, Zhu M, Zeng X, et al. Malware traffic classification using convolutional neural network for representation learning[C]. 2017 International conference on information networking, 2017: 712-717.</p>
+<p>[8] Bazuhair W, Lee W. Detecting malign encrypted network traffic using perlin noise and convolutional neural network [C]&#x2F;&#x2F;2020 10th Annual Computing and Communication Workshop and Conference (CCWC). IEEE, 2020: 0200-0206.</p>
+<p>[9] Zheng J, Zeng Z, Feng T. GCN-ETA: High-Efficiency Encrypted Malicious Traffic Detection [J]. Security and Communication Networks, 2022, 2022.</p>
+<p>[10]  Li R, Song Z, Xie W, et al. Halnet: A hybrid deep learning model for encrypted c&amp;c malware traffic detection [C]&#x2F;&#x2F;Yang M, Chen C, Liu Y. Network and System Security. Springer International Publishing, 2021: 326-339.</p>
+<p>[11] Zeng Y, Gu H, Wei W, et al. Deep-full-range : a deep learning based network encrypted traffic classification and intrusion detection framework [J]. IEEE Access, 2019, 7: 45182-45190.</p>
+<p>[12] Wang P, Li S, Ye F, et al. Packetcgan: Exploratory study of class imbalance for encrypted traffic classification using cgan [C]&#x2F;&#x2F;ICC 2020-2020 IEEE International Conference on Communications (ICC). IEEE, : 1-7.</p>
+<p>[13] Wang J, Yan X, Liu L, et al. Cttgan: Traffic data synthesizing scheme based on conditional gan [J]. Sensors, 2022, 22(14): 5243.</p>
+<p>[14] Zhang X, Zhao M, Wang J, et al. Deep-Forest-Based Encrypted Malicious Traffic Detection [J]. Electronics, 2022, 11(7): 977.</p>
+<p>[15] 刘奇旭, 王君楠, 尹捷, 等. 对抗机器学习在网络入侵检测领域的应用 [J]. 通信学报, 2021, 42(11): 1.</p>
+<p>[16] Goodfellow I J, Shlens J, Szegedy C. Explaining and harnessing adversarial examples [J]. CoRR, 2014, abs&#x2F;1412.6572.</p>
+<p>[17] Madry A, Makelov A, Schmidt L, et al. Towards deep learning models resistant to adversarial attacks [J]. ArXiv, 2017, abs&#x2F;1706.06083.</p>
+<p>[18] Papernot N, McDaniel P, Jha S, et al. The limitations of deep learning in adversarial settings[C]&#x2F;&#x2F;2016 IEEE European Symposium on Security and Privacy (EuroS&amp;P). 372-387.</p>
+<p>[19] Carlini N, Wagner D. Towards evaluating the robustness of neural networks [C]&#x2F;&#x2F;2017 IEEE Symposium on Security and Privacy (SP). 39-57.</p>
+<p>[20] Moosavi-Dezfooli S M, Fawzi A, Fawzi O, et al. Universal adversarial perturbations [C]&#x2F;&#x2F;2017 IEEE Conference on Computer Vision and Pattern Recognition (CVPR). 86-94.</p>
+<p>[21] Chen P Y, Zhang H, Sharma Y, et al. Zoo: Zeroth order optimization based black-box attacks to deep neural networks without training substitute models [J]. Proceedings of the 10th ACM Workshop on Artificial Intelligence and Security, 2017.</p>
+<p>[22] Sadeghzadeh A M, Shiravi S, Jalili R. Adversarial network traffic: Towards evaluating the robustness of deep-learning-based network traffic classification [J]. IEEE Transactions on Network and Service Management, 2020, 18: 1962-1976.</p>
+<p>[23] 李杰, 周路, 李华欣, et al. 基于生成对抗网络的网络流量特征伪装技术[J]. 计算机工程, 2019, 12.</p>
+<p>[24] Fang Z, Wang J, Geng J, et al. A3CMal: Generating adversarial samples to force targeted misclassification by reinforcement learning [J]. APPLIED SOFT COMPUTING, 2021, 109: 107505.</p>
+<p>[25] Jin G, Shen S, Zhang D, et al. APE-GAN: Adversarial Perturbation Elimination with GAN [C] ICASSP 2019 - 2019 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2019.</p>
+<p>[26] Han D, Wang Z, Zhong Y, et al. Practical Traffic-space Adversarial Attacks on Learning-based NIDSs [J]. ArXiv, 2020, abs&#x2F;2005.07519.</p>
+<p>[27] 樊祖薇,张顺亮,刘银龙.对抗环境下基于主动防御的鲁棒加密恶意流量识别[J].信息安全学报,已采用</p>
+<p>[28] Gu S S, Rigazio L. Towards Deep Neural Network Architectures Robust to Adversarial Examples [J]. CoRR, 2014, abs&#x2F;1412.5068.</p>
+<p>[29] Papernot N, McDaniel P, Wu X, et al. Distillation as a defense to adversarial perturbations against deep neural networks [C] 2016 IEEE symposium on security and privacy (SP), 2016.</p>
+<p>[30] Zihao Wang, Vrizlynn L.L. Thing Feature mining for encrypted malicious traffic detection with deep learning and other machine learning algorithms</p>
+<p><strong>中国保密协会</strong></p>
+<p><strong>科学技术分会</strong></p>
+<p>长按扫码关注我们</p>
+<p>![图片](data:image&#x2F;svg+xml,%3C%3Fxml version&#x3D;’1.0’ encoding&#x3D;’UTF-8’%3F%3E%3Csvg width&#x3D;’1px’ height&#x3D;’1px’ viewBox&#x3D;’0 0 1 1’ version&#x3D;’1.1’ xmlns&#x3D;’<a target="_blank" rel="noopener" href="http://www.w3.org/2000/svg">http://www.w3.org/2000/svg</a>‘ xmlns:xlink&#x3D;’<a target="_blank" rel="noopener" href="http://www.w3.org/1999/xlink'%3E%3Ctitle%3E%3C/title%3E%3Cg">http://www.w3.org/1999/xlink&#39;%3E%3Ctitle%3E%3C/title%3E%3Cg</a> stroke&#x3D;’none’ stroke-width&#x3D;’1’ fill&#x3D;’none’ fill-rule&#x3D;’evenodd’ fill-opacity&#x3D;’0’%3E%3Cg transform&#x3D;’translate(-249.000000, -126.000000)’ fill&#x3D;’%23FFFFFF’%3E%3Crect x&#x3D;’249’ y&#x3D;’126’ width&#x3D;’1’ height&#x3D;’1’%3E%3C&#x2F;rect%3E%3C&#x2F;g%3E%3C&#x2F;g%3E%3C&#x2F;svg%3E)</p>
+<p>作者：樊祖薇 中国科学院信息工程研究所</p>
+<p>责编：向灵孜</p>
+<p><strong>2023年精彩文章TOP5回顾</strong></p>
+<p><a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MzIxMzI4ODI1MA==&mid=2247487411&idx=1&sn=5981781bf278581e6052bf2d780eb522&chksm=97b85be6a0cfd2f0ca5597efd53da77e6fbec5ce8cad943a3b0561ee2546676f627a6748bbb0&scene=21#wechat_redirect">利用声掩蔽保护手机通话中的音频隐私</a>  </p>
+<p><a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MzIxMzI4ODI1MA==&mid=2247487614&idx=1&sn=06569aee7ca5bec14db84d26954c842f&chksm=97b8442ba0cfcd3dca81f4673ac602195387e55b29efa189b15c8b174a7a80b44344ea026901&scene=21#wechat_redirect">通信感知一体化技术（ISAC）简述</a>  </p>
+<p><a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MzIxMzI4ODI1MA==&mid=2247487733&idx=1&sn=99339a456f5408c4180c34b0fc2aaf4a&chksm=97b844a0a0cfcdb636dbdc791425e80715f8419b23661a45848923a35e1f9c135d0b76b72618&scene=21#wechat_redirect">电磁指纹技术发展简述</a>  </p>
+<p><a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MzIxMzI4ODI1MA==&mid=2247487694&idx=1&sn=077c7c6f234d70db4af0b6a5ef5a2344&chksm=97b8449ba0cfcd8d55b81df50dfafdd3aff2bd755e73b5da0c1576df9e8f3a4045312507f21f&scene=21#wechat_redirect">电磁超材料简介</a>  </p>
+<p><a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MzIxMzI4ODI1MA==&mid=2247487639&idx=1&sn=badd00b650f723dddc058b46476cd15b&chksm=97b844c2a0cfcdd4838d132fb2577fca3547b5f1ae8f3913d47ea8dbd6e00b7cd19c860b6761&scene=21#wechat_redirect">网络攻击流量检测技术简述</a></p>
+<p><strong>近期精彩文章回顾</strong></p>
+<p><a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MzIxMzI4ODI1MA==&mid=2247488495&idx=1&sn=9813eef5e0bcd5dcc1271f075a16ed4c&chksm=97b847baa0cfceace982644493387ca8b5492d7905272ed6a0e73d09dc82707b240b4a49c616&scene=21#wechat_redirect">新技术——无线信号实现语音窃听知多少</a>  </p>
+<p><a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MzIxMzI4ODI1MA==&mid=2247488473&idx=1&sn=5046491216e95a8ff9148ead80e30e40&chksm=97b8478ca0cfce9a10732028cef6ae165be8a551bac69e7227a4c672ca3b06112818084bea07&scene=21#wechat_redirect">涉密载体的管理、销毁和数据恢复</a>  </p>
+<p><a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MzIxMzI4ODI1MA==&mid=2247488464&idx=1&sn=d61e639419fc8a34c619399498a08a98&chksm=97b84785a0cfce93a73d66e11e0c330bf4fa2734a4a4826de069a4824134d41f7623e5c94d74&scene=21#wechat_redirect">未知攻击检测技术研究简述</a>  </p>
+<p><a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MzIxMzI4ODI1MA==&mid=2247488449&idx=1&sn=07db58d0e2328813ffcdbc0ed2a3b7c9&chksm=97b84794a0cfce82abf636a31751cebf6420ff73e0885004d4ea5dad5b4fa48fe448986817e5&scene=21#wechat_redirect">基于注意力长短期记忆的语音可理解度分类系统</a>  </p>
+<p><a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MzIxMzI4ODI1MA==&mid=2247488436&idx=1&sn=617a41bc8585578cedc980273529aaee&chksm=97b847e1a0cfcef72d2f0224a201ea563b883fa819027316717917cce3f3412b79e9a65c5025&scene=21#wechat_redirect">区块链上的零知识证明技术及其典型算法、工具</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/AI/%E8%BD%AC%E8%BD%BD/" class="category-chain-item">转载</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>加密恶意流量识别及对抗研究</div>
+      <div>http://blog.uanet.cn/AI/转载/加密恶意流量识别及对抗研究.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月28日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/%E8%BD%AC%E8%BD%BD/%E5%9F%BA%E4%BA%8E%E5%BC%82%E5%B8%B8%E7%9A%84%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B%E6%96%B9%E6%B3%95.html" title="基于异常的入侵检测方法">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">基于异常的入侵检测方法</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/AI/%E8%BD%AC%E8%BD%BD/%E5%88%A9%E7%94%A8%20NVIDIA%20Morpheus%20%E5%8A%A0%E9%80%9F%E8%AD%A6%E6%8A%A5%E5%88%86%E6%B5%81%E5%92%8C%20LLM%20%E4%BB%A3%E7%90%86%E5%BC%BA%E5%8C%96%E5%AE%89%E5%85%A8%E8%BF%90%E8%90%A5%E4%B8%AD%E5%BF%83.html" title="利用 NVIDIA Morpheus 加速警报分流和 LLM 代理强化安全运营中心">
+                        <span class="hidden-mobile">利用 NVIDIA Morpheus 加速警报分流和 LLM 代理强化安全运营中心</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

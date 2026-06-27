@@ -1,0 +1,929 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="AD9361的收发通道讲解AD9361 是 ADI 推出的面向 3G 和 4G 基站应用的高性能、高集成度的射频解决方案。该器件集 RF前端与灵活的混合信号基带部分为一体，集成频率合成器，为处理器提供可配置数字接口。 AD9361 接收器 LO工作频率范围为 70 MHz 至 6.0 GHz，发射器 LO工作频率范围为 47 MHz 至 6.0 GHz，涵盖大部分特许执照和免执照频段，支持的通道带">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ad9361原理和配置">
+<meta property="og:url" content="http://blog.uanet.cn/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="AD9361的收发通道讲解AD9361 是 ADI 推出的面向 3G 和 4G 基站应用的高性能、高集成度的射频解决方案。该器件集 RF前端与灵活的混合信号基带部分为一体，集成频率合成器，为处理器提供可配置数字接口。 AD9361 接收器 LO工作频率范围为 70 MHz 至 6.0 GHz，发射器 LO工作频率范围为 47 MHz 至 6.0 GHz，涵盖大部分特许执照和免执照频段，支持的通道带">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/f2328d30491f87e033906da443dc4881-1725518095117-1.png">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/315a54ff9e1cd8a50d5f87a94eb233f9-1725518104795-4.png">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/5e83450348ada3ac9c3066bccfb146f3-1725518114901-7.png">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/15a11c057f867679c6bbde3fac0ea166-1725518123740-10.png">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/d8d5789b46acb9b83d29868818236572-1725518144264-13.png">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/6d78ab6a0790d3957970e54cbb13fea9-1725518155292-16.png">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/2809ea0464abc03fa4c2554bbd087145-1725518159942-19.png">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/image-20240909174453161.png">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/image-20240909141906474.png">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/image-20240909142016707.png">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/image-20240909142034866.png">
+<meta property="og:image" content="http://blog.uanet.cn/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/image-20240913142053977.png">
+<meta property="article:published_time" content="2025-02-13T05:53:20.752Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.752Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/f2328d30491f87e033906da443dc4881-1725518095117-1.png">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>ad9361原理和配置 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ad9361原理和配置"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          4.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          38 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">ad9361原理和配置</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="AD9361的收发通道讲解"><a href="#AD9361的收发通道讲解" class="headerlink" title="AD9361的收发通道讲解"></a>AD9361的收发通道讲解</h4><p>AD9361 是 ADI 推出的面向 3G 和 4G 基站应用的高性能、高集成度的射频解决方案。<br>该器件集 RF前端与灵活的混合信号基带部分为一体，集成频率合成器，为处理器提供可配置数字接口。 AD9361 接收器 LO工作频率范围为 70 MHz 至 6.0 GHz，发射器 LO工作频率范围为 47 MHz 至 6.0 GHz，涵盖大部分特许执照和免执照频段，支持的通道带宽范围为 200 kHz 以下至 56 MHz。</p>
+<p><img src="/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/f2328d30491f87e033906da443dc4881-1725518095117-1.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>两个独立的直接变频接收器拥有首屈一指的噪声系数和线性度。每个接收 (RX)子系统都拥有独立的自动增益控制 (AGC)、直流失调校正、正交校正和数字滤波功能，从而消除了在数字基带中提供这些功能的必要性。 AD9361 还拥有灵活的手动增益模式，支持外部控制。每个通道搭载两个高动态范围模数转换器 (ADC)，先将收到的 I信号和 Q 信号进行数字化处理，然后将其传过可配置抽取滤波器和 128 抽头有限脉冲响应 (FIR)滤波器，结果以相应的采样率生成 12 位输出信号。</p>
+<h4 id="滤波器配置"><a href="#滤波器配置" class="headerlink" title="滤波器配置"></a>滤波器配置</h4><p>它支持 2x2 MIMO 通信，收发各有两条独立的射频通路。<br>接收通道如下：</p>
+<p><img src="/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/315a54ff9e1cd8a50d5f87a94eb233f9-1725518104795-4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>（1）LNA低噪声放大器：由于射频接收到的信号，有可能为微小信号，为了便于之后的数字处理，通过它将信号进行一定量的放大。<br>需要低噪声原因：噪声系数可以表示经过器件或者系统后信噪比的恶化程度，其等于输入信噪比与输出信噪比的比值，计算公式如下：</p>
+<p><img src="/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/5e83450348ada3ac9c3066bccfb146f3-1725518114901-7.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>噪声系数是一个数字，通过它可以指定放大器或无线接收器的噪声性能。可以从放大器的信噪比开始。当信号通过任何微波组件时，噪声比信号功率增加得多，这种附加的噪声是由放大器本身产生的。信噪比总会下降。我们常用噪声系数表征放大器产生的噪声量。<br>如果器件引入的噪声大小是恒定的，那输入噪声为：</p>
+<p><img src="/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/15a11c057f867679c6bbde3fac0ea166-1725518123740-10.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>其中F是接收到的噪声因子，F1是第一个设备的噪声因子，G1是第一个设备线性单位的增益和损耗，F2是第一个设备的噪声因子，G2是第二个设备线性单位的增益或损耗<br>这时就可以看出第一级的噪声系数对整个级联影响最大，所以在整个系统的第一级要采用低噪声放大器。</p>
+<p>（2）混频器：该混频器的中心频率范围为7MHz-6GHz，即可以处理的信号中频范围。通过这里可以将信号转换到零中频，便于后期处理的时候节省带宽。</p>
+<p>（3）TIA放大器和低通滤波器：在模拟域进行一次滤波，在视频接收到的信号中，会有许多干扰信号及无关信号，如果直接进行ADC采样，有可能会将我们感兴趣的信号淹没，这时通过两个滤波器将感兴趣的信号以外的信号滤掉，同时可以滤除在信道传输过程中的噪声。</p>
+<p>（4）ADC正交采样：采用正交采样，可以减少带宽的使用率，采样完成后将其转化为数字域处理。</p>
+<p>（5）三个半波滤波器：采样后再进行一轮滤波，采用半波滤波器的原因是它的系数是对称的，并且有一半的系数为零，可以大大的降低运算量即减少乘法器的个数。而采用三个的原因是半波滤波器的性能不好，抽取的次数不能很多，分次来进行滤波对整体系统影响更小。</p>
+<p>（6）FIR滤波器：最后再经过一个常规的FIR滤波器，但其抽取倍数也不会很大。</p>
+<p>接收通道中各滤波器的配置表格如下所示：</p>
+<p><img src="/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/d8d5789b46acb9b83d29868818236572-1725518144264-13.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>发送端如下图所示（与接收通道的分析类似）：</p>
+<p><img src="/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/6d78ab6a0790d3957970e54cbb13fea9-1725518155292-16.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>Tx信号路径从AD9361数字接口接收12位二进制补码I-Q格式的数据，每个通道(I和Q)通过四个数字插值滤波器将该数据传递到12位DAC。四个插值滤波器中的每一个都可以被旁路。在进入射频混频器之前通过两个低通滤波器，ad9361_set_tx_rf_bandwidth函数可对每个低通滤波器LPF的角点频率进行编程。</p>
+<p>可编程数字滤波器提供了从数字到模拟转换之前所需的带宽限制，还可以对数据进行插值，从数字接口输入数据速率转换为DAC转换所需的速率，在每个滤波器中，首先进行插值，再滤波。</p>
+<p>发送通道中各滤波器的配置表格如下所示：</p>
+<p><img src="/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/2809ea0464abc03fa4c2554bbd087145-1725518159942-19.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><img src="/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/image-20240909174453161.png" srcset="/img/loading.gif" lazyload alt="image-20240909174453161"></p>
+<p>matlab单音信号生成</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><code class="hljs matlab"><span class="hljs-comment">% 参数设置</span><br>sampleRate = <span class="hljs-number">20</span>*<span class="hljs-number">1000</span>*<span class="hljs-number">1000</span>;  <span class="hljs-comment">% 采样率20Mhz  </span><br>sampleNum  = <span class="hljs-number">8</span>;<br>numSamples = <span class="hljs-number">1024</span>;  	   					<span class="hljs-comment">% 样本数量</span><br>numSingle  = numSamples / sampleNum;  	   	<span class="hljs-comment">% 单个样本</span><br>freq  	   = <span class="hljs-number">1</span>;  	   <br> <br><span class="hljs-comment">% 生成随机I信号和Q信号</span><br><span class="hljs-comment">%I = randn(numSamples, 1);  % 生成随机I信号</span><br><span class="hljs-comment">%Q = randn(numSamples, 1);  % 生成随机Q信号</span><br><br><span class="hljs-comment">%% generate tone signal</span><br>I=<span class="hljs-built_in">round</span>(<span class="hljs-built_in">cos</span>(<span class="hljs-number">2</span>*freq*<span class="hljs-built_in">pi</span>/numSingle*[<span class="hljs-number">0</span>:(numSingle <span class="hljs-number">-1</span>)]).*<span class="hljs-number">9830</span>);<br>Q=<span class="hljs-built_in">round</span>(<span class="hljs-built_in">sin</span>(<span class="hljs-number">2</span>*freq*<span class="hljs-built_in">pi</span>/numSingle*[<span class="hljs-number">0</span>:(numSingle <span class="hljs-number">-1</span>)]).*<span class="hljs-number">9830</span>);<br><br><br><span class="hljs-comment">%-----载波扩展，长度和data_trans相等-----%</span><br>I=<span class="hljs-built_in">repmat</span>(I, <span class="hljs-number">1</span>, sampleNum);<br>Q=<span class="hljs-built_in">repmat</span>(Q, <span class="hljs-number">1</span>, sampleNum);<br> <br><span class="hljs-comment">% 生成IQ信号</span><br>IQ = I + <span class="hljs-number">1</span><span class="hljs-built_in">j</span>*Q;  <span class="hljs-comment">% I和Q合成为复数信号</span><br><br><span class="hljs-comment">% 可视化IQ信号的幅度谱和相位谱</span><br><span class="hljs-built_in">figure</span>;<br><span class="hljs-built_in">plot</span>(I);<br>title(<span class="hljs-string">&#x27;I信号&#x27;</span>);<br>xlabel(<span class="hljs-string">&#x27;时间&#x27;</span>);<br>ylabel(<span class="hljs-string">&#x27;幅度&#x27;</span>);<br><br><span class="hljs-built_in">figure</span>;<br><span class="hljs-built_in">plot</span>(IQ);<br>title(<span class="hljs-string">&#x27;IQ信号&#x27;</span>);<br>xlabel(<span class="hljs-string">&#x27;时间&#x27;</span>);<br>ylabel(<span class="hljs-string">&#x27;幅度&#x27;</span>);<br> <br><span class="hljs-comment">% 如果需要，可以通过FFT分析IQ信号的频谱</span><br>IQ_fft = fft(IQ);<br>IQ_fft_abs = <span class="hljs-built_in">abs</span>(IQ_fft);<br>IQ_fft_phase = <span class="hljs-built_in">angle</span>(IQ_fft);<br> <br><span class="hljs-comment">% 可视化IQ信号的幅度谱和相位谱</span><br><span class="hljs-built_in">figure</span>;<br>spectrum = fftshift(IQ_fft_abs);<br>freq = (-numSamples/<span class="hljs-number">2</span>:numSamples/<span class="hljs-number">2</span><span class="hljs-number">-1</span>)/numSamples*sampleRate;<br><span class="hljs-built_in">plot</span>(freq, spectrum);<br>title(<span class="hljs-string">&#x27;IQ信号的幅度谱&#x27;</span>);<br>xlabel(<span class="hljs-string">&#x27;频率 (Hz)&#x27;</span>);<br>ylabel(<span class="hljs-string">&#x27;幅度&#x27;</span>);<br><br><span class="hljs-built_in">figure</span>;<br>phase_spectrum = fftshift(IQ_fft_phase);<br><span class="hljs-built_in">plot</span>(freq, phase_spectrum);<br>title(<span class="hljs-string">&#x27;IQ信号的相位谱&#x27;</span>);<br>xlabel(<span class="hljs-string">&#x27;频率 (Hz)&#x27;</span>);<br>ylabel(<span class="hljs-string">&#x27;相位 (弧度)&#x27;</span>);<br><br><span class="hljs-comment">%% iq mux</span><br>txdatas=<span class="hljs-built_in">zeros</span>(<span class="hljs-number">1</span>,<span class="hljs-built_in">length</span>(IQ)*<span class="hljs-number">2</span>);<br>txdatas(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>:<span class="hljs-keyword">end</span>)=<span class="hljs-built_in">real</span>(IQ);<br>txdatas(<span class="hljs-number">2</span>:<span class="hljs-number">2</span>:<span class="hljs-keyword">end</span>)=<span class="hljs-built_in">imag</span>(IQ);<br><br><span class="hljs-comment">%% add pad</span><br><span class="hljs-built_in">rem</span>=<span class="hljs-number">-1</span>;<br><span class="hljs-built_in">i</span>=<span class="hljs-number">0</span>;<br><span class="hljs-keyword">while</span> (<span class="hljs-built_in">rem</span>&lt;<span class="hljs-number">0</span>)<br>    <span class="hljs-built_in">rem</span>=<span class="hljs-number">1024</span>*<span class="hljs-number">2</span>^<span class="hljs-built_in">i</span>-<span class="hljs-built_in">length</span>(txdatas);<br>    <span class="hljs-built_in">i</span>=<span class="hljs-built_in">i</span>+<span class="hljs-number">1</span>;<br><span class="hljs-keyword">end</span><br>txdata1=[txdatas <span class="hljs-built_in">zeros</span>(<span class="hljs-number">1</span>,<span class="hljs-built_in">rem</span>)];<br><br><span class="hljs-comment">%%补码表示</span><br>txd1=(txdata1&lt;<span class="hljs-number">0</span>)*<span class="hljs-number">65536</span>+txdata1; <br><br><span class="hljs-comment">%%并转串</span><br>txd2=dec2hex(txd1,<span class="hljs-number">4</span>);<br>txd3=txd2(:,<span class="hljs-number">1</span>:<span class="hljs-number">2</span>);<br>txd4=txd2(:,<span class="hljs-number">3</span>:<span class="hljs-number">4</span>);<br>txd5=hex2dec(txd3);<br>txd6=hex2dec(txd4);<br>txd7=<span class="hljs-built_in">zeros</span>(<span class="hljs-built_in">length</span>(txd6)*<span class="hljs-number">2</span>,<span class="hljs-number">1</span>);<br>txd7(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>:<span class="hljs-keyword">end</span>)=txd6;<br>txd7(<span class="hljs-number">2</span>:<span class="hljs-number">2</span>:<span class="hljs-keyword">end</span>)=txd5;<br><br><span class="hljs-comment">% 串转4字节数组</span><br><span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-number">1024</span><br>	<span class="hljs-built_in">j</span> = <span class="hljs-built_in">i</span>*<span class="hljs-number">4</span>;<br>    txd8(<span class="hljs-built_in">i</span>) = txd7(<span class="hljs-built_in">j</span>)*<span class="hljs-number">16777216</span> +  txd7(<span class="hljs-built_in">j</span> - <span class="hljs-number">1</span>)*<span class="hljs-number">65536</span> + txd7(<span class="hljs-built_in">j</span> - <span class="hljs-number">2</span>)*<span class="hljs-number">256</span> + txd7(<span class="hljs-built_in">j</span> - <span class="hljs-number">3</span>);<br><span class="hljs-keyword">end</span><br><br>fid=fopen(<span class="hljs-string">&#x27;D:\data1.c&#x27;</span>,<span class="hljs-string">&#x27;wt&#x27;</span>);<span class="hljs-comment">%写入文件路径</span><br><span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span>=<span class="hljs-number">1</span>:<span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(txd8)<br>fprintf(fid,<span class="hljs-string">&#x27;0x%08x,\n&#x27;</span>,txd8(<span class="hljs-built_in">i</span>));<br><span class="hljs-keyword">end</span><br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+<h4 id="配置参数"><a href="#配置参数" class="headerlink" title="配置参数"></a>配置参数</h4><p>​	对数据结构有所了解后，则需要对 YunSDR 进行射频参数配置等操作，在参数配置 过程中需要使用若干 API 函数，表 1 给出了发端的 API 配置函数，主要包括函数名、具 体配置命令、参数意义、常用参考值以及注意事项。</p>
+<p><img src="/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/image-20240909141906474.png" srcset="/img/loading.gif" lazyload alt="image-20240909141906474"></p>
+<p>在本实验中，设置采样率为 40MHZ，带宽为 18MHZ，射频频点为 1.5GHZ，两个发送 通道 tx1 和 tx2 的发送衰减为 30000mdb。参考代码如下：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs matlab">samp_hex=dec2hex(<span class="hljs-number">40e6</span>,<span class="hljs-number">8</span>);  		<span class="hljs-comment">%采样率</span><br>bw_hex=dec2hex(<span class="hljs-number">18e6</span>,<span class="hljs-number">8</span>);			<span class="hljs-comment">%带宽</span><br>freq_hex=dec2hex(<span class="hljs-number">1500e6</span>,<span class="hljs-number">10</span>);	<span class="hljs-comment">%射频频点</span><br>tx_att1=dec2hex(<span class="hljs-number">30000</span>,<span class="hljs-number">8</span>);<br>tx_att2=dec2hex(<span class="hljs-number">30000</span>,<span class="hljs-number">8</span>);<br>tx_chan=<span class="hljs-number">3</span>;						<span class="hljs-comment">%1=tx1;2=tx2;3=tx1&amp;tx2</span><br></code></pre></td></tr></table></figure>
+
+<p>对于接收端需要配置的参数较少，具体如表 2：</p>
+<p><img src="/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/image-20240909142016707.png" srcset="/img/loading.gif" lazyload alt="image-20240909142016707"></p>
+<p><img src="/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/image-20240909142034866.png" srcset="/img/loading.gif" lazyload alt="image-20240909142034866"></p>
+<p>接收端的配置如下：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs matlab">samp_hex=dec2hex(<span class="hljs-number">40e6</span>,<span class="hljs-number">8</span>);<br>bw_hex=dec2hex(<span class="hljs-number">18e6</span>,<span class="hljs-number">8</span>);<br>freq_hex=dec2hex(<span class="hljs-number">1500e6</span>,<span class="hljs-number">10</span>);	<span class="hljs-comment">%%for ad9361</span><br>rxgain1=<span class="hljs-number">5</span>;<br>rxgain2=<span class="hljs-number">5</span>;<br>rx_chan=<span class="hljs-number">3</span>;						<span class="hljs-comment">%1=rx1;2=rx2;3=rx1&amp;rx2</span><br>cyc=<span class="hljs-number">1</span>;<br></code></pre></td></tr></table></figure>
+
+<p> AD9361 的参考时钟配置</p>
+<p>​	AD9361 的参考时钟由本地 TCX0 与外部或 GPS 同步时钟鉴相获得。由于本实验为 自收发单音信号实验，所以采用内部参考时钟。当选择内部参考时钟（REF_SELET&#x3D;0） 时，使用 ADF4001 鉴相器进行校准（VCO_CAL&#x3D;0）。外部参考时钟 refrerence 和 vctcxo 时钟 vc-clock 分别进行分频，分频后鉴相，将 CP 电压输出给 VC-TCXO 的压控端，当 ADF4001 锁定后 VC-TCXO 与外部参考的基准时钟严格同频。假设外部参考 10MHz，本 地晶振 26MHz，rcount 表示参考频频系数，ncount 表示本地时钟分频系数，令 rcount&#x3D;10， ncount&#x3D;26 可以完成 ADF4001 的鉴相功能。参考代码如下：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs matlab">rcount=dec2hex(<span class="hljs-number">10</span>,<span class="hljs-number">4</span>); 			<span class="hljs-comment">% reference clock divide</span><br>ncount=dec2hex(<span class="hljs-number">26</span>,<span class="hljs-number">4</span>); 			<span class="hljs-comment">% internal vctcxo divide</span><br>ref_hex=dec2hex(<span class="hljs-number">0</span>,<span class="hljs-number">8</span>); 			<span class="hljs-comment">% 1=external ref 0=internal ref</span><br>vco_cal_hex=dec2hex(<span class="hljs-number">1</span>,<span class="hljs-number">8</span>); 		<span class="hljs-comment">% 1=auxdac 0=reference clock</span><br>aux_dac1_hex=dec2hex(<span class="hljs-number">0</span>,<span class="hljs-number">8</span>);<br>fdd_tdd_hex=dec2hex(<span class="hljs-number">1</span>,<span class="hljs-number">8</span>);<br>trx_sw_hex=dec2hex(<span class="hljs-number">1</span>,<span class="hljs-number">8</span>);<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="ASK-调制-x2F-解调实验"><a href="#ASK-调制-x2F-解调实验" class="headerlink" title="ASK 调制&#x2F;解调实验"></a>ASK 调制&#x2F;解调实验</h4><p>​	发送端，我们直接发送调制好的 2ASK 信号。由上述原理可知，当基带信号为 0 时， 不发送载波（设为 0）；当基带信号为 1 时，发送归一化频率为 fs 的载波信号。 设 AD9361 工作的射频频点为 fc ，调制载波的频率为 fs ，则调制信号 2ASK 经过上变 频到射频之后射频发送的信号频率应为 0 f &#x3D; fc + fs 。若令 fs &#x3D; 1MHZ， fc &#x3D; 999MHZ，则射频输出信号中心频率应为 1GHZ。参考代码如下</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs matlab">samp_hex=dec2hex(<span class="hljs-number">20e6</span>,<span class="hljs-number">8</span>);		<span class="hljs-comment">%采样率</span><br>freq_hex=dec2hex(<span class="hljs-number">999e6</span>,<span class="hljs-number">10</span>);		<span class="hljs-comment">%射频频点</span><br></code></pre></td></tr></table></figure>
+
+<p>当基带信号为 1 时，我们需要发送频率为 fs &#x3D; 1MHZ 的正交调制载波信号，那么如何发送呢？设 AD9361 的采样频率为 samp f ，则在一个完整的载波周期中所包含的采样点的个数应为：n&#x3D; samp f &#x2F; fs 。本实验中令 samp f &#x3D;20MHZ，则 n&#x3D;20。也就是说，我们需要产生20 个 IQ 正交数据点才能恢复出一个完整的载波周期。参考代码如下：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs matlab"><span class="hljs-comment">%-----产生 I、Q 两路载波信号，并量化-----%</span><br>carrier_I=<span class="hljs-built_in">round</span>(<span class="hljs-built_in">cos</span>(<span class="hljs-number">2</span>*<span class="hljs-built_in">pi</span>/<span class="hljs-number">20</span>*[<span class="hljs-number">0</span>:<span class="hljs-number">19</span>]).*<span class="hljs-number">30000</span>);<br>carrier_Q=<span class="hljs-built_in">round</span>(<span class="hljs-built_in">sin</span>(<span class="hljs-number">2</span>*<span class="hljs-built_in">pi</span>/<span class="hljs-number">20</span>*[<span class="hljs-number">0</span>:<span class="hljs-number">19</span>]).*<span class="hljs-number">30000</span>);<br></code></pre></td></tr></table></figure>
+
+<p>当我们产生随机的二进制码流之后，根据键控法的基本思想，每个码元的宽度必须和载波周期相同，以上分析可知，我们产生的载波一个周期为 20 个数据点，因此我们必须将原始码流的每一位扩展为 20 位，参考代码如下</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs matlab"><span class="hljs-comment">%-----数据源数量-----%</span><br>bit_Num = <span class="hljs-number">500</span>;<br><span class="hljs-comment">%-----每个码元占据 20 个采样点，20M 采样率下为 1M-----%</span><br>bit_Width = <span class="hljs-number">20</span>;<br><span class="hljs-comment">%-----产生随机数据帧，length=500-----%</span><br>bit_trans = randint(<span class="hljs-number">1</span>,bit_Num);<br><span class="hljs-comment">%-----数据扩展，每个码元扩展为 20 位-----%</span><br>tmp1 = <span class="hljs-built_in">repmat</span>(bit_trans&#x27;,<span class="hljs-number">1</span>,bit_Width);<br>data_trans = <span class="hljs-built_in">reshape</span>(tmp1&#x27;,<span class="hljs-number">1</span>,<span class="hljs-built_in">length</span>(tmp1).*bit_Width);<br></code></pre></td></tr></table></figure>
+
+<p>若我们产生 500bit 的原始流，经 20 倍扩展之后的数据量为 500*20&#x3D;10000bit。 因此，我们也需要将载波扩展为 10000bit，参考代码如下:</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs matlab"><span class="hljs-comment">%-----载波扩展，长度和 data_trans 相等-----%</span><br>carrier_I=<span class="hljs-built_in">repmat</span>(carrier_I,<span class="hljs-number">1</span>,bit_Num);<br>carrier_Q=<span class="hljs-built_in">repmat</span>(carrier_Q,<span class="hljs-number">1</span>,bit_Num);<br>carrier=carrier_I+<span class="hljs-number">1</span><span class="hljs-built_in">i</span>*carrier_Q;<br><span class="hljs-comment">%-----键控2ASK信号调制-----%</span><br>mod_data=data_trans.*carrier;<br></code></pre></td></tr></table></figure>
+
+<p>至此，我们直接用键控法进行 2ASK 调制，即让原始二进制码元和载波直接相乘，即可得到 2ASK 已 调信号。我们可以画出调制好的信号 mod_data</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br></pre></td><td class="code"><pre><code class="hljs matlab">clc;<br>clear all;<br>close all;<br>warning off;<br><span class="hljs-comment">%****************ht7600*******************//</span><br><span class="hljs-comment">%ref_hex 1=external ref;0=internal ref</span><br><span class="hljs-comment">%vco_cal_hex 1=AUXDAC1;0=ADF4001</span><br><span class="hljs-comment">%fdd_tdd_hex 1=FDD 0=TDD</span><br><span class="hljs-comment">%trx_sw_hex 1=TX 0=RX</span><br><span class="hljs-comment">%****************ht7600*******************//</span><br>rcount=dec2hex(<span class="hljs-number">10</span>,<span class="hljs-number">4</span>);<span class="hljs-comment">%reference clock divide</span><br>ncount=dec2hex(<span class="hljs-number">26</span>,<span class="hljs-number">4</span>);<span class="hljs-comment">%internal vctcxo divide</span><br>ref_hex=dec2hex(<span class="hljs-number">0</span>,<span class="hljs-number">8</span>);<span class="hljs-comment">%1=external ref 0=internal ref</span><br>vco_cal_hex=dec2hex(<span class="hljs-number">1</span>,<span class="hljs-number">8</span>);<span class="hljs-comment">%1=auxdac 0=reference clock</span><br>aux_dac1_hex=dec2hex(<span class="hljs-number">0</span>,<span class="hljs-number">8</span>);<br>fdd_tdd_hex=dec2hex(<span class="hljs-number">1</span>,<span class="hljs-number">8</span>);<br>trx_sw_hex=dec2hex(<span class="hljs-number">1</span>,<span class="hljs-number">8</span>);<br><br>samp_hex=dec2hex(<span class="hljs-number">20e6</span>,<span class="hljs-number">8</span>);<br>bw_hex=dec2hex(<span class="hljs-number">18e6</span>,<span class="hljs-number">8</span>);<br>freq_hex=dec2hex(<span class="hljs-number">2140e6</span>,<span class="hljs-number">10</span>); <span class="hljs-comment">%%for ad9361</span><br>tx_att1=dec2hex(<span class="hljs-number">30000</span>,<span class="hljs-number">8</span>);<br>tx_att2=dec2hex(<span class="hljs-number">30000</span>,<span class="hljs-number">8</span>);<br>tx_chan=<span class="hljs-number">1</span>;<span class="hljs-comment">%1=tx1;2=tx2;3=tx1&amp;tx2</span><br><span class="hljs-comment">%=====以下为数据调制部分=====%</span><br><span class="hljs-comment">%-----数据源数量-----%</span><br>bit_Num = <span class="hljs-number">500</span>;<br><span class="hljs-comment">%-----每个码元占据20个采样点，20M采样率下为1M-----%</span><br>bit_Width = <span class="hljs-number">20</span>;<br><span class="hljs-comment">%-----产生随机数据帧，length=500-----%</span><br>bit_trans = randi(<span class="hljs-number">1</span>,bit_Num);<br><span class="hljs-comment">%-----数据扩展，每个码元扩展为20位-----%</span><br>tmp1 = <span class="hljs-built_in">repmat</span>(bit_trans&#x27;,<span class="hljs-number">1</span>,bit_Width);<br>data_trans = <span class="hljs-built_in">reshape</span>(tmp1&#x27;, <span class="hljs-built_in">length</span>(bit_trans), []);<br><span class="hljs-comment">%-----产生I、Q两路载波信号，并量化-----%</span><br>carrier_I=<span class="hljs-built_in">round</span>(<span class="hljs-built_in">cos</span>(<span class="hljs-number">2</span>*<span class="hljs-built_in">pi</span>/<span class="hljs-number">20</span>*[<span class="hljs-number">0</span>:<span class="hljs-number">19</span>]).*<span class="hljs-number">30000</span>);<br>carrier_Q=<span class="hljs-built_in">round</span>(<span class="hljs-built_in">sin</span>(<span class="hljs-number">2</span>*<span class="hljs-built_in">pi</span>/<span class="hljs-number">20</span>*[<span class="hljs-number">0</span>:<span class="hljs-number">19</span>]).*<span class="hljs-number">30000</span>);<br><span class="hljs-comment">%-----载波扩展，长度和data_trans相等-----%</span><br>carrier_I=<span class="hljs-built_in">repmat</span>(carrier_I,<span class="hljs-number">1</span>,bit_Num);<br>carrier_Q=<span class="hljs-built_in">repmat</span>(carrier_Q,<span class="hljs-number">1</span>,bit_Num);<br>carrier=carrier_I+<span class="hljs-number">1</span><span class="hljs-built_in">i</span>*carrier_Q;<br><span class="hljs-comment">%-----键控2ASK信号调制-----%</span><br>mod_data=data_trans.*carrier;<br><span class="hljs-comment">%-----创建帧同步训练序列-----%</span><br>[training]=creat_training();<br><span class="hljs-comment">%-----数据组帧-----%</span><br>txdata=[training mod_data];<br><span class="hljs-built_in">disp</span>(txdata);<br><span class="hljs-comment">%==========================================%</span><br><span class="hljs-comment">%% copy to 2chanel</span><br><span class="hljs-keyword">if</span> tx_chan==<span class="hljs-number">1</span> || tx_chan==<span class="hljs-number">2</span><br>    txdata2=txdata;<br><span class="hljs-keyword">elseif</span> tx_chan==<span class="hljs-number">3</span><br>    txdata2=<span class="hljs-built_in">zeros</span>(<span class="hljs-number">1</span>,<span class="hljs-built_in">length</span>(txdata)*<span class="hljs-number">2</span>);<br>    txdata2(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>:<span class="hljs-keyword">end</span>)=txdata;<br>    txdata2(<span class="hljs-number">2</span>:<span class="hljs-number">2</span>:<span class="hljs-keyword">end</span>)=txdata;<br><span class="hljs-keyword">end</span><br><span class="hljs-comment">%% iq mux</span><br>txdatas=<span class="hljs-built_in">zeros</span>(<span class="hljs-number">1</span>,<span class="hljs-built_in">length</span>(txdata2)*<span class="hljs-number">2</span>);<br>txdatas(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>:<span class="hljs-keyword">end</span>)=<span class="hljs-built_in">real</span>(txdata2);<br>txdatas(<span class="hljs-number">2</span>:<span class="hljs-number">2</span>:<span class="hljs-keyword">end</span>)=<span class="hljs-built_in">imag</span>(txdata2);<br><span class="hljs-comment">%% add pad</span><br><span class="hljs-built_in">rem</span>=<span class="hljs-number">-1</span>;<br><span class="hljs-built_in">i</span>=<span class="hljs-number">0</span>;<br><span class="hljs-keyword">while</span> (<span class="hljs-built_in">rem</span>&lt;<span class="hljs-number">0</span>)<br>    <span class="hljs-built_in">rem</span>=<span class="hljs-number">1024</span>*<span class="hljs-number">2</span>^<span class="hljs-built_in">i</span>-<span class="hljs-built_in">length</span>(txdatas);<br>    <span class="hljs-built_in">i</span>=<span class="hljs-built_in">i</span>+<span class="hljs-number">1</span>;<br><span class="hljs-keyword">end</span><br>txdata1=[txdatas <span class="hljs-built_in">zeros</span>(<span class="hljs-number">1</span>,<span class="hljs-built_in">rem</span>)];<br>txd1=(txdata1&lt;<span class="hljs-number">0</span>)*<span class="hljs-number">65536</span>+txdata1; <br>txd2=dec2hex(txd1,<span class="hljs-number">4</span>);<br>txd3=txd2(:,<span class="hljs-number">1</span>:<span class="hljs-number">2</span>);<br>txd4=txd2(:,<span class="hljs-number">3</span>:<span class="hljs-number">4</span>);<br>txd5=hex2dec(txd3);<br>txd6=hex2dec(txd4);<br>txd7=<span class="hljs-built_in">zeros</span>(<span class="hljs-built_in">length</span>(txd6)*<span class="hljs-number">2</span>,<span class="hljs-number">1</span>);<br>txd7(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>:<span class="hljs-keyword">end</span>)=txd6;<br>txd7(<span class="hljs-number">2</span>:<span class="hljs-number">2</span>:<span class="hljs-keyword">end</span>)=txd5;<br><br><br><span class="hljs-comment">%% open control port</span><br>ctrl_link = udp(<span class="hljs-string">&#x27;192.168.1.10&#x27;</span>, <span class="hljs-number">5006</span>);<br>fopen(ctrl_link);<br><span class="hljs-comment">%% open data port</span><br>data_link = tcpip(<span class="hljs-string">&#x27;192.168.1.10&#x27;</span>, <span class="hljs-number">5005</span>);<br>set(data_link,<span class="hljs-string">&#x27;InputBufferSize&#x27;</span>,<span class="hljs-number">64</span>*<span class="hljs-number">1024</span>);<br>set(data_link,<span class="hljs-string">&#x27;OutputBufferSize&#x27;</span>,<span class="hljs-number">64</span>*<span class="hljs-number">1024</span>);<br>fopen(data_link);<br><span class="hljs-comment">%% tx samp rate</span><br>samp=[<span class="hljs-number">0</span> <span class="hljs-number">5</span> hex2dec(<span class="hljs-string">&#x27;22&#x27;</span>) hex2dec(<span class="hljs-string">&#x27;f0&#x27;</span>) hex2dec(samp_hex(<span class="hljs-number">7</span>:<span class="hljs-number">8</span>)) hex2dec(samp_hex(<span class="hljs-number">5</span>:<span class="hljs-number">6</span>)) hex2dec(samp_hex(<span class="hljs-number">3</span>:<span class="hljs-number">4</span>)) hex2dec(samp_hex(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>))];<br>fwrite(ctrl_link,samp,<span class="hljs-string">&#x27;uint8&#x27;</span>);<br><span class="hljs-comment">%% tx bandwidth rate</span><br>bw=[<span class="hljs-number">0</span> <span class="hljs-number">7</span> hex2dec(<span class="hljs-string">&#x27;22&#x27;</span>) hex2dec(<span class="hljs-string">&#x27;f0&#x27;</span>) hex2dec(bw_hex(<span class="hljs-number">7</span>:<span class="hljs-number">8</span>)) hex2dec(bw_hex(<span class="hljs-number">5</span>:<span class="hljs-number">6</span>)) hex2dec(bw_hex(<span class="hljs-number">3</span>:<span class="hljs-number">4</span>)) hex2dec(bw_hex(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>))];<br>fwrite(ctrl_link,bw,<span class="hljs-string">&#x27;uint8&#x27;</span>);<br><span class="hljs-comment">%% send tx freq set cmd</span><br>tx_freq=[hex2dec(freq_hex(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>)) <span class="hljs-number">3</span> hex2dec(<span class="hljs-string">&#x27;22&#x27;</span>) hex2dec(<span class="hljs-string">&#x27;f0&#x27;</span>) hex2dec(freq_hex(<span class="hljs-number">9</span>:<span class="hljs-number">10</span>)) hex2dec(freq_hex(<span class="hljs-number">7</span>:<span class="hljs-number">8</span>)) hex2dec(freq_hex(<span class="hljs-number">5</span>:<span class="hljs-number">6</span>)) hex2dec(freq_hex(<span class="hljs-number">3</span>:<span class="hljs-number">4</span>))];<br>fwrite(ctrl_link,tx_freq,<span class="hljs-string">&#x27;uint8&#x27;</span>);<br><span class="hljs-comment">%% send tx vga set cmd</span><br>tx_vga=[<span class="hljs-number">0</span> <span class="hljs-number">9</span> hex2dec(<span class="hljs-string">&#x27;22&#x27;</span>) hex2dec(<span class="hljs-string">&#x27;f0&#x27;</span>) hex2dec(tx_att1(<span class="hljs-number">7</span>:<span class="hljs-number">8</span>)) hex2dec(tx_att1(<span class="hljs-number">5</span>:<span class="hljs-number">6</span>)) hex2dec(tx_att1(<span class="hljs-number">3</span>:<span class="hljs-number">4</span>)) hex2dec(tx_att1(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>))];  <span class="hljs-comment">%TX1</span><br>fwrite(ctrl_link,tx_vga,<span class="hljs-string">&#x27;uint8&#x27;</span>);<br>tx_vga=[<span class="hljs-number">0</span> <span class="hljs-number">11</span> hex2dec(<span class="hljs-string">&#x27;22&#x27;</span>) hex2dec(<span class="hljs-string">&#x27;f0&#x27;</span>) hex2dec(tx_att2(<span class="hljs-number">7</span>:<span class="hljs-number">8</span>)) hex2dec(tx_att2(<span class="hljs-number">5</span>:<span class="hljs-number">6</span>)) hex2dec(tx_att2(<span class="hljs-number">3</span>:<span class="hljs-number">4</span>)) hex2dec(tx_att2(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>))]; <span class="hljs-comment">%TX2</span><br>fwrite(ctrl_link,tx_vga,<span class="hljs-string">&#x27;uint8&#x27;</span>);<br><span class="hljs-comment">%% send tx channel set cmd</span><br>channel=[tx_chan <span class="hljs-number">0</span> hex2dec(<span class="hljs-string">&#x27;20&#x27;</span>) hex2dec(<span class="hljs-string">&#x27;f0&#x27;</span>) <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span>];<br>fwrite(ctrl_link,channel,<span class="hljs-string">&#x27;uint8&#x27;</span>);<br><span class="hljs-comment">%% custom rf control command</span><br><span class="hljs-comment">% adf4001 config</span><br>adf4001=[<span class="hljs-number">0</span> <span class="hljs-number">40</span> hex2dec(<span class="hljs-string">&#x27;18&#x27;</span>) hex2dec(<span class="hljs-string">&#x27;f0&#x27;</span>) hex2dec(ncount(<span class="hljs-number">3</span>:<span class="hljs-number">4</span>)) hex2dec(ncount(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>)) hex2dec(rcount(<span class="hljs-number">3</span>:<span class="hljs-number">4</span>)) hex2dec(rcount(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>))];<br>fwrite(ctrl_link,adf4001,<span class="hljs-string">&#x27;uint8&#x27;</span>);<br><span class="hljs-comment">% ref_select</span><br>ref_select=[<span class="hljs-number">0</span> <span class="hljs-number">40</span> hex2dec(<span class="hljs-string">&#x27;22&#x27;</span>) hex2dec(<span class="hljs-string">&#x27;f0&#x27;</span>) hex2dec(ref_hex(<span class="hljs-number">7</span>:<span class="hljs-number">8</span>)) hex2dec(ref_hex(<span class="hljs-number">5</span>:<span class="hljs-number">6</span>)) hex2dec(ref_hex(<span class="hljs-number">3</span>:<span class="hljs-number">4</span>)) hex2dec(ref_hex(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>))];<br>fwrite(ctrl_link,ref_select,<span class="hljs-string">&#x27;uint8&#x27;</span>);<br><span class="hljs-comment">% vco_cal_select</span><br>vco_cal_select=[<span class="hljs-number">0</span> <span class="hljs-number">41</span> hex2dec(<span class="hljs-string">&#x27;22&#x27;</span>) hex2dec(<span class="hljs-string">&#x27;f0&#x27;</span>) hex2dec(vco_cal_hex(<span class="hljs-number">7</span>:<span class="hljs-number">8</span>)) hex2dec(vco_cal_hex(<span class="hljs-number">5</span>:<span class="hljs-number">6</span>)) hex2dec(vco_cal_hex(<span class="hljs-number">3</span>:<span class="hljs-number">4</span>)) hex2dec(vco_cal_hex(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>))];<br>fwrite(ctrl_link,vco_cal_select,<span class="hljs-string">&#x27;uint8&#x27;</span>);<br><span class="hljs-comment">% fdd_tdd_select</span><br>fdd_tdd_select=[<span class="hljs-number">0</span> <span class="hljs-number">42</span> hex2dec(<span class="hljs-string">&#x27;22&#x27;</span>) hex2dec(<span class="hljs-string">&#x27;f0&#x27;</span>) hex2dec(fdd_tdd_hex(<span class="hljs-number">7</span>:<span class="hljs-number">8</span>)) hex2dec(fdd_tdd_hex(<span class="hljs-number">5</span>:<span class="hljs-number">6</span>)) hex2dec(fdd_tdd_hex(<span class="hljs-number">3</span>:<span class="hljs-number">4</span>)) hex2dec(fdd_tdd_hex(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>))];<br>fwrite(ctrl_link,fdd_tdd_select,<span class="hljs-string">&#x27;uint8&#x27;</span>);<br><span class="hljs-comment">% trx_sw</span><br>trx_sw=[<span class="hljs-number">0</span> <span class="hljs-number">43</span> hex2dec(<span class="hljs-string">&#x27;22&#x27;</span>) hex2dec(<span class="hljs-string">&#x27;f0&#x27;</span>) hex2dec(trx_sw_hex(<span class="hljs-number">7</span>:<span class="hljs-number">8</span>)) hex2dec(trx_sw_hex(<span class="hljs-number">5</span>:<span class="hljs-number">6</span>)) hex2dec(trx_sw_hex(<span class="hljs-number">3</span>:<span class="hljs-number">4</span>)) hex2dec(trx_sw_hex(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>))];<br>fwrite(ctrl_link,trx_sw,<span class="hljs-string">&#x27;uint8&#x27;</span>);<br><span class="hljs-comment">% aux_dac1</span><br>aux_dac1=[<span class="hljs-number">0</span> <span class="hljs-number">44</span> hex2dec(<span class="hljs-string">&#x27;22&#x27;</span>) hex2dec(<span class="hljs-string">&#x27;f0&#x27;</span>) hex2dec(aux_dac1_hex(<span class="hljs-number">7</span>:<span class="hljs-number">8</span>)) hex2dec(aux_dac1_hex(<span class="hljs-number">5</span>:<span class="hljs-number">6</span>)) hex2dec(aux_dac1_hex(<span class="hljs-number">3</span>:<span class="hljs-number">4</span>)) hex2dec(aux_dac1_hex(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>))];<br>fwrite(ctrl_link,aux_dac1,<span class="hljs-string">&#x27;uint8&#x27;</span>);<br><span class="hljs-comment">%% send handshake cmd</span><br>handshake=[<span class="hljs-number">2</span> <span class="hljs-number">0</span> hex2dec(<span class="hljs-string">&#x27;16&#x27;</span>) hex2dec(<span class="hljs-string">&#x27;f0&#x27;</span>) <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span>];<br>fwrite(ctrl_link ,handshake, <span class="hljs-string">&#x27;uint8&#x27;</span>);<br><span class="hljs-comment">%% send handshake2 cmd</span><br>data_length = dec2hex((<span class="hljs-number">2</span>^(<span class="hljs-built_in">i</span><span class="hljs-number">-1</span>)*<span class="hljs-number">2</span>)*<span class="hljs-number">1024</span>,<span class="hljs-number">8</span>);<br>handshake=[<span class="hljs-number">2</span> <span class="hljs-number">0</span> hex2dec(<span class="hljs-string">&#x27;17&#x27;</span>) hex2dec(<span class="hljs-string">&#x27;f0&#x27;</span>) hex2dec(data_length(<span class="hljs-number">7</span>:<span class="hljs-number">8</span>)) hex2dec(data_length(<span class="hljs-number">5</span>:<span class="hljs-number">6</span>)) hex2dec(data_length(<span class="hljs-number">3</span>:<span class="hljs-number">4</span>)) hex2dec(data_length(<span class="hljs-number">1</span>:<span class="hljs-number">2</span>))];<br>fwrite(ctrl_link ,handshake, <span class="hljs-string">&#x27;uint8&#x27;</span>);<br><span class="hljs-comment">%% Write data to the zing and read from the host.</span><br>fwrite(data_link,txd7,<span class="hljs-string">&#x27;uint8&#x27;</span>);<br><span class="hljs-comment">%% send handshake2 cmd to stop adc output</span><br><span class="hljs-comment">%handshake=[hex2dec(&#x27;ff&#x27;) 0 hex2dec(&#x27;17&#x27;) hex2dec(&#x27;f0&#x27;) 0 0 0 0];</span><br><span class="hljs-comment">%fwrite(ctrl_link,handshake,&#x27;uint8&#x27;);</span><br><span class="hljs-comment">%% close all link</span><br>fclose(data_link);<br>delete(data_link);<br>clear data_link;<br>fclose(ctrl_link);<br>delete(ctrl_link);<br>clear ctrl_link;<br><span class="hljs-built_in">disp</span>(<span class="hljs-string">&#x27;data tansfer done&#x27;</span>);<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="配置代码框架"><a href="#配置代码框架" class="headerlink" title="配置代码框架"></a>配置代码框架</h4><p>matlab 通过udp直接配置开发板发送数据，配套服务端代码：<a target="_blank" rel="noopener" href="https://github.com/demonelf/YunSDR/tree/master/Y210/Firmware/OS/Application">YunSDR&#x2F;Y210&#x2F;Firmware&#x2F;OS&#x2F;Application at master · demonelf&#x2F;YunSDR (github.com)</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/******************************************************************************/</span><br><span class="hljs-comment">/************************ Constants Definitions *******************************/</span><br><span class="hljs-comment">/******************************************************************************/</span><br>command cmd_list[] = &#123;<br>	&#123;<span class="hljs-string">&quot;help?&quot;</span>, <span class="hljs-string">&quot;Displays all available commands.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_help&#125;,<br>	&#123;<span class="hljs-string">&quot;register?&quot;</span>, <span class="hljs-string">&quot;Gets the specified register value.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_register&#125;,<br>	&#123;<span class="hljs-string">&quot;tx_lo_freq?&quot;</span>, <span class="hljs-string">&quot;Gets current TX LO frequency [MHz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_tx_lo_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;tx_lo_freq=&quot;</span>, <span class="hljs-string">&quot;Sets the TX LO frequency [MHz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_tx_lo_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;tx_samp_freq?&quot;</span>, <span class="hljs-string">&quot;Gets current TX sampling frequency [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_tx_samp_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;tx_samp_freq=&quot;</span>, <span class="hljs-string">&quot;Sets the TX sampling frequency [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_tx_samp_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;tx_rf_bandwidth?&quot;</span>, <span class="hljs-string">&quot;Gets current TX RF bandwidth [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_tx_rf_bandwidth&#125;,<br>	&#123;<span class="hljs-string">&quot;tx_rf_bandwidth=&quot;</span>, <span class="hljs-string">&quot;Sets the TX RF bandwidth [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_tx_rf_bandwidth&#125;,<br>	&#123;<span class="hljs-string">&quot;tx1_attenuation?&quot;</span>, <span class="hljs-string">&quot;Gets current TX1 attenuation [mdB].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_tx1_attenuation&#125;,<br>	&#123;<span class="hljs-string">&quot;tx1_attenuation=&quot;</span>, <span class="hljs-string">&quot;Sets the TX1 attenuation [mdB].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_tx1_attenuation&#125;,<br>	&#123;<span class="hljs-string">&quot;tx2_attenuation?&quot;</span>, <span class="hljs-string">&quot;Gets current TX2 attenuation [mdB].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_tx2_attenuation&#125;,<br>	&#123;<span class="hljs-string">&quot;tx2_attenuation=&quot;</span>, <span class="hljs-string">&quot;Sets the TX2 attenuation [mdB].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_tx2_attenuation&#125;,<br>	&#123;<span class="hljs-string">&quot;tx_fir_en?&quot;</span>, <span class="hljs-string">&quot;Gets current TX FIR state.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_tx_fir_en&#125;,<br>	&#123;<span class="hljs-string">&quot;tx_fir_en=&quot;</span>, <span class="hljs-string">&quot;Sets the TX FIR state.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_tx_fir_en&#125;,<br>	&#123;<span class="hljs-string">&quot;rx_lo_freq?&quot;</span>, <span class="hljs-string">&quot;Gets current RX LO frequency [MHz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_rx_lo_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;rx_lo_freq=&quot;</span>, <span class="hljs-string">&quot;Sets the RX LO frequency [MHz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_rx_lo_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;rx_samp_freq?&quot;</span>, <span class="hljs-string">&quot;Gets current RX sampling frequency [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_rx_samp_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;rx_samp_freq=&quot;</span>, <span class="hljs-string">&quot;Sets the RX sampling frequency [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_rx_samp_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;rx_rf_bandwidth?&quot;</span>, <span class="hljs-string">&quot;Gets current RX RF bandwidth [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_rx_rf_bandwidth&#125;,<br>	&#123;<span class="hljs-string">&quot;rx_rf_bandwidth=&quot;</span>, <span class="hljs-string">&quot;Sets the RX RF bandwidth [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_rx_rf_bandwidth&#125;,<br>	&#123;<span class="hljs-string">&quot;rx1_gc_mode?&quot;</span>, <span class="hljs-string">&quot;Gets current RX1 GC mode.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_rx1_gc_mode&#125;,<br>	&#123;<span class="hljs-string">&quot;rx1_gc_mode=&quot;</span>, <span class="hljs-string">&quot;Sets the RX1 GC mode.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_rx1_gc_mode&#125;,<br>	&#123;<span class="hljs-string">&quot;rx2_gc_mode?&quot;</span>, <span class="hljs-string">&quot;Gets current RX2 GC mode.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_rx2_gc_mode&#125;,<br>	&#123;<span class="hljs-string">&quot;rx2_gc_mode=&quot;</span>, <span class="hljs-string">&quot;Sets the RX2 GC mode.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_rx2_gc_mode&#125;,<br>	&#123;<span class="hljs-string">&quot;rx1_rf_gain?&quot;</span>, <span class="hljs-string">&quot;Gets current RX1 RF gain.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_rx1_rf_gain&#125;,<br>	&#123;<span class="hljs-string">&quot;rx1_rf_gain=&quot;</span>, <span class="hljs-string">&quot;Sets the RX1 RF gain.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_rx1_rf_gain&#125;,<br>	&#123;<span class="hljs-string">&quot;rx2_rf_gain?&quot;</span>, <span class="hljs-string">&quot;Gets current RX2 RF gain.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_rx2_rf_gain&#125;,<br>	&#123;<span class="hljs-string">&quot;rx2_rf_gain=&quot;</span>, <span class="hljs-string">&quot;Sets the RX2 RF gain.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_rx2_rf_gain&#125;,<br>	&#123;<span class="hljs-string">&quot;rx_fir_en?&quot;</span>, <span class="hljs-string">&quot;Gets current RX FIR state.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_rx_fir_en&#125;,<br>	&#123;<span class="hljs-string">&quot;rx_fir_en=&quot;</span>, <span class="hljs-string">&quot;Sets the RX FIR state.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_rx_fir_en&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx1_tone1_freq?&quot;</span>, <span class="hljs-string">&quot;Gets current DDS TX1 Tone 1 frequency [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_dds_tx1_tone1_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx1_tone1_freq=&quot;</span>, <span class="hljs-string">&quot;Sets the DDS TX1 Tone 1 frequency [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_dds_tx1_tone1_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx1_tone2_freq?&quot;</span>, <span class="hljs-string">&quot;Gets current DDS TX1 Tone 2 frequency [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_dds_tx1_tone2_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx1_tone2_freq=&quot;</span>, <span class="hljs-string">&quot;Sets the DDS TX1 Tone 2 frequency [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_dds_tx1_tone2_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx1_tone1_phase?&quot;</span>, <span class="hljs-string">&quot;Gets current DDS TX1 Tone 1 phase [degrees].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_dds_tx1_tone1_phase&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx1_tone1_phase=&quot;</span>, <span class="hljs-string">&quot;Sets the DDS TX1 Tone 1 phase [degrees].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_dds_tx1_tone1_phase&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx1_tone2_phase?&quot;</span>, <span class="hljs-string">&quot;Gets current DDS TX1 Tone 2 phase [degrees].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_dds_tx1_tone2_phase&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx1_tone2_phase=&quot;</span>, <span class="hljs-string">&quot;Sets the DDS TX1 Tone 2 phase [degrees].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_dds_tx1_tone2_phase&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx1_tone1_scale?&quot;</span>, <span class="hljs-string">&quot;Gets current DDS TX1 Tone 1 scale.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_dds_tx1_tone1_scale&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx1_tone1_scale=&quot;</span>, <span class="hljs-string">&quot;Sets the DDS TX1 Tone 1 scale.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_dds_tx1_tone1_scale&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx1_tone2_scale?&quot;</span>, <span class="hljs-string">&quot;Gets current DDS TX1 Tone 2 scale.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_dds_tx1_tone2_scale&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx1_tone2_scale=&quot;</span>, <span class="hljs-string">&quot;Sets the DDS TX1 Tone 2 scale.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_dds_tx1_tone2_scale&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx2_tone1_freq?&quot;</span>, <span class="hljs-string">&quot;Gets current DDS TX2 Tone 1 frequency [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_dds_tx2_tone1_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx2_tone1_freq=&quot;</span>, <span class="hljs-string">&quot;Sets the DDS TX2 Tone 1 frequency [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_dds_tx2_tone1_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx2_tone2_freq?&quot;</span>, <span class="hljs-string">&quot;Gets current DDS TX2 Tone 2 frequency [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_dds_tx2_tone2_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx2_tone2_freq=&quot;</span>, <span class="hljs-string">&quot;Sets the DDS TX2 Tone 2 frequency [Hz].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_dds_tx2_tone2_freq&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx2_tone1_phase?&quot;</span>, <span class="hljs-string">&quot;Gets current DDS TX2 Tone 1 phase [degrees].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_dds_tx2_tone1_phase&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx2_tone1_phase=&quot;</span>, <span class="hljs-string">&quot;Sets the DDS TX2 Tone 1 phase [degrees].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_dds_tx2_tone1_phase&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx2_tone2_phase?&quot;</span>, <span class="hljs-string">&quot;Gets current DDS TX2 Tone 2 phase [degrees].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_dds_tx2_tone2_phase&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx2_tone2_phase=&quot;</span>, <span class="hljs-string">&quot;Sets the DDS TX2 Tone 2 phase [degrees].&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_dds_tx2_tone2_phase&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx2_tone1_scale?&quot;</span>, <span class="hljs-string">&quot;Gets current DDS TX2 Tone 1 scale.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, get_dds_tx2_tone1_scale&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx2_tone1_scale=&quot;</span>, <span class="hljs-string">&quot;Sets the DDS TX2 Tone 1 scale.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_dds_tx2_tone1_scale&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx2_tone2_scale?&quot;</span>, <span class="hljs-string">&quot;Gets current DDS TX2 Tone 2 scale.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, dds_tx2_tone2_scale&#125;,<br>	&#123;<span class="hljs-string">&quot;dds_tx2_tone2_scale=&quot;</span>, <span class="hljs-string">&quot;Sets the DDS TX2 Tone 2 scale.&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, set_dds_tx2_tone2_scale&#125;,<br>&#125;;<br><br><br>		<span class="hljs-keyword">case</span> SDR_CUSTOM_CMD:<br>		&#123;<br>			<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> cmd = (cmd_buff[<span class="hljs-number">0</span>]&amp;<span class="hljs-number">0x0000FF00</span>)&gt;&gt;<span class="hljs-number">8</span>;<br>			<span class="hljs-keyword">if</span>(cmd &gt;= <span class="hljs-number">0</span> &amp;&amp; cmd &lt; <span class="hljs-number">30</span>) &#123;<br>				<span class="hljs-keyword">if</span>(cmd == <span class="hljs-number">3</span> || cmd == <span class="hljs-number">15</span>)&#123;<br>					sdr_param[<span class="hljs-number">0</span>] = (<span class="hljs-type">uint64_t</span>)cmd_buff[<span class="hljs-number">1</span>]|(((<span class="hljs-type">uint64_t</span>)cmd_buff[<span class="hljs-number">0</span>]&amp;<span class="hljs-number">0x000000FF</span>)&lt;&lt;<span class="hljs-number">32</span>);<br>					<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;freq = %llu\n&quot;</span>, (<span class="hljs-type">uint64_t</span>)sdr_param[<span class="hljs-number">0</span>]);<br>				&#125;<span class="hljs-keyword">else</span>&#123;<br>					sdr_param[<span class="hljs-number">0</span>] = cmd_buff[<span class="hljs-number">1</span>];<br>				&#125;<br><br>				sdr_param_no = <span class="hljs-number">1</span>;<br>				cmd_list[cmd].function(sdr_param, sdr_param_no);<br>				<span class="hljs-keyword">if</span>(device_type == SDR_DEVICE_Y310)&#123;<br>					<span class="hljs-keyword">if</span>(cmd == <span class="hljs-number">3</span>)&#123;<br>						tx_band_sel((<span class="hljs-type">uint64_t</span>)sdr_param[<span class="hljs-number">0</span>]);<br>						tx_rf_port_input_select((<span class="hljs-type">uint64_t</span>)sdr_param[<span class="hljs-number">0</span>]);<br>					&#125;<br>					<span class="hljs-keyword">if</span>(cmd == <span class="hljs-number">15</span>)&#123;<br>						rx1_band_sel((<span class="hljs-type">uint64_t</span>)sdr_param[<span class="hljs-number">0</span>]);<br>						rx2_band_sel((<span class="hljs-type">uint64_t</span>)sdr_param[<span class="hljs-number">0</span>]);<br>						rx_rf_port_input_select((<span class="hljs-type">uint64_t</span>)sdr_param[<span class="hljs-number">0</span>]);<br>					&#125;<br>				&#125;<br>			&#125;<br>			<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(cmd &gt;= <span class="hljs-number">40</span> &amp;&amp; cmd &lt;= <span class="hljs-number">45</span>) &#123;<br>				<span class="hljs-keyword">if</span>(device_type == SDR_DEVICE_Y310)&#123;<br>					custom_cmd_list[cmd<span class="hljs-number">-40</span>].function(cmd_buff[<span class="hljs-number">1</span>]);<br>				&#125;<br>			&#125;<br>			<span class="hljs-keyword">else</span><br>				dma_dbg(MSG_WARNING,<span class="hljs-string">&quot;CMD:undefined command!\n&quot;</span>);<br>			dma_dbg(MSG_DEBUG,<span class="hljs-string">&quot;CMD:recv SDR_CUSTOM cmd\n&quot;</span>);<br>			<span class="hljs-keyword">break</span>;<br>		&#125;<br><br></code></pre></td></tr></table></figure>
+
+
+
+<p><img src="/FPGA/ad9361%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/image-20240913142053977.png" srcset="/img/loading.gif" lazyload alt="image-20240913142053977"></p>
+<p>射频配置协议</p>
+<p>vitis裸板示例：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/analogdevicesinc/no-OS/blob/main/projects/ad9361">https://github.com/analogdevicesinc/no-OS/blob/main/projects/ad9361</a></p>
+<p>linux适配</p>
+<p>参考：</p>
+<ol>
+<li><p><a target="_blank" rel="noopener" href="https://www.analog.com/cn/products/ad9363.html#documentation">AD9363数据手册和产品信息 | Analog Devices</a></p>
+</li>
+<li><p>V3X20yunSDR开发流程培训</p>
+</li>
+<li><p>SDR无线通信实验讲义</p>
+</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/FPGA/" class="category-chain-item">FPGA</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ad9361原理和配置</div>
+      <div>http://blog.uanet.cn/FPGA/ad9361原理和配置.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/FPGA/Xilinx%20xdma%20linux%E5%B9%B3%E5%8F%B0%E8%B0%83%E8%AF%95.html" title="Xilinx xdma linux平台调试">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Xilinx xdma linux平台调试</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7.html" title="Quartus上板调试信号的工具">
+                        <span class="hidden-mobile">Quartus上板调试信号的工具</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,916 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="作为差不多和cloudflare一道被国内的站长们认识的Incapsula，其提供的免费CDN加速服务一直可以正常使用，且有多个CDN节点可供选择。而cloudflare提供的免费CDN服务虽然不错，但是不知道是不是因为国内用户用太多了还是其他什么原因，现在用起来总会有各种问题。 Incapsula最早部落是在三年前介绍的，现在之所以要再次分享一下Incapsula的免费CDN申请使用教程，一来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Incapsula免费CDN服务申请使用及加速效果测评">
+<meta property="og:url" content="http://blog.uanet.cn/NETWORK/Incapsula%E5%85%8D%E8%B4%B9CDN%E6%9C%8D%E5%8A%A1%E7%94%B3%E8%AF%B7%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8A%A0%E9%80%9F%E6%95%88%E6%9E%9C%E6%B5%8B%E8%AF%84.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="作为差不多和cloudflare一道被国内的站长们认识的Incapsula，其提供的免费CDN加速服务一直可以正常使用，且有多个CDN节点可供选择。而cloudflare提供的免费CDN服务虽然不错，但是不知道是不是因为国内用户用太多了还是其他什么原因，现在用起来总会有各种问题。 Incapsula最早部落是在三年前介绍的，现在之所以要再次分享一下Incapsula的免费CDN申请使用教程，一来">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343221Y0-0.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/13432220Q-1.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343221338-2.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343221947-3.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/13432240O-4.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343221501-5.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/134322CA-6.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343223B8-7.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343225M6-8.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343226036-9.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/134322OK-10.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/13432225T-11.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343222357-12.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343225952-13.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343225512-14.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343225D1-15.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343222359-16.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343221S2-17.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343225354-18.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343224P7-19.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343222421-20.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343221916-21.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/134322G24-22.gif">
+<meta property="og:image" content="http://www.aspku.com/uploads/allimg/150128/1343225G0-23.gif">
+<meta property="article:published_time" content="2025-02-13T05:53:20.802Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.802Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.aspku.com/uploads/allimg/150128/1343221Y0-0.gif">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>Incapsula免费CDN服务申请使用及加速效果测评 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Incapsula免费CDN服务申请使用及加速效果测评"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          16 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Incapsula免费CDN服务申请使用及加速效果测评</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343221Y0-0.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>作为差不多和cloudflare一道被国内的站长们认识的Incapsula，其提供的免费CDN加速服务一直可以正常使用，且有多个CDN节点可供选择。而cloudflare提供的免费CDN服务虽然不错，但是不知道是不是因为国内用户用太多了还是其他什么原因，现在用起来总会有各种问题。</p>
+<p>Incapsula最早部落是在三年前介绍的，现在之所以要再次分享一下Incapsula的免费CDN申请使用教程，一来是给不是很了解Incapsula的朋友一个简单普及，Incapsula的CDN其实有不少的高级用法；二来是Incapsula最近推出的香港CDN节点，很必要来体验不同的CDN节点在国内连接速度快慢。</p>
+<p>根据部落自己的统计，Incapsula可供查询的CDN节点共有60多个，主要是分布在美国、爱尔兰、日本、中国香港等地区，由于Incapsula的CDN服务是全球服务网络，因此只要有一个节点缓存了我们的网站，就可以在其它CDN节点上访问了。明白了这一点，我们就可以指定自己的CDN节点为日本或者香港。</p>
+<p>一般来说，网站放在亚太地区的话国内用户访问会感觉比美国主机要快一些，本篇文章就来对比一下Incapsula的日本、香港和美国CDN节点在国内的访问连接速度状况。Incapsula以前免费CDN套餐月流量为50GB，刚刚去官网查看了一下发现免费CDN套餐现以已经没有明确说明多少月流量限制。</p>
+<p>看了一下Incapsula的付费套餐也都没有月流量限制，区别主要是在防护攻击、CDN高级功能等方面，所以目前姑且认为Incapsula提供免费CDN服务没有流量限制，但是只是基本的CDN加速，应该在CDN资源利用方面作了限制。（部落刚刚狂刷新自己测试博客，有遇到一次超出资源配额提示，由此推测Incapsula在访问连接方面作了人为限制）</p>
+<p><strong>Incapsula免费CDN服务申请使用:日本、香港、美国CDN加速效果测评</strong></p>
+<p><strong>一、Incapsula免费CDN申请使用</strong></p>
+<p>1、Incapsula官网：</p>
+<p>1、官方网站：<a target="_blank" rel="noopener" href="http://www.incapsula.com/">http://www.incapsula.com/</a></p>
+<p>2、进入Incapsula官网，直接注册一个账号，然后登录到Incapsula管理后台，添加一个你想要使用CDN加速的网站。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/13432220Q-1.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>3、等Incapsula检测你的域名的DNS通过后，就可以点击下一步了。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343221338-2.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>4、然后Incapsula就会给出A记录和CNAME记录。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343221947-3.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>5、你需要到你的域名DNS管理处，将域名的@的A记录修改为Incapsula给你的IP（一般有两个），域名的www的记录修改为Incapsula给你的CNAME记录。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/13432240O-4.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>6、完成了以上操作后，就可以点击完成设置，Incapsula检测到你的域名的DNS更新成功后，你就可以在Incapsula查处和管理你的CDN了。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343221501-5.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p><strong>二、Incapsula CDN管理面板使用</strong></p>
+<p>1、这是Incapsula CDN的管理后台，主要是可以查看CDN流量统计、安全、CDN性能、管理日志等（点击放大）。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/134322CA-6.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>2、在Incapsula的设置当中，你可以查看CDN的源服务器IP地址，如果你的服务器IP有变动，就可以在这里直接修改。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343223B8-7.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>3、Incapsula还支持设置带www和不带www的域名跳转（利用这个功能，你不再需要在Htaccess中设置301跳转了）、是否显示推广广告、网站原DNS和CDN的DNS记录详情等，点击放大：</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343225M6-8.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>4、Incapsula有一个登录保护功能，这个功能对于那些有用户账号系统登录页面的网站来说，将可以有效地保护好账号的安全。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343226036-9.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>5、添加你想要使用Incapsula登录保护的页面的URL，然后用户在访问这个页面时需要授权了。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/134322OK-10.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>6、Incapsula还提供了CDN缓存模式可供选择：关闭、标准和进阶模式。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/13432225T-11.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>7、Incapsula还会通过对JS、CSS、Html等静态文件压缩，以达到加快页面加载的速度，你可以有选择性地关闭它们。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343222357-12.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>8、Incapsula还会有一些高级的CDN缓存设置，比如Http头的no-cache、Max-age、Last Modified等协议，你都可以在Incapsula中选择是否遵循。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343225952-13.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p><strong>三、Incapsula设置日本、香港CDN节点</strong></p>
+<p>1、Incapsula的CDN节点分布在香港、东京、新加坡、阿姆斯特丹、伦敦、阿什本、san jose、洛杉矶、特拉维夫、阿什维尔等地区，其中香港、东京是我们国内连接速度最快的主机机房位置。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343225512-14.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>2、一般来说我们会选择Incapsula香港或者日本的CDN节点作为我们网站的加速的CDN，而要做到这一点，我们只需要知道CDN的节点服务器IP就可以了。Incapsula所有的CDN节点IP地址可以在这里找到：<a target="_blank" rel="noopener" href="http://bgp.he.net/AS19551#_prefixes">http://bgp.he.net/AS19551#_prefixes</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343225D1-15.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>3、想要设置Incapsula日本、香港CDN节点，先要保证参考上面的方法操作，网站已经成功接入了Incapsula的CDN，然后再到你的域名DNS管理处，将原来的CNAME记录删除，把@和www等记录全部改为A记录，记录值是Incapsula的CDN节点的IP地址。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343222359-16.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>4、由于Incapsula的CDN节点有非常多的IP地址，我们可以多设置几个A记录。等DNS生效后，我们就能看到自己的网站访问到的Incapsula CDN节点已经变成了日本或者香港了。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343221S2-17.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p><strong>四、Incapsula日本、香港、美国CDN加速效果比较</strong></p>
+<p>1、默认的我们在Incapsula添加自己的网站加速时，系统分给我们的是美国的Incapsula CDN加速节点，通过站长工具测试发现Incapsula的美国CDN服务器在国内连接状态还算不错，比较少丢包，Ping值一般在270-300之间。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343225354-18.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>2、Incapsula日本和香港的Ping情况差不多，丢包比较少，响应时间也差不多。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343224P7-19.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>3、这是晚上测试Incapsula香港CDN节点的响应时间，平均在200左右。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343222421-20.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>4、这是白天测试Incapsula香港CDN节点的响应时间，平均在170左右。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343221916-21.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>5、Incapsula日本和香港的Ping测试结果显然不是很让满意，按照以往的经验日本和香港的Ping响应时间一般是在70以下。用路由追踪工具查看了一下国内连接Incapsula日本和香港的线路走势，电信用户是绕道日本后再到香港的。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/134322G24-22.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p>6、联通用户访问也是一样，先到日本，再到香港。</p>
+<p><a target="_blank" rel="noopener" href="http://www.aspku.com/yunying/jingyan/47681.html"><img src="http://www.aspku.com/uploads/allimg/150128/1343225G0-23.gif" srcset="/img/loading.gif" lazyload alt="Incapsula免费CDN服务申请使用及加速效果测评" title="Incapsula免费CDN服务申请使用及加速效果测评"></a></p>
+<p><strong>五、Incapsula日本香港免费CDN使用小结</strong></p>
+<p>1、Incapsula与Cloudflare比较起来，可以不用修改NS，采用CNAME记录的方式就可以接入到CDN，方便不少。Incapsula 每个节点一个ip，未使用anycast技术，因此方便了我们根据自己</p>
+<p>的需要来设置CDN节点的IP地址。</p>
+<p>2、不过，从测试的结果来看，Incapsula日本香港免费CDN节点国内并不是直连，基本上都是绕道到美国或者日本，所以也就看到了日本和香港的Incapsula CDN使用效果差不多，有些美国线路情况比较好的CDN节点速度也很快。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/NETWORK/" class="category-chain-item">NETWORK</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Incapsula免费CDN服务申请使用及加速效果测评</div>
+      <div>http://blog.uanet.cn/NETWORK/Incapsula免费CDN服务申请使用及加速效果测评.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/NETWORK/archlinux%E5%AE%89%E8%A3%85gns3.html" title="archlinux安装gns3">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">archlinux安装gns3</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/NETWORK/Linux%20PPP%20%E6%A1%86%E6%9E%B6%E5%88%86%E6%9E%90.html" title="Linux PPP 框架分析">
+                        <span class="hidden-mobile">Linux PPP 框架分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

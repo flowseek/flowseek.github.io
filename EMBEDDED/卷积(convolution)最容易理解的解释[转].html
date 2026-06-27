@@ -1,0 +1,917 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="啰嗦开场白读本科期间，信号与系统里面经常讲到卷积(convolution)，自动控制原理里面也会经常有提到卷积。硕士期间又学了线性系统理论与数字信号处理，里面也是各种大把大把卷积的概念。至于最近大火的深度学习，更有专门的卷积神经网络(Convolutional Neural Network, CNN)，在图像领域取得了非常好的实际效果，已经把传统的图像处理的方法快干趴下了。啰啰嗦嗦说了这么多卷积，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="卷积(convolution)最容易理解的解释[转]">
+<meta property="og:url" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC].html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="啰嗦开场白读本科期间，信号与系统里面经常讲到卷积(convolution)，自动控制原理里面也会经常有提到卷积。硕士期间又学了线性系统理论与数字信号处理，里面也是各种大把大把卷积的概念。至于最近大火的深度学习，更有专门的卷积神经网络(Convolutional Neural Network, CNN)，在图像领域取得了非常好的实际效果，已经把传统的图像处理的方法快干趴下了。啰啰嗦嗦说了这么多卷积，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/07687052f30c5db0f030a153fbffe445.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/99cfc1f14017f614fb049c8c259f93f5.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/7780c71f3b416e8624f77f059441a8f9.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/8330ec00efd540143578d2b14403401e.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/e8469394ba80bb85cc1063d575e91fa8.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/63419882469ae18a0a689642e05fe397.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/6294186bdd55940f722150e2925fb513.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/25c2d31cdf9ae13fba627c1980b59f65.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/c7be454b2229ed47354b86145c6f5672.png">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/b7c4d214da9e1707cef79a388410497d.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/84e2133fe28a68e648c838d7a3b395f2.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/468c4cbeca13d8302ef576e63d81ed2f.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/64410d4aaed468cb58a236212a08507f.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/b51b82bd9af9634806552eb051687bd0.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/711ba6edffa14e82ecf7277f46af2017.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/31eda2fc1547df2dfa0ed4fba3768df0.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/4e37e55abd55c933a67fe8c32e8a151f.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/a208f2f99a155ac808777fe923286901.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/1fb2ed72ade2a2c9044fac03a9b2d888.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/c8d99c77f0bca6e595594b7ad47779a3.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/1e647c45627b46f2bd03508a3090a490.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/f4d8fc64a89e080ed0f9090805c6b09d.png">
+<meta property="article:published_time" content="2025-02-13T05:53:20.712Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.712Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/07687052f30c5db0f030a153fbffe445.png">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>卷积(convolution)最容易理解的解释[转] - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="卷积(convolution)最容易理解的解释[转]"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          4.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          34 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">卷积(convolution)最容易理解的解释[转]</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="啰嗦开场白"><a href="#啰嗦开场白" class="headerlink" title="啰嗦开场白"></a>啰嗦开场白</h3><p>读本科期间，信号与系统里面经常讲到卷积(convolution)，自动控制原理里面也会经常有提到卷积。硕士期间又学了线性系统理论与数字信号处理，里面也是各种大把大把卷积的概念。至于最近大火的深度学习，更有专门的卷积神经网络(Convolutional Neural Network, CNN)，在图像领域取得了非常好的实际效果，已经把传统的图像处理的方法快干趴下了。啰啰嗦嗦说了这么多卷积，惭愧的是，好像一直以来对卷积的物理意义并不是那么清晰。一是上学时候只是简单考试，没有仔细思考过具体前后的来龙去脉。二是本身天资比较愚钝，理解能力没有到位。三则工作以后也没有做过强相关的工作，没有机会得以加深理解。趁着年前稍微有点时间，查阅了一些相关资料，力争将卷积的前世今生能搞明白。</p>
+<h3 id="1-知乎上排名最高的解释"><a href="#1-知乎上排名最高的解释" class="headerlink" title="1.知乎上排名最高的解释"></a>1.知乎上排名最高的解释</h3><p>首先选取知乎上对卷积物理意义解答排名最靠前的回答。<br>不推荐用“反转&#x2F;翻转&#x2F;反褶&#x2F;对称”等解释卷积。好好的信号为什么要翻转？导致学生难以理解卷积的物理意义。<br>这个其实非常简单的概念，国内的大多数教材却没有讲透。</p>
+<p>直接看图，不信看不懂。以离散信号为例，连续信号同理。</p>
+<p>已知x[0] &#x3D; a, x[1] &#x3D; b, x[2]&#x3D;c<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/07687052f30c5db0f030a153fbffe445.png" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>已知y[0] &#x3D; i, y[1] &#x3D; j, y[2]&#x3D;k<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/99cfc1f14017f614fb049c8c259f93f5.png" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>下面通过演示求x[n] * y[n]的过程，揭示卷积的物理意义。</p>
+<p>第一步，x[n]乘以y[0]并平移到位置0：<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/7780c71f3b416e8624f77f059441a8f9.png" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>第二步，x[n]乘以y[1]并平移到位置1<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/8330ec00efd540143578d2b14403401e.png" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>第三步，x[n]乘以y[2]并平移到位置2：<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/e8469394ba80bb85cc1063d575e91fa8.png" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>最后，把上面三个图叠加，就得到了x[n] * y[n]：<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/63419882469ae18a0a689642e05fe397.png" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>简单吧？无非是平移（没有反褶！）、叠加。<br>从这里，可以看到卷积的重要的物理意义是：一个函数（如：单位响应）在另一个函数（如：输入信号）上的加权叠加。</p>
+<p>重复一遍，这就是卷积的意义：加权叠加。</p>
+<p>对于线性时不变系统，如果知道该系统的单位响应，那么将单位响应和输入信号求卷积，就相当于把输入信号的各个时间点的单位响应 加权叠加，就直接得到了输出信号。</p>
+<p>通俗的说：<br>在输入信号的每个位置，叠加一个单位响应，就得到了输出信号。<br>这正是单位响应是如此重要的原因。</p>
+<p>在输入信号的每个位置，叠加一个单位响应，就得到了输出信号。<br>这正是单位响应是如此重要的原因。</p>
+<p>在输入信号的每个位置，叠加一个单位响应，就得到了输出信号。<br>这正是单位响应是如此重要的原因。</p>
+<p>以上是知乎上排名最高的回答。比较简单易懂。</p>
+<p>有个回复也可以参考：<br>楼主这种做法和通常教材上的区别在于：书上先反褶再平移，把输入信号当作一个整体，一次算出一个时间点的响应值；而楼主把信号拆开，一次算出一个信号在所有时间的响应值，再把各个信号相加。两者本质上是相同的。</p>
+<h3 id="2-卷积的另外解释"><a href="#2-卷积的另外解释" class="headerlink" title="2.卷积的另外解释"></a>2.卷积的另外解释</h3><p>卷积表示为y(n)&#x3D;x(n)∗h(n)y(n)&#x3D;x(n)∗h(n)<br>使用离散数列来理解卷积会更形象一点，我们把y(n)的序列表示成y(0),y(1),y(2),⋯y(0),y(1),y(2),⋯, 这是系统响应出来的信号。<br>同理，x(n)x(n)的对应时刻的序列为x(0),x(1),x(2),⋯x(0),x(1),x(2),⋯<br>其实我们如果没有学过信号与系统，就常识来讲，系统的响应不仅与当前时刻系统的输入有关，也跟之前若干时刻的输入有关，因为我们可以理解为这是之前时刻的输入信号经过一种过程（这种过程可以是递减，削弱，或其他）对现在时刻系统输出的影响，那么显然，我们计算系统输出时就必须考虑现在时刻的信号输入的响应以及之前若干时刻信号输入的响应之“残留”影响的一个叠加效果。<br>假设0时刻系统响应为y(0)y(0),若其在1时刻时，此种响应未改变，则1时刻的响应就变成了y(0)+y(1)y(0)+y(1),叫序列的累加和（与序列的和不一样）。但常常系统中不是这样的，因为0时刻的响应不太可能在1时刻仍旧未变化，那么怎么表述这种变化呢，就通过h(t)这个响应函数与x(0)相乘来表述，表述为x(m)×h(m−n)x(m)×h(m−n)，具体表达式不用多管，只要记着有大概这种关系，引入这个函数就能够表述y(0)y(0)在1时刻究竟削弱了多少，然后削弱后的值才是y(0)y(0)在1时刻的真实值，再通过累加和运算，才得到真实的系统响应。<br>再拓展点，某时刻的系统响应往往不一定是由当前时刻和前一时刻这两个响应决定的，也可能是再加上前前时刻，前前前时刻，前前前前时刻，等等，那么怎么约束这个范围呢，就是通过对h(n)h(n)这个函数在表达式中变化后的h(m−n)h(m−n)中的m的范围来约束的。即说白了，就是当前时刻的系统响应与多少个之前时刻的响应的“残留影响”有关。<br>当考虑这些因素后，就可以描述成一个系统响应了，而这些因素通过一个表达式（卷积）即描述出来不得不说是数学的巧妙和迷人之处了。</p>
+<h3 id="3-卷积的数学定义"><a href="#3-卷积的数学定义" class="headerlink" title="3.卷积的数学定义"></a>3.卷积的数学定义</h3><p>前面讲了这么多，我们看看教科书上对卷积的数学定义。<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/6294186bdd55940f722150e2925fb513.jpeg" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<h3 id="4-卷积的应用"><a href="#4-卷积的应用" class="headerlink" title="4.卷积的应用"></a>4.卷积的应用</h3><p>用一个模板和一幅图像进行卷积，对于图像上的一个点，让模板的原点和该点重合，然后模板上的点和图像上对应的点相乘，然后各点的积相加，就得到了该点的卷积值。对图像上的每个点都这样处理。由于大多数模板都是对称的，所以模板不旋转。卷积是一种积分运算，用来求两个曲线重叠区域面积。可以看作加权求和，可以用来消除噪声、特征增强。<br>把一个点的像素值用它周围的点的像素值的加权平均代替。<br>卷积是一种线性运算,图像处理中常见的mask运算都是卷积，广泛应用于图像滤波。<br>卷积关系最重要的一种情况，就是在信号与线性系统或数字信号处理中的卷积定理。利用该定理，可以将时间域或空间域中的卷积运算等价为频率域的相乘运算，从而利用FFT等快速算法，实现有效的计算，节省运算代价。</p>
+<h3 id="5-补充"><a href="#5-补充" class="headerlink" title="5.补充"></a>5.补充</h3><p>另外在知乎上看到非常好也非常生动形象的解释，特意复制粘贴过来。(知乎马同学的解释)</p>
+<p>从数学上讲，卷积就是一种运算。<br>某种运算，能被定义出来，至少有以下特征：<br>1.首先是抽象的、符号化的<br>2.其次，在生活、科研中，有着广泛的作用</p>
+<p>比如加法：<br>1.a+b，是抽象的，本身只是一个数学符号<br>2.在现实中，有非常多的意义，比如增加、合成、旋转等等</p>
+<p>卷积，是我们学习高等数学之后，新接触的一种运算，因为涉及到积分、级数，所以看起来觉得很复杂。</p>
+<p><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/25c2d31cdf9ae13fba627c1980b59f65.png" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>这两个式子有一个共同的特征：<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/c7be454b2229ed47354b86145c6f5672.png" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>这个特征有什么意义？</p>
+<p>只看数学符号，卷积是抽象的，不好理解的，但是，我们可以通过现实中的意义，来习惯卷积这种运算，正如我们小学的时候，学习加减乘除需要各种苹果、糖果来帮助我们习惯一样。</p>
+<p>我们来看看现实中，这样的定义有什么意义。</p>
+<p>2 离散卷积的例子：丢骰子</p>
+<p>我有两枚骰子：</p>
+<p><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/b7c4d214da9e1707cef79a388410497d.jpeg" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>把这两枚骰子都抛出去：<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/84e2133fe28a68e648c838d7a3b395f2.jpeg" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>求：两枚骰子点数加起来为4的概率是多少?<br>这里问题的关键是，两个骰子加起来要等于4，这正是卷积的应用场景。</p>
+<p>我们把骰子各个点数出现的概率表示出来：<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/468c4cbeca13d8302ef576e63d81ed2f.jpeg" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>那么，两枚骰子点数加起来为4的情况有：<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/64410d4aaed468cb58a236212a08507f.jpeg" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/b51b82bd9af9634806552eb051687bd0.jpeg" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/711ba6edffa14e82ecf7277f46af2017.jpeg" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>因此，两枚骰子点数加起来为4的概率为：<br>f(1)g(3)+f(2)g(2)+f(3)g(1)</p>
+<p>符合卷积的定义，把它写成标准的形式就是：</p>
+<p>(f∗g)(4)&#x3D;∑m&#x3D;13f(4−m)g(m)(f∗g)(4)&#x3D;∑m&#x3D;13f(4−m)g(m)</p>
+<p>3 连续卷积的例子：做馒头</p>
+<p>楼下早点铺子生意太好了，供不应求，就买了一台机器，不断的生产馒头。<br>假设馒头的生产速度是 f(t) ，那么一天后生产出来的馒头总量为：<br>∫240f(t)dt∫024f(t)dt<br>馒头生产出来之后，就会慢慢腐败，假设腐败函数为 g(t) ，比如，10个馒头，24小时会腐败：<br>10∗g(t)10∗g(t)<br>想想就知道，第一个小时生产出来的馒头，一天后会经历24小时的腐败，第二个小时生产出来的馒头，一天后会经历23小时的腐败。<br>如此，我们可以知道，一天后，馒头总共腐败了：<br>∫240f(t)g(24−t)dt∫024f(t)g(24−t)dt<br>这就是连续的卷积。</p>
+<p>4 图像处理<br>4.1 原理</p>
+<p>有这么一副图像，可以看到，图像上有很多噪点：<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/31eda2fc1547df2dfa0ed4fba3768df0.jpeg" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>高频信号，就好像平地耸立的山峰：<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/4e37e55abd55c933a67fe8c32e8a151f.jpeg" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>看起来很显眼。</p>
+<p>平滑这座山峰的办法之一就是，把山峰刨掉一些土，填到山峰周围去。用数学的话来说，就是把山峰周围的高度平均一下。</p>
+<p>平滑后得到：<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/a208f2f99a155ac808777fe923286901.jpeg" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>4.2 计算</p>
+<p>卷积可以帮助实现这个平滑算法。</p>
+<p>有噪点的原图，可以把它转为一个矩阵：<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/1fb2ed72ade2a2c9044fac03a9b2d888.jpeg" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>然后用下面这个平均矩阵（说明下，原图的处理实际上用的是正态分布矩阵，这里为了简单，就用了算术平均矩阵）来平滑图像：</p>
+<p>g&#x3D;⎡⎣⎢⎢191919191919191919⎤⎦⎥⎥g&#x3D;[191919191919191919]</p>
+<p>记得刚才说过的算法，把高频信号与周围的数值平均一下就可以平滑山峰。</p>
+<p>比如我要平滑a1,1a1,1 点，就在矩阵中，取出a1,1a1,1点附近的点组成矩阵 f ,和 g 进行卷积计算后，再填回去<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/c8d99c77f0bca6e595594b7ad47779a3.jpeg" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>要注意一点，为了运用卷积， g 虽然和 f 同维度，但下标有点不一样：<br><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/1e647c45627b46f2bd03508a3090a490.jpeg" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p><img src="/EMBEDDED/%E5%8D%B7%E7%A7%AF(convolution)%E6%9C%80%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%E7%9A%84%E8%A7%A3%E9%87%8A[%E8%BD%AC]/f4d8fc64a89e080ed0f9090805c6b09d.png" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<p>写成卷积公式就是：</p>
+<p>(f∗g)(1,1)&#x3D;∑k&#x3D;02∑h&#x3D;02f(h,k)g(1−h,1−k)(f∗g)(1,1)&#x3D;∑k&#x3D;02∑h&#x3D;02f(h,k)g(1−h,1−k)</p>
+<p>要求c4,5c4,5，一样可以套用上面的卷积公式。</p>
+<p>这样相当于实现了 g 这个矩阵在原来图像上的划动（准确来说，下面这幅图把 g 矩阵旋转了180∘180∘ ）：</p>
+<h3 id="6-另外一个关于卷积的有意思的解释"><a href="#6-另外一个关于卷积的有意思的解释" class="headerlink" title="6.另外一个关于卷积的有意思的解释"></a>6.另外一个关于卷积的有意思的解释</h3><p>看了好多关于卷积的答案，看到这个例子才彻底地理解了这个过程～<br>关于卷积的一个血腥的讲解<br>比如说你的老板命令你干活，你却到楼下打台球去了，后来被老板发现，他非常气愤，扇了你一巴掌（注意，这就是输入信号，脉冲），于是你的脸上会渐渐地（贱贱地）鼓起来一个包，你的脸就是一个系统，而鼓起来的包就是你的脸对巴掌的响应，好，这样就和信号系统建立起来意义对应的联系。下面还需要一些假设来保证论证的严谨：假定你的脸是线性时不变系统，也就是说，无论什么时候老板打你一巴掌，打在你脸的同一位置（这似乎要求你的脸足够光滑，如果你说你长了很多青春痘，甚至整个脸皮处处连续处处不可导，那难度太大了，我就无话可说了哈哈），你的脸上总是会在相同的时间间隔内鼓起来一个相同高度的包来，并且假定以鼓起来的包的大小作为系统输出。好了，那么，下面可以进入核心内容——卷积了！<br>如果你每天都到地下去打台球，那么老板每天都要扇你一巴掌，不过当老板打你一巴掌后，你5分钟就消肿了，所以时间长了，你甚至就适应这种生活了……如果有一天，老板忍无可忍，以0.5秒的间隔开始不间断的扇你的过程，这样问题就来了，第一次扇你鼓起来的包还没消肿，第二个巴掌就来了，你脸上的包就可能鼓起来两倍高，老板不断扇你，脉冲不断作用在你脸上，效果不断叠加了，这样这些效果就可以求和了，结果就是你脸上的包的高度随时间变化的一个函数了（注意理解）；如果老板再狠一点，频率越来越高，以至于你都辨别不清时间间隔了，那么，求和就变成积分了。可以这样理解，在这个过程中的某一固定的时刻，你的脸上的包的鼓起程度和什么有关呢？和之前每次打你都有关！但是各次的贡献是不一样的，越早打的巴掌，贡献越小，所以这就是说，某一时刻的输出是之前很多次输入乘以各自的衰减系数之后的叠加而形成某一点的输出，然后再把不同时刻的输出点放在一起，形成一个函数，这就是卷积，卷积之后的函数就是你脸上的包的大小随时间变化的函数。本来你的包几分钟就可以消肿，可是如果连续打，几个小时也消不了肿了，这难道不是一种平滑过程么？反映到剑桥大学的公式上，f(a)就是第a个巴掌，g(x-a)就是第a个巴掌在x时刻的作用程度，乘起来再叠加就ok了，大家说是不是这个道理呢？我想这个例子已经非常形象了，你对卷积有了更加具体深刻的了解了吗？</p>
+<p>转载<a target="_blank" rel="noopener" href="https://www.cnblogs.com/jfdwd/p/9299130.html">最容易理解的对卷积(convolution)的解释 - 交流_QQ_2240410488 - 博客园</a></p>
+<p>参考资料：<br>1.<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/22298352">如何通俗易懂地解释卷积？ - 知乎</a><br>2.<a target="_blank" rel="noopener" href="http://blog.csdn.net/yeeman/article/details/6325693">卷积的意义_yeeman的专栏-CSDN博客</a><br>3.<a target="_blank" rel="noopener" href="http://muchong.com/html/201001/1773707.html">【分享】转一篇好文——谈谈卷积的物理意义 - 数学 - 小木虫 - 学术 科研 互动社区</a><br>4.<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/39753115">为什么输入信号卷积冲激响应就能得到输出信号？ - 知乎</a><br>5.<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C">https://zh.wikipedia.org/wiki/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C</a><br>6.<a target="_blank" rel="noopener" href="http://blog.csdn.net/tiandijun/article/details/40080823">卷积的本质及物理意义（全面理解卷积）_彼岸花-CSDN博客_卷积的物理意义</a><br>7.<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%8D%B7%E7%A7%AF%E5%AE%9A%E7%90%86">https://zh.wikipedia.org/wiki/%E5%8D%B7%E7%A7%AF%E5%AE%9A%E7%90%86</a><br>8.<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/19714540/answer/14738630">如何理解傅里叶变换公式？ - 知乎</a> 如何理解傅里叶变换公式？</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/EMBEDDED/" class="category-chain-item">EMBEDDED</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>卷积(convolution)最容易理解的解释[转]</div>
+      <div>http://blog.uanet.cn/EMBEDDED/卷积(convolution)最容易理解的解释[转].html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/EMBEDDED/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93.html" title="神经网络学习总结">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">神经网络学习总结</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/EMBEDDED/%E5%AF%B9%E6%AF%94FPGA%E5%92%8CNPU%E5%9C%A8AI%E5%9B%BE%E5%83%8F%E9%A2%84%E5%A4%84%E7%90%86%E4%B8%AD%E5%BA%94%E7%94%A8.html" title="对比FPGA和NPU在AI图像预处理中应用">
+                        <span class="hidden-mobile">对比FPGA和NPU在AI图像预处理中应用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,848 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="当网络上一台计算机准备发送数据时,他的网卡开始工作了,首先网卡的芯片侦听在网络上是否有数据在流动,如果没有,他就把数据发送到网络上,在侦听和发送之间有一段极小的时间延迟,在这段时间内,也有可能在网络上有其他的计算机也准备发送数据,也侦听到网络上没有数据在流动,这就可能两台甚至多台的数据一起发送到网络上,产生数据的碰撞,发送数据的计算机的网卡芯片当然要在发送完成后再校验返回的数据,如果发现和发送的数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="freebsd网卡驱动程序详解">
+<meta property="og:url" content="http://blog.uanet.cn/NETWORK/freebsd%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E8%AF%A6%E8%A7%A3.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="当网络上一台计算机准备发送数据时,他的网卡开始工作了,首先网卡的芯片侦听在网络上是否有数据在流动,如果没有,他就把数据发送到网络上,在侦听和发送之间有一段极小的时间延迟,在这段时间内,也有可能在网络上有其他的计算机也准备发送数据,也侦听到网络上没有数据在流动,这就可能两台甚至多台的数据一起发送到网络上,产生数据的碰撞,发送数据的计算机的网卡芯片当然要在发送完成后再校验返回的数据,如果发现和发送的数">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-13T05:53:20.812Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.812Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>freebsd网卡驱动程序详解 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="freebsd网卡驱动程序详解"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          59 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">freebsd网卡驱动程序详解</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>当网络上一台计算机准备发送数据时,他的网卡开始工作了,首先网卡的芯片侦听在网络上是否有数据在<br>流动,如果没有,他就把数据发送到网络上,在侦听和发送之间有一段极小的时间延迟,在这段时间内,也有<br>可能在网络上有其他的计算机也准备发送数据,也侦听到网络上没有数据在流动,这就可能两台甚至多台<br>的数据一起发送到网络上,产生数据的碰撞,发送数据的计算机的网卡芯片当然要在发送完成后再校验返回<br>的数据,如果发现和发送的数据不一致,那就是说产生了碰撞,所以在一个以太网络中的计算机数量不宜过多,<br>他不但会增加广播包在网络中的数量,也请也会增加数据包的碰撞次数.<br>我们的计算机的网卡芯片在接收到一完整的数据包后,芯片的一引脚通知8259中断控制器,中断控制器再<br>发出中断给CPU,由此,CPU随即调用该网卡的中断例程,如: </p>
+<pre><code class="hljs">DOS是这样的 
+屏蔽所有中断(cli) 
+push any register 
+因为中断向量在段0 
+所以xor ax,ax 
+mov ds,ax 
+mul ax,中断号 
+那么在数据段的[ax]偏移处是该中断例程的指针了 
+call [ax]就到该中断例程了 
+...(DOS是比较遥远的事情了,我所描述的是他的原理,当然不会这么简单,如果那位网友有兴趣详细描述一下 
+上面的原理,纠正或替换掉我所写的就感激不尽了) 
+</code></pre>
+<p>总之,在本例程中,CPU将调用elintr中断例程,并带有参数unit即该种网卡的第几块(因为在计算机中,你有可能<br>装了相同的网卡有几块),elintr的作用是把数据从网卡的数据存储器中读到我们在该网卡初始化时预先分配好<br>的数据缓冲区中,他调用的函数就只有elread,同样elread也只调用了elget一个函数.elread函数比较简单,就是<br>调用elget,elget则相对比较复杂一点,涉及到核心内存分配mbuf,mbuf是比较恐怖的东西,正如STEVEN所写的,为<br>了节约当时”巨大”的4M内存,牺牲了性能搞出了这个mbuf东东,mbuf是必须要弄懂的,虽然在设备驱动程序中调用<br>他的宏和函数不多,但在后面的IP协议,TCP协议中有不少涉及的地方. </p>
+<p>关于数据发送方面和接收差不多,在上层协议放置好数据到mbuf链后,调用el_start函数,该函数把mbuf链中<br>的数据放置到本块网卡的发送队列缓冲el_pktbuf中,然后再调用el_xmit函数,此函数把发送队列缓冲el_pktbuf<br>中的数据有传递到网卡的数据存储器中.我认为,这中间的内存拷贝是多于的,应该在el_start函数中直接把mbuf<br>中的数据传递到网卡的数据存储器中,这样会使性能有较大幅度的提升,因为在驱动程序设计时,最好减少大量的<br>内存拷贝,他占用的时间太多了. </p>
+<h2 id="FreeBSD的3COM以太网设备驱动程序"><a href="#FreeBSD的3COM以太网设备驱动程序" class="headerlink" title="FreeBSD的3COM以太网设备驱动程序"></a>FreeBSD的3COM以太网设备驱动程序</h2><p><em>本段头文件是在编译核心时产生的</em> </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br><span class="line">442</span><br><span class="line">443</span><br><span class="line">444</span><br><span class="line">445</span><br><span class="line">446</span><br><span class="line">447</span><br><span class="line">448</span><br><span class="line">449</span><br><span class="line">450</span><br><span class="line">451</span><br><span class="line">452</span><br><span class="line">453</span><br><span class="line">454</span><br><span class="line">455</span><br><span class="line">456</span><br><span class="line">457</span><br><span class="line">458</span><br><span class="line">459</span><br><span class="line">460</span><br><span class="line">461</span><br><span class="line">462</span><br><span class="line">463</span><br><span class="line">464</span><br><span class="line">465</span><br><span class="line">466</span><br><span class="line">467</span><br><span class="line">468</span><br><span class="line">469</span><br><span class="line">470</span><br><span class="line">471</span><br><span class="line">472</span><br><span class="line">473</span><br><span class="line">474</span><br><span class="line">475</span><br><span class="line">476</span><br><span class="line">477</span><br><span class="line">478</span><br><span class="line">479</span><br><span class="line">480</span><br><span class="line">481</span><br><span class="line">482</span><br><span class="line">483</span><br><span class="line">484</span><br><span class="line">485</span><br><span class="line">486</span><br><span class="line">487</span><br><span class="line">488</span><br><span class="line">489</span><br><span class="line">490</span><br><span class="line">491</span><br><span class="line">492</span><br><span class="line">493</span><br><span class="line">494</span><br><span class="line">495</span><br><span class="line">496</span><br><span class="line">497</span><br><span class="line">498</span><br><span class="line">499</span><br><span class="line">500</span><br><span class="line">501</span><br><span class="line">502</span><br><span class="line">503</span><br><span class="line">504</span><br><span class="line">505</span><br><span class="line">506</span><br><span class="line">507</span><br><span class="line">508</span><br><span class="line">509</span><br><span class="line">510</span><br><span class="line">511</span><br><span class="line">512</span><br><span class="line">513</span><br><span class="line">514</span><br><span class="line">515</span><br><span class="line">516</span><br><span class="line">517</span><br><span class="line">518</span><br><span class="line">519</span><br><span class="line">520</span><br><span class="line">521</span><br><span class="line">522</span><br><span class="line">523</span><br><span class="line">524</span><br><span class="line">525</span><br><span class="line">526</span><br><span class="line">527</span><br><span class="line">528</span><br><span class="line">529</span><br><span class="line">530</span><br><span class="line">531</span><br><span class="line">532</span><br><span class="line">533</span><br><span class="line">534</span><br><span class="line">535</span><br><span class="line">536</span><br><span class="line">537</span><br><span class="line">538</span><br><span class="line">539</span><br><span class="line">540</span><br><span class="line">541</span><br><span class="line">542</span><br><span class="line">543</span><br><span class="line">544</span><br><span class="line">545</span><br><span class="line">546</span><br><span class="line">547</span><br><span class="line">548</span><br><span class="line">549</span><br><span class="line">550</span><br><span class="line">551</span><br><span class="line">552</span><br><span class="line">553</span><br><span class="line">554</span><br><span class="line">555</span><br><span class="line">556</span><br><span class="line">557</span><br><span class="line">558</span><br><span class="line">559</span><br><span class="line">560</span><br><span class="line">561</span><br><span class="line">562</span><br><span class="line">563</span><br><span class="line">564</span><br><span class="line">565</span><br><span class="line">566</span><br><span class="line">567</span><br><span class="line">568</span><br><span class="line">569</span><br><span class="line">570</span><br><span class="line">571</span><br><span class="line">572</span><br><span class="line">573</span><br><span class="line">574</span><br><span class="line">575</span><br><span class="line">576</span><br><span class="line">577</span><br><span class="line">578</span><br><span class="line">579</span><br><span class="line">580</span><br><span class="line">581</span><br><span class="line">582</span><br><span class="line">583</span><br><span class="line">584</span><br><span class="line">585</span><br><span class="line">586</span><br><span class="line">587</span><br><span class="line">588</span><br><span class="line">589</span><br><span class="line">590</span><br><span class="line">591</span><br><span class="line">592</span><br><span class="line">593</span><br><span class="line">594</span><br><span class="line">595</span><br><span class="line">596</span><br><span class="line">597</span><br><span class="line">598</span><br><span class="line">599</span><br><span class="line">600</span><br><span class="line">601</span><br><span class="line">602</span><br><span class="line">603</span><br><span class="line">604</span><br><span class="line">605</span><br><span class="line">606</span><br><span class="line">607</span><br><span class="line">608</span><br><span class="line">609</span><br><span class="line">610</span><br><span class="line">611</span><br><span class="line">612</span><br><span class="line">613</span><br><span class="line">614</span><br><span class="line">615</span><br><span class="line">616</span><br><span class="line">617</span><br><span class="line">618</span><br><span class="line">619</span><br><span class="line">620</span><br><span class="line">621</span><br><span class="line">622</span><br><span class="line">623</span><br><span class="line">624</span><br><span class="line">625</span><br><span class="line">626</span><br><span class="line">627</span><br><span class="line">628</span><br><span class="line">629</span><br><span class="line">630</span><br><span class="line">631</span><br><span class="line">632</span><br><span class="line">633</span><br><span class="line">634</span><br><span class="line">635</span><br><span class="line">636</span><br><span class="line">637</span><br><span class="line">638</span><br><span class="line">639</span><br><span class="line">640</span><br><span class="line">641</span><br><span class="line">642</span><br><span class="line">643</span><br><span class="line">644</span><br><span class="line">645</span><br><span class="line">646</span><br><span class="line">647</span><br><span class="line">648</span><br><span class="line">649</span><br><span class="line">650</span><br><span class="line">651</span><br><span class="line">652</span><br><span class="line">653</span><br><span class="line">654</span><br><span class="line">655</span><br><span class="line">656</span><br><span class="line">657</span><br><span class="line">658</span><br><span class="line">659</span><br><span class="line">660</span><br><span class="line">661</span><br><span class="line">662</span><br><span class="line">663</span><br><span class="line">664</span><br><span class="line">665</span><br><span class="line">666</span><br><span class="line">667</span><br><span class="line">668</span><br><span class="line">669</span><br><span class="line">670</span><br><span class="line">671</span><br><span class="line">672</span><br><span class="line">673</span><br><span class="line">674</span><br><span class="line">675</span><br><span class="line">676</span><br><span class="line">677</span><br><span class="line">678</span><br><span class="line">679</span><br><span class="line">680</span><br><span class="line">681</span><br><span class="line">682</span><br><span class="line">683</span><br><span class="line">684</span><br><span class="line">685</span><br><span class="line">686</span><br><span class="line">687</span><br><span class="line">688</span><br><span class="line">689</span><br><span class="line">690</span><br><span class="line">691</span><br><span class="line">692</span><br><span class="line">693</span><br><span class="line">694</span><br><span class="line">695</span><br><span class="line">696</span><br><span class="line">697</span><br><span class="line">698</span><br><span class="line">699</span><br><span class="line">700</span><br><span class="line">701</span><br><span class="line">702</span><br><span class="line">703</span><br><span class="line">704</span><br><span class="line">705</span><br><span class="line">706</span><br><span class="line">707</span><br><span class="line">708</span><br><span class="line">709</span><br><span class="line">710</span><br><span class="line">711</span><br><span class="line">712</span><br><span class="line">713</span><br><span class="line">714</span><br><span class="line">715</span><br><span class="line">716</span><br><span class="line">717</span><br><span class="line">718</span><br><span class="line">719</span><br><span class="line">720</span><br><span class="line">721</span><br><span class="line">722</span><br><span class="line">723</span><br><span class="line">724</span><br><span class="line">725</span><br><span class="line">726</span><br><span class="line">727</span><br><span class="line">728</span><br><span class="line">729</span><br><span class="line">730</span><br><span class="line">731</span><br><span class="line">732</span><br><span class="line">733</span><br><span class="line">734</span><br><span class="line">735</span><br><span class="line">736</span><br><span class="line">737</span><br><span class="line">738</span><br><span class="line">739</span><br><span class="line">740</span><br><span class="line">741</span><br><span class="line">742</span><br><span class="line">743</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;el.h&quot;</span> <span class="hljs-comment">/*此三文件为编译时产生的头文件,内容是定制核心的一些常量*/</span> </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;opt_inet.h&quot;</span> </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;opt_ipx.h&quot;</span> </span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/param.h&gt;</span> </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/systm.h&gt;</span> </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/sockio.h&gt;</span> </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/mbuf.h&gt;</span> </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/socket.h&gt;</span> </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/syslog.h&gt;</span> </span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;net/ethernet.h&gt;</span> </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;net/if.h&gt;</span> </span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;netinet/in.h&gt;</span> </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;netinet/if_ether.h&gt;</span> </span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;net/bpf.h&gt;</span> </span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;machine/clock.h&gt;</span> </span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;i386/isa/isa_device.h&gt;</span> </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;i386/isa/if_elreg.h&gt;</span><span class="hljs-comment">/*此头文件是3COM卡的寄存器常量*/</span> </span><br><br><span class="hljs-comment">/* 为了调试方便 */</span> <br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> EL_DEBUG </span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> dprintf(x) printf x <span class="hljs-comment">/*如果定义了DEBUG调试,则打印到屏幕*/</span> </span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span> </span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> dprintf(x) </span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> </span><br><br><span class="hljs-comment">/* softc结构,每种网卡的该结构是不同的,主要是该第一个成员必须是一以太网的共用结构arpcom*/</span> <br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">el_softc</span> &#123;</span> <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">arpcom</span> <span class="hljs-title">arpcom</span>;</span> <span class="hljs-comment">/* 以太网公共部分 */</span> <br>u_short el_base; <span class="hljs-comment">/* 基本输入输出地址 */</span> <br><span class="hljs-type">char</span> el_pktbuf[EL_BUFSIZ]; <span class="hljs-comment">/* 帧缓冲大小2048 */</span> <br>&#125; el_softc[NEL]; <span class="hljs-comment">/*NEL在el.h中定义,即编译时产生的头文件,意思为支持的网卡数*/</span> <br><span class="hljs-comment">/* </span><br><span class="hljs-comment">看看arpcom结构吧 </span><br><span class="hljs-comment"></span><br><span class="hljs-comment">* 该结构是以太网设备驱动程序和ARP程序所共享. </span><br><span class="hljs-comment"></span><br><span class="hljs-comment">struct arpcom &#123; </span><br><span class="hljs-comment">/* </span><br><span class="hljs-comment">* ifnet 结构必须在此结构的第一个位置. </span><br><span class="hljs-comment">/ </span><br><span class="hljs-comment">struct ifnet ac_if; </span><br><span class="hljs-comment">u_char ac_enaddr[6]; /* 以太网硬件地址/ </span><br><span class="hljs-comment">int ac_multicnt; /* 多播地址列表数 / </span><br><span class="hljs-comment">void *ac_netgraph; /* netgraph 节点信息,即我们所说的PPPoE,也就是ADSL宽带所用到的 / </span><br><span class="hljs-comment">&#125;; </span><br><span class="hljs-comment"></span><br><span class="hljs-comment"></span><br><span class="hljs-comment">*/</span> <br><br><span class="hljs-comment">/* 一些函数申明 */</span> <br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">el_attach</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> isa_device *)</span>;<span class="hljs-comment">/*第二步:填充相关的数据结构*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">el_init</span><span class="hljs-params">(<span class="hljs-type">void</span> *)</span>; <span class="hljs-comment">/*不用说,是初始化,在probe,attach之后被调用*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">el_ioctl</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> ifnet *,u_long,<span class="hljs-type">caddr_t</span>)</span>;<span class="hljs-comment">/*控制网卡的函树指针*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">el_probe</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> isa_device *)</span>;<span class="hljs-comment">/*第一步:探测程序.查看是否卡存在和是否在正确的位置.*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">el_start</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> ifnet *)</span>;<span class="hljs-comment">/*把数据包从硬件接口输出去*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">el_reset</span><span class="hljs-params">(<span class="hljs-type">void</span> *)</span>;<span class="hljs-comment">/* 该例程重设接口. 在el_watchdog()中调用*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">el_watchdog</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> ifnet *)</span>;<span class="hljs-comment">/*一般该函数用于包在一定时间内没发送出去,就调用他,在 </span><br><span class="hljs-comment">本驱动程序中并不支持该函数,在我的rtl8139说明中有*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">el_stop</span><span class="hljs-params">(<span class="hljs-type">void</span> *)</span>;<span class="hljs-comment">/*停止接口,在el_ioctl()和el_reset()中调用*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">el_xmit</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> el_softc *,<span class="hljs-type">int</span>)</span>;<span class="hljs-comment">/*把数据包放到芯片内,发送到以太网上*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">ointhand2_t</span> elintr;<span class="hljs-comment">/*中断例程*/</span> <br><span class="hljs-type">static</span> __inline <span class="hljs-type">void</span> <span class="hljs-title function_">elread</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> el_softc *,<span class="hljs-type">caddr_t</span>,<span class="hljs-type">int</span>)</span>;<span class="hljs-comment">/* 传递包到更高一级协议处理,即ether_input()例程.由elintr()调用 */</span><br><span class="hljs-type">static</span> <span class="hljs-keyword">struct</span> mbuf *<span class="hljs-title function_">elget</span><span class="hljs-params">(<span class="hljs-type">caddr_t</span>,<span class="hljs-type">int</span>,<span class="hljs-keyword">struct</span> ifnet *)</span>; <span class="hljs-comment">/* 从网卡上下载数据包,len是数据的长度,本地以太网头部被分开*/</span><br><span class="hljs-type">static</span> __inline <span class="hljs-type">void</span> <span class="hljs-title function_">el_hardreset</span><span class="hljs-params">(<span class="hljs-type">void</span> *)</span>;<span class="hljs-comment">/* 这是一个子程序,目的是重设硬件.*/</span> <br><br><span class="hljs-comment">/* isa_driver结构 为 autoconf准备 */</span> <br><span class="hljs-comment">/* isa_driver结构说明: </span><br><span class="hljs-comment">该结构来之于文件isa_device.h头文件 </span><br><span class="hljs-comment">结构成员: </span><br><span class="hljs-comment">/* </span><br><span class="hljs-comment">* 通用的设备驱动程序结构. </span><br><span class="hljs-comment">* </span><br><span class="hljs-comment">* 没一设备驱动程序定义一组例程入口,由设置程序在启动时使用. </span><br><span class="hljs-comment"></span><br><span class="hljs-comment">struct isa_driver &#123; </span><br><span class="hljs-comment">int (*probe) __P((struct isa_device *idp)); </span><br><span class="hljs-comment">/* 测试设备是否存在 </span><br><span class="hljs-comment">int (*attach) __P((struct isa_device *idp)); </span><br><span class="hljs-comment">/* 为设备设置驱动程序 </span><br><span class="hljs-comment">char *name; /* 设备名称 </span><br><span class="hljs-comment">int sensitive_hw; /* 探测发生有冲突时为真,ISA设备的老毛病 </span><br><span class="hljs-comment">&#125;; </span><br><span class="hljs-comment">*/</span> <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">isa_driver</span> <span class="hljs-title">eldriver</span> =</span> &#123; <br>el_probe, el_attach, <span class="hljs-string">&quot;el&quot;</span> <br>&#125;; <br><br><br><span class="hljs-comment">/* 探测程序.查看是否卡存在和是否在正确的位置. */</span> <br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <br><span class="hljs-title function_">el_probe</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> isa_device *idev)</span> <br>&#123; <br><span class="hljs-comment">/* </span><br><span class="hljs-comment">isa_device 是设备的通用结构,该结构说明在isa_device.h头文件中,说明如下: </span><br><span class="hljs-comment">struct isa_device &#123; </span><br><span class="hljs-comment">int id_id; /* 设备的 id </span><br><span class="hljs-comment">struct isa_driver *id_driver; 指向设备的驱动程序结构 </span><br><span class="hljs-comment">int id_iobase; /* 基本IO地址 </span><br><span class="hljs-comment">int id_iosize; /* 基本IO地址的长度 </span><br><span class="hljs-comment">u_int id_irq; /* 中断 </span><br><span class="hljs-comment">int id_drq; /* DMA </span><br><span class="hljs-comment">caddr_t id_maddr; /* 在总线中的物理IO内存地址(即便要) </span><br><span class="hljs-comment">int id_msize; /* IO内存的大小 </span><br><span class="hljs-comment">union &#123; </span><br><span class="hljs-comment">inthand2_t *id_i; </span><br><span class="hljs-comment">ointhand2_t *id_oi;中断例程指针 </span><br><span class="hljs-comment">&#125; id_iu; /* 中断接口例程 </span><br><span class="hljs-comment">#define id_intr id_iu.id_i </span><br><span class="hljs-comment">#define id_ointr id_iu.id_oi </span><br><span class="hljs-comment">int id_unit; /* 在该类设备中是第几个 </span><br><span class="hljs-comment">int id_flags; /* flags </span><br><span class="hljs-comment">int id_enabled; /* 设备激活了吗 </span><br><span class="hljs-comment">struct isa_device *id_next; /* 在 userconfig()中用于isa_devlist </span><br><span class="hljs-comment">struct device *id_device; </span><br><span class="hljs-comment">&#125;; </span><br><span class="hljs-comment"></span><br><span class="hljs-comment">*/</span> <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">el_softc</span> *<span class="hljs-title">sc</span>;</span> <br>u_short base; <span class="hljs-comment">/* 仅仅为了方便 */</span> <br>u_char station_addr[ETHER_ADDR_LEN];<span class="hljs-comment">/*以太网的硬件地址*/</span> <br><span class="hljs-type">int</span> i; <br><br><span class="hljs-comment">/* 搜集一些信息 */</span> <br>sc = &amp;el_softc[idev-&gt;id_unit];<span class="hljs-comment">/*sc是softc结构,如果你有NEL块el卡的话就有NEL个softc </span><br><span class="hljs-comment">结构,当然也有可能同时还有其他的xx_softc结构*/</span> <br>sc-&gt;el_base = idev-&gt;id_iobase;<span class="hljs-comment">/*该块卡的基本I/O地址*/</span> <br>base = sc-&gt;el_base;<span class="hljs-comment">/*有一点多余,只是为了方便下面的引用*/</span> <br><br><span class="hljs-comment">/* 第一次检查地址,看看基本地址是否在0X280到0X3F0之内 */</span> <br><span class="hljs-keyword">if</span>((base &lt; <span class="hljs-number">0x280</span>) || (base &gt; <span class="hljs-number">0x3f0</span>)) &#123; <br><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;el%d: ioaddr must be between 0x280 and 0x3f0\n&quot;</span>, <br>idev-&gt;id_unit); <br><span class="hljs-keyword">return</span>(<span class="hljs-number">0</span>); <br>&#125; <br><br><span class="hljs-comment">/* 现在尝试从PROM中获取地址,看看是否包含了3COM供应商的标识代码. </span><br><span class="hljs-comment">*/</span> <br>dprintf((<span class="hljs-string">&quot;Probing 3c501 at 0x%x...\n&quot;</span>,base));<span class="hljs-comment">/*在调试时会打印出*/</span> <br><br><span class="hljs-comment">/* 重置板卡 */</span> <br>dprintf((<span class="hljs-string">&quot;Resetting board...\n&quot;</span>)); <br>outb(base+EL_AC,EL_AC_RESET);<span class="hljs-comment">/*我们一般定义基地址为0X300,EL_AC=0E,是辅助命令寄存器*/</span> <br>DELAY(<span class="hljs-number">5</span>);<span class="hljs-comment">/*延迟5毫秒*/</span> <br>outb(base+EL_AC,<span class="hljs-number">0</span>); <br>dprintf((<span class="hljs-string">&quot;Reading station address...\n&quot;</span>)); <br><span class="hljs-comment">/* 读硬件地址,共六次 */</span> <br><span class="hljs-keyword">for</span>(i=<span class="hljs-number">0</span>;i&lt;ETHER_ADDR_LEN;i++) &#123; <br>outb(base+EL_GPBL,i); <br>station_addr[i] = inb(base+EL_EAW);<span class="hljs-comment">/*EL_EAW是该卡的地址口,station_addr是函数内部变量, </span><br><span class="hljs-comment">下面判断了生产厂家后就没用的*/</span> <br>&#125; <br>dprintf((<span class="hljs-string">&quot;Address is %6D\n&quot;</span>,station_addr, <span class="hljs-string">&quot;:&quot;</span>)); <br><br><span class="hljs-comment">/* 如果厂商标识代码正确,那么返回1. </span><br><span class="hljs-comment">*/</span> <br><span class="hljs-keyword">if</span>((station_addr[<span class="hljs-number">0</span>] != <span class="hljs-number">0x02</span>) || (station_addr[<span class="hljs-number">1</span>] != <span class="hljs-number">0x60</span>) <br>|| (station_addr[<span class="hljs-number">2</span>] != <span class="hljs-number">0x8c</span>)) &#123; <br>dprintf((<span class="hljs-string">&quot;Bad vendor code.\n&quot;</span>));<span class="hljs-comment">/*3COM厂商此种卡的代码为02608C*/</span> <br><span class="hljs-keyword">return</span>(<span class="hljs-number">0</span>); <br>&#125; <span class="hljs-keyword">else</span> &#123; <br>dprintf((<span class="hljs-string">&quot;Vendor code ok.\n&quot;</span>)); <br><span class="hljs-comment">/* 把地址拷贝到arpcom结构中 */</span> <br>bcopy(station_addr,sc-&gt;arpcom.ac_enaddr,ETHER_ADDR_LEN); <br><span class="hljs-keyword">return</span>(<span class="hljs-number">1</span>); <br>&#125; <br>&#125; <br><br><span class="hljs-comment">/* 这是一个子程序,目的是重设硬件. 在el_init()中调用,在elintr()中调用,产生中断,有溢出发生时调用*/</span><br><span class="hljs-type">static</span> __inline <span class="hljs-type">void</span> <br><span class="hljs-title function_">el_hardreset</span><span class="hljs-params">(xsc)</span> <br><span class="hljs-type">void</span> *xsc; <br>&#123; <br><span class="hljs-keyword">register</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">el_softc</span> *<span class="hljs-title">sc</span> =</span> xsc;<span class="hljs-comment">/*记住在C中,寄存器变量只能有三个,可加快速度*/</span> <br><span class="hljs-keyword">register</span> <span class="hljs-type">int</span> base; <br><span class="hljs-keyword">register</span> <span class="hljs-type">int</span> j; <br><br>base = sc-&gt;el_base; <br><br><span class="hljs-comment">/* 第一步,重设板卡,和el_probe中的一样(前面) */</span> <br>outb(base+EL_AC,EL_AC_RESET); <br>DELAY(<span class="hljs-number">5</span>); <br>outb(base+EL_AC,<span class="hljs-number">0</span>); <br><br><span class="hljs-comment">/* 又把地址填回去,为什么?没有为什么,就是厂商规定的,一些端口填什么数据时会怎么样,只有厂商知道,我相信, </span><br><span class="hljs-comment">在同一厂商之间的网卡,交换机,路由器进行秘密通讯是非常可能的,他可以不返回到CPU层*/</span> <br><span class="hljs-keyword">for</span>(j=<span class="hljs-number">0</span>;j&lt;ETHER_ADDR_LEN;j++) <br>outb(base+j,sc-&gt;arpcom.ac_enaddr[j]); <br>&#125; <br><br><span class="hljs-comment">/* 连接该接口到核心数据结构.被调用时,我们已经知道该卡已经存在在给定的I/O </span><br><span class="hljs-comment">* 地址,我们还假定中断号是正确的. </span><br><span class="hljs-comment">*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <br><span class="hljs-title function_">el_attach</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> isa_device *idev)</span> <br>&#123; <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">el_softc</span> *<span class="hljs-title">sc</span>;</span> <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ifnet</span> *<span class="hljs-title">ifp</span>;</span><span class="hljs-comment">/*该结构是一个巨大的结构,在STEVEN的书中有描述,我也写了一篇*/</span> <br>u_short base;<span class="hljs-comment">/*没用上,可以去掉*/</span> <br><br>dprintf((<span class="hljs-string">&quot;Attaching el%d...\n&quot;</span>,idev-&gt;id_unit)); <br><br><span class="hljs-comment">/* 放置一些指针. */</span> <br>idev-&gt;id_ointr = elintr;<span class="hljs-comment">/*放置中断例程指针,中断例程在下面*/</span> <br>sc = &amp;el_softc[idev-&gt;id_unit];<span class="hljs-comment">/*定位本设备的softc结构指针*/</span> <br>ifp = &amp;sc-&gt;arpcom.ac_if;<span class="hljs-comment">/*定位ifnet结构*/</span> <br>base = sc-&gt;el_base;<span class="hljs-comment">/*从程序来看,这一句可以去掉,根本没用,因为在该函数中没用到base*/</span> <br><br><span class="hljs-comment">/* 重设板卡 */</span> <br>dprintf((<span class="hljs-string">&quot;Resetting board...\n&quot;</span>)); <br>el_hardreset(sc);<span class="hljs-comment">/*该程序在上面*/</span> <br><br><span class="hljs-comment">/* 初始化ifnet结构,该结构的成员经常用来被ether网子程序,arp,bridge等调用 */</span> <br>ifp-&gt;if_softc = sc;<span class="hljs-comment">/*该网卡的IFP(通用接口结构)的专用结构指针(softc结构)*/</span> <br>ifp-&gt;if_unit = idev-&gt;id_unit;<span class="hljs-comment">/*第几块网卡*/</span> <br>ifp-&gt;if_name = <span class="hljs-string">&quot;el&quot;</span>;<span class="hljs-comment">/*网络卡的名称*/</span> <br>ifp-&gt;if_mtu = ETHERMTU;<span class="hljs-comment">/*1500*/</span> <br>ifp-&gt;if_output = ether_output;<span class="hljs-comment">/*以太网的输出子程序指针(不要搞错了,是向IP层 </span><br><span class="hljs-comment">输出,按我们的理解是数据输入了,再转送到上一层协议)*/</span> <br>ifp-&gt;if_start = el_start;<span class="hljs-comment">/*把数据包从硬件接口输出去*/</span> <br>ifp-&gt;if_ioctl = el_ioctl;<span class="hljs-comment">/*控制网卡的函树指针*/</span> <br>ifp-&gt;if_watchdog = el_watchdog;<span class="hljs-comment">/*一般该函数用于包在一定时间内没发送出去,就调用他,在 </span><br><span class="hljs-comment">本驱动程序中并不支持该函数,在我的rtl8139说明中有*/</span> <br>ifp-&gt;if_init = el_init; <span class="hljs-comment">/*不用说,是初始化,在probe,attach之后被调用*/</span> <br>ifp-&gt;if_flags = (IFF_BROADCAST | IFF_SIMPLEX);<span class="hljs-comment">/*支持广播和单播*/</span> <br><br><span class="hljs-comment">/* 调用通用以太网初始化例程 */</span> <br>dprintf((<span class="hljs-string">&quot;Attaching interface...\n&quot;</span>)); <br>ether_ifattach(ifp, ETHER_BPF_SUPPORTED); <br><span class="hljs-comment">/* </span><br><span class="hljs-comment">在if_ethersubr.c中的ether_ifattach例程 </span><br><span class="hljs-comment">void ether_ifattach(ifp, bpf) 调用时,ETHER_BPF_SUPPORTED是BSD的 </span><br><span class="hljs-comment">包过滤器,如果在编译时设置文件没有 </span><br><span class="hljs-comment">打开包过滤器,那么代表0,否则是1 </span><br><span class="hljs-comment">register struct ifnet *ifp; </span><br><span class="hljs-comment">int bpf; </span><br><span class="hljs-comment">&#123; </span><br><span class="hljs-comment">register struct ifaddr *ifa; </span><br><span class="hljs-comment">register struct sockaddr_dl *sdl; </span><br><span class="hljs-comment"></span><br><span class="hljs-comment">if_attach(ifp); 此例程在if.c 中 </span><br><span class="hljs-comment">ifp-&gt;if_type = IFT_ETHER;代表以太网 </span><br><span class="hljs-comment">ifp-&gt;if_addrlen = 6;硬件地址长度是6 </span><br><span class="hljs-comment">ifp-&gt;if_hdrlen = 14;包的头长度是6+6+2=14,其中2是协议类型 </span><br><span class="hljs-comment">ifp-&gt;if_mtu = ETHERMTU; 为1500,多此一举,在前面你可看到,已 </span><br><span class="hljs-comment">经填充了. </span><br><span class="hljs-comment">ifp-&gt;if_resolvemulti = ether_resolvemulti; 以太网解析多播例程指针 </span><br><span class="hljs-comment">if (ifp-&gt;if_baudrate == 0) 波特率 </span><br><span class="hljs-comment">ifp-&gt;if_baudrate = 10000000; </span><br><span class="hljs-comment">ifa = ifnet_addrs[ifp-&gt;if_index - 1];在ifnet_addrs[]数组中找到本地址指针 </span><br><span class="hljs-comment">KASSERT(ifa != NULL, (&quot;%s: no lladdr!\n&quot;, __FUNCTION__)); </span><br><span class="hljs-comment">sdl = (struct sockaddr_dl *)ifa-&gt;ifa_addr; ifa-&gt;ifa_addr在此时指向的是sockaddr_dl结构. </span><br><span class="hljs-comment">sdl-&gt;sdl_type = IFT_ETHER; </span><br><span class="hljs-comment">sdl-&gt;sdl_alen = ifp-&gt;if_addrlen; </span><br><span class="hljs-comment">bcopy((IFP2AC(ifp))-&gt;ac_enaddr, LLADDR(sdl), ifp-&gt;if_addrlen);把硬件地址拷贝到sdl结构中 </span><br><span class="hljs-comment">if (bpf) bpf为真,即加入了BSD包过滤 </span><br><span class="hljs-comment">bpfattach(ifp, DLT_EN10MB, sizeof(struct ether_header)); </span><br><span class="hljs-comment">if (ng_ether_attach_p != NULL) </span><br><span class="hljs-comment">(*ng_ether_attach_p)(ifp); </span><br><span class="hljs-comment">&#125; </span><br><span class="hljs-comment"></span><br><span class="hljs-comment">*/</span> <br><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;el%d: 3c501 address %6D\n&quot;</span>,idev-&gt;id_unit, <br>sc-&gt;arpcom.ac_enaddr, <span class="hljs-string">&quot;:&quot;</span>); <br><br>dprintf((<span class="hljs-string">&quot;el_attach() finished.\n&quot;</span>)); <br><span class="hljs-keyword">return</span>(<span class="hljs-number">1</span>); <br>&#125; <br><br><span class="hljs-comment">/* 该例程重设接口. 在el_watchdog()中调用,因为watchdog不在本驱动程序中支持,所以从不被调用*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <br><span class="hljs-title function_">el_reset</span><span class="hljs-params">(xsc)</span><span class="hljs-comment">/*上面的一个函数,重设硬件*/</span> <br><span class="hljs-type">void</span> *xsc; <br>&#123; <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">el_softc</span> *<span class="hljs-title">sc</span> =</span> xsc; <br><span class="hljs-type">int</span> s; <br><br>dprintf((<span class="hljs-string">&quot;elreset()\n&quot;</span>)); <br>s = splimp();<span class="hljs-comment">/*关网络中断*/</span> <br>el_stop(sc);<span class="hljs-comment">/*下面的一个函数*/</span> <br>el_init(sc);<span class="hljs-comment">/*重新初始化卡*/</span> <br>splx(s);<span class="hljs-comment">/*开网络中断*/</span> <br>&#125; <br><span class="hljs-comment">/*停止接口,在el_ioctl()和el_reset()中调用*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">el_stop</span><span class="hljs-params">(xsc)</span> <br><span class="hljs-type">void</span> *xsc; <br>&#123; <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">el_softc</span> *<span class="hljs-title">sc</span> =</span> xsc; <br><br>outb(sc-&gt;el_base+EL_AC,<span class="hljs-number">0</span>);<span class="hljs-comment">/*用0写辅助命令寄存器*/</span> <br>&#125; <br><br><span class="hljs-comment">/* 初始化接口. */</span> <br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <br><span class="hljs-title function_">el_init</span><span class="hljs-params">(xsc)</span> <br><span class="hljs-type">void</span> *xsc; <br>&#123; <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">el_softc</span> *<span class="hljs-title">sc</span> =</span> xsc; <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ifnet</span> *<span class="hljs-title">ifp</span>;</span> <br><span class="hljs-type">int</span> s; <br>u_short base; <br><br>ifp = &amp;sc-&gt;arpcom.ac_if;<span class="hljs-comment">/*定位ifnet结构*/</span> <br>base = sc-&gt;el_base;<span class="hljs-comment">/*网卡基本I/O地址*/</span> <br><br><span class="hljs-comment">/* 如果地址不知道,什么也不做. */</span> <br><span class="hljs-keyword">if</span>(TAILQ_EMPTY(&amp;ifp-&gt;if_addrhead)) <span class="hljs-comment">/* 在if.c中的if_attach例程 </span><br><span class="hljs-comment">中已经填充,由el_attach调用 </span><br><span class="hljs-comment">ether_attach时再调用if_attach */</span> <br><span class="hljs-keyword">return</span>; <br><br>s = splimp();<span class="hljs-comment">/*关网络中断*/</span> <br><br><span class="hljs-comment">/* 重设板卡. */</span> <br>dprintf((<span class="hljs-string">&quot;Resetting board...\n&quot;</span>)); <br>el_hardreset(sc);<span class="hljs-comment">/*该函数在上面,重设硬件*/</span> <br><br><span class="hljs-comment">/* 设置接收寄存器 rx */</span> <br>dprintf((<span class="hljs-string">&quot;Configuring rx...\n&quot;</span>)); <br><span class="hljs-keyword">if</span>(ifp-&gt;if_flags &amp; IFF_PROMISC) <span class="hljs-comment">/*是混杂模式?EL_RXC是0X6接收命令寄存器*/</span> <br>outb(base+EL_RXC,(EL_RXC_PROMISC|EL_RXC_AGF|EL_RXC_DSHORT|EL_RXC_DDRIB|EL_RXC_DOFLOW));<br><span class="hljs-keyword">else</span> <br>outb(base+EL_RXC,(EL_RXC_ABROAD|EL_RXC_AGF|EL_RXC_DSHORT|EL_RXC_DDRIB|EL_RXC_DOFLOW));<br>outb(base+EL_RBC,<span class="hljs-number">0</span>);<span class="hljs-comment">/*接收缓冲寄存器清0*/</span> <br><br><span class="hljs-comment">/* 设置传输寄存器 TX */</span> <br>dprintf((<span class="hljs-string">&quot;Configuring tx...\n&quot;</span>)); <br>outb(base+EL_TXC,<span class="hljs-number">0</span>); <br><br><span class="hljs-comment">/* 开始接收 */</span> <br>dprintf((<span class="hljs-string">&quot;Starting reception...\n&quot;</span>)); <br>outb(base+EL_AC,(EL_AC_IRQE|EL_AC_RX));<span class="hljs-comment">/*EL_AC_IRQE是IRQ enable(可用) EL_AC_RX为接收寄存器*/</span><br><br><span class="hljs-comment">/* 设置一些开始使用的标志 */</span> <br>ifp-&gt;if_flags |= IFF_RUNNING;<span class="hljs-comment">/*加上正在运行标志*/</span> <br>ifp-&gt;if_flags &amp;= ~IFF_OACTIVE;<span class="hljs-comment">/*去掉正在传输标志*/</span> <br><br><span class="hljs-comment">/* 调用输出. */</span> <br>el_start(ifp); <br><br>splx(s);<span class="hljs-comment">/*开网络中断*/</span> <br>&#125;<br><br> <br><br><span class="hljs-comment">/* 开始在接口上输出.从队列中得到包并输出他们,在输出中,留出接收用一</span><br><span class="hljs-comment">部分时间,即打开中断再关闭中断,这样使接口接到的一些数据包不会丢失. </span><br><span class="hljs-comment"></span><br><span class="hljs-comment">*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <br><span class="hljs-title function_">el_start</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> ifnet *ifp)</span> <br>&#123; <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">el_softc</span> *<span class="hljs-title">sc</span>;</span> <br>u_short base; <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mbuf</span> *<span class="hljs-title">m</span>, *<span class="hljs-title">m0</span>;</span> <br><span class="hljs-type">int</span> s, i, len, retries, done; <br><br><span class="hljs-comment">/* 定位softc结构的指针*/</span> <br>sc = ifp-&gt;if_softc; <br>base = sc-&gt;el_base;<span class="hljs-comment">/*基地址在输入输出指令时常要用到*/</span> <br><br>dprintf((<span class="hljs-string">&quot;el_start()...\n&quot;</span>)); <br>s = splimp();<span class="hljs-comment">/*因为下面涉及到if_flags的操作,所以要关闭网络中断*/</span> <br><br><span class="hljs-comment">/* 如果输出正在进行,则退出 */</span> <br><span class="hljs-keyword">if</span>(sc-&gt;arpcom.ac_if.if_flags &amp; IFF_OACTIVE) <br><span class="hljs-keyword">return</span>; <br>sc-&gt;arpcom.ac_if.if_flags |= IFF_OACTIVE;<span class="hljs-comment">/*加上输出正在进行传输标志*/</span> <br><br><span class="hljs-comment">/* 主循环 </span><br><span class="hljs-comment">*/</span> <br><span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>) &#123;<span class="hljs-comment">/*唯一出口是准备传输的数据为空,即m0==NULL时*/</span> <br><span class="hljs-comment">/* 从队列中移出下一数据包到m0中,请看头文件if_var.h </span><br><span class="hljs-comment">#define IF_DEQUEUE(ifq, m) &#123; \ </span><br><span class="hljs-comment">(m) = (ifq)-&gt;ifq_head; \ ifq是一mbuf指针队列,把第一个mbuf指针放到m中 </span><br><span class="hljs-comment">if (m) &#123; \ </span><br><span class="hljs-comment">if (((ifq)-&gt;ifq_head = (m)-&gt;m_nextpkt) == 0) \重排队列 </span><br><span class="hljs-comment">(ifq)-&gt;ifq_tail = 0; \ </span><br><span class="hljs-comment">(m)-&gt;m_nextpkt = 0; \ </span><br><span class="hljs-comment">(ifq)-&gt;ifq_len--; \ </span><br><span class="hljs-comment">&#125; \ </span><br><span class="hljs-comment">&#125; </span><br><span class="hljs-comment"></span><br><span class="hljs-comment"></span><br><span class="hljs-comment">*/</span> <br>IF_DEQUEUE(&amp;sc-&gt;arpcom.ac_if.if_snd,m0);<span class="hljs-comment">/* &amp;sc-&gt;arpcom.ac_if.if_snd指向发送队列, </span><br><span class="hljs-comment">该宏取出第一个mubf的指针放到m0中,看上面的说明. </span><br><span class="hljs-comment">这是数据结构的好教材*/</span> <br><br><span class="hljs-comment">/* 如果发送缓冲区指针为空,即已经发送完,则退出,此是该无穷循环的唯一出口. */</span> <br><span class="hljs-keyword">if</span>(m0 == <span class="hljs-literal">NULL</span>) &#123; <br>sc-&gt;arpcom.ac_if.if_flags &amp;= ~IFF_OACTIVE;<span class="hljs-comment">/*出去前当然要去掉输出正在进行标志*/</span> <br>splx(s); <br><span class="hljs-keyword">return</span>; <br>&#125; <br><br><span class="hljs-comment">/* 关闭接收 */</span> <br>outb(base+EL_AC,EL_AC_HOST);<span class="hljs-comment">/*EL_AC_HOST为系统总线可访问缓冲,即系统总线网卡要用 */</span> <br>outb(base+EL_RBC,<span class="hljs-number">0</span>);<span class="hljs-comment">/*接收缓冲寄存器清0*/</span> <br><br><span class="hljs-comment">/* 拷贝mbuf中的数据到softc结构定义的成员el_pktbuf中,缓冲大小是EL_BUFSIZ即2048. */</span> <br>len = <span class="hljs-number">0</span>; <br><span class="hljs-keyword">for</span>(m = m0; m != <span class="hljs-literal">NULL</span>; m = m-&gt;m_next) &#123; <span class="hljs-comment">/* m0是一mbuf指针,也是一mbuf链的第一个,此 </span><br><span class="hljs-comment">次要发送的是一mbuf链,不是一单个mbuf*/</span> <br><span class="hljs-keyword">if</span>(m-&gt;m_len == <span class="hljs-number">0</span>) <br><span class="hljs-keyword">continue</span>; <br>bcopy(mtod(m,<span class="hljs-type">caddr_t</span>),sc-&gt;el_pktbuf+len,m-&gt;m_len);<span class="hljs-comment">/*m-&gt;len是该mbuf链的数据长度, </span><br><span class="hljs-comment">sc-&gt;el_pktbuf是该卡的发送临时缓冲,要发 </span><br><span class="hljs-comment">送的数据在这集中,然后传送到网卡上,太费 </span><br><span class="hljs-comment">时间了,应该直接放置到网卡的存储器中.*/</span> <br>len += m-&gt;m_len; <span class="hljs-comment">/*len是这次要发送的总数*/</span> <br>&#125; <br>m_freem(m0); <span class="hljs-comment">/*释放该mbuf链*/</span> <br><br>len = max(len,ETHER_MIN_LEN); <span class="hljs-comment">/*ETHER_MIN_LEN是发送的最小长度*/</span> <br><br><span class="hljs-comment">/* 如果有BPF,就交给BPF验证 */</span> <br><span class="hljs-keyword">if</span>(sc-&gt;arpcom.ac_if.if_bpf) <br>bpf_tap(&amp;sc-&gt;arpcom.ac_if, sc-&gt;el_pktbuf, len);<span class="hljs-comment">/*你当然可以在这写一点自己的验证过程*/</span> <br><br><span class="hljs-comment">/* 传送数据包到板卡 */</span> <br>dprintf((<span class="hljs-string">&quot;el: xfr pkt length=%d...\n&quot;</span>,len)); <br>i = EL_BUFSIZ - len;<span class="hljs-comment">/*EL_BUFSIZ=2048字节*/</span> <br>outb(base+EL_GPBL,(i &amp; <span class="hljs-number">0xff</span>)); <span class="hljs-comment">/*告诉发送的长度*/</span> <br>outb(base+EL_GPBH,((i&gt;&gt; <span class="hljs-number">8</span>) &amp;<span class="hljs-number">0xff</span>)); <br>outsb(base+EL_BUF,sc-&gt;el_pktbuf,len);<span class="hljs-comment">/*传输数据到板卡*/</span> <br><br><span class="hljs-comment">/* 开始发送数据包 */</span> <br>retries=<span class="hljs-number">0</span>;<span class="hljs-comment">/*下面做循环用的,在发不出去时,循环15次*/</span> <br>done=<span class="hljs-number">0</span>; <span class="hljs-comment">/*done=1时发送成功了*/</span> <br><span class="hljs-keyword">while</span>(!done) &#123; <br><span class="hljs-keyword">if</span>(el_xmit(sc,len)) &#123; <span class="hljs-comment">/* 调用发送例程,其实只要传送base就可以了 */</span> <br>done = <span class="hljs-number">-1</span>; <br><span class="hljs-keyword">break</span>; <br>&#125; <br><span class="hljs-comment">/* 检查输出后的状态,如果你要对watchdog支持,可以在这加上代码,即在5毫秒没发送出去,就调用el_watchdog() */</span> <br>i = inb(base+EL_TXS); <br>dprintf((<span class="hljs-string">&quot;tx status=0x%x\n&quot;</span>,i)); <br><span class="hljs-keyword">if</span>(!(i &amp; EL_TXS_READY)) &#123; <span class="hljs-comment">/* 如果传输状态寄存器不是准备接受新帧就绪 */</span> <br>dprintf((<span class="hljs-string">&quot;el: err txs=%x\n&quot;</span>,i)); <span class="hljs-comment">/*那就是出错了*/</span> <br>sc-&gt;arpcom.ac_if.if_oerrors++; <br><span class="hljs-keyword">if</span>(i &amp; (EL_TXS_COLL|EL_TXS_COLL16)) &#123;<span class="hljs-comment">/*网络数据包碰撞*/</span> <br><span class="hljs-keyword">if</span>((!(i &amp; EL_TXC_DCOLL16)) &amp;&amp; retries &lt; <span class="hljs-number">15</span>) &#123;<span class="hljs-comment">/*做循环的目的是为了有错误时可重传15次*/</span> <br>retries++; <br>outb(base+EL_AC,EL_AC_HOST);<span class="hljs-comment">/*EL_AC_HOST为系统总线可访问缓冲 */</span> <br>&#125; <br>&#125; <br><span class="hljs-keyword">else</span> <br>done = <span class="hljs-number">1</span>; <br>&#125; <br><span class="hljs-keyword">else</span> &#123; <br>sc-&gt;arpcom.ac_if.if_opackets++;<span class="hljs-comment">/*统计用的,说明该卡成功发送一包*/</span> <br>done = <span class="hljs-number">1</span>; <br>&#125; <br>&#125; <br><span class="hljs-keyword">if</span>(done == <span class="hljs-number">-1</span>) <span class="hljs-comment">/* 包没有传输(失败) */</span> <br><span class="hljs-keyword">continue</span>; <br><br><span class="hljs-comment">/* 现在给板卡一个机会接收.注意:在linux中曾经ALEN先生批评此卡好恐怖(他说要进博物馆,哈哈),并说在传输时 </span><br><span class="hljs-comment">会丢失进来的数据包,我查看了LINUX的驱动程序,确实是这样,但在FreeBSD中,给了一个机会,由此可证明他的 </span><br><span class="hljs-comment">关于&quot;丢失包的说法不一定成立&quot;,但关于一个缓冲和一次只能发送一数据包的说法确实是真的,还有多播方面也 </span><br><span class="hljs-comment">不支持,我也希望大家最好不要去买这东西,和NE2000,PCI中的RTL8139芯片的网卡一样,性能太差了.*/</span> <br>(<span class="hljs-type">void</span>)inb(base+EL_AS);<span class="hljs-comment">/*读辅助状态寄存器*/</span> <br>outb(base+EL_AC,(EL_AC_IRQE|EL_AC_RX));<span class="hljs-comment">/* 用IRQ(中断)使能和接收 写辅助命令寄存器*/</span> <br>splx(s); <br><span class="hljs-comment">/* 这有可能接收到中断(包到达) */</span> <br>s = splimp(); <br>&#125; <br>&#125; <br><br><span class="hljs-comment">/* 这是真正的传输包,由el_start()调用 </span><br><span class="hljs-comment">*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <br><span class="hljs-title function_">el_xmit</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> el_softc *sc,<span class="hljs-type">int</span> len)</span> <br>&#123; <br><span class="hljs-type">int</span> gpl; <br><span class="hljs-type">int</span> i; <br><br>gpl = EL_BUFSIZ - len; <br>dprintf((<span class="hljs-string">&quot;el: xmit...&quot;</span>)); <br>outb((sc-&gt;el_base)+EL_GPBL,(gpl &amp; <span class="hljs-number">0xff</span>)); <br>outb((sc-&gt;el_base)+EL_GPBH,((gpl&gt;&gt; <span class="hljs-number">8</span>) &amp;<span class="hljs-number">0xff</span>)); <br>outb((sc-&gt;el_base)+EL_AC,EL_AC_TXFRX);<span class="hljs-comment">/*真正的传送指令*/</span> <br>i = <span class="hljs-number">20000</span>; <br><span class="hljs-keyword">while</span>((inb((sc-&gt;el_base)+EL_AS) &amp; EL_AS_TXBUSY) &amp;&amp; (i&gt;<span class="hljs-number">0</span>))<span class="hljs-comment">/*如果传送还在忙,循环20000次等待*/</span> <br>i--; <br><span class="hljs-keyword">if</span>(i == <span class="hljs-number">0</span>) &#123;<span class="hljs-comment">/*这里有一个bug,大家发现没有,i到了0时也有可能传送成功,解决办法是把(i&gt;0)这条件放到前面*/</span> <br><span class="hljs-comment">/*我稍微讲一下C,在编译C程序时,象while ( (a&gt;b) &amp;&amp; (i&gt;0) )时,是这个样子 </span><br><span class="hljs-comment">top:if a&gt;b then </span><br><span class="hljs-comment">if i&gt;0 then </span><br><span class="hljs-comment">执行体 </span><br><span class="hljs-comment">endif </span><br><span class="hljs-comment">endif </span><br><span class="hljs-comment">goto top </span><br><span class="hljs-comment">也就是说,当i=0时候,inb((sc-&gt;el_base)+EL_AS)这指令还会执行,也有可能这时候传送完成了,而下面有给打出 </span><br><span class="hljs-comment">一个什么&quot;tx not ready&quot;的东东,而且返回失败,有得重新传送一次. </span><br><span class="hljs-comment">*/</span> <br>dprintf((<span class="hljs-string">&quot;tx not ready\n&quot;</span>)); <br>sc-&gt;arpcom.ac_if.if_oerrors++; <br><span class="hljs-keyword">return</span>(<span class="hljs-number">-1</span>); <br>&#125; <br>dprintf((<span class="hljs-string">&quot;%d cycles.\n&quot;</span>,(<span class="hljs-number">20000</span>-i))); <br><span class="hljs-keyword">return</span>(<span class="hljs-number">0</span>);<span class="hljs-comment">/*成功*/</span> <br>&#125; <br><br><span class="hljs-comment">/* 传递包到更高一级协议处理,即ether_input()例程.由elintr()调用 */</span> <br><span class="hljs-type">static</span> __inline <span class="hljs-type">void</span> <br><span class="hljs-title function_">elread</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> el_softc *sc,<span class="hljs-type">caddr_t</span> buf,<span class="hljs-type">int</span> len)</span> <br>&#123; <br><span class="hljs-keyword">register</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ether_header</span> *<span class="hljs-title">eh</span>;</span> <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mbuf</span> *<span class="hljs-title">m</span>;</span> <br><br>eh = (<span class="hljs-keyword">struct</span> ether_header *)buf;<span class="hljs-comment">/*从buf中分出以太网头部*/</span> <br><br><span class="hljs-comment">/* </span><br><span class="hljs-comment">* elget函数是把包放入一mbuf缓冲链中 </span><br><span class="hljs-comment">*/</span> <br>m = elget(buf,len,&amp;sc-&gt;arpcom.ac_if); <br><span class="hljs-keyword">if</span>(m == <span class="hljs-number">0</span>)<span class="hljs-comment">/*出错了*/</span> <br><span class="hljs-keyword">return</span>; <br><br>ether_input(&amp;sc-&gt;arpcom.ac_if,eh,m);<span class="hljs-comment">/*传输给上一层的包括ifnet结构,以太网头部,一mbuf*/</span> <br>&#125; <br><br><span class="hljs-comment">/* 中断例程 */</span> <br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <br><span class="hljs-title function_">elintr</span><span class="hljs-params">(<span class="hljs-type">int</span> unit)</span> <br>&#123; <br><span class="hljs-keyword">register</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">el_softc</span> *<span class="hljs-title">sc</span>;</span> <br><span class="hljs-keyword">register</span> <span class="hljs-type">int</span> base; <br><span class="hljs-type">int</span> stat, rxstat, len, done; <br><br><span class="hljs-comment">/* 寻址softc和I/O基地址 */</span> <br>sc = &amp;el_softc[unit]; <br>base = sc-&gt;el_base; <br><br>dprintf((<span class="hljs-string">&quot;elintr: &quot;</span>)); <br><br><span class="hljs-comment">/* 检查板卡状态 */</span> <br>stat = inb(base+EL_AS); <br><span class="hljs-keyword">if</span>(stat &amp; EL_AS_RXBUSY) &#123;<span class="hljs-comment">/*接收忙*/</span> <br>(<span class="hljs-type">void</span>)inb(base+EL_RXC);<span class="hljs-comment">/*读接收命令寄存器*/</span> <br>outb(base+EL_AC,(EL_AC_IRQE|EL_AC_RX));<span class="hljs-comment">/* 用IRQ(中断)使能和接收 写辅助命令寄存器*/</span> <br><span class="hljs-keyword">return</span>; <br>&#125; <br><br>done = <span class="hljs-number">0</span>; <br><span class="hljs-keyword">while</span>(!done) &#123; <br>rxstat = inb(base+EL_RXS); <br><span class="hljs-keyword">if</span>(rxstat &amp; EL_RXS_STALE) &#123;<span class="hljs-comment">/*EL_RXS_STALE代表接受状态没有改变*/</span> <br>(<span class="hljs-type">void</span>)inb(base+EL_RXC);<span class="hljs-comment">/*读接收命令寄存器*/</span> <br>outb(base+EL_AC,(EL_AC_IRQE|EL_AC_RX));<span class="hljs-comment">/* 用IRQ(中断)使能和接收 写辅助命令寄存器*/</span> <br><span class="hljs-keyword">return</span>; <br>&#125; <br><br><span class="hljs-comment">/* 如果这有一个溢出发生,重新初始化板卡. */</span><br><span class="hljs-keyword">if</span>(!(rxstat &amp; EL_RXS_NOFLOW)) &#123; <br>dprintf((<span class="hljs-string">&quot;overflow.\n&quot;</span>)); <br>el_hardreset(sc); <br><span class="hljs-comment">/* 使板卡回到接收模式 */</span> <br><span class="hljs-keyword">if</span>(sc-&gt;arpcom.ac_if.if_flags &amp; IFF_PROMISC) <br>outb(base+EL_RXC,(EL_RXC_PROMISC|EL_RXC_AGF|EL_RXC_DSHORT|EL_RXC_DDRIB|EL_RXC_DOFLOW));<br><span class="hljs-keyword">else</span> <br>outb(base+EL_RXC,(EL_RXC_ABROAD|EL_RXC_AGF|EL_RXC_DSHORT|EL_RXC_DDRIB|EL_RXC_DOFLOW));<br>(<span class="hljs-type">void</span>)inb(base+EL_AS);<span class="hljs-comment">/*读辅助状态寄存器*/</span> <br>outb(base+EL_RBC,<span class="hljs-number">0</span>);<span class="hljs-comment">/*清除接收缓冲*/</span> <br>(<span class="hljs-type">void</span>)inb(base+EL_RXC);<span class="hljs-comment">/*读接收命令寄存器*/</span> <br>outb(base+EL_AC,(EL_AC_IRQE|EL_AC_RX));<span class="hljs-comment">/* 用IRQ(中断)使能和接收 写辅助命令寄存器*/</span> <br><span class="hljs-keyword">return</span>; <br>&#125; <br><br><span class="hljs-comment">/* 到这应该是进来了一数据包 */</span> <br>len = inb(base+EL_RBL); <br>len |= inb(base+EL_RBH) &lt;&lt; <span class="hljs-number">8</span>;<span class="hljs-comment">/*包长度的高低位组合为该包的长度*/</span> <br>dprintf((<span class="hljs-string">&quot;receive len=%d rxstat=%x &quot;</span>,len,rxstat)); <br>outb(base+EL_AC,EL_AC_HOST);<span class="hljs-comment">/*EL_AC_HOST为系统总线可访问缓冲 */</span> <br><br><span class="hljs-comment">/* 如果包太短或太长,回到接收模式并返回 </span><br><span class="hljs-comment">*/</span> <br><span class="hljs-keyword">if</span>((len &lt;= <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> ether_header)) || (len &gt; ETHER_MAX_LEN)) &#123;<span class="hljs-comment">/*如果包小于以太网头部的长度或大于最大长度*/</span><br><span class="hljs-keyword">if</span>(sc-&gt;arpcom.ac_if.if_flags &amp; IFF_PROMISC)<span class="hljs-comment">/*为重置硬件准备if_flags*/</span> <br>outb(base+EL_RXC,(EL_RXC_PROMISC|EL_RXC_AGF|EL_RXC_DSHORT|EL_RXC_DDRIB|EL_RXC_DOFLOW));<br><span class="hljs-keyword">else</span> <br>outb(base+EL_RXC,(EL_RXC_ABROAD|EL_RXC_AGF|EL_RXC_DSHORT|EL_RXC_DDRIB|EL_RXC_DOFLOW));<br>(<span class="hljs-type">void</span>)inb(base+EL_AS);<span class="hljs-comment">/*读辅助状态寄存器*/</span> <br>outb(base+EL_RBC,<span class="hljs-number">0</span>);<span class="hljs-comment">/*清除接收缓冲*/</span> <br>(<span class="hljs-type">void</span>)inb(base+EL_RXC);<span class="hljs-comment">/*读接收命令寄存器*/</span> <br>outb(base+EL_AC,(EL_AC_IRQE|EL_AC_RX));<span class="hljs-comment">/* 用IRQ(中断)使能和接收 写辅助命令寄存器*/</span> <br><span class="hljs-keyword">return</span>; <br>&#125; <br><br>sc-&gt;arpcom.ac_if.if_ipackets++;<span class="hljs-comment">/*统计使用,说明接收包总数*/</span> <br><br><span class="hljs-comment">/* 拷贝数据到我们的缓冲 */</span> <br>outb(base+EL_GPBL,<span class="hljs-number">0</span>); <br>outb(base+EL_GPBH,<span class="hljs-number">0</span>); <br>insb(base+EL_BUF,sc-&gt;el_pktbuf,len);<span class="hljs-comment">/*从端口读一串数据到指定地址()*/</span> <br>outb(base+EL_RBC,<span class="hljs-number">0</span>); <br>outb(base+EL_AC,EL_AC_RX); <br>dprintf((<span class="hljs-string">&quot;%6D--&gt;&quot;</span>,sc-&gt;el_pktbuf+<span class="hljs-number">6</span>,<span class="hljs-string">&quot;:&quot;</span>));<span class="hljs-comment">/*也放置到el_pktbuf中,发送也放在他中,在发送时有一个开中断接数据包的过程</span><br><span class="hljs-comment">不过那时候el_pktbuf中没有数据,不会相互影响.*/</span> <br>dprintf((<span class="hljs-string">&quot;%6D\n&quot;</span>,sc-&gt;el_pktbuf,<span class="hljs-string">&quot;:&quot;</span>)); <br><br><span class="hljs-comment">/* 把数据传递到上一层 */</span> <br>len -= <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> ether_header); <br>elread(sc,(<span class="hljs-type">caddr_t</span>)(sc-&gt;el_pktbuf),len); <br><br><span class="hljs-comment">/* 对状态? */</span> <br>stat = inb(base+EL_AS); <br><br><span class="hljs-comment">/* 如果忙不为真则继续 */</span> <br><span class="hljs-keyword">if</span>(!(stat &amp; EL_AS_RXBUSY)) <br>dprintf((<span class="hljs-string">&quot;&lt;rescan&gt; &quot;</span>)); <br><span class="hljs-keyword">else</span> <br>done = <span class="hljs-number">1</span>; <span class="hljs-comment">/*退出循环*/</span> <br>&#125; <br><br>(<span class="hljs-type">void</span>)inb(base+EL_RXC); <br>outb(base+EL_AC,(EL_AC_IRQE|EL_AC_RX)); <br><span class="hljs-keyword">return</span>; <br>&#125; <br><br><span class="hljs-comment">/* </span><br><span class="hljs-comment">* 从网卡上下载数据包,len是数据的长度,本地以太网头部被分开 </span><br><span class="hljs-comment">*/</span> <br><span class="hljs-type">static</span> <span class="hljs-keyword">struct</span> mbuf * <br><span class="hljs-title function_">elget</span><span class="hljs-params">(buf, totlen, ifp)</span><span class="hljs-comment">/*由elread调用,buf是指向sc-&gt;el_pktbuf缓冲区,并且数据已经存在, </span><br><span class="hljs-comment">totlen是整个数据包长度-sizeof(struct ether_header)即以太网头部的长度*/</span> <br><span class="hljs-type">caddr_t</span> buf; <br><span class="hljs-type">int</span> totlen; <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ifnet</span> *<span class="hljs-title">ifp</span>;</span> <br>&#123; <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mbuf</span> *<span class="hljs-title">top</span>, **<span class="hljs-title">mp</span>, *<span class="hljs-title">m</span>;</span> <br><span class="hljs-type">int</span> len; <br><span class="hljs-keyword">register</span> <span class="hljs-type">caddr_t</span> cp; <br><span class="hljs-type">char</span> *epkt; <br><br>buf += <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> ether_header);<span class="hljs-comment">/*调用前buf指向...请看下图 </span><br><span class="hljs-comment">|--------------------------------整个数据----------------------------------------------|</span><br><span class="hljs-comment">|--ether头部14字节----|--------IP或ARP或其他协议头部及数据-----------------------------| </span><br><span class="hljs-comment">^ </span><br><span class="hljs-comment">调用前buf指向这 </span><br><span class="hljs-comment">^ </span><br><span class="hljs-comment">执行之后buf指向这 </span><br><span class="hljs-comment">因为在向上传递数据的过程是一层一层的剥,在本次要剥掉ether_header即以太网头部 </span><br><span class="hljs-comment">*/</span> <br>cp = buf;<span class="hljs-comment">/*放入寄存器中*/</span> <br>epkt = cp + totlen;<span class="hljs-comment">/*epkt在计算后指向数据的尾部*/</span> <br><br>MGETHDR(m, M_DONTWAIT, MT_DATA);<span class="hljs-comment">/*得到一标记了头部的mbuf*/</span> <br><span class="hljs-comment">/*MGETHDR宏说明 </span><br><span class="hljs-comment">#define MGETHDR(m, how, type) do &#123; \ </span><br><span class="hljs-comment">struct mbuf *_mm; \ </span><br><span class="hljs-comment">int _mhow = (how); \ </span><br><span class="hljs-comment">int _mtype = (type); \ </span><br><span class="hljs-comment">int _ms = splimp(); \屏蔽中断 </span><br><span class="hljs-comment">\ </span><br><span class="hljs-comment">if (mmbfree == NULL) \mmbfree是内存管理初始化时的全局变量,意思是还有可用的内存块吗? </span><br><span class="hljs-comment">(void)m_mballoc(1, _mhow); \没有就分配一个,1代表分配一个MSIZE大小的块,该函数调用kmem_malloc </span><br><span class="hljs-comment">\核心内存分配函数,返回的可用mbuf指针在mmbfree中 </span><br><span class="hljs-comment">_mm = mmbfree; \ </span><br><span class="hljs-comment">if (_mm != NULL) &#123; \ </span><br><span class="hljs-comment">mmbfree = _mm-&gt;m_next; \如果上面的m_mballoc函数执行了,_mm-&gt;m_next肯定为NULL </span><br><span class="hljs-comment">mbtypes[MT_FREE]--; \ </span><br><span class="hljs-comment">_mm-&gt;m_type = _mtype; \看上下文可知,_mtype是MT_DATA </span><br><span class="hljs-comment">mbtypes[_mtype]++; \ </span><br><span class="hljs-comment">_mm-&gt;m_next = NULL; \从这开始是初始化mbuf一些指针 </span><br><span class="hljs-comment">_mm-&gt;m_nextpkt = NULL; \ </span><br><span class="hljs-comment">_mm-&gt;m_data = _mm-&gt;m_pktdat; \ </span><br><span class="hljs-comment">_mm-&gt;m_flags = M_PKTHDR; \加入mbuf链首标志,即该链的第一个包,该宏和MGET的不同之处 </span><br><span class="hljs-comment">_mm-&gt;m_pkthdr.rcvif = NULL; \ </span><br><span class="hljs-comment">_mm-&gt;m_pkthdr.csum_flags = 0; \ </span><br><span class="hljs-comment">_mm-&gt;m_pkthdr.aux = (struct mbuf *)NULL; \ </span><br><span class="hljs-comment">(m) = _mm; \ </span><br><span class="hljs-comment">splx(_ms); \恢复中断 </span><br><span class="hljs-comment">&#125; else &#123; \ </span><br><span class="hljs-comment">splx(_ms); \ </span><br><span class="hljs-comment">_mm = m_retryhdr(_mhow, _mtype); \再来一次MGETHDR,不过m_retryhdr已经定义为空,防止死循环 </span><br><span class="hljs-comment">if (_mm == NULL &amp;&amp; _mhow == M_WAIT) \还为空 </span><br><span class="hljs-comment">(m) = m_mballoc_wait(MGETHDR_C, _mtype); \强制用阻塞型 </span><br><span class="hljs-comment">else \ </span><br><span class="hljs-comment">(m) = _mm; \ </span><br><span class="hljs-comment">&#125; \ </span><br><span class="hljs-comment">&#125; while (0) </span><br><span class="hljs-comment"></span><br><span class="hljs-comment">*/</span> <br><br><span class="hljs-keyword">if</span> (m == <span class="hljs-number">0</span>) <br><span class="hljs-keyword">return</span> (<span class="hljs-number">0</span>); <br>m-&gt;m_pkthdr.rcvif = ifp;<span class="hljs-comment">/*指向接收该包的网络卡的ifp指针,后面好多协议要用到他*/</span> <br>m-&gt;m_pkthdr.len = totlen;<span class="hljs-comment">/*已经把以太网头部剥离,数据长度没算他了*/</span> <br>m-&gt;m_len = MHLEN;<span class="hljs-comment">/*该出是链首,所以该mbuf的长度是MHLEN,而不是MLEN*/</span> <br><span class="hljs-comment">/* 这就是MHLEN </span><br><span class="hljs-comment">#define MSIZE 256 /* mbuf的大小 * </span><br><span class="hljs-comment">#define MLEN (MSIZE - sizeof(struct m_hdr)) /* 普通数据区的长度* </span><br><span class="hljs-comment">#define MHLEN (MLEN - sizeof(struct pkthdr)) /* 链首数据区的长度 </span><br><span class="hljs-comment"></span><br><span class="hljs-comment"></span><br><span class="hljs-comment">*/</span> <br>top = <span class="hljs-number">0</span>; <br>mp = &amp; <br><span class="hljs-keyword">while</span> (totlen &gt; <span class="hljs-number">0</span>) &#123; <br><span class="hljs-keyword">if</span> (top) &#123;<span class="hljs-comment">/*如果不是链的第一个*/</span> <br>MGET(m, M_DONTWAIT, MT_DATA);<span class="hljs-comment">/*MGET和MGETHDR差不多,只不过少一个m_flags = M_PKTHDR*/</span> <br><span class="hljs-keyword">if</span> (m == <span class="hljs-number">0</span>) &#123; <br>m_freem(top); <br><span class="hljs-keyword">return</span> (<span class="hljs-number">0</span>); <br>&#125; <br>m-&gt;m_len = MLEN;<span class="hljs-comment">/*非链首mbuf的长度为MLEN,这个if(top)就代表不是链首mbuf*/</span> <br>&#125;<span class="hljs-comment">/*如果跳过了上面哪个if,那肯定是链的第一个mbuf,并且m已经在循环外就分配好了.*/</span> <br>len = min(totlen, epkt - cp);<span class="hljs-comment">/*epkt在计算后指向数据的尾部,cp指向首部*/</span> <br><span class="hljs-keyword">if</span> (len &gt;= MINCLSIZE) &#123;<span class="hljs-comment">/*#define MINCLSIZE (MHLEN + 1) 这意味着只要数据大于MHLEN,就要分配一个簇*/</span> <br>MCLGET(m, M_DONTWAIT);<span class="hljs-comment">/*看到宏展开后好恐怖,有空我再说一说*/</span> <br><span class="hljs-keyword">if</span> (m-&gt;m_flags &amp; M_EXT)<span class="hljs-comment">/*在mbuf中注明是扩展型mbuf(即带有簇)*/</span> <br>m-&gt;m_len = len = min(len, MCLBYTES);<span class="hljs-comment">/*如果大于2048则先装2048吧,装的语句在下面*/</span> <br><span class="hljs-keyword">else</span> <br>len = m-&gt;m_len; <br>&#125; <span class="hljs-keyword">else</span> &#123; <br><span class="hljs-comment">/* </span><br><span class="hljs-comment">* 如果到这了,就意味着要么这个包小于MINCLSIZE,要么是后面一点尾巴且小于MINCLSIZE. </span><br><span class="hljs-comment">*/</span> <br><span class="hljs-keyword">if</span> (len &lt; m-&gt;m_len) &#123; <br><span class="hljs-keyword">if</span> (top == <span class="hljs-number">0</span> &amp;&amp; len + max_linkhdr &lt;= m-&gt;m_len) <br>m-&gt;m_data += max_linkhdr; <br>m-&gt;m_len = len; <br>&#125; <span class="hljs-keyword">else</span> <br>len = m-&gt;m_len; <br>&#125; <br>bcopy(cp, mtod(m, <span class="hljs-type">caddr_t</span>), (<span class="hljs-type">unsigned</span>)len);<span class="hljs-comment">/*第一次数据移动,费时的操作*/</span> <br>cp += len; <br>*mp = m; <br>mp = &amp;m-&gt;m_next;<span class="hljs-comment">/*把mbuf链接起来*/</span> <br>totlen -= len; <br><span class="hljs-keyword">if</span> (cp == epkt) <br>cp = buf; <br>&#125; <br><span class="hljs-keyword">return</span> (top);<span class="hljs-comment">/*返回装填数据的mbuf链首*/</span> <br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在该函数中,所做的事情非常费时,主要是做内存的申请,大批数据的拷贝,如果象NFS传送数据,会出现大量的簇的申请和大量<br>簇的数据的拷贝,一次循环需要拷贝2048个32位的双字.如果是发给本机的,那还行,如果是本机做为桥转发及防活墙,即数据不上传<br>到IP层处理,那么可以直接改写mbuf的分配方案,根据不同的网络流量可初始化一定数量的大容量的缓冲链(可以以一个以太网的整<br>页数来分配,如是100M以太网是1514字节,可分配2048字节,是有一点浪费,但性能可提高,sc-&gt;el_pktbuf可变为一队列,用来和其他<br>网卡的接收队列进行数据交换.这意味着光数据进入就少拷贝一次,性能将大大提高,目前我正在研究中.)*</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* </span><br><span class="hljs-comment">* 处理一个IOCTL请求. </span><br><span class="hljs-comment">*/</span> <br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <br><span class="hljs-title function_">el_ioctl</span><span class="hljs-params">(ifp, command, data)</span> <br><span class="hljs-keyword">register</span> <span class="hljs-keyword">struct</span> ifnet *ifp; <br>u_long command; <span class="hljs-comment">/*IOCTL的命令*/</span> <br><span class="hljs-type">caddr_t</span> data; <br>&#123; <br><span class="hljs-type">int</span> s, error = <span class="hljs-number">0</span>; <br><br>s = splimp(); <span class="hljs-comment">/*先关闭网络中断*/</span> <br><br><span class="hljs-keyword">switch</span> (command) &#123; <br><span class="hljs-keyword">case</span> SIOCSIFADDR: <br><span class="hljs-keyword">case</span> SIOCGIFADDR: <br><span class="hljs-keyword">case</span> SIOCSIFMTU: <br>error = ether_ioctl(ifp, command, data); <br><span class="hljs-keyword">break</span>; <br><br><span class="hljs-keyword">case</span> SIOCSIFFLAGS: <br><span class="hljs-comment">/* </span><br><span class="hljs-comment">* 如果接口已经DOWN但FLAG还有RUNNING, 那么先停止它 </span><br><span class="hljs-comment">*/</span> <br><span class="hljs-keyword">if</span> (((ifp-&gt;if_flags &amp; IFF_UP) == <span class="hljs-number">0</span>) &amp;&amp; <br>(ifp-&gt;if_flags &amp; IFF_RUNNING)) &#123; <br>el_stop(ifp-&gt;if_softc); <br>ifp-&gt;if_flags &amp;= ~IFF_RUNNING;<span class="hljs-comment">/*在FALG中去掉IFF_RUNNING标志*/</span> <br>&#125; <span class="hljs-keyword">else</span> &#123; <br><span class="hljs-comment">/* </span><br><span class="hljs-comment">* 如果接口已经DOWN,FLAG没有RUNNING, 只要调用el_init例程 </span><br><span class="hljs-comment">*/</span> <br><span class="hljs-keyword">if</span> ((ifp-&gt;if_flags &amp; IFF_UP) &amp;&amp; <br>((ifp-&gt;if_flags &amp; IFF_RUNNING) == <span class="hljs-number">0</span>)) <br>el_init(ifp-&gt;if_softc); <br>&#125; <br><span class="hljs-keyword">break</span>; <br><span class="hljs-keyword">default</span>: <br>error = EINVAL; <br>&#125; <br>(<span class="hljs-type">void</span>) splx(s); <br><span class="hljs-keyword">return</span> (error); <br>&#125; <br><br><span class="hljs-comment">/* 一般是数据在规定的时间内没有发出后被调用的程序,目前该驱动程序不支持 */</span> <br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <br><span class="hljs-title function_">el_watchdog</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> ifnet *ifp)</span> <br>&#123; <br><span class="hljs-built_in">log</span>(LOG_ERR,<span class="hljs-string">&quot;el%d: device timeout\n&quot;</span>, ifp-&gt;if_unit); <br>ifp-&gt;if_oerrors++; <br>el_reset(ifp-&gt;if_softc); <br>&#125;<br></code></pre></td></tr></table></figure>
+<p>转:<a target="_blank" rel="noopener" href="https://blog.csdn.net/h_cszc/article/details/7776116">https://blog.csdn.net/h_cszc/article/details/7776116</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/NETWORK/" class="category-chain-item">NETWORK</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>freebsd网卡驱动程序详解</div>
+      <div>http://blog.uanet.cn/NETWORK/freebsd网卡驱动程序详解.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/NETWORK/gdb%20tui.html" title="gdb tui">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">gdb tui</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/NETWORK/libprotoident%E5%92%8Cndpi%E5%AF%B9%E6%AF%94.html" title="libprotoident和ndpi对比">
+                        <span class="hidden-mobile">libprotoident和ndpi对比</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

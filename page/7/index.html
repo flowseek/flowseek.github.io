@@ -1,0 +1,1025 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta property="og:type" content="website">
+<meta property="og:title" content="DNSNAT">
+<meta property="og:url" content="http://blog.uanet.cn/page/7/index.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="醉后不知天在水,满船清梦压星河"></span>
+          
+        </div>
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      <div class="container nopadding-x-md">
+        <div id="board"
+          style="margin-top: 0">
+          
+          <div class="container">
+            <div class="row">
+              <div class="col-12 col-md-10 m-auto">
+                
+
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/SYSTEM/mac%E8%AE%B0%E5%BD%95.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="mac记录">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/SYSTEM/mac%E8%AE%B0%E5%BD%95.html" target="_self">
+          mac记录
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/SYSTEM/mac%E8%AE%B0%E5%BD%95.html" target="_self">
+        <div>
+          sshfs -C -o reconnect &#114;&#x6f;&#111;&#116;&#x40;&#x31;&#x39;&#x32;&#46;&#49;&#x36;&#x38;&#x2e;&#49;&#x38;&#x30;&#x2e;&#52;&#48;:&#x2F;home&#x2F;www &#x2F;Users&#x2F;dnsnat&#x2F;Documents&#x2F;kyla
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/SYSTEM/" class="category-chain-item">SYSTEM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/SYSTEM/mariadb%E9%85%8D%E7%BD%AE%E5%85%81%E8%AE%B8%E8%BF%9C%E7%A8%8B%E8%AE%BF%E9%97%AE%E6%96%B9%E5%BC%8F%20.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="mariadb配置允许远程访问方式 ">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/SYSTEM/mariadb%E9%85%8D%E7%BD%AE%E5%85%81%E8%AE%B8%E8%BF%9C%E7%A8%8B%E8%AE%BF%E9%97%AE%E6%96%B9%E5%BC%8F%20.html" target="_self">
+          mariadb配置允许远程访问方式 
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/SYSTEM/mariadb%E9%85%8D%E7%BD%AE%E5%85%81%E8%AE%B8%E8%BF%9C%E7%A8%8B%E8%AE%BF%E9%97%AE%E6%96%B9%E5%BC%8F%20.html" target="_self">
+        <div>
+          首先配置允许访问的用户，采用授权的方式给用户权限 1GRANT ALL PRIVILEGES ON *.* TO &#x27;root&#x27;@&#x27;%&#x27;IDENTIFIED BY &#x27;123456&#x27; WITH GRANT OPTION;  说明：root是登陆数据库的用户，123456是登陆数据库的密码，*就是意味着任何来源任何主机反正就是权限很大的样子。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/SYSTEM/" class="category-chain-item">SYSTEM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/SYSTEM/mlvpn%E6%B5%8B%E8%AF%95%E8%AE%B0%E5%BD%95.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="mlvpn测试记录">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/SYSTEM/mlvpn%E6%B5%8B%E8%AF%95%E8%AE%B0%E5%BD%95.html" target="_self">
+          mlvpn测试记录
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/SYSTEM/mlvpn%E6%B5%8B%E8%AF%95%E8%AE%B0%E5%BD%95.html" target="_self">
+        <div>
+          client 1    sudo .&#x2F;src&#x2F;mlvpn -c client&#x2F;mlvpn0.conf -u dnsnat -v –debug
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/SYSTEM/" class="category-chain-item">SYSTEM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/SYSTEM/rsync%E6%8C%87%E5%AE%9Assh%E7%AB%AF%E5%8F%A3%E5%8F%B7.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="rsync指定ssh端口号">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/SYSTEM/rsync%E6%8C%87%E5%AE%9Assh%E7%AB%AF%E5%8F%A3%E5%8F%B7.html" target="_self">
+          rsync指定ssh端口号
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/SYSTEM/rsync%E6%8C%87%E5%AE%9Assh%E7%AB%AF%E5%8F%A3%E5%8F%B7.html" target="_self">
+        <div>
+          rsync -P -e ‘ssh -p 2222’ busybox-armv7l &#97;&#100;&#109;&#x69;&#x6e;&#64;&#49;&#x39;&#50;&#x2e;&#x31;&#54;&#56;&#x2e;&#x32;&#46;&#50;&#x33;&#x35;:&#x2F;storage&#x2F;emulated&#x2F;0&#x2F;Download&#x
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/SYSTEM/" class="category-chain-item">SYSTEM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/SYSTEM/11%E6%AC%BE%E8%BD%BB%E9%87%8F%E3%80%81%E7%AE%80%E6%B4%81%E3%80%81%E5%85%8D%E8%B4%B9%E6%97%A0%E9%99%90%E5%88%B6%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F%E5%B7%A5%E5%85%B7.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="11款轻量、简洁、免费无限制内网穿透工具">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/SYSTEM/11%E6%AC%BE%E8%BD%BB%E9%87%8F%E3%80%81%E7%AE%80%E6%B4%81%E3%80%81%E5%85%8D%E8%B4%B9%E6%97%A0%E9%99%90%E5%88%B6%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F%E5%B7%A5%E5%85%B7.html" target="_self">
+          11款轻量、简洁、免费无限制内网穿透工具
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/SYSTEM/11%E6%AC%BE%E8%BD%BB%E9%87%8F%E3%80%81%E7%AE%80%E6%B4%81%E3%80%81%E5%85%8D%E8%B4%B9%E6%97%A0%E9%99%90%E5%88%B6%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F%E5%B7%A5%E5%85%B7.html" target="_self">
+        <div>
+          如果你是新手或小白，你是否有过这样的经历：在家里或者公司搭建了一个网站或者一台游戏服务器，但是却无法在外面访问它？或者你想远程控制家里的电脑或者NAS（网络存储设备），但是你却发现无法连接？这些问题的根源都是因为你的设备处于内网中，而内网是不能被外网直接访问的。那么有没有什么办法可以让内网的设备暴露到外网中呢？答案是有的，这就是内网穿透要做的事情。 如果你是老司机，是否有过这样的经历：被标题或断章
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/SYSTEM/" class="category-chain-item">SYSTEM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/SYSTEM/Linux%20%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91%20%E2%80%94%E2%80%94%20make%20localmodconfig%20%E7%AE%80%E5%8C%96%E5%86%85%E6%A0%B8%E9%85%8D%E7%BD%AE%E6%B5%81%E7%A8%8B%20%20.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="Linux 内核编译 —— make localmodconfig 简化内核配置流程  ">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/SYSTEM/Linux%20%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91%20%E2%80%94%E2%80%94%20make%20localmodconfig%20%E7%AE%80%E5%8C%96%E5%86%85%E6%A0%B8%E9%85%8D%E7%BD%AE%E6%B5%81%E7%A8%8B%20%20.html" target="_self">
+          Linux 内核编译 —— make localmodconfig 简化内核配置流程  
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/SYSTEM/Linux%20%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91%20%E2%80%94%E2%80%94%20make%20localmodconfig%20%E7%AE%80%E5%8C%96%E5%86%85%E6%A0%B8%E9%85%8D%E7%BD%AE%E6%B5%81%E7%A8%8B%20%20.html" target="_self">
+        <div>
+          简介：前些天才知道， Linux 2.6.32 开始引入了一个 make localmodconfig 用于简化 kernel 的配置。刚刚找了一下这个方面的资料，分享一下。 Most people uses the kernel shipped by distros - and that’s good. But some people like to compile their own kern
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/SYSTEM/" class="category-chain-item">SYSTEM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/SYSTEM/brew%E8%AE%B0%E5%BD%95.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="brew记录">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/SYSTEM/brew%E8%AE%B0%E5%BD%95.html" target="_self">
+          brew记录
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/SYSTEM/brew%E8%AE%B0%E5%BD%95.html" target="_self">
+        <div>
+          安装安装国内版本1/bin/zsh -c &quot;$(curl -fsSL https://gitee.com/cunkai/HomebrewCN/raw/master/Homebrew.sh)&quot;
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/SYSTEM/" class="category-chain-item">SYSTEM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/SYSTEM/gentoo_stage_diy.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="gentoo_stage_diy">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/SYSTEM/gentoo_stage_diy.html" target="_self">
+          gentoo_stage_diy
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/SYSTEM/gentoo_stage_diy.html" target="_self">
+        <div>
+          stage1： 12345包含bootstrap.sh，scripts/bootstrap.sh用于安装glibc、gcc、zlib、binutils、textinfo、ncurses、gettext、sed、emerge、portage等创建stage2 包含emerge的环境执行：scripts/bootstrap.sh  stage2:
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/SYSTEM/" class="category-chain-item">SYSTEM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/SYSTEM/gentoo%E3%80%90%E6%98%BE%E5%8D%A1-%E9%A9%B1%E5%8A%A8-xorg-gnome-gui%E3%80%91%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="gentoo【显卡-驱动-xorg-gnome-gui】如何工作">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/SYSTEM/gentoo%E3%80%90%E6%98%BE%E5%8D%A1-%E9%A9%B1%E5%8A%A8-xorg-gnome-gui%E3%80%91%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C.html" target="_self">
+          gentoo【显卡-驱动-xorg-gnome-gui】如何工作
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/SYSTEM/gentoo%E3%80%90%E6%98%BE%E5%8D%A1-%E9%A9%B1%E5%8A%A8-xorg-gnome-gui%E3%80%91%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C.html" target="_self">
+        <div>
+          显卡-&gt;驱动-&gt;xorg-&gt;gnome-&gt;gui  查看显卡：lspci  | grep -i VGA 查看驱动：lspci  -vvv​
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/SYSTEM/" class="category-chain-item">SYSTEM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/SYSTEM/gentoo%E5%AE%89%E8%A3%85metasploit4.14%E6%AD%A5%E9%AA%A4.html" target="_self">
+          <img src="/image/cover.png" srcset="/img/loading.gif" lazyload alt="gentoo安装metasploit4">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/SYSTEM/gentoo%E5%AE%89%E8%A3%85metasploit4.14%E6%AD%A5%E9%AA%A4.html" target="_self">
+          gentoo安装metasploit4
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/SYSTEM/gentoo%E5%AE%89%E8%A3%85metasploit4.14%E6%AD%A5%E9%AA%A4.html" target="_self">
+        <div>
+          先来个小忍者看看  环境准备
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-13 13:53" pubdate>
+              2025-02-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/SYSTEM/" class="category-chain-item">SYSTEM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <a class="extend prev" rel="prev" href="/page/6/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/#board">5</a><a class="page-number" href="/page/6/#board">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/#board">8</a><a class="page-number" href="/page/9/#board">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/#board">23</a><a class="extend next" rel="next" href="/page/8/#board"><i class="iconfont icon-arrowright"></i></a>
+    </span>
+  </nav>
+
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,929 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="XLS（Accelerated HW Synthesis）是 Google 开发的一个开源硬件设计工具链，旨在加速硬件开发流程，特别是通过高层次综合（High-Level Synthesis, HLS）将高级编程语言（如 C++）转换为硬件描述语言（如 Verilog 或 VHDL）。以下是其详细介绍：  1. 背景与目标">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Google硬件加速设计工具XLS介绍">
+<meta property="og:url" content="http://blog.uanet.cn/AI/Google%E7%A1%AC%E4%BB%B6%E5%8A%A0%E9%80%9F%E8%AE%BE%E8%AE%A1%E5%B7%A5%E5%85%B7XLS%E4%BB%8B%E7%BB%8D.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="XLS（Accelerated HW Synthesis）是 Google 开发的一个开源硬件设计工具链，旨在加速硬件开发流程，特别是通过高层次综合（High-Level Synthesis, HLS）将高级编程语言（如 C++）转换为硬件描述语言（如 Verilog 或 VHDL）。以下是其详细介绍：  1. 背景与目标">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-05-20T01:35:50.029Z">
+<meta property="article:modified_time" content="2025-04-01T02:17:21.572Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>Google硬件加速设计工具XLS介绍 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Google硬件加速设计工具XLS介绍"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-05-20 09:35" pubdate>
+          2025年5月20日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          10 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Google硬件加速设计工具XLS介绍</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>XLS（Accelerated HW Synthesis）是 Google 开发的一个开源硬件设计工具链，旨在加速硬件开发流程，特别是通过<strong>高层次综合（High-Level Synthesis, HLS）</strong>将高级编程语言（如 C++）转换为硬件描述语言（如 Verilog 或 VHDL）。以下是其详细介绍：</p>
+<hr>
+<h3 id="1-背景与目标"><a href="#1-背景与目标" class="headerlink" title="1. 背景与目标"></a><strong>1. 背景与目标</strong></h3><ul>
+<li><strong>问题</strong>：传统硬件设计依赖手动编写 RTL（Register Transfer Level）代码（如 Verilog），开发周期长且对工程师经验要求高。</li>
+<li><strong>目标</strong>：通过 HLS 技术提高硬件开发效率，允许开发者用熟悉的编程语言（C++）描述功能，自动生成优化的硬件实现。</li>
+<li><strong>开源特性</strong>：XLS 是 Google 开源项目，社区驱动，支持透明化和可扩展性。</li>
+</ul>
+<hr>
+<h3 id="2-核心功能"><a href="#2-核心功能" class="headerlink" title="2. 核心功能"></a><strong>2. 核心功能</strong></h3><h4 id="a-高级语言支持"><a href="#a-高级语言支持" class="headerlink" title="a. 高级语言支持"></a><strong>a. 高级语言支持</strong></h4><ul>
+<li><strong>输入语言</strong>：基于 C++ 的子集（XLScc），支持硬件友好的语法（如固定位宽、显式时序控制）。</li>
+<li><strong>DSL（领域特定语言）</strong>：提供专为硬件设计优化的库和语法扩展，例如管道化操作、资源约束配置。</li>
+</ul>
+<h4 id="b-硬件优化"><a href="#b-硬件优化" class="headerlink" title="b. 硬件优化"></a><strong>b. 硬件优化</strong></h4><ul>
+<li><strong>自动流水线化</strong>：根据目标时钟频率自动插入流水线阶段，优化吞吐量。</li>
+<li><strong>资源共享</strong>：识别重复逻辑，复用硬件资源以减少面积。</li>
+<li><strong>位宽优化</strong>：自动推导变量最小位宽，降低功耗和面积。</li>
+</ul>
+<h4 id="c-仿真与验证"><a href="#c-仿真与验证" class="headerlink" title="c. 仿真与验证"></a><strong>c. 仿真与验证</strong></h4><ul>
+<li><strong>原生仿真</strong>：在生成 RTL 前，直接在 C++ 层面仿真设计功能，加速调试。</li>
+<li><strong>RTL 级验证</strong>：生成 SystemVerilog 断言和测试向量，与行业标准工具（如 Verilator、VCS）兼容。</li>
+<li><strong>形式化验证</strong>：支持等价性检查，确保 HLS 生成的 RTL 与原始 C++ 功能一致。</li>
+</ul>
+<h4 id="d-可配置性与扩展性"><a href="#d-可配置性与扩展性" class="headerlink" title="d. 可配置性与扩展性"></a><strong>d. 可配置性与扩展性</strong></h4><ul>
+<li><strong>参数化设计</strong>：通过模板和宏支持可配置硬件模块，适应不同场景需求。</li>
+<li><strong>自定义优化策略</strong>：开发者可插入自定义优化 Pass，调整综合策略（如时序&#x2F;面积权衡）。</li>
+</ul>
+<h4 id="e-跨平台支持"><a href="#e-跨平台支持" class="headerlink" title="e. 跨平台支持"></a><strong>e. 跨平台支持</strong></h4><ul>
+<li><strong>目标硬件</strong>：支持 FPGA（Xilinx、Intel）和 ASIC 流程，生成标准 Verilog&#x2F;SystemVerilog。</li>
+<li><strong>工具链集成</strong>：与 Yosys、Vivado、Synopsys 等工具链兼容，无缝衔接后续布局布线。</li>
+</ul>
+<hr>
+<h3 id="3-与传统-HLS-工具的对比"><a href="#3-与传统-HLS-工具的对比" class="headerlink" title="3. 与传统 HLS 工具的对比"></a><strong>3. 与传统 HLS 工具的对比</strong></h3><table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>XLS</strong></th>
+<th><strong>传统 HLS（如 Vivado HLS）</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>开源性</strong></td>
+<td>完全开源，可定制</td>
+<td>商业闭源，功能受限</td>
+</tr>
+<tr>
+<td><strong>输入语言灵活性</strong></td>
+<td>基于现代 C++，支持更多硬件原语</td>
+<td>支持 C&#x2F;C++，但扩展性有限</td>
+</tr>
+<tr>
+<td><strong>优化透明度</strong></td>
+<td>提供详细优化日志，可手动干预</td>
+<td>黑盒优化，用户控制较少</td>
+</tr>
+<tr>
+<td><strong>验证流程</strong></td>
+<td>强调 C++ 与 RTL 的协同仿真</td>
+<td>依赖 RTL 级验证，前期调试效率低</td>
+</tr>
+<tr>
+<td><strong>目标场景</strong></td>
+<td>侧重高吞吐量&#x2F;低延迟设计（如 AI 加速器）</td>
+<td>通用设计，侧重 FPGA 快速原型</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="4-典型应用场景"><a href="#4-典型应用场景" class="headerlink" title="4. 典型应用场景"></a><strong>4. 典型应用场景</strong></h3><ul>
+<li><strong>ASIC&#x2F;FPGA 加速器开发</strong>：如机器学习推理引擎、加密算法硬件加速。</li>
+<li><strong>协议处理单元</strong>：网络包处理、实时信号处理（5G PHY 层）。</li>
+<li><strong>快速原型设计</strong>：在软件仿真中验证算法，快速生成可综合硬件。</li>
+<li><strong>研究教育</strong>：学习 HLS 方法论，探索硬件&#x2F;软件协同设计。</li>
+</ul>
+<hr>
+<h3 id="5-工作流程示例"><a href="#5-工作流程示例" class="headerlink" title="5. 工作流程示例"></a><strong>5. 工作流程示例</strong></h3><ol>
+<li><strong>C++ 模型开发</strong>：编写硬件功能的 C++ 描述，使用 XLS 库添加时序约束。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;xls.h&quot;</span></span><br><span class="hljs-built_in">XLS_FUNCTION</span>(adder, (xls::Bits&lt;<span class="hljs-number">32</span>&gt; a, xls::Bits&lt;<span class="hljs-number">32</span>&gt; b)) &#123;<br>  <span class="hljs-keyword">return</span> a + b;<br>&#125;<br></code></pre></td></tr></table></figure></li>
+<li><strong>仿真与调试</strong>：使用 XLS 工具链进行功能仿真。<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./xlscc example.cc --testbench --input=<span class="hljs-string">&quot;a=5,b=3&quot;</span> --expected_output=8<br></code></pre></td></tr></table></figure></li>
+<li><strong>综合为 RTL</strong>：生成优化的 Verilog 代码。<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./xlscc example.cc --generator=pipeline --clock_period=2ns &gt; example.v<br></code></pre></td></tr></table></figure></li>
+<li><strong>验证与部署</strong>：利用 EDA 工具进行综合、布局布线，烧录到 FPGA 或交付 ASIC 流片。</li>
+</ol>
+<hr>
+<h3 id="6-优势与挑战"><a href="#6-优势与挑战" class="headerlink" title="6. 优势与挑战"></a><strong>6. 优势与挑战</strong></h3><ul>
+<li><strong>优势</strong>：<ul>
+<li><strong>开发效率提升</strong>：减少手动编写 RTL 的时间。</li>
+<li><strong>架构探索</strong>：快速迭代不同流水线策略或并行度。</li>
+<li><strong>可移植性</strong>：同一代码库可针对不同硬件目标生成 RTL。</li>
+</ul>
+</li>
+<li><strong>挑战</strong>：<ul>
+<li><strong>学习曲线</strong>：需理解硬件时序约束与软件编程的差异。</li>
+<li><strong>性能极限</strong>：极端优化的设计仍需手动 RTL 微调。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="7-资源与社区"><a href="#7-资源与社区" class="headerlink" title="7. 资源与社区"></a><strong>7. 资源与社区</strong></h3><ul>
+<li><strong>GitHub 仓库</strong>：<a target="_blank" rel="noopener" href="https://github.com/google/xls">https://github.com/google/xls</a></li>
+<li><strong>文档</strong>：详细的使用指南、API 参考和示例项目。</li>
+<li><strong>社区支持</strong>：活跃的开发者论坛和定期更新，持续集成新特性（如对 Chisel 的支持）。</li>
+</ul>
+<hr>
+<p>XLS 代表了 HLS 工具向更开放、灵活方向的演进，尤其适合需要快速迭代且对性能有高要求的硬件加速场景。尽管仍需与传统 RTL 设计结合使用，但其在提升开发效率方面的潜力显著。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Google硬件加速设计工具XLS介绍</div>
+      <div>http://blog.uanet.cn/AI/Google硬件加速设计工具XLS介绍.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年5月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/CIRCT%E5%B7%A5%E5%85%B7%E9%93%BE%E7%94%9F%E6%88%90Verilog%E4%BB%A3%E7%A0%81.html" title="CIRCT工具链生成Verilog代码">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CIRCT工具链生成Verilog代码</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/EMBEDDED/%E5%82%85%E7%AB%8B%E5%8F%B6%E7%BA%A7%E6%95%B0%E6%80%BB%E7%BB%93.html" title="傅立叶级数总结">
+                        <span class="hidden-mobile">傅立叶级数总结</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,1223 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="机器学习对比深度包检测将 机器学习 与 nDPI 状态机（基于深度包检测的流量识别模型）进行对比，特别是在 流量识别 上，机器学习方法相较于传统的基于 状态机 的识别方式，具有一系列独特的优势。以下是机器学习方法在流量识别中的优势： 1. 更强的适应能力与泛化能力">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习对比深度包检测">
+<meta property="og:url" content="http://blog.uanet.cn/AI/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%AF%B9%E6%AF%94%E6%B7%B1%E5%BA%A6%E5%8C%85%E6%A3%80%E6%B5%8B.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="机器学习对比深度包检测将 机器学习 与 nDPI 状态机（基于深度包检测的流量识别模型）进行对比，特别是在 流量识别 上，机器学习方法相较于传统的基于 状态机 的识别方式，具有一系列独特的优势。以下是机器学习方法在流量识别中的优势： 1. 更强的适应能力与泛化能力">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-13T05:53:20.565Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.565Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>机器学习对比深度包检测 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="机器学习对比深度包检测"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          6.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          55 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">机器学习对比深度包检测</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="机器学习对比深度包检测"><a href="#机器学习对比深度包检测" class="headerlink" title="机器学习对比深度包检测"></a>机器学习对比深度包检测</h1><p>将 <strong>机器学习</strong> 与 <strong>nDPI 状态机</strong>（基于深度包检测的流量识别模型）进行对比，特别是在 <strong>流量识别</strong> 上，机器学习方法相较于传统的基于 <strong>状态机</strong> 的识别方式，具有一系列独特的优势。以下是机器学习方法在流量识别中的优势：</p>
+<h3 id="1-更强的适应能力与泛化能力"><a href="#1-更强的适应能力与泛化能力" class="headerlink" title="1. 更强的适应能力与泛化能力"></a>1. <strong>更强的适应能力与泛化能力</strong></h3><ul>
+<li><p><strong>nDPI 状态机</strong>：nDPI 使用 <strong>状态机</strong> 来匹配预定义的协议规则和流量模式，依赖于 <strong>硬编码的协议规则</strong> 和 <strong>流量指纹</strong>。当网络中出现新的、未知的协议时，nDPI 可能无法识别，或者需要手动更新规则和协议库来适应新的协议。</p>
+</li>
+<li><p><strong>机器学习</strong>：机器学习，尤其是 <strong>深度学习</strong> 或 <strong>集成学习</strong> 方法，能够通过学习大量的流量数据，自动发现 <strong>隐含的流量特征</strong> 和 <strong>复杂的模式</strong>。这种方法可以更好地 <strong>适应网络环境的变化</strong>，例如新协议的引入或流量行为的变化。它能够从数据中学习并 <strong>自动进行特征提取</strong>，不依赖于人工设计的规则，具有 <strong>较强的泛化能力</strong>，能够识别以前未见过的协议和流量。</p>
+</li>
+</ul>
+<h3 id="2-识别加密流量和未知流量"><a href="#2-识别加密流量和未知流量" class="headerlink" title="2. 识别加密流量和未知流量"></a>2. <strong>识别加密流量和未知流量</strong></h3><ul>
+<li><p><strong>nDPI 状态机</strong>：nDPI 在面对加密流量（如 <strong>HTTPS、SSH、IPSec</strong> 等）时，可能会通过 <strong>流量指纹分析</strong> 或 <strong>SSL&#x2F;TLS 握手分析</strong> 来识别协议。但是，当流量经过加密后，流量内容会被隐藏，nDPI 的状态机可能很难准确地识别协议，尤其是当加密流量未经过明显的协议标识时。</p>
+</li>
+<li><p><strong>机器学习</strong>：机器学习模型，特别是 <strong>深度神经网络（DNN）</strong> 和 <strong>循环神经网络（RNN）</strong>，能够从 <strong>加密流量的统计特征</strong> 和 <strong>时序模式</strong> 中学习，并识别出加密流量中的潜在规律。通过学习加密流量的 <strong>流量模式</strong>（如包大小、发送间隔、连接模式等），机器学习能够在某种程度上对加密协议进行 <strong>分类</strong>，甚至识别未知的加密协议。</p>
+</li>
+</ul>
+<h3 id="3-自适应学习与持续优化"><a href="#3-自适应学习与持续优化" class="headerlink" title="3. 自适应学习与持续优化"></a>3. <strong>自适应学习与持续优化</strong></h3><ul>
+<li><p><strong>nDPI 状态机</strong>：nDPI 依赖于人工 <strong>更新协议规则</strong> 和 <strong>协议库</strong>，这需要持续的人工干预和维护。随着网络环境的变化、新协议的出现，nDPI 必须不断更新其状态机和规则集，才可以适应新的流量模式。</p>
+</li>
+<li><p><strong>机器学习</strong>：机器学习方法可以通过 <strong>增量学习</strong> 或 <strong>在线学习</strong> 来自动适应新的数据和流量模式。例如，当新的协议或变种协议出现时，机器学习模型可以通过 <strong>增量训练</strong> 或 <strong>迁移学习</strong> 来自动更新和优化，而不需要人工修改规则或重新设计状态机。</p>
+</li>
+</ul>
+<h3 id="4-处理复杂流量模式和多协议混合"><a href="#4-处理复杂流量模式和多协议混合" class="headerlink" title="4. 处理复杂流量模式和多协议混合"></a>4. <strong>处理复杂流量模式和多协议混合</strong></h3><ul>
+<li><p><strong>nDPI 状态机</strong>：nDPI 的状态机在面对 <strong>复杂流量模式</strong>（如多种协议混合、协议转发、协议交替等）时，可能会出现性能瓶颈或无法准确识别。状态机的设计通常依赖于流量中的 <strong>显著特征</strong>，在协议交替或复杂的通信模式下，识别准确率可能降低。</p>
+</li>
+<li><p><strong>机器学习</strong>：机器学习方法，特别是 <strong>深度神经网络</strong>，可以更好地处理 <strong>复杂的流量模式</strong>，能够自动提取 <strong>多种协议共存</strong> 或 <strong>协议交替的复杂特征</strong>。例如，<strong>卷积神经网络（CNN）</strong> 能够处理协议数据的 <strong>空间关系</strong>，而 <strong>循环神经网络（RNN）</strong> 能够捕捉到流量中的 <strong>时序关系</strong>，从而更有效地识别复杂流量。</p>
+</li>
+</ul>
+<h3 id="5-提高流量分类精度"><a href="#5-提高流量分类精度" class="headerlink" title="5. 提高流量分类精度"></a>5. <strong>提高流量分类精度</strong></h3><ul>
+<li><p><strong>nDPI 状态机</strong>：nDPI 依赖于预定义的规则和模式，虽然它能够非常高效地识别已知协议，但对未知协议或协议变化的容忍度较低。在某些情况下，规则匹配的方式可能导致 <strong>漏检</strong> 或 <strong>误判</strong>。</p>
+</li>
+<li><p><strong>机器学习</strong>：机器学习，尤其是 <strong>决策树、支持向量机（SVM）</strong> 和 <strong>随机森林</strong>，能够通过 <strong>自动学习流量的分布和规律</strong>，提升流量分类的 <strong>精度</strong>。它能够通过分析流量特征的 <strong>复杂关系</strong>，对 <strong>已知协议</strong> 和 <strong>未知协议</strong> 都进行 <strong>准确分类</strong>，提高 <strong>识别精度</strong>，并减少漏检和误判的可能性。</p>
+</li>
+</ul>
+<h3 id="6-降低对规则和库的依赖"><a href="#6-降低对规则和库的依赖" class="headerlink" title="6. 降低对规则和库的依赖"></a>6. <strong>降低对规则和库的依赖</strong></h3><ul>
+<li><p><strong>nDPI 状态机</strong>：nDPI 强烈依赖于人工设计的 <strong>规则集</strong> 和 <strong>协议库</strong>，这种方法虽然在已知协议上表现良好，但在面对网络环境的变化或新的协议时，需要不断更新和维护这些规则。</p>
+</li>
+<li><p><strong>机器学习</strong>：机器学习方法不依赖于预定义的规则和协议库，而是通过 <strong>训练数据</strong> 自主学习协议的特征和规律，减少了对人工规则的依赖。因此，在 <strong>动态网络环境</strong> 和 <strong>未知协议</strong> 的情况下，机器学习模型更具 <strong>灵活性</strong> 和 <strong>适应性</strong>。</p>
+</li>
+</ul>
+<h3 id="7-可扩展性"><a href="#7-可扩展性" class="headerlink" title="7. 可扩展性"></a>7. <strong>可扩展性</strong></h3><ul>
+<li><p><strong>nDPI 状态机</strong>：nDPI 状态机的扩展性相对较差，增加新协议时需要手动添加规则和更新状态机。而在 <strong>高流量环境</strong> 中，状态机的性能可能会受到 <strong>协议库规模</strong> 和 <strong>匹配规则复杂性</strong> 的影响。</p>
+</li>
+<li><p><strong>机器学习</strong>：机器学习方法可以通过 <strong>并行化训练</strong> 或 <strong>分布式计算</strong> 来进行 <strong>大规模数据处理</strong>，具有更好的 <strong>可扩展性</strong>。通过 <strong>迁移学习</strong> 或 <strong>在线学习</strong>，机器学习模型可以快速适应新的协议和变化的流量模式，处理 <strong>大规模流量数据</strong>。</p>
+</li>
+</ul>
+<h3 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th><strong>nDPI 状态机</strong></th>
+<th><strong>机器学习</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>协议识别能力</strong></td>
+<td>依赖人工规则，适用于已知协议识别</td>
+<td>自动学习流量特征，能识别新协议及协议变种</td>
+</tr>
+<tr>
+<td><strong>加密流量识别</strong></td>
+<td>通过流量指纹和协议特征对加密流量有一定的识别能力</td>
+<td>能通过加密流量的统计特征和模式进行加密协议识别</td>
+</tr>
+<tr>
+<td><strong>流量分类精度</strong></td>
+<td>对已知协议分类精度高，但对新协议的识别精度较低</td>
+<td>能提高分类精度，减少误判和漏检</td>
+</tr>
+<tr>
+<td><strong>适应性</strong></td>
+<td>需要人工更新协议库和规则，适应性差</td>
+<td>自动适应新协议、变化的网络流量，能进行在线学习</td>
+</tr>
+<tr>
+<td><strong>处理复杂流量模式</strong></td>
+<td>对协议混合、交替等复杂流量的识别能力有限</td>
+<td>能处理复杂流量模式和多协议混合</td>
+</tr>
+<tr>
+<td><strong>维护成本</strong></td>
+<td>需要不断更新规则库和协议特征</td>
+<td>无需手动更新规则，通过增量学习进行自适应优化</td>
+</tr>
+<tr>
+<td><strong>可扩展性</strong></td>
+<td>扩展性差，协议增加时需要修改状态机和规则库</td>
+<td>更高的可扩展性，能够处理大规模流量数据，支持增量学习</td>
+</tr>
+</tbody></table>
+<h1 id="机器学习项目"><a href="#机器学习项目" class="headerlink" title="机器学习项目"></a>机器学习项目</h1><p>以下是一些支持机器学习的开源流量识别项目，这些项目利用机器学习算法进行网络流量分析、分类和识别：</p>
+<h3 id="1-FlowMon"><a href="#1-FlowMon" class="headerlink" title="1. FlowMon"></a>1. <strong>FlowMon</strong></h3><ul>
+<li><strong>简介</strong>：FlowMon 是一个网络监控和流量分析工具，支持流量模式识别和异常检测。它集成了机器学习技术用于流量分析，支持分类任务，能够识别各种网络攻击和异常行为。</li>
+<li><strong>特性</strong>：<ul>
+<li>使用机器学习模型（如随机森林、SVM）对流量进行分类。</li>
+<li>提供实时流量分析和可视化界面。</li>
+<li>能够监测多种协议和流量模式。</li>
+</ul>
+</li>
+<li><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://www.flowmon.com/en/products/flowmon-collector">FlowMon</a></li>
+</ul>
+<h3 id="2-CICIDS-Datasets"><a href="#2-CICIDS-Datasets" class="headerlink" title="2. CICIDS Datasets"></a>2. <strong>CICIDS Datasets</strong></h3><ul>
+<li><strong>简介</strong>：CICIDS 是一个由加拿大通信安全研究所 (CIC) 提供的系列网络流量数据集，广泛用于网络流量分类和攻击检测。许多开源机器学习项目基于 CICIDS 数据集进行网络流量识别。</li>
+<li><strong>特性</strong>：<ul>
+<li>包含多种攻击类型和正常流量样本。</li>
+<li>数据集已经处理过并标注，适合进行机器学习模型训练。</li>
+</ul>
+</li>
+<li><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://www.unb.ca/cic/datasets/">CICIDS Datasets</a></li>
+</ul>
+<h3 id="3-nBNS-Network-Behavior-and-Network-Security"><a href="#3-nBNS-Network-Behavior-and-Network-Security" class="headerlink" title="3. nBNS (Network Behavior and Network Security)"></a>3. <strong>nBNS (Network Behavior and Network Security)</strong></h3><ul>
+<li><strong>简介</strong>：nBNS 是一个基于机器学习的网络流量分类和异常检测系统，能够处理基于特征的网络流量数据，并使用机器学习技术进行分析。</li>
+<li><strong>特性</strong>：<ul>
+<li>支持多种机器学习模型（如决策树、KNN、SVM）用于流量分类。</li>
+<li>提供流量特征提取和模型训练的工具。</li>
+</ul>
+</li>
+<li><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/nBNS">nBNS GitHub</a></li>
+</ul>
+<h3 id="4-MLFlow"><a href="#4-MLFlow" class="headerlink" title="4. MLFlow"></a>4. <strong>MLFlow</strong></h3><ul>
+<li><strong>简介</strong>：MLFlow 是一个开源平台，旨在管理机器学习生命周期。虽然 MLFlow 本身并不是专门用于网络流量识别的，但它为训练和部署机器学习模型提供了强大的支持，并且可以与网络流量数据集（如 CICIDS、KDDCup 99 数据集等）结合使用。</li>
+<li><strong>特性</strong>：<ul>
+<li>提供了流量分类任务所需的模型管理、训练和评估功能。</li>
+<li>支持流量数据的多种预处理和特征工程技术。</li>
+<li>可与 TensorFlow, Scikit-Learn 等流行的机器学习框架结合使用。</li>
+</ul>
+</li>
+<li><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/mlflow/mlflow">MLFlow GitHub</a></li>
+</ul>
+<h3 id="5-Scikit-learn-based-Network-Traffic-Classification"><a href="#5-Scikit-learn-based-Network-Traffic-Classification" class="headerlink" title="5. Scikit-learn-based Network Traffic Classification"></a>5. <strong>Scikit-learn-based Network Traffic Classification</strong></h3><ul>
+<li><strong>简介</strong>：该项目使用 <strong>Scikit-learn</strong> 库对网络流量进行机器学习分类，基于流量的特征（如包大小、时延等）来进行协议分类。适合基于特征的流量分类和异常检测任务。</li>
+<li><strong>特性</strong>：<ul>
+<li>主要使用 <strong>决策树</strong>、<strong>随机森林</strong>、<strong>支持向量机（SVM）</strong> 等经典机器学习算法。</li>
+<li>提供多种数据预处理和特征选择方法。</li>
+<li>适合教学和研究，能够处理 <strong>流量的协议识别</strong> 和 <strong>分类问题</strong>。</li>
+</ul>
+</li>
+<li><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/lisabosh/Network-Traffic-Classification-Using-Scikit-learn">Scikit-learn-based Traffic Classification</a></li>
+</ul>
+<h3 id="6-DeepPacket"><a href="#6-DeepPacket" class="headerlink" title="6. DeepPacket"></a>6. <strong>DeepPacket</strong></h3><ul>
+<li><strong>简介</strong>：DeepPacket 是一个使用深度学习进行网络流量识别的开源项目。通过 <strong>卷积神经网络（CNN）</strong> 和 <strong>长短时记忆网络（LSTM）</strong> 等方法，从原始网络数据中提取流量特征，进行流量分类。</li>
+<li><strong>特性</strong>：<ul>
+<li>使用深度学习进行网络流量的自动特征提取和分类。</li>
+<li>支持加密流量的分析，能够应对加密协议识别的挑战。</li>
+<li>利用深度神经网络对流量数据进行高效的分类和预测。</li>
+</ul>
+</li>
+<li><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/DeepPacket/DeepPacket">DeepPacket GitHub</a></li>
+</ul>
+<h3 id="7-FlowClass"><a href="#7-FlowClass" class="headerlink" title="7. FlowClass"></a>7. <strong>FlowClass</strong></h3><ul>
+<li><strong>简介</strong>：FlowClass 是一个网络流量分类工具，利用机器学习算法（如 <strong>KNN</strong>、<strong>随机森林</strong>）对网络流量进行分类。它使用流量的各种统计特征（如流量长度、包大小等）来训练模型。</li>
+<li><strong>特性</strong>：<ul>
+<li>支持多种网络流量的分类，适合协议和攻击模式的识别。</li>
+<li>提供特征提取、数据集处理和训练模型的功能。</li>
+<li>可扩展性强，支持多种机器学习算法。</li>
+</ul>
+</li>
+<li><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/flowclass/flowclass">FlowClass GitHub</a></li>
+</ul>
+<h3 id="8-DPI-ML"><a href="#8-DPI-ML" class="headerlink" title="8. DPI-ML"></a>8. <strong>DPI-ML</strong></h3><ul>
+<li><strong>简介</strong>：DPI-ML 是一个结合深度包检测（DPI）和机器学习的流量识别项目，能够利用 <strong>深度学习</strong> 和 <strong>强化学习</strong> 技术进行协议识别和流量分析。</li>
+<li><strong>特性</strong>：<ul>
+<li>集成 <strong>深度学习（DNN）</strong> 和 <strong>强化学习</strong> 方法进行网络流量识别。</li>
+<li>针对各种协议进行高效的流量识别，特别是加密协议和新兴协议。</li>
+<li>可用于流量分类、异常检测和网络安全分析。</li>
+</ul>
+</li>
+<li><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/dpiml/DPI-ML">DPI-ML GitHub</a></li>
+</ul>
+<h3 id="9-PacketFlowNet"><a href="#9-PacketFlowNet" class="headerlink" title="9. PacketFlowNet"></a>9. <strong>PacketFlowNet</strong></h3><ul>
+<li><strong>简介</strong>：PacketFlowNet 是一个基于 <strong>卷积神经网络（CNN）</strong> 的流量分类系统，旨在通过深度学习对网络流量进行协议识别。</li>
+<li><strong>特性</strong>：<ul>
+<li>基于 <strong>卷积神经网络</strong> 的流量识别和分类。</li>
+<li>能够从 <strong>原始流量数据</strong> 提取有用的特征并进行自动分类。</li>
+<li>对 <strong>加密流量</strong> 和 <strong>流量变种</strong> 具有较强的识别能力。</li>
+</ul>
+</li>
+<li><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/PacketFlowNet/PacketFlowNet">PacketFlowNet GitHub</a></li>
+</ul>
+<h3 id="10-Traffic-Flow-Classifier"><a href="#10-Traffic-Flow-Classifier" class="headerlink" title="10. Traffic-Flow-Classifier"></a>10. <strong>Traffic-Flow-Classifier</strong></h3><ul>
+<li><strong>简介</strong>：这是一个利用 <strong>支持向量机（SVM）</strong> 和其他机器学习模型对网络流量进行分类的项目。它使用各种流量特征（如包大小、时延、TCP标志等）来训练分类器。</li>
+<li><strong>特性</strong>：<ul>
+<li>支持多种机器学习模型（如 SVM、KNN、随机森林等）进行流量分类。</li>
+<li>提供流量特征提取、预处理和模型训练的完整工具。</li>
+</ul>
+</li>
+<li><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/traffic-flow-classifier/traffic-flow-classifier">Traffic-Flow-Classifier GitHub</a></li>
+</ul>
+<p>这些项目提供了利用机器学习技术进行网络流量识别的多种实现方案，适用于不同的应用场景，包括 <strong>协议识别</strong>、<strong>攻击检测</strong>、<strong>异常检测</strong>、<strong>加密流量分析</strong> 等。选择合适的项目，可以根据自己的需求（例如流量类型、所用算法、计算资源等）进行集成和优化。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><strong>机器学习方法</strong> 在流量识别上，尤其是对于 <strong>加密流量识别、新协议识别、流量复杂性处理</strong> 和 <strong>动态适应性</strong> 等方面，具有显著优势。相较于基于 <strong>状态机</strong> 的 nDPI 方法，机器学习能够更好地应对 <strong>未知协议、流量模式变化</strong> 和 <strong>加密协议</strong> 的挑战，提供更高的 <strong>分类精度</strong> 和 <strong>扩展性</strong>。</p>
+<h1 id="对比深度学习"><a href="#对比深度学习" class="headerlink" title="对比深度学习"></a>对比深度学习</h1><p>在网络流量识别任务中，<strong>机器学习</strong>（ML）和<strong>深度学习</strong>（DL）各自有其优缺点。以下是它们在网络流量识别中的对比：</p>
+<h3 id="1-特征工程与自动特征学习"><a href="#1-特征工程与自动特征学习" class="headerlink" title="1. 特征工程与自动特征学习"></a>1. <strong>特征工程与自动特征学习</strong></h3><ul>
+<li><p><strong>机器学习（ML）</strong>：</p>
+<ul>
+<li><strong>优点</strong>：<ul>
+<li>机器学习模型通常依赖于手动设计的特征（例如，数据包的大小、传输速率、协议类型等），因此，特征工程是识别性能的关键。经过精心设计的特征有时可以使模型达到较高的识别准确率。</li>
+<li>在网络流量识别中，手动提取特征有时能揭示数据中的结构性信息（例如，流量的统计特性和时序规律），能够提高模型的可解释性。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>特征工程需要领域知识，人工设计的特征可能不足以捕捉复杂的数据模式。</li>
+<li>如果特征提取不当，机器学习模型的表现可能会大打折扣，尤其是在复杂的流量模式下。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>深度学习（DL）</strong>：</p>
+<ul>
+<li><strong>优点</strong>：<ul>
+<li>深度学习模型（如 CNN、LSTM、Transformer）能够自动从数据中学习高维、复杂的特征，无需人工设计。它们能够捕捉网络流量中的复杂模式。</li>
+<li>对于大规模、复杂的网络流量数据，深度学习模型能够比传统机器学习更有效地提取高层次的特征，从而提高识别准确率。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>深度学习的训练过程需要大量的标注数据，并且通常需要更强大的计算资源。</li>
+<li>特别是在小数据集上，深度学习模型可能会过拟合，且很难解释学习到的特征，降低模型的可解释性。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-模型复杂度与计算需求"><a href="#2-模型复杂度与计算需求" class="headerlink" title="2. 模型复杂度与计算需求"></a>2. <strong>模型复杂度与计算需求</strong></h3><ul>
+<li><p><strong>机器学习（ML）</strong>：</p>
+<ul>
+<li><strong>优点</strong>：<ul>
+<li>机器学习模型（如决策树、支持向量机（SVM）、K最近邻（KNN）等）通常计算开销较小，适用于计算资源受限的环境。</li>
+<li>模型训练和推理速度较快，对于实时流量识别尤为重要。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>随着数据量的增加，传统机器学习算法的性能可能会下降，特别是在大规模网络流量数据上。</li>
+<li>无法处理像深度神经网络那样复杂的数据模式和长期依赖。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>深度学习（DL）</strong>：</p>
+<ul>
+<li><strong>优点</strong>：<ul>
+<li>深度学习能够处理更为复杂和非线性的数据模式，通常可以在大规模数据上表现出更强的能力。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>深度学习模型的计算需求较高，训练和推理过程通常需要较强的计算资源（如GPU加速）。</li>
+<li>需要大规模的数据集来避免过拟合，训练过程较为耗时。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-适用性与泛化能力"><a href="#3-适用性与泛化能力" class="headerlink" title="3. 适用性与泛化能力"></a>3. <strong>适用性与泛化能力</strong></h3><ul>
+<li><p><strong>机器学习（ML）</strong>：</p>
+<ul>
+<li><strong>优点</strong>：<ul>
+<li>对于特定的、较为简单的问题，传统机器学习模型（如决策树、随机森林等）在流量识别任务中表现良好。</li>
+<li>能够处理小型数据集，并且对超参数调整较为敏感。</li>
+<li>机器学习模型通常具有较好的泛化能力，尤其是在数据集较小的情况下。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>当问题变得复杂或数据量急剧增大时，机器学习模型的表现可能不如深度学习。</li>
+<li>难以应对非常复杂的流量模式和复杂的攻击类型。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>深度学习（DL）</strong>：</p>
+<ul>
+<li><strong>优点</strong>：<ul>
+<li>深度学习模型能够处理复杂的模式，特别是在大规模数据集上（例如，识别复杂攻击行为）。</li>
+<li>适合处理时序数据（如基于LSTM、GRU等的模型）或图像数据（如流量转化为图像后使用CNN进行处理）。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>对小数据集的适应性差，可能出现过拟合问题。</li>
+<li>对于训练集外的流量模式，深度学习模型的泛化能力较差，可能出现迁移学习困难。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-准确性与鲁棒性"><a href="#4-准确性与鲁棒性" class="headerlink" title="4. 准确性与鲁棒性"></a>4. <strong>准确性与鲁棒性</strong></h3><ul>
+<li><p><strong>机器学习（ML）</strong>：</p>
+<ul>
+<li><strong>优点</strong>：<ul>
+<li>对于特定的攻击类型或协议，机器学习模型可以获得较好的识别准确率，尤其是在数据特征比较明确的情况下。</li>
+<li>机器学习模型的鲁棒性较强，对于少数异常流量（如DoS攻击、DDoS攻击等）能够作出准确判断。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>难以处理流量数据中的复杂时序关系和非线性特征，尤其是在攻击模式和流量行为较为复杂时。</li>
+<li>对于流量数据集的变化（例如网络环境、攻击方式的变化）可能不具备很好的适应能力。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>深度学习（DL）</strong>：</p>
+<ul>
+<li><strong>优点</strong>：<ul>
+<li>深度学习在复杂模式和时序数据的建模方面表现优越，能够识别多种攻击类型和复杂的流量行为。</li>
+<li>在大规模数据集的帮助下，深度学习能够不断优化，提高流量分类的准确性和鲁棒性。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>可能会受到训练数据的质量和多样性的影响，若训练数据不充分或数据偏差较大，可能导致性能下降。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-可解释性"><a href="#5-可解释性" class="headerlink" title="5. 可解释性"></a>5. <strong>可解释性</strong></h3><ul>
+<li><p><strong>机器学习（ML）</strong>：</p>
+<ul>
+<li><strong>优点</strong>：<ul>
+<li>传统的机器学习模型（如决策树、逻辑回归）通常更容易解释，可以根据模型的权重和决策路径了解模型的决策逻辑。</li>
+<li>在网络安全领域，模型可解释性至关重要，因为它能帮助研究人员和安全分析师理解为什么某个流量被分类为攻击。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>对于复杂的模式，传统机器学习模型的解释能力有限。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>深度学习（DL）</strong>：</p>
+<ul>
+<li><strong>优点</strong>：<ul>
+<li>深度学习模型在某些情况下能够自动提取特征，且不需要人工设计，适应更复杂的任务。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>深度学习的“黑盒”特性使得其在可解释性方面远不如传统机器学习方法，尤其是在网络流量识别任务中，这可能是一个问题，因为安全领域往往需要可解释的结果来进行响应。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><ul>
+<li><p><strong>机器学习</strong>：</p>
+<ul>
+<li>更适合处理较为简单、特征明确的数据集，特别是在计算资源有限、训练数据较小的场景下表现较好。</li>
+<li>强调特征工程，适合对数据的理解有较高需求的应用场景。</li>
+</ul>
+</li>
+<li><p><strong>深度学习</strong>：</p>
+<ul>
+<li>对复杂、庞大的网络流量数据集有显著优势，尤其在自动特征提取和处理时序数据或复杂模式时。</li>
+<li>更适合大数据量、实时性要求高、模型复杂的应用场景，但训练和推理过程需要更多的计算资源。</li>
+</ul>
+</li>
+</ul>
+<p>在实际应用中，选择机器学习还是深度学习通常取决于数据的复杂性、可用计算资源和模型的可解释性需求。对于流量模式比较复杂或数据量巨大的场景，深度学习模型可能是更优的选择；而在资源受限或问题较为简单时，机器学习模型可能会提供更好的性能和效率。</p>
+<h1 id="加密流量识别"><a href="#加密流量识别" class="headerlink" title="加密流量识别"></a>加密流量识别</h1><p>在加密流量识别任务中，<strong>卷积神经网络（CNN）</strong>和<strong>决策树</strong>各自有不同的优缺点。为了更好地选择适合的模型，需要分析两者在处理加密流量时的表现，考虑它们在特征提取、计算资源、训练数据和模型可解释性等方面的不同。</p>
+<h3 id="1-CNN（卷积神经网络）的优势与挑战"><a href="#1-CNN（卷积神经网络）的优势与挑战" class="headerlink" title="1. CNN（卷积神经网络）的优势与挑战"></a>1. <strong>CNN（卷积神经网络）</strong>的优势与挑战</h3><h4 id="优势："><a href="#优势：" class="headerlink" title="优势："></a>优势：</h4><ul>
+<li><strong>自动特征提取</strong>：CNN能够自动从输入数据中提取多层次的特征，不需要手动设计特征。在加密流量中，由于没有明确的特征（如端口号、协议类型等），CNN的自动特征学习能力可以更好地识别复杂的流量模式。</li>
+<li><strong>处理原始数据的能力</strong>：对于加密流量，传统的基于特征提取的模型可能受限于加密后的数据特征，而CNN能够通过学习数据的低级模式（如字节流、数据包大小、时间序列等）来识别流量。</li>
+<li><strong>高准确性</strong>：CNN在大规模数据集上表现非常好，尤其在图像和时序数据（如网络流量的时序特征）处理上非常有效，可以捕捉到潜在的复杂模式。</li>
+</ul>
+<h4 id="挑战："><a href="#挑战：" class="headerlink" title="挑战："></a>挑战：</h4><ul>
+<li><strong>计算资源消耗</strong>：CNN模型通常需要大量的计算资源，尤其是在训练阶段。如果加密流量的特征复杂并且数据量大，CNN可能需要强大的GPU计算能力和较长的训练时间。</li>
+<li><strong>黑盒模型</strong>：CNN通常缺乏可解释性，虽然它可以提供准确的结果，但很难解释模型为什么做出某个决策。在加密流量识别中，透明度和可解释性往往是关键，特别是在安全领域。</li>
+</ul>
+<h3 id="2-决策树的优势与挑战"><a href="#2-决策树的优势与挑战" class="headerlink" title="2. 决策树的优势与挑战"></a>2. <strong>决策树</strong>的优势与挑战</h3><h4 id="优势：-1"><a href="#优势：-1" class="headerlink" title="优势："></a>优势：</h4><ul>
+<li><strong>高可解释性</strong>：决策树的每个节点都有明确的决策规则，基于某个特征的分裂。相较于CNN，决策树更容易解释，能够清楚地表明它是如何从流量的特征中做出分类决策的。对于加密流量的识别，能够解释为什么某个流量被判定为某种类型非常重要，特别是在安全监测和法律合规场景中。</li>
+<li><strong>较少的计算资源</strong>：决策树训练和推理过程通常比深度学习模型更高效。即使在计算资源有限的嵌入式设备上，决策树也能良好运行。对于需要实时识别流量的应用，决策树模型能够提供低延迟的响应。</li>
+<li><strong>适应小数据集</strong>：与CNN不同，决策树在小数据集上通常表现较好，能够快速从少量样本中进行训练。对于加密流量样本较少的情况，决策树可能会更适合。</li>
+</ul>
+<h4 id="挑战：-1"><a href="#挑战：-1" class="headerlink" title="挑战："></a>挑战：</h4><ul>
+<li><strong>需要手动特征提取</strong>：决策树依赖于特征工程，对于加密流量，需要设计有效的特征（如流量的统计信息、包长度、时延等），这可能是一个挑战。加密流量的特征可能难以显现，尤其是没有传统协议特征的情况下。</li>
+<li><strong>可能的过拟合问题</strong>：决策树容易在复杂或高维数据上出现过拟合，尤其是在树的深度较大时。这可能导致模型在未知的加密流量上表现较差。</li>
+</ul>
+<h3 id="3-CNN-vs-决策树在加密流量识别中的选择"><a href="#3-CNN-vs-决策树在加密流量识别中的选择" class="headerlink" title="3. CNN vs. 决策树在加密流量识别中的选择"></a>3. <strong>CNN vs. 决策树在加密流量识别中的选择</strong></h3><h4 id="适用场景："><a href="#适用场景：" class="headerlink" title="适用场景："></a>适用场景：</h4><ul>
+<li><p><strong>CNN更适合</strong>：</p>
+<ul>
+<li>当加密流量非常复杂且没有明显的可用特征时，CNN能够自动从原始数据中提取高层次的特征，具有强大的模式识别能力。</li>
+<li>在大数据集上训练，特别是当数据集足够大，能够让CNN学习到有价值的特征时，CNN可以提供较高的识别准确性。</li>
+<li>如果对高精度要求较高，尤其是在恶意流量检测（如APT攻击、流量异常检测）中，CNN可以提供较好的效果。</li>
+</ul>
+</li>
+<li><p><strong>决策树更适合</strong>：</p>
+<ul>
+<li>当加密流量样本较少，或者数据集较小且能够有效提取特征时，决策树能够提供较快的训练和推理过程。</li>
+<li>如果需要高度可解释性和透明的决策过程，尤其是在安全或合规要求较高的环境中，决策树是一个更好的选择。</li>
+<li>当可以有效地设计出表示加密流量的特征时，决策树可以提供很好的识别性能，特别是在有限资源的设备上。</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-结论"><a href="#4-结论" class="headerlink" title="4. 结论"></a>4. <strong>结论</strong></h3><ul>
+<li><strong>CNN</strong>更适合复杂的、未知的加密流量模式识别，尤其是在流量特征复杂且没有清晰结构时。CNN能够自动从流量中学习特征，且对大规模数据集具有较强的适应能力。</li>
+<li><strong>决策树</strong>适合具有明显特征且数据量较小的情况，并且在可解释性和计算资源有限的环境下具有优势。</li>
+</ul>
+<h3 id="综合推荐："><a href="#综合推荐：" class="headerlink" title="综合推荐："></a>综合推荐：</h3><ul>
+<li>如果你有大量的加密流量数据，并且希望通过深度学习从中提取复杂模式，可以考虑使用 <strong>CNN</strong>。</li>
+<li>如果你的数据集较小或中等，且需要高效的实时推理和可解释性，<strong>决策树</strong>可能是更好的选择。</li>
+</ul>
+<p>在实践中，结合 <strong>集成学习</strong>（如随机森林、梯度提升树等）和深度学习方法，或者使用 <strong>混合模型</strong>（例如，CNN+决策树的组合）也可能是有效的方案。</p>
+<h1 id="防火墙方案"><a href="#防火墙方案" class="headerlink" title="防火墙方案"></a>防火墙方案</h1><p>对于非加密流量可以采用ndpi识别</p>
+<p>对于加密流量，深度学习cnn和机器学习决策树都能实现。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>机器学习对比深度包检测</div>
+      <div>http://blog.uanet.cn/AI/机器学习对比深度包检测.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/%E8%BD%AC%E8%BD%BD/%E4%BB%80%E4%B9%88%E6%98%AFAI%E9%98%B2%E7%81%AB%E5%A2%99AIFW%EF%BC%9F.html" title="什么是AI防火墙AIFW？">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">什么是AI防火墙AIFW？</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/AI/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE.html" title="机器学习流量分类开源项目">
+                        <span class="hidden-mobile">机器学习流量分类开源项目</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

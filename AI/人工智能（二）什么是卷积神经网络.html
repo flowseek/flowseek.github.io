@@ -1,0 +1,944 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="上一回为大家介绍了人工智能的基本概念和算法，讲到了梯度下降法、神经网络、机器学习的基本概念，还没看过的小伙伴可以点击这里。 人工智能有一个重要领域就是图像识别。比如：有许多软件可以通过拍照的方法识别出不同的物体。我用它去拍摄我家的狗，发现它不仅能识别出这是狗，甚至还能够识别出狗的类型。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="人工智能（二）什么是卷积神经网络">
+<meta property="og:url" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="上一回为大家介绍了人工智能的基本概念和算法，讲到了梯度下降法、神经网络、机器学习的基本概念，还没看过的小伙伴可以点击这里。 人工智能有一个重要领域就是图像识别。比如：有许多软件可以通过拍照的方法识别出不同的物体。我用它去拍摄我家的狗，发现它不仅能识别出这是狗，甚至还能够识别出狗的类型。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/75d14a5fg00r19k56054zc000go009em.gif">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F7ce34988j00r19k56000uc000fi00a2m.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F0b6c39e3j00r19k56000bc000fe006xm.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fe7013d76j00r19k56000bc0008c00b4m.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Ff37a748cj00r19k56001dc000no00exm.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Ffc660c53j00r19k56000wc000gj00cjm.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F9cb09752j00r19k56003pc000u000nem.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F75e2728bj00r19k560007c000690069m.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F5df85f67j00r19k56000kc000fy005am.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fe2cc6b40j00r19k560010c000u000fjm.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Feefcb54dj00r19k56000oc000cy00cvm.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F890aaef8p00r19k560002c0002w002xm.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F3410501ej00r19k56001fc000u000gvm.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F5203e386j00r19k560010c000u000gvm.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fbe3ca57fj00r19k56000mc000u000gvm.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F51aec0fcj00r19k56000pc000u000gvm.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F3429dac4j00r19k56002sc000u000iim.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F6c93452cj00r19k560023c000u000g2m.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fbcf8ce10j00r19kgq000yd000mr00eqp.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F2fabcfd0j00r19k56002uc000u000stm.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fab3b58b6j00r19k57004bc000oj00i9m.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fe018b926j00r19k560010c000rs00fnm.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fc6f0a7daj00r19k560006c000910078m.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F2aa86aa5j00r19k56000nc000i200dkm.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/c21bb38bg00r19k5700src000de008dm.gif">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Ff35e720dj00r19kpg001kd000lo00akp.jpeg">
+<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Ff66a7fd8j00r19k560033c000u000k0m.jpeg">
+<meta property="article:published_time" content="2025-02-13T05:53:20.525Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.528Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/75d14a5fg00r19k56054zc000go009em.gif">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>人工智能（二）什么是卷积神经网络 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="人工智能（二）什么是卷积神经网络"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          4.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          36 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">人工智能（二）什么是卷积神经网络</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>上一回为大家介绍了<a target="_blank" rel="noopener" href="https://www.163.com/dy/article/GMOREDNQ0552LNTP.html">人工智能的基本概念和算法</a>，讲到了梯度下降法、神经网络、机器学习的基本概念，还没看过的小伙伴可以点击这里。</p>
+<p>人工智能有一个重要领域就是图像识别。比如：有许多软件可以通过拍照的方法识别出不同的物体。我用它去拍摄我家的狗，发现它不仅能识别出这是狗，甚至还能够识别出狗的类型。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/75d14a5fg00r19k56054zc000go009em.gif" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>大家想知道图像识别究竟是如何做到的吗？今天我们就来聊聊图像识别中最流行的算法——卷积神经网络。</p>
+<h5 id="视觉原理"><a href="#视觉原理" class="headerlink" title="视觉原理"></a>视觉原理</h5><p>把一副图像输入计算机，计算机会把它变成一大堆数字，然后通过全连接网络和机器学习的大量训练知道什么样的数字表示什么物体。但是，如果所有的图像都通过这种方法进行训练，效率是非常低的。而且，当图像稍微地进行了放缩、旋转时，计算机可能就不认识它了。</p>
+<p>相比来讲，人对于物体的识别训练却非常快——人们只要见到过几次摩托车和汽车，就能牢牢记住他们的区别。下次再遇到摩托车时，哪怕它的方向变了，位置变了，或者撞破了，我们依然能区分这是摩托车，而不是汽车，这是为什么？</p>
+<p>1981年，诺贝尔生理学和医学奖颁发给了神经科学家大卫·休伯尔和瑞典神经科学家托斯坦·威泽尔，以表彰他们发现了视觉的原理。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F7ce34988j00r19k56000uc000fi00a2m.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>大卫休伯尔和托斯坦·威泽尔</p>
+<p>他们将电极插入猫的脑子中，让猫看到各种线条，观察脑子中电极的反应。他们发现：猫大脑中与视觉相关的神经细胞分为两种，其一只对特定的线条有反应，他们称之为简单神经细胞；另一种对线条的运动有反应，他们称之为复杂神经细胞。</p>
+<p>猫脑电极实验</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F0b6c39e3j00r19k56000bc000fe006xm.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>在他们的启发下，日本科学家福岛邦彦提出了神经认知模型。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fe7013d76j00r19k56000bc0008c00b4m.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>福岛邦彦</p>
+<p>福岛邦彦说：人类的视觉神经是分层的。首先，物体发出或者反射的光进入眼睛，通过瞳孔晶状体等照射到视网膜上成像。视网膜上的感光细胞会将图像转化为神经冲动传递到大脑。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Ff37a748cj00r19k56001dc000no00exm.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>大脑最初接受视觉信号的神经皮层叫做初级皮层V₁，它所获得的是一大堆像素点。随后，V₁皮层会把处理过的信号传递到V₂皮层，V₂皮层会得到图像的边缘、方向等信息；V₂皮层再次对信号进行处理，进入V₃皮层，在这里神经元会获得物体的轮廓、细节等信息…</p>
+<p>信号经过多个皮层的传递，最终抽象出物体的大量特征，从而做出判断。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Ffc660c53j00r19k56000wc000gj00cjm.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>比如你看到我，知道我是李永乐老师。实际上你看到的并不是一个整体的我，而是一堆像素点，这些像素点首先抽象出边缘、方向，发现我好像是直立行走的，然后又发现了我的轮廓，好像两个胳膊两条腿，一个鼻子俩眼睛，应该不是昆虫，继续你又看到了更多抽象信息，最终才知道我是李永乐老师。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F9cb09752j00r19k56003pc000u000nem.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>根据这个发现，许多科学家开始研究：如何利用计算机软件模拟视神经系统，其中有突出贡献的就是我们上回谈到的杨立昆。他设计了真正实用的卷积神经网络（Convolutional Neural Network, CNN），并且把它用在了图像识别领域，取得了巨大成功。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F75e2728bj00r19k560007c000690069m.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>杨立坤</p>
+<p>下面就让我们一起来了解一下卷积神经网络的原理吧！</p>
+<h5 id="卷积"><a href="#卷积" class="headerlink" title="卷积"></a>卷积</h5><p>例如：我们想判断一副图片是不是X，要知道：X的写法其实有很多种</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F5df85f67j00r19k56000kc000fy005am.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>不过，我们仔细观察这些图就会发现：它们都有一些共同特征，比如中间应该有个十字交叉、左上部位有个向右下的线条、右上部分有一个向左下的线条等等。尽管每一幅图的特征可能不完全一样，但是满足的共同特征越多，图片就越有可能是X。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fe2cc6b40j00r19k560010c000u000fjm.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>共同特征</p>
+<p>于是，我们首先通过一些方法来寻找这些特征，具体方法是：用一个3<em>3或者5</em>5的矩阵与图像上对应位置的矩阵做卷积，所谓<strong>卷积就是矩阵上对应元素相乘，然后再把乘积加起来。</strong></p>
+<p>举个例子：比如我有一个7*7的黑白图像，里面所有的白色都定为1，黑色定为0，把图片转化成一个数字矩阵，我们称为<strong>原矩阵</strong>。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Feefcb54dj00r19k56000oc000cy00cvm.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>原图像</p>
+<p>然后，选用用一个3*3的矩阵作为<strong>卷积核</strong>，卷积核右下方对角线是三个1，其余是0。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F890aaef8p00r19k560002c0002w002xm.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>卷积核</p>
+<p>用这个卷积核在原来的图像上从左到右、从上到下滑动。每滑动一步，都把重叠区域作卷积，如下图所示，这样就获得了一副卷积的结果矩阵，称为<strong>特征值矩阵</strong>。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F3410501ej00r19k56001fc000u000gvm.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>第一次卷积计算</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F5203e386j00r19k560010c000u000gvm.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>第二次卷积计算</p>
+<p>这样做的意义在哪里呢？刚才我们说到：我们要提取图片的“特征”。现在，卷积核左上、中间、右下三个数字是1，如果原图片中某个部位也有这样的特征，卷积后特征图该处的部位数字就很大。我们在特征值矩阵上找到比较大的数字，就说明图片在该处更有可能具有这个特征。我们用卷积核对整个图片矩阵做卷积运算，本质上就是在搜索哪些部位具有这些特征。如果我们再更换不同的卷积核，就能找到图片中不同的特征了。</p>
+<h5 id="池化、激活、全连接网络"><a href="#池化、激活、全连接网络" class="headerlink" title="池化、激活、全连接网络"></a>池化、激活、全连接网络</h5><p>图片的特征寻找完了，下一步又该如何做呢？</p>
+<p>其实有时候，我们只需要知道这幅图像的某个部位存在这个特征就好了，并不关心那些没有这种特征的位置。所以，我们可以将无用的信息去掉，缩小信息处理量，这个过程叫做<strong>池化</strong>。</p>
+<p>比如，我们可以将特征图中每个2<em>2的方框内最大的值作为整个方框的值，于是就能够将这特征图缩小，从5</em>5变成了3*3，当然如果我们愿意，它还可以更小，但它依然包含了特征信息和相应的位置。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fbe3ca57fj00r19k56000mc000u000gvm.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>然后，我们可以将池化后的特征图代入激活函数（例如Sigmoid函数），当特征值比较大的时候，获得的激活值比较大；特征值比较小时，激活值也小。这样，这一层的特征提取就做完了。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F51aec0fcj00r19k56000pc000u000gvm.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>总结来讲：经历了卷积、池化、激活三个步骤，模拟了人眼的一层视神经，通过这一次的操作，我们得到了这张图非常细节的特征。随后我们将第一层的输出作为第二层的输入，进行第二次卷积、池化、激活，获得更大范围的图像特征，以此类推，这就是福岛邦彦所提出的神经认知模型。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F3429dac4j00r19k56002sc000u000iim.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>最终，当我们获得了足够宏观的信息时，我们就将这些经过处理的信息接入全连接网络，通过机器学习过程判断最终输出这幅图像是什么。由于信息经过了预处理，所以这回全连接网络的复杂度远远低于直接将所有数据输入网络的情况。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F6c93452cj00r19k560023c000u000g2m.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>这里面有两件事要和大家说明：</p>
+<ul>
+<li><p>第一，卷积核的参数，以及全连接网络的参数，最初是人们预设的。可是在进行训练的时候，机器会根据输入和输出，运用反向传播和梯度下降的方法自动调整它们，所以说卷积核和全连接网络的参数本质上并没有什么区别，CNN是全连接网络的一种简化算法。</p>
+</li>
+<li><p>第二，在进行卷积池化的过程中，由于我们要提取的特征种类很多，比如横着的边缘、竖着的边缘、斜着的边缘，以及局部的鼻子、眼睛等等，于是图像的层数会越来越多。就是它不仅仅具有长和宽两个维度，还具有高，这个高就表示了图像的不同特征。在进行卷积运算的时候，卷积核其实不是二维的，而是三维的，我们一般做的卷积运算都是三维矩阵，或者说张量的卷积操作。</p>
+</li>
+</ul>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fbcf8ce10j00r19kgq000yd000mr00eqp.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>怎么样？科学家们的设想是不是非常厉害? 几乎完全模拟了人类的认知过程。当我们用数据训练机器识图之后，机器最终找到了最优化的参数和卷积核，这个过程就叫做训练，就如同小的时候爸爸妈妈带着我们去逛公园，告诉我们这是杨树，那是柳树一样。我们把一个机器没有见到过的图片丢给机器，机器也能够判断这个图片到底是什么，虽然我们不知道机器到底把参数设置成什么样子。同样，当我们认识了杨树和柳树的时候，几乎能够一眼将它们分辨开，但是我们自己却不清楚大脑是如何做到这一点的。</p>
+<p>回想一下，我们进入人脸识别系统的时候，有时带着口罩它也能认出我们，因为它提取的特征已经足够了。但也有时候，人工智能还不太智能，比如我的手机，当我摘下眼镜的时候，它就认不出我了，这一刻我感觉我可能是超人。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F2fabcfd0j00r19k56002uc000u000stm.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h5 id="数据与算力"><a href="#数据与算力" class="headerlink" title="数据与算力"></a>数据与算力</h5><p>上一回和这一回，我们花了很长时间介绍人工智能的算法原理。其实，除了算法，人工智能还有两个很重要的环节：<strong>数据和算力</strong>。</p>
+<p>俗话说：见多识广，巧妇难为无米之炊。无论算法设计得多优秀，如果没有给机器喂数据，也就是通过大量图片进行训练，机器依然无法认出哪怕是一张很简单的图片。所以，拥有大量数据是人工智能的一个重要环节。</p>
+<p>你可能不知道，我们每个人其实都给机器投喂过数据。比如，有时候你登陆某个网站，网站上会让你识别模糊不清的文字和数字，甚至让你在图中找出各种稀奇古怪的东西。也许你以为这只是网站故意刁难你，但是也很有可能，这是网站在用你的肉体训练它的机器呢。你每点一次验证码，它就完成了一次机器学习。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fab3b58b6j00r19k57004bc000oj00i9m.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>人工智能的另一个重要基础是算力。在人工智能领域，所需要的计算难度上并不大，比如卷积运算就是简单的加法和乘法。但是由于图片像素矩阵大，卷积核又多，计算工作依然很繁重。举例来讲，一张800<em>600的彩色图片，RGB三种颜色，像素点有144万个之多。如果用3</em>3*3的卷积核做一次卷积，需要计算大约1300万次乘法和1200万次加法。这还只是用一个卷积核进行一次处理。在实际的训练中需要用成百上千张图进行成千上万次的训练。</p>
+<p>由于训练和检验过程都比较慢，所以以前的人工智能软件基本不能实现实时处理。想想看几年以前，我们用的那些图像处理软件，是不是都要拍好的照片才能处理，没办法实时美颜？</p>
+<p>现在，一切都变了，人们发现了比CPU更好的处理方法。</p>
+<p>CPU就是计算机的中央处理器，它的特点是可以处理许多复杂的问题，但是并行能力差，只能算完了一个再算另一个，就好像一个老教授，什么都会算，但是你得一样一样来。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fe018b926j00r19k560010c000rs00fnm.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>处理显示问题的显卡，里面装有的处理器叫做GPU，GPU的特点是：它只能处理比较简单的问题，例如图像渲染问题。但是它的并行能力非常强，就好像一万个小学生。处理人工智能问题，其实大量的运算交给小学生就够了，所以人们就习惯了用GPU来计算人工智能。GPU的典型的厂商是英伟达，曾经他只是一家专注游戏显卡的公司，随着人工智能时代的来临，英伟达成了时代的弄潮儿。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fc6f0a7daj00r19k560006c000910078m.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>现在，我们有了更快的人工智能处理器——NPU（神经网络处理器），它是专门用来计算人工智能神经网络问题的，比GPU更加专一，效率也更高。这种处理器不光是一万个小学生，而且还有超能力，可以同时计算很多道加减法乘除。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F2aa86aa5j00r19k56000nc000i200dkm.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>比如：华为昇腾910AI处理器，它的结构是华为自主设计的达芬奇结构，昇腾910有32个AI core，也就是32个Cube。这个cube的作用是可以一次性计算16<em>16</em>16&#x3D;4096个元素的内积，而CPU要计算这个过程，需要将近一万次的加法和乘法。昇腾910系列处理器也是同等功耗下当前世界最快的人工智能训练处理器。</p>
+<p>目前昇腾已广泛应用于运营商、医疗、交通等领域，为国计民生的智能化进程做出了自己的贡献。比如，昇腾赋能南方电网的案例：在过去，人工巡视户外输电线路需要20天才能完成，利用基于昇腾Atlas 200AI加速模块的AI边侧视频巡检只需要2小时，巡检效率提升了80倍，并且还能及时发现传统人工地面巡视不易发现的隐患点。</p>
+<p>随着算力的提高，现在有很多手机都能够实现实时美颜了，甚至实时换脸，还能让静态的图片动起来。你在手机屏幕上看到的主播，现实中可能压根儿都认不出来。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/c21bb38bg00r19k5700src000de008dm.gif" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>人工智能技术是一种通用技术，它能让计算机帮助人类完成许多繁重的工作，从而极大地解放生产力。而AI 芯片又是人工智能领域的根技术之一。所谓根技术，是那些能够衍生出并支撑着多个技术簇的技术，它可以持续为整个技术树提供滋养，在很大程度上决定着技术树的荣枯。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Ff35e720dj00r19kpg001kd000lo00akp.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>在历史上，发生过几次工业革命，每次工业革命都是以科学的突破和根技术的发展为基础。例如十八世纪，牛顿力学和经典热力学出现了突破，瓦特改良了蒸汽机，带人类进入了蒸汽时代，这就是第一次工业革命，它让英国成为了日不落帝国。十九世纪末二十世纪初，因为法拉第发现了电磁感应，麦克斯韦阐明了电磁波原理，人类发明了发电机和无线电通信技术，让美国成为世界第一强国，这就是第二次工业革命。二十世纪中叶，因为电子技术、计算机技术的突破，人类迅速进入了电子时代，这就是第三次工业革命，日本抓住了机遇从战争的阴影中走出，一跃成为世界第二发达的国家。</p>
+<p><img src="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%BA%8C%EF%BC%89%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Ff66a7fd8j00r19k560033c000u000k0m.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>蒸汽革命</p>
+<p>前三次工业革命，中国都没有赶上。可是，现在世界正处在以无线互联网、人工智能、新材料、生物科技等技术为代表的第四次工业革命中。在这一次 ，中国人没有缺席，无论是5G技术还是人工智能技术，亦或者是新材料和生物科技技术，中国科学家和企业用了一二十年的时间实现了追赶，在许多新科学和新技术方面都走在了世界的前列。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>人工智能（二）什么是卷积神经网络</div>
+      <div>http://blog.uanet.cn/AI/人工智能（二）什么是卷积神经网络.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/%E5%BC%80%E6%BA%90AI%E9%98%B2%E7%81%AB%E5%A2%99%E7%AE%80%E4%BB%8B.html" title="开源AI防火墙简介">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">开源AI防火墙简介</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C.html" title="人工智能（一）机器学习和神经网络">
+                        <span class="hidden-mobile">人工智能（一）机器学习和神经网络</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

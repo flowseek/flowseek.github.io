@@ -1,0 +1,902 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="DPDK旁路原理  原来内核协议栈的方式数据是从 网卡–&gt;驱动–&gt;协议栈–&gt;socket接口–&gt;业务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DPDK入门">
+<meta property="og:url" content="http://blog.uanet.cn/NETWORK/DPDK%E5%85%A5%E9%97%A8.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="DPDK旁路原理  原来内核协议栈的方式数据是从 网卡–&gt;驱动–&gt;协议栈–&gt;socket接口–&gt;业务">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/DPDK%E5%85%A5%E9%97%A8/2790733-20220410103641032-1175213897.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/DPDK%E5%85%A5%E9%97%A8/2790733-20220410103704985-49248251.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/DPDK%E5%85%A5%E9%97%A8/2790733-20220410103731188-1829367099.png">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/DPDK%E5%85%A5%E9%97%A8/webp.webp">
+<meta property="og:image" content="http://blog.uanet.cn/NETWORK/DPDK%E5%85%A5%E9%97%A8/webp-16720388857559.webp">
+<meta property="article:published_time" content="2025-02-13T05:53:20.795Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.795Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/NETWORK/DPDK%E5%85%A5%E9%97%A8/2790733-20220410103641032-1175213897.png">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>DPDK入门 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="DPDK入门"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          17 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">DPDK入门</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="DPDK旁路原理"><a href="#DPDK旁路原理" class="headerlink" title="DPDK旁路原理"></a>DPDK旁路原理</h2><p><img src="/NETWORK/DPDK%E5%85%A5%E9%97%A8/2790733-20220410103641032-1175213897.png" srcset="/img/loading.gif" lazyload></p>
+<p> 原来内核协议栈的方式数据是从 <em><strong>网卡–&gt;驱动–&gt;协议栈–&gt;socket接口–&gt;业务</strong></em></p>
+<p> 而DPDK的方式是基于UIO（Userspace I&#x2F;O）旁路数据。数据从 <em><strong>网卡–&gt;DPDK轮询模式–&gt;DPDK基础库–&gt;业务</strong></em></p>
+<h2 id="DPDK的基石UIO"><a href="#DPDK的基石UIO" class="headerlink" title="DPDK的基石UIO"></a>DPDK的基石UIO</h2><p>为了让驱动运行在用户态，linux提供UIO机制，使用UIO可以通过read感知中断，通过mmap实现核网卡的通讯</p>
+<h3 id="UIO原理"><a href="#UIO原理" class="headerlink" title="UIO原理"></a>UIO原理</h3><p><img src="/NETWORK/DPDK%E5%85%A5%E9%97%A8/2790733-20220410103704985-49248251.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>要开发用户态驱动有几个步骤：</p>
+<ol>
+<li>开发运行在内核的UIO模块，因为硬中断只能在内核处理</li>
+<li>通过&#x2F;dev&#x2F;uioX读取中断</li>
+<li>通过mmap和外设共享内存</li>
+</ol>
+<h1 id="DKDP核心优化"><a href="#DKDP核心优化" class="headerlink" title="DKDP核心优化"></a>DKDP核心优化</h1><p>DPDK的UIO驱动屏蔽了硬件发出的中断，然后在用户态采用主动轮训的方式，这种模式被称为PMD（Poll Mode Driver）</p>
+<p>UIO 旁路了内核，主动轮训去掉硬中断，DPDK从而可以在用户态做收发包处理。带来zero copy，无系统调用的好处，同步处理减少上下文切换带来的Cache MIss。</p>
+<p>运行在PMD的CORE会处于CPU100%的状态。</p>
+<p>网络空闲时CPU 长期空转，会带来能耗问题。所以，DPDK推出interrupt DPDK模式。</p>
+<p>interrupt DPDK：</p>
+<p><img src="/NETWORK/DPDK%E5%85%A5%E9%97%A8/2790733-20220410103731188-1829367099.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="DPDK的高性能代码实现"><a href="#DPDK的高性能代码实现" class="headerlink" title="DPDK的高性能代码实现"></a>DPDK的高性能代码实现</h2><p><strong>1.</strong> <strong>采用</strong><a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/vm/hugetlbpage.txt"><strong>HugePage</strong></a><strong>减少TLB Miss</strong></p>
+<p>默认下Linux采用4KB为一页，页越小内存越大，页表的开销越大，页表的内存占用也越大。CPU有<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Translation_lookaside_buffer">TLB</a>（Translation Lookaside Buffer）成本高所以一般就只能存放几百到上千个页表项。如果进程要使用64G内存，则64G&#x2F;4KB&#x3D;16000000（一千六百万）页，每页在页表项中占用16000000 * 4B&#x3D;62MB。如果用HugePage采用2MB作为一页，只需64G&#x2F;2MB&#x3D;2000，数量不在同个级别。</p>
+<p>而DPDK采用HugePage，在x86-64下支持2MB、1GB的页大小，几何级的降低了页表项的大小，从而减少TLB-Miss。并提供了内存池（Mempool）、MBuf、无锁环（Ring）、Bitmap等基础库。根据我们的实践，在数据平面（Data Plane）频繁的内存分配释放，必须使用内存池，不能直接使用rte_malloc，DPDK的内存分配实现非常简陋，不如ptmalloc。</p>
+<p><strong>2.</strong> <strong>SNA（Shared-nothing Architecture）</strong></p>
+<p>软件架构去中心化，尽量避免全局共享，带来全局竞争，失去横向扩展的能力。NUMA体系下不跨Node远程使用内存。</p>
+<p><strong>3.</strong> <strong>SIMD（Single Instruction Multiple Data）</strong></p>
+<p>从最早的mmx&#x2F;sse到最新的avx2，SIMD的能力一直在增强。DPDK采用批量同时处理多个包，再用向量编程，一个周期内对所有包进行处理。比如，memcpy就使用SIMD来提高速度。</p>
+<p>SIMD在游戏后台比较常见，但是其他业务如果有类似批量处理的场景，要提高性能，也可看看能否满足。</p>
+<p><strong>4.</strong> <strong>不使用慢速API</strong></p>
+<p>这里需要重新定义一下慢速API，比如说gettimeofday，虽然在64位下通过<a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man7/vdso.7.html">vDSO</a>已经不需要陷入内核态，只是一个纯内存访问，每秒也能达到几千万的级别。但是，不要忘记了我们在10GE下，每秒的处理能力就要达到几千万。所以即使是gettimeofday也属于慢速API。DPDK提供<a target="_blank" rel="noopener" href="https://doc.dpdk.org/api/rte__cycles_8h.html">Cycles</a>接口，例如rte_get_tsc_cycles接口，基于HPET或TSC实现。</p>
+<p>dpdk和linux内核中断区别,DPDK解析—–DPDK，PF_RING对比</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_28865923/article/details/116609012">https://blog.csdn.net/weixin_28865923/article/details/116609012</a></p>
+<p>2.2 DPDK UIO机制</p>
+<p>采用Linux提供UIO机制，可以旁路Kernel，将所有报文处理的工作在用户空间完成。</p>
+<p><img src="/NETWORK/DPDK%E5%85%A5%E9%97%A8/webp.webp" srcset="/img/loading.gif" lazyload alt="9b669f7c97ce"></p>
+<p>图片引自参考文档[1]</p>
+<p>如上图，左边是传统的数据包获取方式，路径为:</p>
+<p>网卡 -&gt; Kernel驱动 -&gt; Kernel TCP&#x2F;IP协议栈 -&gt; Socket接口 -&gt; 业务</p>
+<p>右边是DPDK的方式，基于UIO。数据路径为:</p>
+<p>网卡 -&gt; DPDK轮询模式-&gt; DPDK基础库 -&gt; 业务</p>
+<p>2.3 DPDK 零拷贝(Zero Copy)</p>
+<p>通过UIO+mmap 实现数据零拷贝(zero copy)是DPDK的特点之一。那么常规的Linux Kernel(libpcap)以及pf-ring处理数据包的流程要进行几次数据拷贝呢？</p>
+<p>libpcap</p>
+<p>libpcap采用的是传统的数据包获取方式，如上图左边路径。</p>
+<p>网卡接收到数据包后，第一步需要把数据从网卡拷贝到主存(RX buffer)中。但是在这个拷贝的过程中使用了DMA(Direct Memory Access)技术。DMA 传输将数据从一个地址空间复制到另外一个地址空间。由CPU 初始化这个传输动作，传输动作本身是由 DMA 控制器来实行和完成，CPU是不需要参与，也不会产生CPU资源消耗。因此这个第一步的拷贝可以忽略。</p>
+<p>第二步，Kernel会将网卡通过DMA传输进入主存(RX buffer)的内容拷贝一份进行处理，这里进行了一次数据拷贝。</p>
+<p>第三步，由于内核空间和用户空间的内存是不共享的，Kernel会将数据包内容再进行一次拷贝用于用户空间使用。</p>
+<p>综上，传统的数据包捕获方式(libpcap)会进行两次数据包拷贝。</p>
+<p>pf-rfing</p>
+<p>pf-ring采用mmap()将传统的两次拷贝减少至一次拷贝。</p>
+<p>第一步，同样使用DMA技术，把数据从网卡拷贝到主存(RX buffer)中。</p>
+<p>第二步，pf-ring会将网卡通过DMA传输进入主存(RX buffer)的内容拷贝一份放入环形缓冲区中(ring)中，这里进行了一次数据拷贝。</p>
+<p>第三步，使用mmap()将环形缓冲区映射至用户空间，用户空间可以直接访问这个环形缓冲区中的数据。</p>
+<p>pf-ring zc</p>
+<p>pf-ring zc(zero copy)更是将pf-ring的一次拷贝也省去，达到了零拷贝的目的，具体的：</p>
+<p>第一步，使用DMA技术，把数据从网卡拷贝到主存(RX buffer)中。</p>
+<p>第二步，使用mmap()直接将RX buffer的数据映射到用户用户空间，使用户空间可以直接访问RX buffer的数据。</p>
+<p>下图非常清晰地展示了pf-ring zc实现零拷贝的过程：</p>
+<p><img src="/NETWORK/DPDK%E5%85%A5%E9%97%A8/webp-16720388857559.webp" srcset="/img/loading.gif" lazyload alt="9b669f7c97ce"></p>
+<p>图片引自参考文档[3]</p>
+<p>DPDK</p>
+<p>DPDK实现零拷贝的方式与pf-ring zc类似，首先通过DMA将网卡数据拷贝至主存(RX buffer)；随后使用mmap()直接将RX buffer的数据映射到用户用户空间，使用户空间可以直接访问RX buffer的数据，以此实现了零拷贝。</p>
+<p>由上述可以看出，pf-ring zc和dpdk均可以实现数据包的零拷贝，两者均旁路了内核，但是实现原理略有不同。pf-ring zc通过zc驱动(也在应用层)接管数据包，dpdk基于UIO实现。</p>
+<p>值得注意的是，无论是pf-ring zc还是dpdk，旁路内核就意味着应用程序完全接管网卡，这样一来，当通过UIO驱动或ZC驱动打开设备时，设备将无法用于标准网络。</p>
+<p>3.PMD</p>
+<p>DPDK的UIO驱动屏蔽了硬件发出中断，然后在用户态采用主动轮询的方式，这种模式被称为PMD(Poll Mode Driver)。</p>
+<p>正常情况下，网卡收到数据包后，会发出中断信号，CPU接收到中断信号后，会停止正在运行的程序，保护断点地址和处理机当前状态，转入相应的中断服务程序并执行中断服务程序，完成后，继续执行中断前的程序。</p>
+<p>DPDK采用轮询的方式，直接访问RX和TX描述符而没有任何中断，以便在用户的应用程序中快速接收，处理和传送数据包。这样可以减少CPU频繁中断，切换上下文带来的消耗。</p>
+<p>在网卡大流量时，DPDK这种PMD的方式会带来较大的性能提升；但是在流量小的时候，轮询会导致CPU空转(不断轮询)，从而导致CPU性能浪费和功耗问题。</p>
+<p>为此，DPDK还推出了Interrupt DPDK模式，它的原理和Linux的NAPI很像，就是没包可处理时进入睡眠，改为中断通知。并且可以和其他进程共享同个CPU Core，但是DPDK进程会有更高调度优先级。</p>
+<p>与DPDK相比，pf-ring(no zc)使用的是NAPI polling和应用层polling，而pf-ring zc与DPDK类似，仅使用应用层polling。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/NETWORK/" class="category-chain-item">NETWORK</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>DPDK入门</div>
+      <div>http://blog.uanet.cn/NETWORK/DPDK入门.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/NETWORK/RFC%208684%20%E5%85%B7%E6%9C%89%E5%A4%9A%E4%B8%AA%E5%9C%B0%E5%9D%80%E7%9A%84%E5%A4%9A%E8%B7%AF%E5%BE%84%E6%93%8D%E4%BD%9C%E7%9A%84%20TCP%20%E6%89%A9%E5%B1%95.html" title="RFC 8684 具有多个地址的多路径操作的 TCP 扩展">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">RFC 8684 具有多个地址的多路径操作的 TCP 扩展</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/NETWORK/DPDK%20%E5%AE%8C%E5%85%A8%E5%86%85%E6%A0%B8%E6%97%81%E8%B7%AF%E6%8A%80%E6%9C%AF%E5%AE%9E%E7%8E%B0.html" title="DPDK 完全内核旁路技术实现">
+                        <span class="hidden-mobile">DPDK 完全内核旁路技术实现</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

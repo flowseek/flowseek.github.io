@@ -1,0 +1,874 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="几十年来，激光雷达一直是许多行业中非常有用的工具，但直到最近，随着人工智能（AI）解决方案的引入，我们才开始认识到它的真正潜力。激光雷达，又称光探测和测距，是一种遥感技术。它利用激光扫描器，测量传感器与建筑物或行人等目标物体之间的距离和尺寸。随着AI与激光雷达的结合使用，技术团队正在针对各种场景优化技术，以达到超乎想象的速度和精度。 20世纪60年代，激光雷达第一次问世，当时人们把它安装在飞机上">
+<meta property="og:type" content="article">
+<meta property="og:title" content="激光雷达和人工智能">
+<meta property="og:url" content="http://blog.uanet.cn/LIVE/%E6%BF%80%E5%85%89%E9%9B%B7%E8%BE%BE%E5%92%8C%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="几十年来，激光雷达一直是许多行业中非常有用的工具，但直到最近，随着人工智能（AI）解决方案的引入，我们才开始认识到它的真正潜力。激光雷达，又称光探测和测距，是一种遥感技术。它利用激光扫描器，测量传感器与建筑物或行人等目标物体之间的距离和尺寸。随着AI与激光雷达的结合使用，技术团队正在针对各种场景优化技术，以达到超乎想象的速度和精度。 20世纪60年代，激光雷达第一次问世，当时人们把它安装在飞机上">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/%E6%BF%80%E5%85%89%E9%9B%B7%E8%BE%BE%E5%92%8C%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/imageurl=https://appen-website.oss-cn-shanghai.aliyuncs.com/prod/uploads/What_is_Li_DAR_1_png_f4dfbfd8bb.jpeg">
+<meta property="article:published_time" content="2025-02-13T05:53:20.785Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.785Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/%E6%BF%80%E5%85%89%E9%9B%B7%E8%BE%BE%E5%92%8C%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/imageurl=https://appen-website.oss-cn-shanghai.aliyuncs.com/prod/uploads/What_is_Li_DAR_1_png_f4dfbfd8bb.jpeg">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>激光雷达和人工智能 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="激光雷达和人工智能"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          20 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">激光雷达和人工智能</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><img src="/%E6%BF%80%E5%85%89%E9%9B%B7%E8%BE%BE%E5%92%8C%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/imageurl=https://appen-website.oss-cn-shanghai.aliyuncs.com/prod/uploads/What_is_Li_DAR_1_png_f4dfbfd8bb.jpeg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>几十年来，激光雷达一直是许多行业中非常有用的工具，但直到最近，随着人工智能（AI）解决方案的引入，我们才开始认识到它的真正潜力。激光雷达，又称光探测和测距，是一种遥感技术。它利用激光扫描器，测量传感器与建筑物或行人等目标物体之间的距离和尺寸。随着AI与激光雷达的结合使用，技术团队正在针对各种场景优化技术，以达到超乎想象的速度和精度。</p>
+<p>20世纪60年代，激光雷达第一次问世，当时人们把它安装在飞机上扫描地形。上世纪80年代，GPS（全球定位系统）的应用中，人们使用激光雷达扫描收集数据建立3D模型，在这个过程中，激光雷达开始受欢迎。如今，随着成本的降低，和可用激光雷达数据的广度增加，激光雷达最近与人工智能和机器学习（ML）的结合正在释放巨大的创新机遇。</p>
+<h2 id="激光雷达的构成和工作原理"><a href="#激光雷达的构成和工作原理" class="headerlink" title="激光雷达的构成和工作原理"></a>激光雷达的构成和工作原理</h2><p>激光雷达系统一般包括四个关键元件：</p>
+<ul>
+<li><p>激光：向目标物体（可能是建筑物、车辆或行人）发送光脉冲。光波通常是紫外线、可见光或近红外；所使用的激光类型将取决于使用的雷达类型。</p>
+</li>
+<li><p>扫描器：调节激光扫描目标物体的速度和激光可到达的距离。</p>
+</li>
+<li><p>传感器：计算光从目标物体反射并返回到激光雷达系统所需要的时间。</p>
+</li>
+<li><p>GPS：跟踪激光雷达系统的位置，确保目标物体和系统之间的测量距离精确。</p>
+</li>
+</ul>
+<p>现代激光雷达系统每秒可以发送500,000个脉冲。系统把这些脉冲聚集成一个代表物体在空间中的坐标点的数据集，即点云。然后，我们就可以用点云来创建3D空间模型。</p>
+<h2 id="激光雷达的类型"><a href="#激光雷达的类型" class="headerlink" title="激光雷达的类型"></a>激光雷达的类型</h2><p>激光雷达主要有两类：</p>
+<h3 id="机载激光雷达（Airborne-LiDAR）"><a href="#机载激光雷达（Airborne-LiDAR）" class="headerlink" title="机载激光雷达（Airborne LiDAR）"></a>机载激光雷达（Airborne LiDAR）</h3><p>顾名思义，机载激光雷达系统安装在无人机或飞机等飞行设备上。这样，激光雷达就可以通过向地面发送脉冲来监测相关情况。航空激光雷达有两种类型：</p>
+<ul>
+<li><p>深海测深：利用绿光穿透水体，测量水体深度。</p>
+</li>
+<li><p>地形测量：用于陆地表面测绘。</p>
+</li>
+</ul>
+<h3 id="地面型激光雷达（Terrestrial-LiDAR）"><a href="#地面型激光雷达（Terrestrial-LiDAR）" class="headerlink" title="地面型激光雷达（Terrestrial LiDAR）"></a>地面型激光雷达（Terrestrial LiDAR）</h3><p>该激光雷达系统安装在移动车辆或固定在地面的三脚架上。它可以实现全方位扫描并从点云中生成3D模型。地面型激光雷达有两种类型：</p>
+<ul>
+<li><p>移动型：这种激光雷达安装在火车、轮船或汽车上，非常适合观察道路、行人、标识、条件和其他相关的基础设施。</p>
+</li>
+<li><p>固定型：这类激光雷达固定在地面上的某一点上，扫描周围区域或某一特定情景，如建筑物内部结构。</p>
+</li>
+</ul>
+<h2 id="激光雷达与AI相结合"><a href="#激光雷达与AI相结合" class="headerlink" title="激光雷达与AI相结合"></a>激光雷达与AI相结合</h2><p>激光雷达和AI可以说是天作之合：激光雷达用于收集3D点创建点云，而AI擅长处理数据。激光雷达的脉冲频率范围通常在每秒10,000到200,000个脉冲之间，并且可以从同一激光脉冲产生多次回波。激光雷达回波的结果可以由AI模型处理，以了解和检测给定的环境（如创建地形图）。</p>
+<p>在过去，技术团队通过人工标注激光雷达所生成的数据识别扫描的关键目标。毫无疑问，这项工作费时又耗力，且需要专业人员来进行。随着<a target="_blank" rel="noopener" href="https://www.appendata.com/blogs/computer-vision">计算机视觉</a>和图像处理技术的发展，AI可以帮助自动完成标注过程。如今，人工智能能够处理非结构化数据输入，并准确输出目标物体（例如，附近的车辆或基础设施）以供进一步分析。</p>
+<p>AI帮助我们节省时间，使我们有能力开发出高精度且随时更新的3D环境模型。由于这些进步，现在各主要行业都开始大范围应用激光雷达和AI技术。</p>
+<h2 id="AI驱动激光雷达的实际应用"><a href="#AI驱动激光雷达的实际应用" class="headerlink" title="AI驱动激光雷达的实际应用"></a>AI驱动激光雷达的实际应用</h2><p>在许多工业领域，激光雷达是必不可少的：建筑、制造、海洋学、3D打印、虚拟现实等。以下是几个非常重要的应用实例：</p>
+<h3 id="自动驾驶汽车"><a href="#自动驾驶汽车" class="headerlink" title="自动驾驶汽车"></a>自动驾驶汽车</h3><p>自动驾驶汽车在公路上也许并不常见，但是这一天终将到来。自动驾驶汽车需要AI驱动的激光雷达来扫描周围区域，创建空间的3D模型，同时结合雷达和摄像头输入的数据，几乎可以瞬间决定车辆应该如何行驶。激光雷达是否准确对于确保汽车乘客的安全至关重要。</p>
+<p>查看我们的<a target="_blank" rel="noopener" href="https://www.appendata.com/whitepapers/ai-solutions-for-automotive">AI汽车解决方案电子书</a>，了解以客户为中心的AI如何应用于自动驾驶汽车和智能汽车。</p>
+<h3 id="农业"><a href="#农业" class="headerlink" title="农业"></a>农业</h3><p>在农业领域，技术团队利用安装在无人机上的AI驱动激光雷达系统快速创建农田地形图。这些地图帮助农民根据海拔和日照情况确定种植作物的理想区域，施用化肥和喷洒杀虫剂。播种后，农民还可以利用激光雷达跟踪作物产量。</p>
+<h2 id="军事、基建等领域的安全问题"><a href="#军事、基建等领域的安全问题" class="headerlink" title="军事、基建等领域的安全问题"></a>军事、基建等领域的安全问题</h2><p>许多军队利用激光雷达侦察边界并识别可疑物体，这一做法已有几十年之久。随着人工智能带来更多的可能性，我们可以预见AI将对环境的潜在危险实现自动检测。自主式机器人还可以帮助保护建筑业或其他进行危险工作的人。</p>
+<p>计算机处理能力的提升，以及AI受到的投资，都让AI和激光雷达之间的合作方式变得更加多种多样。随着激光雷达广泛应用于各行各业，创新必然会进入我们生活的各个方面，在我们迈向AI驱动的世界中，塑造我们体验技术的方式。</p>
+<h2 id="澳鹏激光雷达专家Kuo-Chin-Lien的见解"><a href="#澳鹏激光雷达专家Kuo-Chin-Lien的见解" class="headerlink" title="澳鹏激光雷达专家Kuo-Chin Lien的见解"></a>澳鹏激光雷达专家Kuo-Chin Lien的见解</h2><p>在澳鹏，我们的专家团队可以帮助您运用激光雷达技术建立尖端模型。澳鹏数据科学总监Kuo-Chin Lien致力于帮助运用激光雷达技术的客户成功构建模型。他对激光雷达的主要见解包括：</p>
+<h3 id="空间计算应用：从智能汽车到智能手机"><a href="#空间计算应用：从智能汽车到智能手机" class="headerlink" title="空间计算应用：从智能汽车到智能手机"></a>空间计算应用：从智能汽车到智能手机</h3><p>利用激光雷达可以获取扫描物体及其环境的完整3D信息。这就为许多应用创造了机会，尤其当空间信息（如深度、距离、几何形状和尺寸）对您的使用场景非常重要时。例如，在零售业，用例可以是库存管理；或者在建筑业，用例可以是质量保证，将交付的工作与批准的计划进行比较。今年受到广泛关注的另一个很好的用例是，汽车公司已经开始使用激光雷达来检测道路上的物体，从而改进其ADAS（高级驾驶员辅助系统）应用程序；甚至智能手机也可使用激光雷达，iPhone 12 Pro配备了激光雷达来帮助它区分前景和远处的背景，并在人像模式下提供更聚焦的照片。激光雷达可应用于各种不同的行业，上面提到的只是冰山一角，我们还可以发掘更多的应用。</p>
+<h3 id="3D深度学习增强空间计算能力"><a href="#3D深度学习增强空间计算能力" class="headerlink" title="3D深度学习增强空间计算能力"></a>3D深度学习增强空间计算能力</h3><p>各行各业的专家都依赖深度学习（Deep Learning）技术来理解3D扫描数据。没有它，几乎不可能理解所有的数据点，而AI具备超人的能力来理解大量的2D图像内容。在分析语音识别或2D图像信号这样的单独维度数据时，DL算法可以在引入更多维的情况下，保持实时性能和较低的内存占用。专家们正在尝试利用稀疏和不规则的数据来达成高精度，但这并非易事。怎样才能设计出一个能从不完整的扫描结果中即时产生可靠结论的AI，并支持我们期待的新的使用场景？这些都是值得继续探索的有趣主题，它们将进一步提高激光雷达DL模型的可用性。</p>
+<h2 id="澳鹏提供的服务"><a href="#澳鹏提供的服务" class="headerlink" title="澳鹏提供的服务"></a>澳鹏提供的服务</h2><p>我们提供数据标注和采集服务已经有超过25年的经验。我们的人工智能辅助标注平台提供了尖端的激光雷达、PLSS和计算机视觉ML辅助工具。无论您的项目是<a target="_blank" rel="noopener" href="https://www.appendata.com/use-cases/automotive">自动驾驶汽车</a>或者其他，我们的多模态计算机视觉ML辅助工具可以帮助您部署世界一流的AI。我们的平台和服务能够达到高精度和高效率，让您可以利用我们提供的大量高精度数据快速扩展。</p>
+<p>更清晰、更简易？三种文物三维扫描技术的效果比较<br><a target="_blank" rel="noopener" href="http://sanyamuseum.com/a/3/2022/0125/604.html">http://sanyamuseum.com/a/3/2022/0125/604.html</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/LIVE/" class="category-chain-item">LIVE</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>激光雷达和人工智能</div>
+      <div>http://blog.uanet.cn/LIVE/激光雷达和人工智能.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/LIVE/%E6%B6%9B%E6%80%9D%E6%95%B0%E6%8D%AE.html" title="涛思数据">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">涛思数据</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/LIVE/%E9%AC%BC%E8%B0%B7%E5%AD%90-%E9%A9%AD%E4%BA%BA%E6%9C%AF.html" title="鬼谷子-驭人术">
+                        <span class="hidden-mobile">鬼谷子-驭人术</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

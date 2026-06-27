@@ -1,0 +1,873 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="dnsnat">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="以下都是自己瞎理解，并不一定对，但会慢慢完善。 我们可以想象下，linux文件系统，是吧我们想利用的资源，以虚拟一种树状目录结构管理。最初我们主要想把，硬盘上的内容以树状的结构管理起来。但是发现，其实好多硬件都可以放到这个树中。例如：字符设备串口等。这要我们能清楚的管理硬件。简单既是美。这也是linux可能玩不了复杂的，只能简单的想到一切皆文件的理念吧。 我们先不考虑虚拟文件系统，其实虚拟文件系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="文件系统理解">
+<meta property="og:url" content="http://blog.uanet.cn/EMBEDDED/mini2440/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%90%86%E8%A7%A3.html">
+<meta property="og:site_name" content="DNSNAT">
+<meta property="og:description" content="以下都是自己瞎理解，并不一定对，但会慢慢完善。 我们可以想象下，linux文件系统，是吧我们想利用的资源，以虚拟一种树状目录结构管理。最初我们主要想把，硬盘上的内容以树状的结构管理起来。但是发现，其实好多硬件都可以放到这个树中。例如：字符设备串口等。这要我们能清楚的管理硬件。简单既是美。这也是linux可能玩不了复杂的，只能简单的想到一切皆文件的理念吧。 我们先不考虑虚拟文件系统，其实虚拟文件系统">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/mini2440/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%90%86%E8%A7%A3/%E5%86%85%E6%A0%B8%E7%BB%93%E6%9E%84%E5%9B%BE.PNG">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/mini2440/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%90%86%E8%A7%A3/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80.JPG">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/mini2440/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%90%86%E8%A7%A3/i%E8%8A%82%E7%82%B9%E7%BB%93%E6%9E%84.JPG">
+<meta property="og:image" content="http://blog.uanet.cn/EMBEDDED/mini2440/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%90%86%E8%A7%A3/%E8%B6%85%E7%BA%A7%E5%9D%97%E7%BB%93%E6%9E%84.JPG">
+<meta property="article:published_time" content="2025-02-13T05:53:20.655Z">
+<meta property="article:modified_time" content="2025-02-13T05:53:20.655Z">
+<meta property="article:author" content="dnsnat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.uanet.cn/EMBEDDED/mini2440/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%90%86%E8%A7%A3/%E5%86%85%E6%A0%B8%E7%BB%93%E6%9E%84%E5%9B%BE.PNG">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>文件系统理解 - DNSNAT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>阵源阿威</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>官网</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="文件系统理解"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-13 13:53" pubdate>
+          2025年2月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          736 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          7 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">文件系统理解</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>以下都是自己瞎理解，并不一定对，但会慢慢完善。</p>
+<p>我们可以想象下，linux文件系统，是吧我们想利用的资源，以虚拟一种树状目录结构管理。最初我们主要想把，硬盘上的内容以树状的结构管理起来。<br>但是发现，其实好多硬件都可以放到这个树中。例如：字符设备串口等。<br>这要我们能清楚的管理硬件。简单既是美。这也是linux可能玩不了复杂的，只能简单的想到一切皆文件的理念吧。</p>
+<p>我们先不考虑虚拟文件系统，其实虚拟文件系统只是在我们这个真实的文件系统上再虚拟一层。因为可能由于兴趣原因，我们不想在每个硬盘上都放一种真实文件，有的像放fat，有的想放ext3，有的想法minix。呵呵，有点开玩笑。由于一个电脑上有多个文件系统。我们又不想让用户用写个应用还得open_ext3 read_ext3z这个样子。所以我们又封装了以下open-&gt;open_ext3,用户还是只要调用open就可以了，所以有了虚拟文件系统。<br>不过我们现在不想管，我们就一个文件系统minix。因为我怕乱了，额。</p>
+<p><img src="/EMBEDDED/mini2440/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%90%86%E8%A7%A3/%E5%86%85%E6%A0%B8%E7%BB%93%E6%9E%84%E5%9B%BE.PNG" srcset="/img/loading.gif" lazyload></p>
+<p>还是以上经典图：</p>
+<p>下面minix文件系统在硬盘上的结构<br><img src="/EMBEDDED/mini2440/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%90%86%E8%A7%A3/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B8%83%E5%B1%80.JPG" srcset="/img/loading.gif" lazyload></p>
+<p><strong>超级块</strong>用于存放盘设备上文件系统结构信息</p>
+<p><strong>i节点</strong>存放着文件系统中文件或目录名的索引节点，每个文件或目录都有一个i节点。</p>
+<p><strong>逻辑块位图</strong>用于描述盘上每个数据盘款的使用情况。</p>
+<p><strong>i节点位图</strong>用于说明i节点是否被使用。</p>
+<blockquote>
+<p>int bmap(struct m_inode * inode,int block)</p>
+</blockquote>
+<p>bmap实现了以上i节点和超级块的关联。</p>
+<p>namei也是利用bmap解析文件系统中树目录结构</p>
+<p>下面你会发现namei处在什么位置。</p>
+<p>linux下文件系统和块设备包含的一些概念：</p>
+<ol>
+<li>主设备号：blk_dev[NR_BLK_DEV]</li>
+<li>从设备号：</li>
+</ol>
+<p>通过blk_dev[MAJOR_NR].request_fn &#x3D; DEVICE_REQUEST;<br>注册void do_hd_request(void)功能</p>
+<p>看看linux 0.11是怎么通过read调用到硬盘上的。</p>
+<p>调用流程</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs coq">应用<br>| <span class="hljs-type">read</span>-&gt;中断<br>V<br>read_write.c----------------文件系统上层接口-----------------<br>| <span class="hljs-type">sys_read</span><br>V<br>fs/block_dev.c--------------文件系统下层/块设备接口-----------<br>| <span class="hljs-type">block_read</span><br>V<br>fs/buffer.c <br>| <span class="hljs-type">breada</span><br>V<br>blk_drv/ll_rw_blk.c---------块设备/设备驱动上层接口----------<br>| <span class="hljs-type">ll_rw_block</span>-&gt;make_request-&gt;add_request-&gt;request_fn<br>| <span class="hljs-type">-&gt;do_hd_request</span><br>V<br>kernel/blk_drv/hd.c---------设备驱动底层接口----------------<br>| <span class="hljs-type">do_hd_request</span><br>V<br></code></pre></td></tr></table></figure>
+
+<p>每个任务都有一个自己的task_struct *current;<br>current中包含了任务打开的文件fd。<br>struct file * filp[NR_OPEN];</p>
+<p>open.c<br>open<br>|<br>V<br>open_namei<br>次函数是操作文件系统树目录的重要体现接口。</p>
+<p>open_namei返回的是struct m_inode</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">m_inode</span> &#123;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> i_mode;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> i_uid;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> i_size;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> i_mtime;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> i_gid;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> i_nlinks;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> i_zone[<span class="hljs-number">9</span>];<br><span class="hljs-comment">/* these are in memory also */</span><br>	<span class="hljs-keyword">struct</span> <span class="hljs-title class_">task_struct</span> * i_wait;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> i_atime;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> i_ctime;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> i_dev;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> i_num;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> i_count;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> i_lock;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> i_dirt;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> i_pipe;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> i_mount;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> i_seek;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> i_update;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p><img src="/EMBEDDED/mini2440/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%90%86%E8%A7%A3/i%E8%8A%82%E7%82%B9%E7%BB%93%E6%9E%84.JPG" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">super_block</span> &#123;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> s_ninodes;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> s_nzones;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> s_imap_blocks;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> s_zmap_blocks;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> s_firstdatazone;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> s_log_zone_size;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> s_max_size;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> s_magic;<br><span class="hljs-comment">/* These are only in memory */</span><br>	<span class="hljs-keyword">struct</span> <span class="hljs-title class_">buffer_head</span> * s_imap[<span class="hljs-number">8</span>];<br>	<span class="hljs-keyword">struct</span> <span class="hljs-title class_">buffer_head</span> * s_zmap[<span class="hljs-number">8</span>];<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> s_dev;<br>	<span class="hljs-keyword">struct</span> <span class="hljs-title class_">m_inode</span> * s_isup;<br>	<span class="hljs-keyword">struct</span> <span class="hljs-title class_">m_inode</span> * s_imount;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> s_time;<br>	<span class="hljs-keyword">struct</span> <span class="hljs-title class_">task_struct</span> * s_wait;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> s_lock;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> s_rd_only;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> s_dirt;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p><img src="/EMBEDDED/mini2440/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%90%86%E8%A7%A3/%E8%B6%85%E7%BA%A7%E5%9D%97%E7%BB%93%E6%9E%84.JPG" srcset="/img/loading.gif" lazyload></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/EMBEDDED/" class="category-chain-item">EMBEDDED</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/EMBEDDED/mini2440/" class="category-chain-item">mini2440</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>文件系统理解</div>
+      <div>http://blog.uanet.cn/EMBEDDED/mini2440/文件系统理解.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>dnsnat</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年2月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/EMBEDDED/mini2440/qemu%E6%A8%A1%E6%8B%9Fmini2440%E8%B0%83%E8%AF%95%E6%89%8B%E5%86%8C.html" title="qemu模拟mini2440调试手册">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">qemu模拟mini2440调试手册</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/EMBEDDED/mini2440/S3C2440%E4%B9%8B%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA(jtag).html" title="S3C2440之开发环境搭建(jtag)">
+                        <span class="hidden-mobile">S3C2440之开发环境搭建(jtag)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
