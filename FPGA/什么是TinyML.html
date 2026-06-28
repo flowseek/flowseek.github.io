@@ -16,31 +16,31 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f415482">
-  <meta name="author" content="dnsnat">
+  <meta name="author" content="朝彻">
   <meta name="keywords" content="">
   
     <meta name="description" content="TinyML 也是机器学习的一种，他的特点就是缩小深度学习网络可以在微型硬件中使用，主要应用在智能设备上。 超低功耗嵌入式设备正在“入侵”我们的世界，借助新的嵌入式机器学习框架，它们将进一步推动人工智能驱动的物联网设备的普及。 FPGA一直以低功耗、可重构的特点在各个领域内应用，同时也可以大大增加物联网应用环境，所以在FPGA上应用TinyML是否是FPGA方便的最佳应用？我们接下来分析一下Tin">
 <meta property="og:type" content="article">
 <meta property="og:title" content="什么是TinyML">
-<meta property="og:url" content="http://blog.uanet.cn/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML.html">
-<meta property="og:site_name" content="DNSNAT">
+<meta property="og:url" content="http://witbit.cn/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML.html">
+<meta property="og:site_name" content="WITBIT">
 <meta property="og:description" content="TinyML 也是机器学习的一种，他的特点就是缩小深度学习网络可以在微型硬件中使用，主要应用在智能设备上。 超低功耗嵌入式设备正在“入侵”我们的世界，借助新的嵌入式机器学习框架，它们将进一步推动人工智能驱动的物联网设备的普及。 FPGA一直以低功耗、可重构的特点在各个领域内应用，同时也可以大大增加物联网应用环境，所以在FPGA上应用TinyML是否是FPGA方便的最佳应用？我们接下来分析一下Tin">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML/wKgZomTnSueAAEA1AAaQ7FqnCIU890.png">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML/wKgZomTnSueAFg0UAAGuv1D_Ulc299.png">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML/wKgZomTnSueAEuT4AAFZjH_fa8Y630.png">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML/wKgZomTnSueAbqvCAALRvq4Wsy0693.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML/wKgZomTnSueAAEA1AAaQ7FqnCIU890.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML/wKgZomTnSueAFg0UAAGuv1D_Ulc299.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML/wKgZomTnSueAEuT4AAFZjH_fa8Y630.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML/wKgZomTnSueAbqvCAALRvq4Wsy0693.png">
 <meta property="article:published_time" content="2025-02-13T05:53:20.772Z">
 <meta property="article:modified_time" content="2025-02-13T05:53:20.772Z">
-<meta property="article:author" content="dnsnat">
+<meta property="article:author" content="朝彻">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://blog.uanet.cn/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML/wKgZomTnSueAAEA1AAaQ7FqnCIU890.png">
+<meta name="twitter:image" content="http://witbit.cn/FPGA/%E4%BB%80%E4%B9%88%E6%98%AFTinyML/wKgZomTnSueAAEA1AAaQ7FqnCIU890.png">
   
   
   
     <link rel="stylesheet" href="/css/mycss.css">
   
-  <title>什么是TinyML - DNSNAT</title>
+  <title>什么是TinyML - WITBIT</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -82,7 +82,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -108,7 +108,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
 </head>
 
 
@@ -122,7 +122,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>阵源阿威</strong>
+      <strong>WitBit</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -179,18 +179,6 @@
               <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
                 <span>课程</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
-                <i class="iconfont icon-link-fill"></i>
-                <span>官网</span>
               </a>
             </li>
           
@@ -395,13 +383,13 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>什么是TinyML</div>
-      <div>http://blog.uanet.cn/FPGA/什么是TinyML.html</div>
+      <div>http://witbit.cn/FPGA/什么是TinyML.html</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>dnsnat</div>
+          <div>朝彻</div>
         </div>
       
       

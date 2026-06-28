@@ -16,29 +16,29 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f415482">
-  <meta name="author" content="dnsnat">
+  <meta name="author" content="朝彻">
   <meta name="keywords" content="">
   
     <meta name="description" content="一、硬件组成框架  上图 内部MAC + 外部PHY + RJ45 的组合就组成了一个完整的嵌入式网络接口硬件。MAC跟PHY的通讯通过MDIO总线 和 MII&#x2F;RMII&#x2F;GMII&#x2F;RGMII等接口完成，其中驱动程序可以通过 MDIO 总线访问 PHY 芯片的任意一个寄存器，来完成对PHY的配置，而网络数据传输则通过 MII&#x2F;RMII&#x2F;GMII&amp;#">
 <meta property="og:type" content="article">
 <meta property="og:title" content="linux协议栈stmmac驱动">
-<meta property="og:url" content="http://blog.uanet.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88stmmac%E9%A9%B1%E5%8A%A8.html">
-<meta property="og:site_name" content="DNSNAT">
+<meta property="og:url" content="http://witbit.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88stmmac%E9%A9%B1%E5%8A%A8.html">
+<meta property="og:site_name" content="WITBIT">
 <meta property="og:description" content="一、硬件组成框架  上图 内部MAC + 外部PHY + RJ45 的组合就组成了一个完整的嵌入式网络接口硬件。MAC跟PHY的通讯通过MDIO总线 和 MII&#x2F;RMII&#x2F;GMII&#x2F;RGMII等接口完成，其中驱动程序可以通过 MDIO 总线访问 PHY 芯片的任意一个寄存器，来完成对PHY的配置，而网络数据传输则通过 MII&#x2F;RMII&#x2F;GMII&amp;#">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.uanet.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88stmmac%E9%A9%B1%E5%8A%A8/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQzMjg2MzEx,size_16,color_FFFFFF,t_70.png">
-<meta property="og:image" content="http://blog.uanet.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88stmmac%E9%A9%B1%E5%8A%A8/20170221140812503.png">
+<meta property="og:image" content="http://witbit.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88stmmac%E9%A9%B1%E5%8A%A8/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQzMjg2MzEx,size_16,color_FFFFFF,t_70.png">
+<meta property="og:image" content="http://witbit.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88stmmac%E9%A9%B1%E5%8A%A8/20170221140812503.png">
 <meta property="article:published_time" content="2025-02-13T05:53:20.819Z">
 <meta property="article:modified_time" content="2025-02-13T05:53:20.819Z">
-<meta property="article:author" content="dnsnat">
+<meta property="article:author" content="朝彻">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://blog.uanet.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88stmmac%E9%A9%B1%E5%8A%A8/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQzMjg2MzEx,size_16,color_FFFFFF,t_70.png">
+<meta name="twitter:image" content="http://witbit.cn/NETWORK/linux%E5%8D%8F%E8%AE%AE%E6%A0%88stmmac%E9%A9%B1%E5%8A%A8/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQzMjg2MzEx,size_16,color_FFFFFF,t_70.png">
   
   
   
     <link rel="stylesheet" href="/css/mycss.css">
   
-  <title>linux协议栈stmmac驱动 - DNSNAT</title>
+  <title>linux协议栈stmmac驱动 - WITBIT</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -80,7 +80,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -106,7 +106,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
 </head>
 
 
@@ -120,7 +120,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>阵源阿威</strong>
+      <strong>WitBit</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -177,18 +177,6 @@
               <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
                 <span>课程</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
-                <i class="iconfont icon-link-fill"></i>
-                <span>官网</span>
               </a>
             </li>
           
@@ -374,13 +362,13 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>linux协议栈stmmac驱动</div>
-      <div>http://blog.uanet.cn/NETWORK/linux协议栈stmmac驱动.html</div>
+      <div>http://witbit.cn/NETWORK/linux协议栈stmmac驱动.html</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>dnsnat</div>
+          <div>朝彻</div>
         </div>
       
       

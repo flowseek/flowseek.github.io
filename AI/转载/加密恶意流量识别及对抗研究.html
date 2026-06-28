@@ -16,30 +16,30 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f415482">
-  <meta name="author" content="dnsnat">
+  <meta name="author" content="朝彻">
   <meta name="keywords" content="">
   
     <meta name="description" content="引  言    随着公众网络安全意识的增强，加密技术被广泛应用。在加密技术保护数据安全和用户隐私的同时，也掩盖了数据的特征，有助于攻击者滥用其逃避识别，给网络安全防护及监管带来新的挑战。准备识别加密的恶意流量对于保护网络资源、维护网络空间安全具有重要意义。     本文对加密恶意流量识别方法进行介绍，主要包括基于规则、基于传统机器学习和基于深度学习的方法。其中，基于深度学习的方法可以自动从原始流量">
 <meta property="og:type" content="article">
 <meta property="og:title" content="加密恶意流量识别及对抗研究">
-<meta property="og:url" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6.html">
-<meta property="og:site_name" content="DNSNAT">
+<meta property="og:url" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6.html">
+<meta property="og:site_name" content="WITBIT">
 <meta property="og:description" content="引  言    随着公众网络安全意识的增强，加密技术被广泛应用。在加密技术保护数据安全和用户隐私的同时，也掩盖了数据的特征，有助于攻击者滥用其逃避识别，给网络安全防护及监管带来新的挑战。准备识别加密的恶意流量对于保护网络资源、维护网络空间安全具有重要意义。     本文对加密恶意流量识别方法进行介绍，主要包括基于规则、基于传统机器学习和基于深度学习的方法。其中，基于深度学习的方法可以自动从原始流量">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640.webp">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640-1740385322326-3.webp">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640-1740385338869-6.webp">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640.webp">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640-1740385322326-3.webp">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640-1740385338869-6.webp">
 <meta property="article:published_time" content="2025-02-28T03:39:22.956Z">
 <meta property="article:modified_time" content="2025-02-28T03:39:22.956Z">
-<meta property="article:author" content="dnsnat">
+<meta property="article:author" content="朝彻">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640.webp">
+<meta name="twitter:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%8A%A0%E5%AF%86%E6%81%B6%E6%84%8F%E6%B5%81%E9%87%8F%E8%AF%86%E5%88%AB%E5%8F%8A%E5%AF%B9%E6%8A%97%E7%A0%94%E7%A9%B6/640.webp">
   
   
   
     <link rel="stylesheet" href="/css/mycss.css">
   
-  <title>加密恶意流量识别及对抗研究 - DNSNAT</title>
+  <title>加密恶意流量识别及对抗研究 - WITBIT</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -81,7 +81,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -107,7 +107,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
 </head>
 
 
@@ -121,7 +121,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>阵源阿威</strong>
+      <strong>WitBit</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -178,18 +178,6 @@
               <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
                 <span>课程</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
-                <i class="iconfont icon-link-fill"></i>
-                <span>官网</span>
               </a>
             </li>
           
@@ -507,13 +495,13 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>加密恶意流量识别及对抗研究</div>
-      <div>http://blog.uanet.cn/AI/转载/加密恶意流量识别及对抗研究.html</div>
+      <div>http://witbit.cn/AI/转载/加密恶意流量识别及对抗研究.html</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>dnsnat</div>
+          <div>朝彻</div>
         </div>
       
       

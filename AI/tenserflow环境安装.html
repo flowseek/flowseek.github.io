@@ -16,48 +16,48 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f415482">
-  <meta name="author" content="dnsnat">
+  <meta name="author" content="朝彻">
   <meta name="keywords" content="">
   
     <meta name="description" content="第一步，打开NVIDIA 控制面板 右下角系统信息，打开，点击“组件”查看最高支持的CUDA版本">
 <meta property="og:type" content="article">
 <meta property="og:title" content="tenserflow环境安装">
-<meta property="og:url" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85.html">
-<meta property="og:site_name" content="DNSNAT">
+<meta property="og:url" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85.html">
+<meta property="og:site_name" content="WITBIT">
 <meta property="og:description" content="第一步，打开NVIDIA 控制面板 右下角系统信息，打开，点击“组件”查看最高支持的CUDA版本">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/e688f56a9ea4002c77b841cfb2766565.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/be9512f074e90e25bc157f2cdbef6b45.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/4026aab8c004494a8699cc7dafe61ffe.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/d69528479b23b2fbfd6250a487b39842.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/0571d5f10b9605e4f6812ee5cff0637a.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/66cb9ea1e82a7b2d737a98fc73985b2c.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/5aeeebb742a49e93a8e32670fd352937.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/c07e6905f511c8fb72cf173dada4eea8.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/25e2a2a28d1f217eff68adf0725db931.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/ac869309e8edab9f664d6fbfbc566b0a.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/2c1a693ef0a7d7c438df33d564d9d5b3.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/952ba14217c75589d75a8475e6b8fd10.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/7f47577ed4f080c45b808a31f65f26ea.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/75b24e72499e611bd332740e148b168f.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/541762f0a5bdbc1c688f874f796aea9e.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/8be7b166a0bcb1cb92d95b77941364ee.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/cfb43125eeb27d3c4a16b69bacd53117.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/b9415d6a682846e42d25bb1a00cff437.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/a952bfae1beaacac34ebc98a6d5ce965.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/0e2e19215b705746ad55f302d0f3a6bf.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/9ba04d2b37e787fda27e15a051956c9f.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/e688f56a9ea4002c77b841cfb2766565.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/be9512f074e90e25bc157f2cdbef6b45.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/4026aab8c004494a8699cc7dafe61ffe.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/d69528479b23b2fbfd6250a487b39842.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/0571d5f10b9605e4f6812ee5cff0637a.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/66cb9ea1e82a7b2d737a98fc73985b2c.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/5aeeebb742a49e93a8e32670fd352937.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/c07e6905f511c8fb72cf173dada4eea8.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/25e2a2a28d1f217eff68adf0725db931.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/ac869309e8edab9f664d6fbfbc566b0a.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/2c1a693ef0a7d7c438df33d564d9d5b3.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/952ba14217c75589d75a8475e6b8fd10.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/7f47577ed4f080c45b808a31f65f26ea.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/75b24e72499e611bd332740e148b168f.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/541762f0a5bdbc1c688f874f796aea9e.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/8be7b166a0bcb1cb92d95b77941364ee.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/cfb43125eeb27d3c4a16b69bacd53117.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/b9415d6a682846e42d25bb1a00cff437.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/a952bfae1beaacac34ebc98a6d5ce965.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/0e2e19215b705746ad55f302d0f3a6bf.png">
+<meta property="og:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/9ba04d2b37e787fda27e15a051956c9f.png">
 <meta property="article:published_time" content="2025-02-13T05:53:20.475Z">
 <meta property="article:modified_time" content="2025-02-13T05:53:20.475Z">
-<meta property="article:author" content="dnsnat">
+<meta property="article:author" content="朝彻">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://blog.uanet.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/e688f56a9ea4002c77b841cfb2766565.png">
+<meta name="twitter:image" content="http://witbit.cn/AI/tenserflow%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/e688f56a9ea4002c77b841cfb2766565.png">
   
   
   
     <link rel="stylesheet" href="/css/mycss.css">
   
-  <title>tenserflow环境安装 - DNSNAT</title>
+  <title>tenserflow环境安装 - WITBIT</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -99,7 +99,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -125,7 +125,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
 </head>
 
 
@@ -139,7 +139,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>阵源阿威</strong>
+      <strong>WitBit</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -196,18 +196,6 @@
               <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
                 <span>课程</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
-                <i class="iconfont icon-link-fill"></i>
-                <span>官网</span>
               </a>
             </li>
           
@@ -442,13 +430,13 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>tenserflow环境安装</div>
-      <div>http://blog.uanet.cn/AI/tenserflow环境安装.html</div>
+      <div>http://witbit.cn/AI/tenserflow环境安装.html</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>dnsnat</div>
+          <div>朝彻</div>
         </div>
       
       

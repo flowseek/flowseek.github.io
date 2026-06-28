@@ -16,35 +16,35 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f415482">
-  <meta name="author" content="dnsnat">
+  <meta name="author" content="朝彻">
   <meta name="keywords" content="">
   
     <meta name="description" content="树莓派安装Aria2实现随时随地下载小电影 Aria2 是一个多平台轻量级，支持 HTTP、FTP、BitTorrent 等多协议、多来源的命令行下载工具。Aria2 可以从多个来源、多个协议下载资源，最大的程度上利用了你的带宽。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="树莓派安装Aria2实现随时随地下载小电影">
-<meta property="og:url" content="http://blog.uanet.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1.html">
-<meta property="og:site_name" content="DNSNAT">
+<meta property="og:url" content="http://witbit.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1.html">
+<meta property="og:site_name" content="WITBIT">
 <meta property="og:description" content="树莓派安装Aria2实现随时随地下载小电影 Aria2 是一个多平台轻量级，支持 HTTP、FTP、BitTorrent 等多协议、多来源的命令行下载工具。Aria2 可以从多个来源、多个协议下载资源，最大的程度上利用了你的带宽。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.uanet.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/9d82d158ccbf6c81b8b6a27990de3a3231fa4081.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/1b4c510fd9f9d72a7f7e5fe9ffcaa333359bbb17.png">
-<meta property="og:image" content="http://blog.uanet.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/aa64034f78f0f736e81380aa26b5381ee9c41397.png">
-<meta property="og:image" content="http://blog.uanet.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/b7fd5266d01609246d3bf705f9e7befde7cd34fd.png">
-<meta property="og:image" content="http://blog.uanet.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/a686c9177f3e670971613e2c1727143afadc55e3.png">
-<meta property="og:image" content="http://blog.uanet.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/8644ebf81a4c510f18610d0347b9ae2ad52aa56e.png">
-<meta property="og:image" content="http://blog.uanet.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/50da81cb39dbb6fd25477c0724c4201f962b37de.png">
-<meta property="og:image" content="http://blog.uanet.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/43a7d933c895d143605db6f25f1009055baf071b.png">
+<meta property="og:image" content="http://witbit.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/9d82d158ccbf6c81b8b6a27990de3a3231fa4081.jpeg">
+<meta property="og:image" content="http://witbit.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/1b4c510fd9f9d72a7f7e5fe9ffcaa333359bbb17.png">
+<meta property="og:image" content="http://witbit.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/aa64034f78f0f736e81380aa26b5381ee9c41397.png">
+<meta property="og:image" content="http://witbit.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/b7fd5266d01609246d3bf705f9e7befde7cd34fd.png">
+<meta property="og:image" content="http://witbit.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/a686c9177f3e670971613e2c1727143afadc55e3.png">
+<meta property="og:image" content="http://witbit.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/8644ebf81a4c510f18610d0347b9ae2ad52aa56e.png">
+<meta property="og:image" content="http://witbit.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/50da81cb39dbb6fd25477c0724c4201f962b37de.png">
+<meta property="og:image" content="http://witbit.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/43a7d933c895d143605db6f25f1009055baf071b.png">
 <meta property="article:published_time" content="2025-02-13T05:53:20.922Z">
 <meta property="article:modified_time" content="2025-02-13T05:53:20.922Z">
-<meta property="article:author" content="dnsnat">
+<meta property="article:author" content="朝彻">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://blog.uanet.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/9d82d158ccbf6c81b8b6a27990de3a3231fa4081.jpeg">
+<meta name="twitter:image" content="http://witbit.cn/SYSTEM/%E6%A0%91%E8%8E%93%E6%B4%BE%E5%AE%89%E8%A3%85Aria2%E5%AE%9E%E7%8E%B0%E9%9A%8F%E6%97%B6%E9%9A%8F%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%B0%8F%E7%94%B5%E5%BD%B1/9d82d158ccbf6c81b8b6a27990de3a3231fa4081.jpeg">
   
   
   
     <link rel="stylesheet" href="/css/mycss.css">
   
-  <title>树莓派安装Aria2实现随时随地下载小电影 - DNSNAT</title>
+  <title>树莓派安装Aria2实现随时随地下载小电影 - WITBIT</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -86,7 +86,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -112,7 +112,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
 </head>
 
 
@@ -126,7 +126,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>阵源阿威</strong>
+      <strong>WitBit</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -183,18 +183,6 @@
               <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
                 <span>课程</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
-                <i class="iconfont icon-link-fill"></i>
-                <span>官网</span>
               </a>
             </li>
           
@@ -409,13 +397,13 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>树莓派安装Aria2实现随时随地下载小电影</div>
-      <div>http://blog.uanet.cn/SYSTEM/树莓派安装Aria2实现随时随地下载小电影.html</div>
+      <div>http://witbit.cn/SYSTEM/树莓派安装Aria2实现随时随地下载小电影.html</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>dnsnat</div>
+          <div>朝彻</div>
         </div>
       
       

@@ -16,35 +16,35 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f415482">
-  <meta name="author" content="dnsnat">
+  <meta name="author" content="朝彻">
   <meta name="keywords" content="">
   
     <meta name="description" content="Quartus FPGA开发工具也提供了上板调试信号的查看工具。在FPGA工程开发和仿真完成、上板调试时，可以查看芯片内部信号的真实情况，也可以向FPGA发送信号和数据。Quartus Prime Pro版本提供了ISSP和Signaltap两种上板调试工具，具体如下。 一、ISSP ISSP（In-System Sources and Probes Intel FPGA IP）是一款提供了调试输">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Quartus上板调试信号的工具">
-<meta property="og:url" content="http://blog.uanet.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7.html">
-<meta property="og:site_name" content="DNSNAT">
+<meta property="og:url" content="http://witbit.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7.html">
+<meta property="og:site_name" content="WITBIT">
 <meta property="og:description" content="Quartus FPGA开发工具也提供了上板调试信号的查看工具。在FPGA工程开发和仿真完成、上板调试时，可以查看芯片内部信号的真实情况，也可以向FPGA发送信号和数据。Quartus Prime Pro版本提供了ISSP和Signaltap两种上板调试工具，具体如下。 一、ISSP ISSP（In-System Sources and Probes Intel FPGA IP）是一款提供了调试输">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/0365192265c0432bb7411dd091ca5320.png">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/82632b8dafbc41888f574e4d9379ba84.png">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/4b12f2899eaf423f80d2696c77f37a8d.png">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/f8f1f8b377814361a246d9194854cae3.png">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/29cf0d940639460ea25199f729820bdf.png">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/62fa7f71b6a24979aae351124c3451ac.png">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/4a267ce5f89a4ccb94f83323c6172861.png">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/bc388c49f1454e449346ae5b6e1bd2af.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/0365192265c0432bb7411dd091ca5320.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/82632b8dafbc41888f574e4d9379ba84.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/4b12f2899eaf423f80d2696c77f37a8d.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/f8f1f8b377814361a246d9194854cae3.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/29cf0d940639460ea25199f729820bdf.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/62fa7f71b6a24979aae351124c3451ac.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/4a267ce5f89a4ccb94f83323c6172861.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/bc388c49f1454e449346ae5b6e1bd2af.png">
 <meta property="article:published_time" content="2025-02-13T05:53:20.748Z">
 <meta property="article:modified_time" content="2025-02-13T05:53:20.748Z">
-<meta property="article:author" content="dnsnat">
+<meta property="article:author" content="朝彻">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://blog.uanet.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/0365192265c0432bb7411dd091ca5320.png">
+<meta name="twitter:image" content="http://witbit.cn/FPGA/Quartus%E4%B8%8A%E6%9D%BF%E8%B0%83%E8%AF%95%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%B7%A5%E5%85%B7/0365192265c0432bb7411dd091ca5320.png">
   
   
   
     <link rel="stylesheet" href="/css/mycss.css">
   
-  <title>Quartus上板调试信号的工具 - DNSNAT</title>
+  <title>Quartus上板调试信号的工具 - WITBIT</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -86,7 +86,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -112,7 +112,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
 </head>
 
 
@@ -126,7 +126,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>阵源阿威</strong>
+      <strong>WitBit</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -183,18 +183,6 @@
               <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
                 <span>课程</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
-                <i class="iconfont icon-link-fill"></i>
-                <span>官网</span>
               </a>
             </li>
           
@@ -396,13 +384,13 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>Quartus上板调试信号的工具</div>
-      <div>http://blog.uanet.cn/FPGA/Quartus上板调试信号的工具.html</div>
+      <div>http://witbit.cn/FPGA/Quartus上板调试信号的工具.html</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>dnsnat</div>
+          <div>朝彻</div>
         </div>
       
       

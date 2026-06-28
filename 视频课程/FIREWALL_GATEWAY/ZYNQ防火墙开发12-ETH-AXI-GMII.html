@@ -16,92 +16,92 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f415482">
-  <meta name="author" content="dnsnat">
+  <meta name="author" content="朝彻">
   <meta name="keywords" content="">
   
     <meta name="description" content="PS和PL通信机制 ​">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ZYNQ防火墙开发12-ETH-AXI-GMII">
-<meta property="og:url" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII.html">
-<meta property="og:site_name" content="DNSNAT">
+<meta property="og:url" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII.html">
+<meta property="og:site_name" content="WITBIT">
 <meta property="og:description" content="PS和PL通信机制 ​">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240423_155134.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_140715.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEEView-image-9-1.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEEView-image-12.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEView-image-10-1.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEEView-image-13.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Create-Project-1712319151540-75.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240405_205003.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-1712319158092-81.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-1-1712319160257-84.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240405_205714.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-1-1712319169918-89.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_104431.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-5-1712319178543-98.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_110118.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_221325.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_204917.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_104727.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_112718.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_205216.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_205945.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_212201.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_152720.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_230118.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113300.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113444.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113623.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113728.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_134534.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114027.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114224.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114308.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114623.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_135329.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_144949.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_135606.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/gmii_to_rgmii_and_axi_ethernet_subsystem_45.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_135606-1714024917038-62.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_140513.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_142406.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_142729.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_145047.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/gmii_to_rgmii_and_axi_ethernet_subsystem_51.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_152818.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_153103.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/gmii_to_rgmii_and_axi_ethernet_subsystem_56.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_153601.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240507_141623.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-140.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-142.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-21.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-143.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-149.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-12-1024x619.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-156.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-13-1024x735.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-18-1024x377.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-19.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-20.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-21-1726740003346-1.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-22.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-24-1024x517.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-23.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-4.png">
-<meta property="og:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-25.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240423_155134.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_140715.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEEView-image-9-1.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEEView-image-12.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEView-image-10-1.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/TheEEView-image-13.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Create-Project-1712319151540-75.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240405_205003.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-1712319158092-81.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-1-1712319160257-84.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240405_205714.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-1-1712319169918-89.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_104431.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-5-1712319178543-98.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_110118.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_221325.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_204917.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_104727.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_112718.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_205216.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_205945.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_212201.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_152720.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240424_230118.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113300.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113444.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113623.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_113728.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_134534.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114027.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114224.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114308.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_114623.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_135329.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_144949.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_135606.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/gmii_to_rgmii_and_axi_ethernet_subsystem_45.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_135606-1714024917038-62.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_140513.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_142406.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_142729.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_145047.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/gmii_to_rgmii_and_axi_ethernet_subsystem_51.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_152818.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_153103.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/gmii_to_rgmii_and_axi_ethernet_subsystem_56.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240425_153601.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240507_141623.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-140.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-142.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-21.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-143.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-149.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-12-1024x619.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-156.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-13-1024x735.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-18-1024x377.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-19.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-20.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-21-1726740003346-1.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-22.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-24-1024x517.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-23.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-4.png">
+<meta property="og:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/image-25.png">
 <meta property="article:published_time" content="2025-02-13T05:53:21.012Z">
 <meta property="article:modified_time" content="2025-02-13T05:53:21.012Z">
-<meta property="article:author" content="dnsnat">
+<meta property="article:author" content="朝彻">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://blog.uanet.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240423_155134.png">
+<meta name="twitter:image" content="http://witbit.cn/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL_GATEWAY/ZYNQ%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%8F%9112-ETH-AXI-GMII/Screenshot_20240423_155134.png">
   
   
   
     <link rel="stylesheet" href="/css/mycss.css">
   
-  <title>ZYNQ防火墙开发12-ETH-AXI-GMII - DNSNAT</title>
+  <title>ZYNQ防火墙开发12-ETH-AXI-GMII - WITBIT</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -143,7 +143,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -169,7 +169,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
 </head>
 
 
@@ -183,7 +183,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>阵源阿威</strong>
+      <strong>WitBit</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -240,18 +240,6 @@
               <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
                 <span>课程</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
-                <i class="iconfont icon-link-fill"></i>
-                <span>官网</span>
               </a>
             </li>
           
@@ -592,13 +580,13 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>ZYNQ防火墙开发12-ETH-AXI-GMII</div>
-      <div>http://blog.uanet.cn/视频课程/FIREWALL_GATEWAY/ZYNQ防火墙开发12-ETH-AXI-GMII.html</div>
+      <div>http://witbit.cn/视频课程/FIREWALL_GATEWAY/ZYNQ防火墙开发12-ETH-AXI-GMII.html</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>dnsnat</div>
+          <div>朝彻</div>
         </div>
       
       

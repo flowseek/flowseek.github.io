@@ -1,0 +1,1083 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="朝彻">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Xilinx Kintex-7 (K7) 系列FPGA的时钟架构设计得非常灵活和强大，目的是满足各种高速逻辑设计对时钟的需求。下面我将为你梳理K7芯片时钟资源的核心要点，并提供一些实际使用的建议。 为了让你对K7的时钟资源有个整体印象，来看下面这张图，它概括了时钟信号从进入FPGA到驱动逻辑的主要路径： flowchart TD     subgraph 外部时钟源         A[差分时钟]">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xilinx_k7时钟">
+<meta property="og:url" content="http://witbit.cn/FPGA/xilinx_k7%E6%97%B6%E9%92%9F.html">
+<meta property="og:site_name" content="WITBIT">
+<meta property="og:description" content="Xilinx Kintex-7 (K7) 系列FPGA的时钟架构设计得非常灵活和强大，目的是满足各种高速逻辑设计对时钟的需求。下面我将为你梳理K7芯片时钟资源的核心要点，并提供一些实际使用的建议。 为了让你对K7的时钟资源有个整体印象，来看下面这张图，它概括了时钟信号从进入FPGA到驱动逻辑的主要路径： flowchart TD     subgraph 外部时钟源         A[差分时钟]">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-16T01:52:11.304Z">
+<meta property="article:modified_time" content="2025-11-16T01:52:11.304Z">
+<meta property="article:author" content="朝彻">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>xilinx_k7时钟 - WITBIT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WitBit</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="xilinx_k7时钟"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-16 09:52" pubdate>
+          2025年11月16日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          23 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">xilinx_k7时钟</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>Xilinx Kintex-7 (K7) 系列FPGA的时钟架构设计得<strong>非常灵活和强大</strong>，目的是满足各种高速逻辑设计对时钟的需求。下面我将为你梳理K7芯片时钟资源的核心要点，并提供一些实际使用的建议。</p>
+<p>为了让你对K7的时钟资源有个整体印象，来看下面这张图，它概括了时钟信号从进入FPGA到驱动逻辑的主要路径：</p>
+<pre><code class=" mermaid">flowchart TD
+    subgraph 外部时钟源
+        A[差分时钟] --&gt; B[单端时钟]
+    end
+
+    subgraph FPGA时钟输入
+        C[MRCC/SRCC专用&lt;br&gt;时钟输入引脚]
+    end
+
+    subgraph 时钟管理与生成
+        C --&gt; D[CMT&lt;br&gt;MMCM &amp; PLL]
+    end
+
+    subgraph 时钟分布网络
+        D --&gt; E[BUFG&lt;br&gt;全局时钟网络]
+        E --&gt; F[逻辑资源&lt;br&gt;CLB, BRAM, DSP等]
+        
+        D --&gt; G[BUFR&lt;br&gt;区域时钟网络]
+        G --&gt; H[单个时钟区域逻辑]
+        
+        C --&gt; I[BUFIO]
+        I --&gt; J[IO逻辑&lt;br&gt;例如DDR接口]
+    end
+</code></pre>
+
+<h3 id="🔌-时钟来源与输入"><a href="#🔌-时钟来源与输入" class="headerlink" title="🔌 时钟来源与输入"></a>🔌 时钟来源与输入</h3><p>时钟信号主要通过专用的<strong>时钟输入引脚</strong>进入FPGA。</p>
+<ul>
+<li>这些引脚通常以差分对（P和N）的形式存在，你也完全可以只使用其中一端作为单端时钟输入。</li>
+<li>关键引脚类型：<ul>
+<li><strong>MRCC</strong>：支持<strong>多区域</strong>时钟，可以驱动本区域及其<strong>上下相邻区域</strong>的时钟资源。在需要跨越少数几个时钟区域时非常有用。</li>
+<li><strong>SRCC</strong>：<strong>区域</strong>时钟，主要用于驱动<strong>本时钟区域</strong>内的资源。</li>
+</ul>
+</li>
+<li>约束差分时钟时，通常只需约束P端，Vivado能自动识别N端。</li>
+</ul>
+<h3 id="⚙️-时钟管理核心-CMT"><a href="#⚙️-时钟管理核心-CMT" class="headerlink" title="⚙️ 时钟管理核心 (CMT)"></a>⚙️ 时钟管理核心 (CMT)</h3><p>每个时钟区域通常对应一个<strong>CMT</strong>，这是FPGA时钟管理的核心。一个CMT包含一个<strong>MMCM</strong>和一个<strong>PLL</strong>。</p>
+<ul>
+<li><strong>MMCM</strong> 功能全面，支持<strong>分数分频</strong>、动态相位调整和反相时钟输出。</li>
+<li><strong>PLL</strong> 是MMCM的功能子集，主要用于<strong>整数分频和去偏斜</strong>。</li>
+</ul>
+<p><strong>MMCM和PLL主要实现三大功能</strong>：频率综合（产生所需时钟）、去抖动、去偏斜。在实际项目中，通常使用<strong>Clocking Wizard IP核</strong>来配置MMCM&#x2F;PLL，这能简化操作并避免参数错误。</p>
+<h3 id="🚦-时钟布线资源"><a href="#🚦-时钟布线资源" class="headerlink" title="🚦 时钟布线资源"></a>🚦 时钟布线资源</h3><p>FPGA内部有不同的时钟缓冲器将时钟信号分配到特定区域：</p>
+<table>
+<thead>
+<tr>
+<th align="left">缓冲器类型</th>
+<th align="left">功能与特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>全局时钟缓冲器 (BUFG)</strong></td>
+<td align="left">驱动<strong>全局时钟网络</strong>，信号可到达FPGA内<strong>几乎所有触发器</strong>。<strong>BUFG数量有限</strong>，需精打细算。</td>
+</tr>
+<tr>
+<td align="left"><strong>水平时钟缓冲器 (BUFH)</strong></td>
+<td align="left">驱动<strong>左右相邻时钟区域</strong>，灵活性介于BUFG和BUFR之间。</td>
+</tr>
+<tr>
+<td align="left"><strong>区域时钟缓冲器 (BUFR)</strong></td>
+<td align="left">驱动<strong>单个时钟区域</strong>，并可对时钟进行<strong>自定义分频</strong>。</td>
+</tr>
+<tr>
+<td align="left"><strong>I&#x2F;O时钟缓冲器 (BUFIO)</strong></td>
+<td align="left">专为I&#x2F;O接口设计，驱动<strong>I&#x2F;O时钟网络</strong>，与IO寄存器直接配合实现高速接口。</td>
+</tr>
+<tr>
+<td align="left"><strong>多时钟区域缓冲器 (BUFMR)</strong></td>
+<td align="left">驱动<strong>本区域及上下相邻区域</strong>的BUFR和BUFIO。</td>
+</tr>
+</tbody></table>
+<h3 id="🔨-实际应用与约束"><a href="#🔨-实际应用与约束" class="headerlink" title="🔨 实际应用与约束"></a>🔨 实际应用与约束</h3><p>了解上述资源后，关键在于正确使用：</p>
+<ul>
+<li><strong>时序约束是必须的</strong>：Vivado需要正确的时序约束来优化布局布线和验证时序。<ul>
+<li><strong>主时钟约束</strong>是最基本的约束，使用 <code>create_clock</code> 定义从FPGA引脚或GT收发器输出的时钟。</li>
+<li>对于由MMCM&#x2F;PLL生成的时钟，若已约束输入时钟并正确使用IP核，Vivado通常可<strong>自动推导</strong>生成时钟的约束。</li>
+</ul>
+</li>
+<li><strong>注意跨时钟域</strong>：当信号在两个不同时钟域间传输时，必须进行<strong>跨时钟域处理</strong>。通常使用异步FIFO或同步电路。值得注意的是，在使用Xilinx提供的XPM异步FIFO时，工具通常会<strong>自动添加必要的时序例外约束</strong>，此时**不建议手动设置<code>set_false_path</code>或<code>set_clock_groups</code>**，以免覆盖默认的有效约束。</li>
+<li><strong>注意BUFG资源限制</strong>：K7器件全局时钟缓冲器数量有限，设计时需注意规划。</li>
+</ul>
+<h3 id="💎-总结与关键提醒"><a href="#💎-总结与关键提醒" class="headerlink" title="💎 总结与关键提醒"></a>💎 总结与关键提醒</h3><ol>
+<li><strong>明确需求</strong>：根据设计所需的时钟频率、相位关系、时钟域数量选择合适的时钟资源。</li>
+<li><strong>善用Clocking Wizard</strong>：高效可靠地生成所需时钟。</li>
+<li><strong>正确的时序约束</strong>：保证设计稳定可靠，<strong>主时钟约束是基础</strong>。</li>
+<li><strong>谨慎处理跨时钟域</strong>：使用可靠方法，并了解相关时序约束特性。</li>
+<li><strong>关注时钟资源使用</strong>：特别是BUFG。</li>
+</ol>
+<p>希望以上讲解能帮助你理解Xilinx K7芯片的时钟架构。如果你能具体说明当前正在进行的项目或者遇到的时钟相关问题，或许我能提供更针对性的建议。</p>
+<p>好的，这是一个非常重要且深入的FPGA时钟架构问题。我来详细讲解BUFG、BUFR和BUFH的区别，以及它们与不同时钟输入引脚的配合关系。</p>
+<h2 id="🏗️-BUFG、BUFR、BUFH-核心区别"><a href="#🏗️-BUFG、BUFR、BUFH-核心区别" class="headerlink" title="🏗️ BUFG、BUFR、BUFH 核心区别"></a>🏗️ BUFG、BUFR、BUFH 核心区别</h2><h3 id="📊-总体对比表"><a href="#📊-总体对比表" class="headerlink" title="📊 总体对比表"></a>📊 总体对比表</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th><strong>BUFG</strong> (全局时钟缓冲器)</th>
+<th><strong>BUFR</strong> (区域时钟缓冲器)</th>
+<th><strong>BUFH</strong> (水平时钟缓冲器)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>覆盖范围</strong></td>
+<td><strong>整个FPGA</strong></td>
+<td><strong>单个时钟区域</strong></td>
+<td><strong>水平相邻时钟区域</strong></td>
+</tr>
+<tr>
+<td><strong>分频能力</strong></td>
+<td>无</td>
+<td><strong>有</strong> (整数分频)</td>
+<td>无</td>
+</tr>
+<tr>
+<td><strong>资源数量</strong></td>
+<td>有限 (通常16-32个)</td>
+<td>每个区域4个</td>
+<td>每个区域12个</td>
+</tr>
+<tr>
+<td><strong>主要用途</strong></td>
+<td>全局时钟、复位、高扇出控制信号</td>
+<td>区域时钟、跨时钟域桥接</td>
+<td>区域间时钟、水平扩展</td>
+</tr>
+<tr>
+<td><strong>延迟</strong></td>
+<td>固定且最小</td>
+<td>比BUFG大</td>
+<td>介于BUFG和BUFR之间</td>
+</tr>
+<tr>
+<td><strong>偏斜控制</strong></td>
+<td>最佳</td>
+<td>区域内良好</td>
+<td>区域内良好</td>
+</tr>
+</tbody></table>
+<h3 id="🔍-详细功能说明"><a href="#🔍-详细功能说明" class="headerlink" title="🔍 详细功能说明"></a>🔍 详细功能说明</h3><h4 id="1-BUFG-全局时钟缓冲器"><a href="#1-BUFG-全局时钟缓冲器" class="headerlink" title="1. BUFG - 全局时钟缓冲器"></a><strong>1. BUFG - 全局时钟缓冲器</strong></h4><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// BUFG实例化</span><br>BUFG bufg_inst (<br>    <span class="hljs-variable">.I</span>(clk_input),  <span class="hljs-comment">// 输入时钟</span><br>    <span class="hljs-variable">.O</span>(clk_global)  <span class="hljs-comment">// 输出到全局时钟网络</span><br>);<br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong>覆盖范围</strong>：驱动全局时钟树，信号可到达芯片内<strong>几乎所有时序元件</strong></li>
+<li><strong>关键限制</strong>：数量<strong>极其有限</strong>，需要精打细算使用</li>
+<li><strong>典型应用</strong>：<ul>
+<li>系统主时钟</li>
+<li>全局复位信号</li>
+<li>高扇出控制信号</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-BUFR-区域时钟缓冲器"><a href="#2-BUFR-区域时钟缓冲器" class="headerlink" title="2. BUFR - 区域时钟缓冲器"></a><strong>2. BUFR - 区域时钟缓冲器</strong></h4><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// BUFR实例化 - 支持分频</span><br>BUFR #(<br>    <span class="hljs-variable">.BUFR_DIVIDE</span>(<span class="hljs-string">&quot;2&quot;</span>),    <span class="hljs-comment">// 分频系数: 1-8</span><br>    <span class="hljs-variable">.SIM_DEVICE</span>(<span class="hljs-string">&quot;7SERIES&quot;</span>)<br>) bufr_inst (<br>    <span class="hljs-variable">.I</span>(clk_input),      <span class="hljs-comment">// 输入时钟</span><br>    <span class="hljs-variable">.O</span>(clk_local),      <span class="hljs-comment">// 区域时钟输出</span><br>    <span class="hljs-variable">.CE</span>(<span class="hljs-number">1&#x27;b1</span>),          <span class="hljs-comment">// 时钟使能</span><br>    <span class="hljs-variable">.CLR</span>(<span class="hljs-number">1&#x27;b0</span>)          <span class="hljs-comment">// 清除/复位</span><br>);<br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong>独特功能</strong>：<strong>内置时钟分频器</strong>，支持1-8的整数分频</li>
+<li><strong>覆盖范围</strong>：仅限于<strong>单个时钟区域</strong></li>
+<li><strong>典型应用</strong>：<ul>
+<li>生成与输入时钟相关的低频时钟</li>
+<li>接口逻辑的时钟域转换</li>
+<li>需要独立分频的区域时钟</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-BUFH-水平时钟缓冲器"><a href="#3-BUFH-水平时钟缓冲器" class="headerlink" title="3. BUFH - 水平时钟缓冲器"></a><strong>3. BUFH - 水平时钟缓冲器</strong></h4><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// BUFH实例化</span><br>BUFH bufh_inst (<br>    <span class="hljs-variable">.I</span>(clk_input),  <span class="hljs-comment">// 输入时钟</span><br>    <span class="hljs-variable">.O</span>(clk_horizontal) <span class="hljs-comment">// 水平时钟输出</span><br>);<br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong>覆盖范围</strong>：可驱动<strong>本区域及左右相邻区域</strong></li>
+<li><strong>灵活性</strong>：介于BUFG和BUFR之间</li>
+<li><strong>典型应用</strong>：<ul>
+<li>需要在少数几个区域间共享的时钟</li>
+<li>节省BUFG资源</li>
+</ul>
+</li>
+</ul>
+<h2 id="🔗-时钟输入引脚与缓冲器的配合"><a href="#🔗-时钟输入引脚与缓冲器的配合" class="headerlink" title="🔗 时钟输入引脚与缓冲器的配合"></a>🔗 时钟输入引脚与缓冲器的配合</h2><h3 id="📍-MRCC-vs-SRCC-引脚"><a href="#📍-MRCC-vs-SRCC-引脚" class="headerlink" title="📍 MRCC vs SRCC 引脚"></a>📍 MRCC vs SRCC 引脚</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th><strong>MRCC</strong> (多区域时钟)</th>
+<th><strong>SRCC</strong> (区域时钟)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>连接能力</strong></td>
+<td>可连接<strong>BUFG、BUFH、BUFR</strong></td>
+<td>主要连接<strong>BUFR、BUFH</strong></td>
+</tr>
+<tr>
+<td><strong>区域跨越</strong></td>
+<td>可驱动<strong>本区域及上下相邻区域</strong></td>
+<td>仅限于<strong>本时钟区域</strong></td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>全局时钟、需要宽范围分布的时钟</td>
+<td>区域时钟、接口时钟</td>
+</tr>
+</tbody></table>
+<h3 id="🎯-不同组合的可行性与限制"><a href="#🎯-不同组合的可行性与限制" class="headerlink" title="🎯 不同组合的可行性与限制"></a>🎯 不同组合的可行性与限制</h3><p>让我通过一个流程图来清晰展示各种连接路径的可行性：</p>
+<pre><code class=" mermaid">flowchart TD
+    subgraph 时钟源
+        A[MRCC专用时钟引脚]
+        B[SRCC专用时钟引脚] 
+        C[普通IO引脚]
+    end
+
+    subgraph 直接连接路径
+        A --&gt; D[可直接驱动 BUFG]
+        A --&gt; E[可直接驱动 BUFH]
+        A --&gt; F[可直接驱动 BUFR]
+        
+        B --&gt; G[可直接驱动 BUFH]
+        B --&gt; H[可直接驱动 BUFR]
+        
+        C --&gt; I[无法直接驱动&lt;br&gt;任何时钟缓冲器]
+    end
+
+    subgraph 间接连接路径
+        I --&gt; J[必须通过常规布线&lt;br&gt;连接到BUFG]
+        J --&gt; K[时序质量较差&lt;br&gt;需谨慎使用]
+    end
+
+    subgraph 最佳实践
+        L[MRCC + BUFG = 全局时钟]
+        M[SRCC + BUFR = 区域时钟]
+        N[普通IO + BUFG = 应急方案]
+    end
+</code></pre>
+
+<h3 id="⚠️-关键限制说明"><a href="#⚠️-关键限制说明" class="headerlink" title="⚠️ 关键限制说明"></a>⚠️ 关键限制说明</h3><h4 id="1-普通IO连接到时钟缓冲器的限制"><a href="#1-普通IO连接到时钟缓冲器的限制" class="headerlink" title="1. 普通IO连接到时钟缓冲器的限制"></a><strong>1. 普通IO连接到时钟缓冲器的限制</strong></h4><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// 错误示例：普通IO不能直接驱动BUFG/BUFR/BUFH</span><br><span class="hljs-keyword">wire</span> clk_from_ordinary_io;<br><br><span class="hljs-comment">// 这种直接连接在布局布线时会报错</span><br>BUFG bufg_wrong (<br>    <span class="hljs-variable">.I</span>(clk_from_ordinary_io),  <span class="hljs-comment">// !!! 编译错误 !!!</span><br>    <span class="hljs-variable">.O</span>(clk_global)<br>);<br><br><span class="hljs-comment">// 正确做法：先通过常规布线，再连接到BUFG</span><br><span class="hljs-keyword">wire</span> clk_ibuf;<br><span class="hljs-keyword">wire</span> clk_bufg;<br><br>IBUF ibuf_inst (<br>    <span class="hljs-variable">.I</span>(clk_from_ordinary_io),<br>    <span class="hljs-variable">.O</span>(clk_ibuf)<br>);<br><br><span class="hljs-comment">// 工具会尝试将clk_ibuf路由到BUFG</span><br>BUFG bufg_correct (<br>    <span class="hljs-variable">.I</span>(clk_ibuf),  <span class="hljs-comment">// 通过常规布线连接</span><br>    <span class="hljs-variable">.O</span>(clk_bufg)<br>);<br></code></pre></td></tr></table></figure>
+
+<p><strong>普通IO连接的问题</strong>：</p>
+<ul>
+<li><strong>时序质量差</strong>：经过常规布线，延迟和偏斜不可控</li>
+<li><strong>可能失败</strong>：Vivado可能无法将普通IO路由到BUFG</li>
+<li><strong>时序难收敛</strong>：建立&#x2F;保持时间难以满足</li>
+</ul>
+<h4 id="2-MRCC-x2F-SRCC的优势"><a href="#2-MRCC-x2F-SRCC的优势" class="headerlink" title="2. MRCC&#x2F;SRCC的优势"></a><strong>2. MRCC&#x2F;SRCC的优势</strong></h4><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// MRCC引脚可以直接、高效地连接所有时钟缓冲器</span><br><span class="hljs-keyword">wire</span> clk_from_mrcc;<br><br><span class="hljs-comment">// 所有这些都是可行的</span><br>BUFG bufg_mrcc (<span class="hljs-variable">.I</span>(clk_from_mrcc), <span class="hljs-variable">.O</span>(...));<br>BUFH bufh_mrcc (<span class="hljs-variable">.I</span>(clk_from_mrcc), <span class="hljs-variable">.O</span>(...));  <br>BUFR bufr_mrcc (<span class="hljs-variable">.I</span>(clk_from_mrcc), <span class="hljs-variable">.O</span>(...));<br></code></pre></td></tr></table></figure>
+
+<p><strong>专用时钟引脚的优势</strong>：</p>
+<ul>
+<li><strong>专用布线</strong>：有直达时钟缓冲器的专用金属路径</li>
+<li><strong>低偏斜</strong>：时钟树结构保证最小偏斜</li>
+<li><strong>可预测延迟</strong>：延迟参数在数据手册中明确给出</li>
+</ul>
+<h2 id="🛠️-实际应用建议"><a href="#🛠️-实际应用建议" class="headerlink" title="🛠️ 实际应用建议"></a>🛠️ 实际应用建议</h2><h3 id="1-时钟规划策略"><a href="#1-时钟规划策略" class="headerlink" title="1. 时钟规划策略"></a>1. 时钟规划策略</h3><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// 推荐的系统时钟架构</span><br><span class="hljs-keyword">module</span> clock_architecture (<br>    <span class="hljs-keyword">input</span> <span class="hljs-keyword">wire</span> mrcc_sys_clk,    <span class="hljs-comment">// 系统主时钟 - MRCC</span><br>    <span class="hljs-keyword">input</span> <span class="hljs-keyword">wire</span> srcc_eth_clk,    <span class="hljs-comment">// 以太网时钟 - SRCC  </span><br>    <span class="hljs-keyword">input</span> <span class="hljs-keyword">wire</span> ordinary_io_clk  <span class="hljs-comment">// 普通IO时钟 - 尽量避免</span><br>);<br><br><span class="hljs-comment">// 全局系统时钟</span><br><span class="hljs-keyword">wire</span> sys_clk_bufg;<br>BUFG bufg_sys (<br>    <span class="hljs-variable">.I</span>(mrcc_sys_clk),<br>    <span class="hljs-variable">.O</span>(sys_clk_bufg)<br>);<br><br><span class="hljs-comment">// 区域以太网时钟 - 使用BUFR可分频</span><br><span class="hljs-keyword">wire</span> eth_clk_bufr;<br>BUFR <span class="hljs-variable">#(.BUFR_DIVIDE(&quot;2&quot;))</span> bufr_eth (<br>    <span class="hljs-variable">.I</span>(srcc_eth_clk),<br>    <span class="hljs-variable">.O</span>(eth_clk_bufr)  <span class="hljs-comment">// 125MHz -&gt; 62.5MHz</span><br>);<br><br><span class="hljs-comment">// 普通IO时钟 - 最后的选择</span><br><span class="hljs-keyword">wire</span> io_clk_ibuf;<br><span class="hljs-keyword">wire</span> io_clk_bufg;<br>IBUF ibuf_io (<span class="hljs-variable">.I</span>(ordinary_io_clk), <span class="hljs-variable">.O</span>(io_clk_ibuf));<br>BUFG bufg_io (<span class="hljs-variable">.I</span>(io_clk_ibuf), <span class="hljs-variable">.O</span>(io_clk_bufg));<br><br><span class="hljs-keyword">endmodule</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-资源使用建议"><a href="#2-资源使用建议" class="headerlink" title="2. 资源使用建议"></a>2. 资源使用建议</h3><ul>
+<li><strong>优先使用MRCC+BUFG</strong>：用于系统主时钟</li>
+<li><strong>SRCC+BUFR</strong>：用于需要分频的区域接口时钟</li>
+<li><strong>SRCC+BUFH</strong>：用于需要在水平方向扩展的时钟</li>
+<li><strong>避免普通IO用于时钟</strong>：除非频率很低(&lt;50MHz)且时序要求宽松</li>
+</ul>
+<h3 id="3-检查资源使用情况"><a href="#3-检查资源使用情况" class="headerlink" title="3. 检查资源使用情况"></a>3. 检查资源使用情况</h3><figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs tcl"><span class="hljs-comment"># 在Vivado Tcl控制台中检查时钟资源</span><br>report_clock_networks<br>report_utilization -cells [get_cells -hierarchical -filter &#123;PRIMITIVE_TYPE =~ *BUFG*&#125;]<br>report_utilization -cells [get_cells -hierarchical -filter &#123;PRIMITIVE_TYPE =~ *BUFR*&#125;]<br></code></pre></td></tr></table></figure>
+
+<h2 id="🚨-常见错误与解决方法"><a href="#🚨-常见错误与解决方法" class="headerlink" title="🚨 常见错误与解决方法"></a>🚨 常见错误与解决方法</h2><h3 id="错误1-BUFG资源耗尽"><a href="#错误1-BUFG资源耗尽" class="headerlink" title="错误1: BUFG资源耗尽"></a>错误1: BUFG资源耗尽</h3><p><strong>症状</strong>：布局布线失败，提示BUFG资源不足<br><strong>解决</strong>：</p>
+<ul>
+<li>将部分时钟从BUFG迁移到BUFR&#x2F;BUFH</li>
+<li>使用时钟使能(CE)替代多个时钟域</li>
+</ul>
+<h3 id="错误2-普通IO无法路由到BUFG"><a href="#错误2-普通IO无法路由到BUFG" class="headerlink" title="错误2: 普通IO无法路由到BUFG"></a>错误2: 普通IO无法路由到BUFG</h3><p><strong>症状</strong>：严重布线拥塞，时序违例<br><strong>解决</strong>：</p>
+<ul>
+<li>降低时钟频率</li>
+<li>重新设计板卡，将时钟连接到MRCC&#x2F;SRCC</li>
+<li>使用IDELAYCTRL进行延迟调整</li>
+</ul>
+<h3 id="错误3-BUFR驱动范围超出本区域"><a href="#错误3-BUFR驱动范围超出本区域" class="headerlink" title="错误3: BUFR驱动范围超出本区域"></a>错误3: BUFR驱动范围超出本区域</h3><p><strong>症状</strong>：时序违例，保持时间问题<br><strong>解决</strong>：</p>
+<ul>
+<li>确认BUFR只驱动本区域逻辑</li>
+<li>使用BUFH或BUFG进行跨区域驱动</li>
+</ul>
+<p>记住这个基本原则：<strong>MRCC&#x2F;SRCC是时钟的”高速公路入口”，而BUFG&#x2F;BUFR&#x2F;BUFH是不同类型的高速公路系统。普通IO就像是乡间小路，虽然最终也能到达目的地，但速度慢且不可靠。</strong></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/FPGA/" class="category-chain-item">FPGA</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>xilinx_k7时钟</div>
+      <div>http://witbit.cn/FPGA/xilinx_k7时钟.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>朝彻</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年11月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/AI/%E5%88%9B%E6%84%8FAI%E6%95%B0%E5%AD%97%E4%BF%A1%E5%8F%B7%E9%A1%B9%E7%9B%AE.html" title="创意AI数字信号项目">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">创意AI数字信号项目</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/FPGA/xilinx_k7%E6%99%AE%E9%80%9Aio%E5%BD%93%E6%97%B6%E9%92%9F.html" title="xilinx_k7普通io当时钟">
+                        <span class="hidden-mobile">xilinx_k7普通io当时钟</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

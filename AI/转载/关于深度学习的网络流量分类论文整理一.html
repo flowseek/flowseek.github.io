@@ -16,40 +16,40 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f415482">
-  <meta name="author" content="dnsnat">
+  <meta name="author" content="朝彻">
   <meta name="keywords" content="">
   
     <meta name="description" content="Paper：Malware Traffic Classification Using Convolutional Neural Network for Representation Learning论文：使用卷积神经网络进行表示学习的恶意软件流量分类 论文下载：https:&#x2F;&#x2F;ieeexplore.ieee.org&#x2F;document&#x2F;7899588 代码下载：https:&#x2F;&#x2F;github.com&#x2F;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="关于深度学习的网络流量分类论文整理一">
-<meta property="og:url" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80.html">
-<meta property="og:site_name" content="DNSNAT">
+<meta property="og:url" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80.html">
+<meta property="og:site_name" content="WITBIT">
 <meta property="og:description" content="Paper：Malware Traffic Classification Using Convolutional Neural Network for Representation Learning论文：使用卷积神经网络进行表示学习的恶意软件流量分类 论文下载：https:&#x2F;&#x2F;ieeexplore.ieee.org&#x2F;document&#x2F;7899588 代码下载：https:&#x2F;&#x2F;github.com&#x2F;">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/1280dc81338ee690b8753d25ca7d59ca.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/ffd70f845479e98a68419920a48d58dc.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/025dbff22f83773a6b0349c44edf6136.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/144688fc2f092a333112f782b903ba4b.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/4636c99f47d9a55494db858506c2aaf9.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/a8c228fd28e169559de51722bee755cb.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/8a8c0c15f041e89fe688b7ae8457f684.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/faf4515f39340cfb2b58711f05dc568e.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/47d0db7e7f92b830b95b112e138b20cd.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/1f87297eebfd149ca649277dc9bcffa4.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/b60e19b6b54ad97d00112d0f48c6ed7e.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/666ed23b0259495e780bdb7a48bbf904.png">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/66820e227d7ddc557c760839f7dfc40b.png">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/1280dc81338ee690b8753d25ca7d59ca.png">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/ffd70f845479e98a68419920a48d58dc.png">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/025dbff22f83773a6b0349c44edf6136.png">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/144688fc2f092a333112f782b903ba4b.png">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/4636c99f47d9a55494db858506c2aaf9.png">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/a8c228fd28e169559de51722bee755cb.png">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/8a8c0c15f041e89fe688b7ae8457f684.png">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/faf4515f39340cfb2b58711f05dc568e.png">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/47d0db7e7f92b830b95b112e138b20cd.png">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/1f87297eebfd149ca649277dc9bcffa4.png">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/b60e19b6b54ad97d00112d0f48c6ed7e.png">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/666ed23b0259495e780bdb7a48bbf904.png">
+<meta property="og:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/66820e227d7ddc557c760839f7dfc40b.png">
 <meta property="article:published_time" content="2025-02-13T05:53:20.572Z">
 <meta property="article:modified_time" content="2025-02-13T05:53:20.572Z">
-<meta property="article:author" content="dnsnat">
+<meta property="article:author" content="朝彻">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://blog.uanet.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/1280dc81338ee690b8753d25ca7d59ca.png">
+<meta name="twitter:image" content="http://witbit.cn/AI/%E8%BD%AC%E8%BD%BD/%E5%85%B3%E4%BA%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%E5%88%86%E7%B1%BB%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E4%B8%80/1280dc81338ee690b8753d25ca7d59ca.png">
   
   
   
     <link rel="stylesheet" href="/css/mycss.css">
   
-  <title>关于深度学习的网络流量分类论文整理一 - DNSNAT</title>
+  <title>关于深度学习的网络流量分类论文整理一 - WITBIT</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -91,7 +91,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -117,7 +117,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
 </head>
 
 
@@ -131,7 +131,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>阵源阿威</strong>
+      <strong>WitBit</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -188,18 +188,6 @@
               <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
                 <span>课程</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
-                <i class="iconfont icon-link-fill"></i>
-                <span>官网</span>
               </a>
             </li>
           
@@ -416,13 +404,13 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>关于深度学习的网络流量分类论文整理一</div>
-      <div>http://blog.uanet.cn/AI/转载/关于深度学习的网络流量分类论文整理一.html</div>
+      <div>http://witbit.cn/AI/转载/关于深度学习的网络流量分类论文整理一.html</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>dnsnat</div>
+          <div>朝彻</div>
         </div>
       
       

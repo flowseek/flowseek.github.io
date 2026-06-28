@@ -1,0 +1,960 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="朝彻">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="下面我从最底层的计算原理、数据流、卷积结构和系统架构来解释 为什么 FPGA 可以做到比 RK3588（含 NPU）更低延迟，尤其在 YOLO 这种卷积网络中延迟差距会明显放大。 你的背景是 FPGA + AI，我会尽量结合硬件和 CNN 架构给你“看得懂也看得透”的解释。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="为什么FPGA比RK3588加速yolo延迟低">
+<meta property="og:url" content="http://witbit.cn/AI/%E4%B8%BA%E4%BB%80%E4%B9%88FPGA%E6%AF%94RK3588%E5%8A%A0%E9%80%9Fyolo%E5%BB%B6%E8%BF%9F%E4%BD%8E.html">
+<meta property="og:site_name" content="WITBIT">
+<meta property="og:description" content="下面我从最底层的计算原理、数据流、卷积结构和系统架构来解释 为什么 FPGA 可以做到比 RK3588（含 NPU）更低延迟，尤其在 YOLO 这种卷积网络中延迟差距会明显放大。 你的背景是 FPGA + AI，我会尽量结合硬件和 CNN 架构给你“看得懂也看得透”的解释。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-16T01:50:59.631Z">
+<meta property="article:modified_time" content="2025-11-16T01:51:12.628Z">
+<meta property="article:author" content="朝彻">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>为什么FPGA比RK3588加速yolo延迟低 - WITBIT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WitBit</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="为什么FPGA比RK3588加速yolo延迟低"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-16 09:50" pubdate>
+          2025年11月16日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          12 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">为什么FPGA比RK3588加速yolo延迟低</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>下面我从<strong>最底层的计算原理、数据流、卷积结构和系统架构</strong>来解释 <strong>为什么 FPGA 可以做到比 RK3588（含 NPU）更低延迟</strong>，尤其在 YOLO 这种卷积网络中延迟差距会明显放大。</p>
+<p>你的背景是 FPGA + AI，我会尽量结合硬件和 CNN 架构给你“看得懂也看得透”的解释。</p>
+<hr>
+<h1 id="🟥-0-一句话根本原因"><a href="#🟥-0-一句话根本原因" class="headerlink" title="🟥 0. 一句话根本原因"></a>🟥 0. 一句话根本原因</h1><p><strong>FPGA &#x3D; 真·按像素&#x2F;特征图连续流动的 Pipeline 计算</strong><br> <strong>SoC&#x2F;NPU &#x3D; 必须分 Batch，把所有数据装载进片内 RAM 后再算</strong></p>
+<p>所以：</p>
+<h1 id="▶-FPGA：图像一点都不需要缓存，像流水一样来一点算一点-→-延迟极低"><a href="#▶-FPGA：图像一点都不需要缓存，像流水一样来一点算一点-→-延迟极低" class="headerlink" title="▶ FPGA：图像一点都不需要缓存，像流水一样来一点算一点 → 延迟极低"></a>▶ FPGA：图像一点都不需要缓存，像流水一样来一点算一点 → 延迟极低</h1><h1 id="▶-RK3588-x2F-NPU：必须等整层数据准备好-→-延迟必然高"><a href="#▶-RK3588-x2F-NPU：必须等整层数据准备好-→-延迟必然高" class="headerlink" title="▶ RK3588 &#x2F; NPU：必须等整层数据准备好 → 延迟必然高"></a>▶ RK3588 &#x2F; NPU：必须等整层数据准备好 → 延迟必然高</h1><hr>
+<h1 id="🟥-1-YOLO-的延迟从哪里来？"><a href="#🟥-1-YOLO-的延迟从哪里来？" class="headerlink" title="🟥 1. YOLO 的延迟从哪里来？"></a>🟥 1. YOLO 的延迟从哪里来？</h1><p>YOLO 本质是堆叠多层 CNN，包括：</p>
+<ul>
+<li>大量 3×3&#x2F;1×1 卷积</li>
+<li>BN、SiLU&#x2F;ReLU</li>
+<li>DownSample、Upsample</li>
+<li>C2f、SPPF 等模块</li>
+</ul>
+<p>本质都是 <strong>矩阵卷积</strong>。</p>
+<h2 id="🟦-SoC-x2F-NPU-的工作方式"><a href="#🟦-SoC-x2F-NPU-的工作方式" class="headerlink" title="🟦 SoC&#x2F;NPU 的工作方式"></a>🟦 SoC&#x2F;NPU 的工作方式</h2><h3 id="必须经过以下步骤："><a href="#必须经过以下步骤：" class="headerlink" title="必须经过以下步骤："></a>必须经过以下步骤：</h3><ol>
+<li><strong>把整张图读入内存</strong></li>
+<li><strong>转换格式（NCHW → NHWC → 特定布局）</strong></li>
+<li><strong>整层 Feature Map 全部搬到 NPU SRAM</strong></li>
+<li><strong>整层卷积运算</strong></li>
+<li><strong>再把结果搬回 DRAM</strong></li>
+</ol>
+<h3 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h3><ul>
+<li>以层为单位执行</li>
+<li>每层之间有内存读写</li>
+<li>数据排布复杂（Winograd&#x2F;Tile&#x2F;Block&#x2F;Pack）</li>
+<li>一层卷积必须等上层整个输出完成</li>
+</ul>
+<p>✔ <strong>这意味着一定有“整层级”的延迟</strong><br> 也就是你必须等 <strong>一帧图像的所有像素先准备好</strong>，NPU 才开始卷积。</p>
+<hr>
+<h1 id="🟥-2-FPGA-的卷积方式完全不一样"><a href="#🟥-2-FPGA-的卷积方式完全不一样" class="headerlink" title="🟥 2. FPGA 的卷积方式完全不一样"></a>🟥 2. FPGA 的卷积方式完全不一样</h1><p>FPGA 是 <strong>纯流式（Streaming）</strong> 结构。</p>
+<h2 id="🟩-FPGA-卷积本质是："><a href="#🟩-FPGA-卷积本质是：" class="headerlink" title="🟩 FPGA 卷积本质是："></a>🟩 FPGA 卷积本质是：</h2><p><strong>像素进入 → 直接参与卷积 → 结果立即输出</strong></p>
+<p>用硬件 pipeline 表示：</p>
+<figure class="highlight hsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs hsp">摄像头输入流 → <span class="hljs-keyword">Line</span> <span class="hljs-keyword">Buffer</span> → <span class="hljs-number">3</span>×<span class="hljs-number">3</span>窗口 → MAC阵列 → 激活 → 输出<br></code></pre></td></tr></table></figure>
+
+<p>数据根本不需要存整层 Feature Map。</p>
+<h3 id="示例：3×3-卷积（FPGA计算流程）"><a href="#示例：3×3-卷积（FPGA计算流程）" class="headerlink" title="示例：3×3 卷积（FPGA计算流程）"></a>示例：3×3 卷积（FPGA计算流程）</h3><p>FPGA 用 Shift Register + Line Buffer 做窗口滑动。</p>
+<p>只需存 <strong>两行 + 3 像素窗口</strong>，就可以计算：</p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs prolog">kernel[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]*p0 + kernel[<span class="hljs-number">0</span>][<span class="hljs-number">1</span>]*p1 + ...<br></code></pre></td></tr></table></figure>
+
+<p>每个像素（或者每个 Clock）都能得到一个卷积结果。</p>
+<h2 id="🟩-流水线（Pipeline）→-延迟极低"><a href="#🟩-流水线（Pipeline）→-延迟极低" class="headerlink" title="🟩 流水线（Pipeline）→ 延迟极低"></a>🟩 流水线（Pipeline）→ 延迟极低</h2><p>FPGA pipeline 运行后：</p>
+<h3 id="每个时钟周期都输出一个结果（after-pipeline-filled）"><a href="#每个时钟周期都输出一个结果（after-pipeline-filled）" class="headerlink" title="每个时钟周期都输出一个结果（after pipeline filled）"></a>每个时钟周期都输出一个结果（after pipeline filled）</h3><p>所以延迟 ≈ pipeline 深度（几十 ns ~ 微秒级）</p>
+<p>而不是等待整层图像！</p>
+<hr>
+<h1 id="🟥-3-最核心的区别：FPGA-是空间并行-流式"><a href="#🟥-3-最核心的区别：FPGA-是空间并行-流式" class="headerlink" title="🟥 3. 最核心的区别：FPGA 是空间并行 + 流式"></a>🟥 3. 最核心的区别：FPGA 是空间并行 + 流式</h1><p>下面是关键对比：</p>
+<hr>
+<h2 id="🟦-①-架构方式不同"><a href="#🟦-①-架构方式不同" class="headerlink" title="🟦 ① 架构方式不同"></a>🟦 ① 架构方式不同</h2><table>
+<thead>
+<tr>
+<th>架构</th>
+<th>SoC&#x2F;NPU</th>
+<th>FPGA</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>并行方式</td>
+<td>时间并行（批量 + Tile 计算）</td>
+<td>空间并行（真并行电路）</td>
+</tr>
+<tr>
+<td>数据处理</td>
+<td>分层处理</td>
+<td>流水式实时处理</td>
+</tr>
+<tr>
+<td>需要 RAM 缓存</td>
+<td>大量缓存 Feature Map</td>
+<td>几乎不缓存</td>
+</tr>
+<tr>
+<td>层与层的同步</td>
+<td>必须等待</td>
+<td>无需等待</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="🟦-②-数据访问方式不同"><a href="#🟦-②-数据访问方式不同" class="headerlink" title="🟦 ② 数据访问方式不同"></a>🟦 ② 数据访问方式不同</h2><h3 id="NPU："><a href="#NPU：" class="headerlink" title="NPU："></a>NPU：</h3><ul>
+<li>不断做 DRAM &lt;→ SRAM 的搬运</li>
+<li>tile&#x2F;block 重排</li>
+<li>Winograd 转换</li>
+<li>Reordering 很耗时间</li>
+</ul>
+<h3 id="FPGA："><a href="#FPGA：" class="headerlink" title="FPGA："></a>FPGA：</h3><ul>
+<li>读入一条图像流 → 固定结构卷积 → 输出</li>
+<li>极少的 RAM（几 KB）</li>
+</ul>
+<h3 id="所以-NPU-必然产生-latency："><a href="#所以-NPU-必然产生-latency：" class="headerlink" title="所以 NPU 必然产生 latency："></a>所以 NPU 必然产生 latency：</h3><ul>
+<li>因为要等待整层准备、DMA 传输、tile 拼接。</li>
+</ul>
+<p>FPGA 完全没有这个步骤。</p>
+<hr>
+<h2 id="🟦-③-算法调度方式"><a href="#🟦-③-算法调度方式" class="headerlink" title="🟦 ③ 算法调度方式"></a>🟦 ③ 算法调度方式</h2><h3 id="SoC-x2F-NPU"><a href="#SoC-x2F-NPU" class="headerlink" title="SoC&#x2F;NPU"></a>SoC&#x2F;NPU</h3><p>一个卷积层通常要：</p>
+<ol>
+<li>Load Input Tile</li>
+<li>Load Weight Tile</li>
+<li>Compute</li>
+<li>Store Output Tile<br> 重复多次（tile 数量级 &#x3D; 数千）</li>
+</ol>
+<h3 id="FPGA"><a href="#FPGA" class="headerlink" title="FPGA"></a>FPGA</h3><p>卷积是硬连线：<br> <strong>权重存在 BRAM&#x2F;寄存器中</strong><br> <strong>数据进来就算，算完立刻出流</strong></p>
+<hr>
+<h2 id="🟦-④-并行规模"><a href="#🟦-④-并行规模" class="headerlink" title="🟦 ④ 并行规模"></a>🟦 ④ 并行规模</h2><h3 id="SoC-x2F-NPU-1"><a href="#SoC-x2F-NPU-1" class="headerlink" title="SoC&#x2F;NPU"></a>SoC&#x2F;NPU</h3><p>有“MAC 数量上限”（例如 RK3588 NPU ≈ 1024 MAC）</p>
+<h3 id="FPGA-1"><a href="#FPGA-1" class="headerlink" title="FPGA"></a>FPGA</h3><p>可以：</p>
+<ul>
+<li>部署 N 个 3×3 卷积阵列</li>
+<li>每个阵列是 9×并行乘加</li>
+<li>多个卷积核并行</li>
+<li>多通道（C）也可并行展开</li>
+</ul>
+<p>比如你有 200 DSP，可以搭建 200 个独立 MAC 单元，这就是纯物理并行。</p>
+<hr>
+<h1 id="🟥-4-实例：FPGA-vs-NPU-处理一层卷积的延迟"><a href="#🟥-4-实例：FPGA-vs-NPU-处理一层卷积的延迟" class="headerlink" title="🟥 4. 实例：FPGA vs NPU 处理一层卷积的延迟"></a>🟥 4. 实例：FPGA vs NPU 处理一层卷积的延迟</h1><p>假设输入图像为 640×640×3，卷积核 3×3×3→64</p>
+<hr>
+<h2 id="🟦-RK3588-NPU-的流程："><a href="#🟦-RK3588-NPU-的流程：" class="headerlink" title="🟦 RK3588 NPU 的流程："></a>🟦 RK3588 NPU 的流程：</h2><h3 id="1）加载-640×640×3-输入"><a href="#1）加载-640×640×3-输入" class="headerlink" title="1）加载 640×640×3 输入"></a>1）加载 640×640×3 输入</h3><h3 id="2）转换格式-NHWC-→-特定数据布局"><a href="#2）转换格式-NHWC-→-特定数据布局" class="headerlink" title="2）转换格式 NHWC → 特定数据布局"></a>2）转换格式 NHWC → 特定数据布局</h3><h3 id="3）分-Tile（比如-64×64-Block）"><a href="#3）分-Tile（比如-64×64-Block）" class="headerlink" title="3）分 Tile（比如 64×64 Block）"></a>3）分 Tile（比如 64×64 Block）</h3><h3 id="4）把-Tile-搬到-SRAM"><a href="#4）把-Tile-搬到-SRAM" class="headerlink" title="4）把 Tile 搬到 SRAM"></a>4）把 Tile 搬到 SRAM</h3><h3 id="5）卷积处理"><a href="#5）卷积处理" class="headerlink" title="5）卷积处理"></a>5）卷积处理</h3><h3 id="6）结果再搬回-DRAM"><a href="#6）结果再搬回-DRAM" class="headerlink" title="6）结果再搬回 DRAM"></a>6）结果再搬回 DRAM</h3><h3 id="7）等待下一层"><a href="#7）等待下一层" class="headerlink" title="7）等待下一层"></a>7）等待下一层</h3><p>这一层的 latency 通常是 <strong>5–20 ms</strong>。</p>
+<hr>
+<h2 id="🟩-FPGA-的流程："><a href="#🟩-FPGA-的流程：" class="headerlink" title="🟩 FPGA 的流程："></a>🟩 FPGA 的流程：</h2><p>像素流进 → 3 行 buffer → 3×3 MAC → 输出<br> 延迟 &#x3D; 数百到数千个时钟周期<br> 假设 200MHz 时钟：</p>
+<p>Pipeline 深度约 200 ~ 300 个 cycle<br> 延迟 &#x3D; 1~2 微秒（us）<br> <strong>输出流是实时连续的</strong></p>
+<hr>
+<h1 id="🟥-5-YOLO-网络中延迟差异为什么被进一步放大？"><a href="#🟥-5-YOLO-网络中延迟差异为什么被进一步放大？" class="headerlink" title="🟥 5. YOLO 网络中延迟差异为什么被进一步放大？"></a>🟥 5. YOLO 网络中延迟差异为什么被进一步放大？</h1><p>YOLO 特点：</p>
+<ul>
+<li>特征层非常多（几十个）</li>
+<li>每层都有 1×1&#x2F;3×3 卷积</li>
+<li>每层 Feature Map 都要在 SoC 上 memcpy</li>
+</ul>
+<p>SoC&#x2F;NPU 的延迟被叠加几十次<br> FPGA Pipeline 不叠加，它们连接成长流水线。</p>
+<p>等于：</p>
+<h1 id="▣-FPGA：1-次延迟-→-YOLO-结束"><a href="#▣-FPGA：1-次延迟-→-YOLO-结束" class="headerlink" title="▣ FPGA：1 次延迟 → YOLO 结束"></a>▣ FPGA：1 次延迟 → YOLO 结束</h1><h1 id="▣-SoC：每层都有延迟-→-YOLO-很慢"><a href="#▣-SoC：每层都有延迟-→-YOLO-很慢" class="headerlink" title="▣ SoC：每层都有延迟 → YOLO 很慢"></a>▣ SoC：每层都有延迟 → YOLO 很慢</h1><hr>
+<h1 id="🟥-6-FPGA-低延迟的本质总结（关键-4-条）"><a href="#🟥-6-FPGA-低延迟的本质总结（关键-4-条）" class="headerlink" title="🟥 6. FPGA 低延迟的本质总结（关键 4 条）"></a>🟥 6. FPGA 低延迟的本质总结（关键 4 条）</h1><h3 id="✔-①-流式处理，不等整帧"><a href="#✔-①-流式处理，不等整帧" class="headerlink" title="✔ ① 流式处理，不等整帧"></a>✔ ① <strong>流式处理，不等整帧</strong></h3><p>每个像素到达即卷积，即输出。</p>
+<h3 id="✔-②-硬件-Pipeline-代替-CPU-调度"><a href="#✔-②-硬件-Pipeline-代替-CPU-调度" class="headerlink" title="✔ ② 硬件 Pipeline 代替 CPU 调度"></a>✔ ② <strong>硬件 Pipeline 代替 CPU 调度</strong></h3><p>没有操作系统干扰，没有 Thread&#x2F;Task switch。</p>
+<h3 id="✔-③-高度空间并行"><a href="#✔-③-高度空间并行" class="headerlink" title="✔ ③ 高度空间并行"></a>✔ ③ <strong>高度空间并行</strong></h3><p>通道展开、卷积核展开都可以直接做硬件复制。</p>
+<h3 id="✔-④-无需在-RAM-做大量中间缓存"><a href="#✔-④-无需在-RAM-做大量中间缓存" class="headerlink" title="✔ ④ 无需在 RAM 做大量中间缓存"></a>✔ ④ <strong>无需在 RAM 做大量中间缓存</strong></h3><p>只要 line buffer（KB 级）<br> 而不是 SoC 的 tens of MB 中间数据。</p>
+<hr>
+<h1 id="🟥-7-为什么军工-x2F-工业常用-FPGA-做-YOLO-加速？"><a href="#🟥-7-为什么军工-x2F-工业常用-FPGA-做-YOLO-加速？" class="headerlink" title="🟥 7. 为什么军工&#x2F;工业常用 FPGA 做 YOLO 加速？"></a>🟥 7. 为什么军工&#x2F;工业常用 FPGA 做 YOLO 加速？</h1><p>因为：</p>
+<ul>
+<li>延迟更低（us~ms 级）</li>
+<li>实时性确定（无抖动）</li>
+<li>无操作系统风险</li>
+<li>在高温&#x2F;振动下更可靠</li>
+<li>可对模型做“硬化”，不怕攻击</li>
+<li>可绑定多路高速 Sensor</li>
+</ul>
+<p>这就是 FPGA 在这些场景“价值远超 RK3588”的本质原因。</p>
+<hr>
+<h1 id="📌-如果你需要"><a href="#📌-如果你需要" class="headerlink" title="📌 如果你需要"></a>📌 如果你需要</h1><p>我可以继续给你：</p>
+<h3 id="✔-FPGA-YOLO-轻量加速器（Verilog-x2F-HLS）的-框图和数据流图"><a href="#✔-FPGA-YOLO-轻量加速器（Verilog-x2F-HLS）的-框图和数据流图" class="headerlink" title="✔ FPGA YOLO 轻量加速器（Verilog&#x2F;HLS）的 框图和数据流图"></a>✔ FPGA YOLO 轻量加速器（Verilog&#x2F;HLS）的 <strong>框图和数据流图</strong></h3><h3 id="✔-如何实现-3×3-卷积的-FPGA-Pipeline（含乘法器-x2F-DSP-映射）"><a href="#✔-如何实现-3×3-卷积的-FPGA-Pipeline（含乘法器-x2F-DSP-映射）" class="headerlink" title="✔ 如何实现 3×3 卷积的 FPGA Pipeline（含乘法器&#x2F;DSP 映射）"></a>✔ 如何实现 3×3 卷积的 FPGA Pipeline（含乘法器&#x2F;DSP 映射）</h3><h3 id="✔-如何让-FPGA-跑-YOLO（Backbone-Neck）最优"><a href="#✔-如何让-FPGA-跑-YOLO（Backbone-Neck）最优" class="headerlink" title="✔ 如何让 FPGA 跑 YOLO（Backbone + Neck）最优"></a>✔ 如何让 FPGA 跑 YOLO（Backbone + Neck）最优</h3><h3 id="✔-FPGA-vs-NPU-并行度对比图（非常直观）"><a href="#✔-FPGA-vs-NPU-并行度对比图（非常直观）" class="headerlink" title="✔ FPGA vs NPU 并行度对比图（非常直观）"></a>✔ FPGA vs NPU 并行度对比图（非常直观）</h3><p>你想继续看哪一部分？</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>为什么FPGA比RK3588加速yolo延迟低</div>
+      <div>http://witbit.cn/AI/为什么FPGA比RK3588加速yolo延迟低.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>朝彻</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年11月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/FPGA/xilinx_k7%E6%99%AE%E9%80%9Aio%E5%BD%93%E6%97%B6%E9%92%9F.html" title="xilinx_k7普通io当时钟">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">xilinx_k7普通io当时钟</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/SYSTEM/kvm_spcie%E5%85%B1%E4%BA%AB%E5%89%AA%E5%88%87%E6%9D%BF.html" title="kvm_spcie共享剪切板">
+                        <span class="hidden-mobile">kvm_spcie共享剪切板</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

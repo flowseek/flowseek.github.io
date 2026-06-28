@@ -16,32 +16,32 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f415482">
-  <meta name="author" content="dnsnat">
+  <meta name="author" content="朝彻">
   <meta name="keywords" content="">
   
     <meta name="description" content="1. U-BOOT概况总结一、 启动代码为start.S 二、 由于u-boot为裸板上第一个程序，所以要初始化各个外设，由于u-boot已经初始化了，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="arm环境u-boot功能和linux启动过程">
-<meta property="og:url" content="http://blog.uanet.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B.html">
-<meta property="og:site_name" content="DNSNAT">
+<meta property="og:url" content="http://witbit.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B.html">
+<meta property="og:site_name" content="WITBIT">
 <meta property="og:description" content="1. U-BOOT概况总结一、 启动代码为start.S 二、 由于u-boot为裸板上第一个程序，所以要初始化各个外设，由于u-boot已经初始化了，">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.uanet.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpskVUGIb.jpg">
-<meta property="og:image" content="http://blog.uanet.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpsYSZYMg.jpg">
-<meta property="og:image" content="http://blog.uanet.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wps2WiPfj.jpg">
-<meta property="og:image" content="http://blog.uanet.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpsxz3XBO.jpg">
-<meta property="og:image" content="http://blog.uanet.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpslxQx3p.jpg">
+<meta property="og:image" content="http://witbit.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpskVUGIb.jpg">
+<meta property="og:image" content="http://witbit.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpsYSZYMg.jpg">
+<meta property="og:image" content="http://witbit.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wps2WiPfj.jpg">
+<meta property="og:image" content="http://witbit.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpsxz3XBO.jpg">
+<meta property="og:image" content="http://witbit.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpslxQx3p.jpg">
 <meta property="article:published_time" content="2025-02-13T05:53:20.782Z">
 <meta property="article:modified_time" content="2025-02-13T05:53:20.782Z">
-<meta property="article:author" content="dnsnat">
+<meta property="article:author" content="朝彻">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://blog.uanet.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpskVUGIb.jpg">
+<meta name="twitter:image" content="http://witbit.cn/KERNEL/arm%E7%8E%AF%E5%A2%83u-boot%E5%8A%9F%E8%83%BD%E5%92%8Clinux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/wpskVUGIb.jpg">
   
   
   
     <link rel="stylesheet" href="/css/mycss.css">
   
-  <title>arm环境u-boot功能和linux启动过程 - DNSNAT</title>
+  <title>arm环境u-boot功能和linux启动过程 - WITBIT</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -83,7 +83,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -109,7 +109,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
 </head>
 
 
@@ -123,7 +123,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>阵源阿威</strong>
+      <strong>WitBit</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -180,18 +180,6 @@
               <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
                 <span>课程</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
-                <i class="iconfont icon-link-fill"></i>
-                <span>官网</span>
               </a>
             </li>
           
@@ -474,13 +462,13 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>arm环境u-boot功能和linux启动过程</div>
-      <div>http://blog.uanet.cn/KERNEL/arm环境u-boot功能和linux启动过程.html</div>
+      <div>http://witbit.cn/KERNEL/arm环境u-boot功能和linux启动过程.html</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>dnsnat</div>
+          <div>朝彻</div>
         </div>
       
       

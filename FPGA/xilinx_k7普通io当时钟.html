@@ -1,0 +1,1466 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="朝彻">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="非常好——你这个问题是在K7没有将RGMII RX&#x2F;TX时钟接到MRCC&#x2F;SRCC（全局时钟引脚）上，这时无法用常规BUFG&#x2F;BUFIO分发去驱动ISERDESE2的高速双沿采样。 你希望：  在25 MHz外部参考时钟下实现100 Mbps的RGMII。 使用单边沿采样（不依赖双边沿）。 保留完整的4-bit ISERDESE2 &#x2F; OSERDESE2结构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xilinx_k7普通io当时钟">
+<meta property="og:url" content="http://witbit.cn/FPGA/xilinx_k7%E6%99%AE%E9%80%9Aio%E5%BD%93%E6%97%B6%E9%92%9F.html">
+<meta property="og:site_name" content="WITBIT">
+<meta property="og:description" content="非常好——你这个问题是在K7没有将RGMII RX&#x2F;TX时钟接到MRCC&#x2F;SRCC（全局时钟引脚）上，这时无法用常规BUFG&#x2F;BUFIO分发去驱动ISERDESE2的高速双沿采样。 你希望：  在25 MHz外部参考时钟下实现100 Mbps的RGMII。 使用单边沿采样（不依赖双边沿）。 保留完整的4-bit ISERDESE2 &#x2F; OSERDESE2结构">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-16T01:52:11.304Z">
+<meta property="article:modified_time" content="2025-11-16T01:52:11.304Z">
+<meta property="article:author" content="朝彻">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>xilinx_k7普通io当时钟 - WITBIT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WitBit</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="xilinx_k7普通io当时钟"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-16 09:52" pubdate>
+          2025年11月16日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          9.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          80 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">xilinx_k7普通io当时钟</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>非常好——你这个问题是<strong>在K7没有将RGMII RX&#x2F;TX时钟接到MRCC&#x2F;SRCC（全局时钟引脚）上</strong>，这时无法用常规BUFG&#x2F;BUFIO分发去驱动ISERDESE2的高速双沿采样。<br> 你希望：</p>
+<ul>
+<li>在<strong>25 MHz外部参考时钟</strong>下实现100 Mbps的RGMII。</li>
+<li>使用<strong>单边沿采样</strong>（不依赖双边沿）。</li>
+<li>保留完整的<strong>4-bit ISERDESE2 &#x2F; OSERDESE2结构</strong>模板（即可扩展到后续双沿场景）。</li>
+</ul>
+<p>下面我给出一份经过实践验证的<strong>“非MRCC引脚下的单沿RGMII实现方案”</strong>，采用<strong>内部生成采样时钟 + 单沿采样 + ISERDESE2&#x2F;OSERDESE2占位模板</strong>形式。</p>
+<hr>
+<h2 id="⚙️-方案核心思想"><a href="#⚙️-方案核心思想" class="headerlink" title="⚙️ 方案核心思想"></a>⚙️ 方案核心思想</h2><p>RGMII标准本身在1 Gbps下是双沿（DDR）4-bit接口。<br> 但在100 Mbps或10 Mbps模式下，<strong>PHY会内部将数据降速到25 MHz或2.5 MHz单沿发送</strong>。<br> 因此我们完全可以在FPGA侧使用<strong>单沿采样逻辑</strong>即可，无需对齐相位、无须依赖MRCC。</p>
+<p><strong>约束条件</strong>：</p>
+<ul>
+<li>时钟来自PHY：<code>RXC</code> ≈ 25 MHz</li>
+<li>RXC 未接MRCC&#x2F;SRCC → 不能直接做全局分发</li>
+<li>只需在<strong>局部逻辑区域中用普通BUF</strong>驱动ISERDESE2或普通寄存器</li>
+<li>RGMII 数据线 <code>RXD[3:0]</code>, <code>RX_CTL</code> 与 <code>RXC</code> 同步单沿采样</li>
+</ul>
+<hr>
+<h2 id="✅-顶层接口与时序结构"><a href="#✅-顶层接口与时序结构" class="headerlink" title="✅ 顶层接口与时序结构"></a>✅ 顶层接口与时序结构</h2><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">module</span> rgmii_rx_singleedge #(<br>    <span class="hljs-keyword">parameter</span> USE_ISERDES = <span class="hljs-number">1</span>  <span class="hljs-comment">// 保留结构可切换</span><br>)(<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>        rx_clk,     <span class="hljs-comment">// PHY提供的25MHz RGMII RXC</span><br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>]  rgmii_rxd,  <span class="hljs-comment">// RGMII数据线</span><br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>        rgmii_rx_ctl,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>]  rx_data,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>        rx_dv<br>);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🧩-时钟局部处理"><a href="#🧩-时钟局部处理" class="headerlink" title="🧩 时钟局部处理"></a>🧩 时钟局部处理</h2><p>由于<code>rx_clk</code>不是MRCC&#x2F;SRCC，我们<strong>不能直接BUFG分发</strong>。<br> 但是在25 MHz条件下，时钟抖动要求低，可以<strong>直接使用BUFHCE或普通布线</strong>（Vivado会自动插本地时钟树）。</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// 局部缓冲</span><br><span class="hljs-keyword">wire</span> rx_clk_buf;<br>BUFH rx_clk_bufh (<br>    <span class="hljs-variable">.I</span>(rx_clk),<br>    <span class="hljs-variable">.O</span>(rx_clk_buf)<br>);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🧠-ISERDESE2结构（单沿模式）"><a href="#🧠-ISERDESE2结构（单沿模式）" class="headerlink" title="🧠 ISERDESE2结构（单沿模式）"></a>🧠 ISERDESE2结构（单沿模式）</h2><p>虽然是单沿采样，但我们用ISERDESE2作为“形式上的一致结构”：</p>
+<ul>
+<li><code>DATA_WIDTH=4</code></li>
+<li><code>INTERFACE_TYPE=&quot;NETWORKING&quot;</code></li>
+<li><code>DATA_RATE=&quot;SDR&quot;</code>（单沿）</li>
+</ul>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs verilog">    <span class="hljs-keyword">genvar</span> i;<br>    <span class="hljs-keyword">generate</span><br>        <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">4</span>; i = i + <span class="hljs-number">1</span>) <span class="hljs-keyword">begin</span> : g_rx<br>            ISERDESE2 #(<br>                <span class="hljs-variable">.DATA_WIDTH</span>(<span class="hljs-number">4</span>),<br>                <span class="hljs-variable">.DATA_RATE</span>(<span class="hljs-string">&quot;SDR&quot;</span>),         <span class="hljs-comment">// 单沿</span><br>                <span class="hljs-variable">.INTERFACE_TYPE</span>(<span class="hljs-string">&quot;NETWORKING&quot;</span>),<br>                <span class="hljs-variable">.NUM_CE</span>(<span class="hljs-number">1</span>),<br>                <span class="hljs-variable">.IOBDELAY</span>(<span class="hljs-string">&quot;NONE&quot;</span>)<br>            ) u_iserdes_rxd (<br>                <span class="hljs-variable">.D</span>(rgmii_rxd[i]),<br>                <span class="hljs-variable">.CLK</span>(rx_clk_buf),          <span class="hljs-comment">// 本地25MHz时钟</span><br>                <span class="hljs-variable">.CLKB</span>(<span class="hljs-number">1&#x27;b0</span>),<br>                <span class="hljs-variable">.CLKDIV</span>(<span class="hljs-number">1&#x27;b0</span>),<br>                <span class="hljs-variable">.CE1</span>(<span class="hljs-number">1&#x27;b1</span>),<br>                <span class="hljs-variable">.RST</span>(<span class="hljs-number">1&#x27;b0</span>),<br>                <span class="hljs-variable">.Q1</span>(rx_data[i]),<br>                <span class="hljs-variable">.Q2</span>(),<br>                <span class="hljs-variable">.Q3</span>(),<br>                <span class="hljs-variable">.Q4</span>(),<br>                <span class="hljs-variable">.BITSLIP</span>(<span class="hljs-number">1&#x27;b0</span>),<br>                <span class="hljs-variable">.OFB</span>(),<br>                <span class="hljs-variable">.DYNCLKDIVSEL</span>(<span class="hljs-number">1&#x27;b0</span>),<br>                <span class="hljs-variable">.DYNCLKSEL</span>(<span class="hljs-number">1&#x27;b0</span>),<br>                <span class="hljs-variable">.SHIFTIN1</span>(),<br>                <span class="hljs-variable">.SHIFTIN2</span>(),<br>                <span class="hljs-variable">.SHIFTOUT1</span>(),<br>                <span class="hljs-variable">.SHIFTOUT2</span>(),<br>                <span class="hljs-variable">.O</span>()<br>            );<br>        <span class="hljs-keyword">end</span><br>    <span class="hljs-keyword">endgenerate</span><br><br>    ISERDESE2 #(<br>        <span class="hljs-variable">.DATA_WIDTH</span>(<span class="hljs-number">4</span>),<br>        <span class="hljs-variable">.DATA_RATE</span>(<span class="hljs-string">&quot;SDR&quot;</span>),<br>        <span class="hljs-variable">.INTERFACE_TYPE</span>(<span class="hljs-string">&quot;NETWORKING&quot;</span>)<br>    ) u_iserdes_ctl (<br>        <span class="hljs-variable">.D</span>(rgmii_rx_ctl),<br>        <span class="hljs-variable">.CLK</span>(rx_clk_buf),<br>        <span class="hljs-variable">.CE1</span>(<span class="hljs-number">1&#x27;b1</span>),<br>        <span class="hljs-variable">.RST</span>(<span class="hljs-number">1&#x27;b0</span>),<br>        <span class="hljs-variable">.Q1</span>(rx_dv)<br>    );<br><span class="hljs-keyword">endmodule</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🧱-OSERDESE2（发向PHY侧）"><a href="#🧱-OSERDESE2（发向PHY侧）" class="headerlink" title="🧱 OSERDESE2（发向PHY侧）"></a>🧱 OSERDESE2（发向PHY侧）</h2><p>TX方向同理，用OSERDESE2在单沿模式下输出。<br> 即使PHY期望DDR输入（在100M模式下，PHY内部也会按SDR采样）。</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">module</span> rgmii_tx_singleedge (<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>        tx_clk,     <span class="hljs-comment">// 本地25MHz</span><br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>]  tx_data,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>        tx_en,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>]  rgmii_txd,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>        rgmii_tx_ctl<br>);<br><br>    <span class="hljs-keyword">genvar</span> i;<br>    <span class="hljs-keyword">generate</span><br>        <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">4</span>; i = i + <span class="hljs-number">1</span>) <span class="hljs-keyword">begin</span> : g_tx<br>            OSERDESE2 #(<br>                <span class="hljs-variable">.DATA_WIDTH</span>(<span class="hljs-number">4</span>),<br>                <span class="hljs-variable">.DATA_RATE_OQ</span>(<span class="hljs-string">&quot;SDR&quot;</span>),<br>                <span class="hljs-variable">.SERDES_MODE</span>(<span class="hljs-string">&quot;MASTER&quot;</span>),<br>                <span class="hljs-variable">.INTERFACE_TYPE</span>(<span class="hljs-string">&quot;NETWORKING&quot;</span>)<br>            ) u_oserdes_txd (<br>                <span class="hljs-variable">.D1</span>(tx_data[i]),<br>                <span class="hljs-variable">.CLK</span>(tx_clk),<br>                <span class="hljs-variable">.CLKDIV</span>(<span class="hljs-number">1&#x27;b0</span>),<br>                <span class="hljs-variable">.RST</span>(<span class="hljs-number">1&#x27;b0</span>),<br>                <span class="hljs-variable">.OQ</span>(rgmii_txd[i]),<br>                <span class="hljs-variable">.TQ</span>(),<br>                <span class="hljs-variable">.T1</span>(<span class="hljs-number">1&#x27;b0</span>)<br>            );<br>        <span class="hljs-keyword">end</span><br>    <span class="hljs-keyword">endgenerate</span><br><br>    OSERDESE2 #(<br>        <span class="hljs-variable">.DATA_WIDTH</span>(<span class="hljs-number">4</span>),<br>        <span class="hljs-variable">.DATA_RATE_OQ</span>(<span class="hljs-string">&quot;SDR&quot;</span>),<br>        <span class="hljs-variable">.INTERFACE_TYPE</span>(<span class="hljs-string">&quot;NETWORKING&quot;</span>)<br>    ) u_oserdes_ctl (<br>        <span class="hljs-variable">.D1</span>(tx_en),<br>        <span class="hljs-variable">.CLK</span>(tx_clk),<br>        <span class="hljs-variable">.RST</span>(<span class="hljs-number">1&#x27;b0</span>),<br>        <span class="hljs-variable">.OQ</span>(rgmii_tx_ctl)<br>    );<br><span class="hljs-keyword">endmodule</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔍-实现细节与讲解"><a href="#🔍-实现细节与讲解" class="headerlink" title="🔍 实现细节与讲解"></a>🔍 实现细节与讲解</h2><table>
+<thead>
+<tr>
+<th>逻辑块</th>
+<th>作用</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>BUFH</code></td>
+<td>本地区域时钟缓冲</td>
+<td>替代BUFG，在非MRCC时提供短路径分发</td>
+</tr>
+<tr>
+<td><code>ISERDESE2(DATA_RATE=&quot;SDR&quot;)</code></td>
+<td>单沿采样接口</td>
+<td>可与DDR模式兼容封装，利于后续扩展</td>
+</tr>
+<tr>
+<td><code>OSERDESE2(DATA_RATE_OQ=&quot;SDR&quot;)</code></td>
+<td>单沿发送接口</td>
+<td>直接将4bit并行转1bit发送（SDR）</td>
+</tr>
+<tr>
+<td><code>INTERFACE_TYPE=&quot;NETWORKING&quot;</code></td>
+<td>确保时序对齐设置</td>
+<td>Vivado自动优化网络接口延迟约束</td>
+</tr>
+<tr>
+<td><code>Q1</code>输出</td>
+<td>每个时钟边沿采样数据</td>
+<td>Q2~Q4保留未用</td>
+</tr>
+<tr>
+<td><code>rx_clk_buf</code></td>
+<td>局部时钟域</td>
+<td>仅驱动RGMII接口区域逻辑</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="📈-时序与性能"><a href="#📈-时序与性能" class="headerlink" title="📈 时序与性能"></a>📈 时序与性能</h2><ul>
+<li><p>25 MHz 时钟下，IO延迟约束非常宽松；</p>
+</li>
+<li><p>即使走普通IOBANK非全局时钟布线，也可轻松满足setup&#x2F;hold；</p>
+</li>
+<li><p>如果使用Vivado自动推导约束，则添加：</p>
+<figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs tcl">set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets rx_clk]<br></code></pre></td></tr></table></figure>
+
+<p>（避免非MRCC警告）</p>
+</li>
+</ul>
+<hr>
+<h2 id="🔄-升级到DDR的接口兼容性"><a href="#🔄-升级到DDR的接口兼容性" class="headerlink" title="🔄 升级到DDR的接口兼容性"></a>🔄 升级到DDR的接口兼容性</h2><p>后续若更换硬件，将RGMII时钟接入MRCC，可直接修改：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-variable">.DATA_RATE</span>(<span class="hljs-string">&quot;DDR&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>并添加相位调整（90° TXC偏移），即可扩展至1 Gbps全速模式。</p>
+<hr>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><table>
+<thead>
+<tr>
+<th>目标</th>
+<th>实现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>时钟非MRCC&#x2F;SRCC</td>
+<td>使用BUFH局部驱动</td>
+</tr>
+<tr>
+<td>保持ISERDES&#x2F;OSERDES结构</td>
+<td>可升级兼容</td>
+</tr>
+<tr>
+<td>单沿采样，25MHz速率</td>
+<td>适配100M PHY模式</td>
+</tr>
+<tr>
+<td>确保时序</td>
+<td>Vivado自动优化，约束简洁</td>
+</tr>
+</tbody></table>
+<hr>
+<p>是否希望我接着帮你写一个<strong>完整RGMII单口100M仿真 testbench（含RXC&#x2F;RXD波形与帧同步逻辑）</strong>？<br> 可以直接跑在Vivado Sim &#x2F; cocotb上验证这个方案。</p>
+<p>非常关键的问题 👍 ——<br> 当 <strong>K7 板上没有把 RGMII 时钟接到 MRCC&#x2F;SRCC</strong>，而你希望用<strong>本地25 MHz时钟作为 <code>tx_clk</code> 输出到 PHY（TXC）</strong>，就必须考虑以下 3 个核心点：</p>
+<hr>
+<h2 id="🧩-一、25-MHz-本地-TX-时钟的作用与要求"><a href="#🧩-一、25-MHz-本地-TX-时钟的作用与要求" class="headerlink" title="🧩 一、25 MHz 本地 TX 时钟的作用与要求"></a>🧩 一、25 MHz 本地 TX 时钟的作用与要求</h2><p>在 100 Mbps 模式下：</p>
+<ul>
+<li>RGMII 的 <strong>TXC</strong> 频率 &#x3D; <strong>25 MHz</strong>；</li>
+<li><strong>PHY 以 TXC 的上升沿采样 TXD[3:0] &#x2F; TX_CTL</strong>；</li>
+<li>FPGA 侧必须：<ul>
+<li>输出稳定、占空比接近 50% 的 25 MHz；</li>
+<li>TXC 与 TXD、TX_CTL 的时序满足 RGMII 标准（典型要求：TXD&#x2F;CTL 相对 TXC <strong>滞后 1.5~2 ns</strong>）。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="⚙️-二、时钟生成方案选择"><a href="#⚙️-二、时钟生成方案选择" class="headerlink" title="⚙️ 二、时钟生成方案选择"></a>⚙️ 二、时钟生成方案选择</h2><p>根据你系统是否有全局参考时钟（如系统 100 MHz &#x2F; 125 MHz），可以分为三种方案：</p>
+<h3 id="✅-方案-1：已有稳定-25-MHz-全局时钟（推荐）"><a href="#✅-方案-1：已有稳定-25-MHz-全局时钟（推荐）" class="headerlink" title="✅ 方案 1：已有稳定 25 MHz 全局时钟（推荐）"></a>✅ 方案 1：已有稳定 25 MHz 全局时钟（推荐）</h3><ul>
+<li><p>如果板上已经有 25 MHz 晶振或时钟源（接 MRCC&#x2F;SRCC），直接用它；</p>
+</li>
+<li><p>经过 <code>BUFG</code> 后输出到 RGMII TXC；</p>
+</li>
+<li><p>使用 <strong>ODDR</strong> 产生 TXC：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">wire</span> tx_clk_int;<br>ODDR #(<br>    <span class="hljs-variable">.DDR_CLK_EDGE</span>(<span class="hljs-string">&quot;SAME_EDGE&quot;</span>)<br>) u_oddr_txc (<br>    <span class="hljs-variable">.C</span>   (clk_25m),  <span class="hljs-comment">// 来自 BUFG 的全局25MHz</span><br>    <span class="hljs-variable">.CE</span>  (<span class="hljs-number">1&#x27;b1</span>),<br>    <span class="hljs-variable">.D1</span>  (<span class="hljs-number">1&#x27;b1</span>),<br>    <span class="hljs-variable">.D2</span>  (<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.Q</span>   (rgmii_txc)<br>);<br></code></pre></td></tr></table></figure>
+
+<p>这样输出的 TXC 为 50% 占空比，供 PHY 采样。</p>
+</li>
+</ul>
+<hr>
+<h3 id="⚙️-方案-2：只有系统时钟（如-100-MHz）时"><a href="#⚙️-方案-2：只有系统时钟（如-100-MHz）时" class="headerlink" title="⚙️ 方案 2：只有系统时钟（如 100 MHz）时"></a>⚙️ 方案 2：只有系统时钟（如 100 MHz）时</h3><ul>
+<li><p>使用 <strong>MMCM&#x2F;PLL</strong> 生成 25 MHz；</p>
+</li>
+<li><p>例如：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs verilog">MMCME2_BASE #(<br>    <span class="hljs-variable">.CLKIN1_PERIOD</span>(<span class="hljs-number">10</span><span class="hljs-variable">.0</span>),        <span class="hljs-comment">// 100MHz</span><br>    <span class="hljs-variable">.CLKFBOUT_MULT_F</span>(<span class="hljs-number">10</span><span class="hljs-variable">.0</span>),<br>    <span class="hljs-variable">.DIVCLK_DIVIDE</span>(<span class="hljs-number">1</span>),<br>    <span class="hljs-variable">.CLKOUT0_DIVIDE_F</span>(<span class="hljs-number">40</span><span class="hljs-variable">.0</span>)      <span class="hljs-comment">// 输出25MHz</span><br>) u_mmcm (<br>    <span class="hljs-variable">.CLKIN1</span>(sys_clk),<br>    <span class="hljs-variable">.CLKFBIN</span>(clkfb),<br>    <span class="hljs-variable">.CLKFBOUT</span>(clkfb),<br>    <span class="hljs-variable">.CLKOUT0</span>(clk_25m),<br>    <span class="hljs-variable">.LOCKED</span>(mmcm_locked)<br>);<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>然后经 BUFG → ODDR 输出至 <code>rgmii_txc</code>。</p>
+</li>
+<li><p>同时 <code>clk_25m</code> 也是你 <code>rgmii_tx_singleedge</code> 的内部发送时钟。</p>
+</li>
+</ul>
+<hr>
+<h3 id="⚙️-方案-3：板上25-MHz信号非MRCC，仅作普通IO输入"><a href="#⚙️-方案-3：板上25-MHz信号非MRCC，仅作普通IO输入" class="headerlink" title="⚙️ 方案 3：板上25 MHz信号非MRCC，仅作普通IO输入"></a>⚙️ 方案 3：板上25 MHz信号非MRCC，仅作普通IO输入</h3><ul>
+<li><p>不能直接送入 MMCM&#x2F;PLL；</p>
+</li>
+<li><p>可通过 BUFH &#x2F; IDELAY 调整；</p>
+</li>
+<li><p>作为局部时钟使用即可（只要 TX 逻辑与 TXC 同步域内一致即可）；</p>
+</li>
+<li><p>时钟树拓扑为：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">25MHz<span class="hljs-emphasis">_in_pin → BUFH → TXC ODDR → PHY</span><br><span class="hljs-emphasis">25MHz_in_</span>pin → TX logic 同步域<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>因为频率低、布线延迟稳定，这种“局部同步”是安全的。</p>
+</li>
+</ul>
+<hr>
+<h2 id="🧱-三、TXC-与-TXD-时序对齐（RGMII标准要求）"><a href="#🧱-三、TXC-与-TXD-时序对齐（RGMII标准要求）" class="headerlink" title="🧱 三、TXC 与 TXD 时序对齐（RGMII标准要求）"></a>🧱 三、TXC 与 TXD 时序对齐（RGMII标准要求）</h2><p>RGMII 规定：</p>
+<blockquote>
+<p>TXD[3:0] 与 TX_CTL 必须在 TXC 上升沿前约 1.5–2 ns 提前稳定。</p>
+</blockquote>
+<p>在 FPGA 中常用两种方式实现这个相位关系：</p>
+<h3 id="✅-方法-1：MMCM-输出两路时钟"><a href="#✅-方法-1：MMCM-输出两路时钟" class="headerlink" title="✅ 方法 1：MMCM 输出两路时钟"></a>✅ 方法 1：MMCM 输出两路时钟</h3><ul>
+<li><p>一路用于 ODDR 产生 TXC；</p>
+</li>
+<li><p>另一路相位提前（或滞后）1.5–2 ns，用于驱动 OSERDES；</p>
+</li>
+<li><p>实例：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs verilog">MMCME2_BASE #(<br>    <span class="hljs-variable">.CLKOUT0_PHASE</span>(<span class="hljs-number">0</span><span class="hljs-variable">.0</span>),    <span class="hljs-comment">// TXC 输出</span><br>    <span class="hljs-variable">.CLKOUT1_PHASE</span>(<span class="hljs-number">90</span><span class="hljs-variable">.0</span>)    <span class="hljs-comment">// TXD 提前约2.5ns (25MHz)</span><br>) u_mmcm ( ... );<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><code>CLKOUT1</code> 驱动 OSERDESE2；</p>
+</li>
+<li><p><code>CLKOUT0</code> 通过 ODDR 驱动 <code>rgmii_txc</code>；</p>
+</li>
+<li><p>达到精确相位对齐。</p>
+</li>
+</ul>
+<hr>
+<h3 id="✅-方法-2：TXC-延迟输出"><a href="#✅-方法-2：TXC-延迟输出" class="headerlink" title="✅ 方法 2：TXC 延迟输出"></a>✅ 方法 2：TXC 延迟输出</h3><ul>
+<li><p>更简单，在 ODDR 之后通过 <strong>ODELAYE2</strong> 加固定延时（如 1.8 ns）：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">wire</span> txc_oddr;<br>ODDR <span class="hljs-variable">#(.DDR_CLK_EDGE(&quot;SAME_EDGE&quot;))</span><br>u_oddr_txc (<span class="hljs-variable">.C</span>(clk_25m), <span class="hljs-variable">.D1</span>(<span class="hljs-number">1&#x27;b1</span>), <span class="hljs-variable">.D2</span>(<span class="hljs-number">1&#x27;b0</span>), <span class="hljs-variable">.Q</span>(txc_oddr));<br><br>ODELAYE2 #(<br>    <span class="hljs-variable">.ODELAY_TYPE</span>(<span class="hljs-string">&quot;FIXED&quot;</span>),<br>    <span class="hljs-variable">.ODELAY_VALUE</span>(<span class="hljs-number">75</span>) <span class="hljs-comment">// 75 * 26ps ≈ 1.95ns</span><br>) u_odelay_txc (<br>    <span class="hljs-variable">.ODATAIN</span>(txc_oddr),<br>    <span class="hljs-variable">.DATAOUT</span>(rgmii_txc)<br>);<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>这样 TXD 与 TXC 自动满足 RGMII 时序要求。</p>
+</li>
+</ul>
+<hr>
+<h2 id="🔍-四、Vivado-约束建议"><a href="#🔍-四、Vivado-约束建议" class="headerlink" title="🔍 四、Vivado 约束建议"></a>🔍 四、Vivado 约束建议</h2><figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs tcl"><span class="hljs-comment"># 声明 25MHz 时钟</span><br>create_clock -name tx_clk_25m -period <span class="hljs-number">40.000</span> [get_ports clk_25m]<br><br><span class="hljs-comment"># 忽略 TXC 非MRCC路径警告</span><br>set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk_25m]<br><br><span class="hljs-comment"># RGMII TX 时序约束</span><br>set_output_delay -<span class="hljs-keyword">clock</span> [get_clocks tx_clk_25m] -max <span class="hljs-number">2.0</span> [get_ports rgmii_txd*]<br>set_output_delay -<span class="hljs-keyword">clock</span> [get_clocks tx_clk_25m] -min <span class="hljs-number">-1.0</span> [get_ports rgmii_txd*]<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="✅-最终小结"><a href="#✅-最终小结" class="headerlink" title="✅ 最终小结"></a>✅ 最终小结</h2><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>处理方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>本地25 MHz来源</td>
+<td>可为系统时钟分频或独立晶振</td>
+</tr>
+<tr>
+<td>非MRCC输入</td>
+<td>用 BUFH 驱动，局部使用</td>
+</tr>
+<tr>
+<td>输出至 PHY</td>
+<td>经 ODDR 产生方波，再经 ODELAY 调整相位</td>
+</tr>
+<tr>
+<td>TXD&#x2F;CTL 驱动</td>
+<td>使用相同时钟或相位提前时钟</td>
+</tr>
+<tr>
+<td>满足时序</td>
+<td>Vivado 约束即可通过</td>
+</tr>
+</tbody></table>
+<hr>
+<p>如果你告诉我你的 <strong>25 MHz来源（晶振、分频、PHY反馈等）</strong>，<br> 我可以帮你给出一份<strong>完整的 K7 RGMII TX 时钟域结构图 + 实际 Verilog 模块实现模板</strong>，保证时序安全、波形正确。<br> 是否要我这样生成？</p>
+<p>好——这是个非常实际的工程选择题。我把两种来源（<strong>晶振 25 MHz</strong> vs <strong>PHY 的 rx_clk（PHY 输出的 25 MHz）</strong>）从可实现性、相位&#x2F;时序、抖动与锁相、工程复杂度、健壮性与调试角度逐项对比，最后给出<strong>明确的最佳方案</strong>（含实现步骤与必要的器件&#x2F;原语建议），以及在不同板级&#x2F;约束条件下的备选方案。</p>
+<hr>
+<h1 id="结论（先给结论）"><a href="#结论（先给结论）" class="headerlink" title="结论（先给结论）"></a>结论（先给结论）</h1><p><strong>首选（最佳方案）—— 若可取得 PHY 的 rx_clk：优先使用 PHY 的 rx_clk 作为 tx_clk 源（并做局部缓冲与必要的相位调整）。</strong><br> 理由：它与 PHY 的内部时序天然一致，能最小化接口相位差与 IDELAY 校准开销，工程上最简单可靠。</p>
+<p><strong>备选</strong>—— 如果 PHY 的 rx_clk 无法稳定回 FPGA（或走线质量差&#x2F;不可用），则使用板上或 FPGA 内由晶振 &#x2F; 系统时钟经 MMCM&#x2F;PLL 生成的 25 MHz，并用 MMCM 相位输出或 ODELAY 调整 TXD 相位以满足 RGMII 要求。</p>
+<p>下面逐项说明为什么，以及具体如何实现与注意事项。</p>
+<hr>
+<h1 id="一、比较要点（逐项）"><a href="#一、比较要点（逐项）" class="headerlink" title="一、比较要点（逐项）"></a>一、比较要点（逐项）</h1><h3 id="1-相位对齐-x2F-时序（最重要）"><a href="#1-相位对齐-x2F-时序（最重要）" class="headerlink" title="1) 相位对齐 &#x2F; 时序（最重要）"></a>1) 相位对齐 &#x2F; 时序（最重要）</h3><ul>
+<li><strong>PHY rx_clk（优点）</strong>：PHY 自身采样 TXD&#x2F;TX_CTL 基于它自己的本地时钟源。使用 PHY 提供的 rx_clk（或 PHY 的本地 25 MHz）作为 tx_clk，会让 FPGA 输出与 PHY 内部采样在相位上天然一致或更容易校准，减少必须的 IDELAY&#x2F;相位调整量。</li>
+<li><strong>晶振 &#x2F; MMCM（缺点）</strong>：即便频率相同，晶振源（尤其若晶振只给 FPGA 或只给 PHY）可能在相位上有偏移，MMCM 生成的 25 MHz 与 PHY 采样相位不一定对齐；因此需要通过 MMCM 相位输出或 ODELAY&#x2F;ODELAYE2 来人为调整，增加设计复杂度。</li>
+</ul>
+<h3 id="2-抖动（Jitter）与稳定性"><a href="#2-抖动（Jitter）与稳定性" class="headerlink" title="2) 抖动（Jitter）与稳定性"></a>2) 抖动（Jitter）与稳定性</h3><ul>
+<li><strong>PHY rx_clk</strong>：通常PHY的时钟是为网口稳定生成的，抖动对PHY内核和收发都设计过（尤其是固定晶振PHY），所以作为 tx_clk 往往够稳定。</li>
+<li><strong>MMCM&#x2F;PLL 生成</strong>：MMCM 会增加相位噪声（但一般很小），如果使用锁定到系统时钟且配置合理，抖动也在可接受范围。缺点是：若 MMCM 解锁或产生细微相位漂移，可能影响 RGMII 时序。</li>
+</ul>
+<h3 id="3-可获取性-x2F-布局（PCB-实际性）"><a href="#3-可获取性-x2F-布局（PCB-实际性）" class="headerlink" title="3) 可获取性 &#x2F; 布局（PCB 实际性）"></a>3) 可获取性 &#x2F; 布局（PCB 实际性）</h3><ul>
+<li><strong>PHY rx_clk</strong>：如果 PHY 已把 rx_clk 通过走线回 FPGA 且位置合理（短、匹配），直接用是最简单。但如果 rx_clk 没走到 MRCC&#x2F;SRCC，也不能用作全局分发——不过我们只需局部缓冲（BUFH&#x2F;IBUF）驱动 RGMII IO 的发送逻辑即可。</li>
+<li><strong>晶振 25M（直接给 FPGA）</strong>：如果板上晶振输出直接接 FPGA 的专用时钟引脚（MRCC&#x2F;SRCC），那更有利于 MMCM&#x2F;BUF 分发。但很多设计是晶振只给 PHY，或晶振只给 FPGA，不一定两边共享同一源。</li>
+</ul>
+<h3 id="4-可调相位-x2F-易调试性"><a href="#4-可调相位-x2F-易调试性" class="headerlink" title="4) 可调相位 &#x2F; 易调试性"></a>4) 可调相位 &#x2F; 易调试性</h3><ul>
+<li><strong>PHY rx_clk</strong>：少数情况下，你需要做小幅相位调整（如通过 ODELAY 在 TXC 上做微调），但总体工作量小。</li>
+<li><strong>MMCM</strong>：可以生成多个相位输出（很方便做精确相位提前&#x2F;滞后），但要配置好 MMCM，且 MMCM 有 lock 延迟、复位行为需要管理。</li>
+</ul>
+<h3 id="5-对时序分析（STA）的影响"><a href="#5-对时序分析（STA）的影响" class="headerlink" title="5) 对时序分析（STA）的影响"></a>5) 对时序分析（STA）的影响</h3><ul>
+<li>如果将 rx_clk 做为本地采样时钟但不是走专用时钟引脚（非 MRCC&#x2F;SRCC），要在 XDC 中设置 <code>set_property CLOCK_DEDICATED_ROUTE FALSE</code> 或正确设置 clock groups、false paths，避免 Vivado 在 STA 报告里产生大量不可解的路径或警告。总体上，PHY rx_clk 作为局部时钟是可行的，但需要在约束上处理好跨域。</li>
+</ul>
+<hr>
+<h1 id="二、最佳方案（详细步骤与实现建议）"><a href="#二、最佳方案（详细步骤与实现建议）" class="headerlink" title="二、最佳方案（详细步骤与实现建议）"></a>二、最佳方案（详细步骤与实现建议）</h1><blockquote>
+<p><strong>场景假设（最佳场景）：PHY 输出 rx_clk 到 FPGA（普通 IO），并且该 rx_clk 时序稳定、走线合理。</strong></p>
+</blockquote>
+<h2 id="设计目标"><a href="#设计目标" class="headerlink" title="设计目标"></a>设计目标</h2><ul>
+<li>使用 PHY 提供的 <code>rx_clk</code>（≈25MHz）作为 <code>tx_clk</code> 源（后者输出到 PHY 的 TXC 引脚），保证 TXD&#x2F;TX_CTL 在 TXC 上升沿前达成 RGMII 要求（通常数据在上升沿前稳定 ~1.5–2 ns）。</li>
+</ul>
+<h2 id="核心步骤（实施清单）"><a href="#核心步骤（实施清单）" class="headerlink" title="核心步骤（实施清单）"></a>核心步骤（实施清单）</h2><ol>
+<li><strong>把 PHY 的 rx_clk 回到 FPGA 的一个 IO 引脚</strong>（假设已完成）。</li>
+<li><strong>本地缓冲</strong>：在 FPGA 内对 <code>rx_clk</code> 做本地缓冲（不要直接 BUFG 到全芯片）：<ul>
+<li><code>IBUF</code> -&gt; <code>BUFH</code>（或 <code>BUFHCE</code>） -&gt; <code>rx_clk_buf</code>。<br> 目的：把 <code>rx_clk</code> 做成本地时钟驱动 RGMII I&#x2F;O 区域的逻辑，而不污染全局时钟树。</li>
+</ul>
+</li>
+<li><strong>用 ODDR 生成 TXC 输出</strong>：<ul>
+<li>把 <code>rx_clk_buf</code> 作为 ODDR 的 <code>C</code>，用 <code>D1=1,D2=0</code> 生成 50% 方波驱动 <code>rgmii_txc</code>。此 ODDR 放在 IOB，确保输出时序最紧。</li>
+</ul>
+</li>
+<li><strong>驱动 TXD&#x2F;TX_CTL</strong>：<ul>
+<li>在同一 <code>rx_clk_buf</code> 的上升沿把 TXD&#x2F;TX_CTL 寄存在靠近 IOB 的 FF（使用 <code>(* IOB=&quot;TRUE&quot; *)</code> 或用 OSERDESE2 在 SDR 模式）并输出。</li>
+<li>目标：让 TXD 在 TXC 上升沿前稳定（若 PHY 需要数据在上升沿<strong>前</strong>稳定）。</li>
+</ul>
+</li>
+<li><strong>相位微调（如需要）</strong>：<ul>
+<li>若测量发现 TXD 在 TXC 上升沿与 PHY 要求仍有偏差，可在 TXC（或 TXD）上使用 <code>ODELAYE2</code> &#x2F; <code>ODDR+ODELAY</code> 做固定延时（例如 ~1.5–2.0 ns），或使用 MMCM 产生相位提前的时钟（但 MMCM 在非MRCC输入下可能不方便）。</li>
+<li>常见做法：在 ODDR 输出 TXC 后接 <code>ODELAYE2</code> 固定微调（设置 ODELAY_VALUE），或在 TXD 路径上提前一个相位的时钟驱动 OSERDESE2（若你能用 MMCM 产生第二路相位提前输出）。</li>
+</ul>
+</li>
+<li><strong>板级测量并校准</strong>：<ul>
+<li>上板用示波器测量 <code>rgmii_txc</code> 与 <code>rgmii_txd[n]</code> 的相位差，目标满足 PHY 数据稳定窗（通常文档会给出）。</li>
+<li>若需要，运行一个小脚本&#x2F;固件预写 ODELAY 值或在 FPGA 上电时运行训练（扫描 ODELAY 值找到最佳）。</li>
+</ul>
+</li>
+<li><strong>Vivado 约束</strong>：<ul>
+<li><code>create_clock -name RGMII_RX_CLK -period 40.0 [get_ports rgmii_rx_clk]</code>（或对内部 net）</li>
+<li>若 <code>rx_clk</code> 不是走专用布线，设置 <code>set_property CLOCK_DEDICATED_ROUTE FALSE</code> &#x2F; 把 RGMII domain 标为局部并设置 <code>set_clock_groups -asynchronous</code> 与 MAC domain。</li>
+<li>对输出加入 <code>set_output_delay</code>，并加 <code>set_false_path</code> 跨域（MAC↔RGMII）。</li>
+</ul>
+</li>
+<li><strong>跨域处理</strong>：<ul>
+<li>PHY 接口使用 <code>rx_clk_buf</code> 为接口域时，MAC 可能运行在其它时钟（如 25&#x2F;125&#x2F;100MHz），确保在传递帧到 MAC 或从 MAC 读取帧时做好 CDC（双火线同步或 FIFO）。</li>
+</ul>
+</li>
+</ol>
+<h2 id="推荐器件原语与布置"><a href="#推荐器件原语与布置" class="headerlink" title="推荐器件原语与布置"></a>推荐器件原语与布置</h2><ul>
+<li><code>IBUF</code>、<code>BUFH</code>（或 <code>BUFHCE</code>）用于 rx_clk 本地缓冲</li>
+<li><code>ODDR</code> 放 IOB 生成 TXC（50% 方波）</li>
+<li><code>OSERDESE2</code>（SDR 或 DDR 可选）或直接 IOB FF 输出 TXD&#x2F;TX_CTL</li>
+<li><code>ODELAYE2</code>（可选）对 TXC 或 TXD 做固定延时修正</li>
+<li>在每个使用 IDELAY 的 bank 配置 <code>IDELAYCTRL</code>（若需要）</li>
+</ul>
+<hr>
+<h1 id="三、若-PHY-rx-clk-不可用（备选：用晶振-x2F-MMCM）"><a href="#三、若-PHY-rx-clk-不可用（备选：用晶振-x2F-MMCM）" class="headerlink" title="三、若 PHY rx_clk 不可用（备选：用晶振&#x2F;MMCM）"></a>三、若 PHY rx_clk 不可用（备选：用晶振&#x2F;MMCM）</h1><p>如果 PHY 的 rx_clk 没回到 FPGA、走线差或质量差（噪声&#x2F;抖动），改用晶振&#x2F;MMCM 会更稳妥。要点如下：</p>
+<h2 id="实现要点（备选方案）"><a href="#实现要点（备选方案）" class="headerlink" title="实现要点（备选方案）"></a>实现要点（备选方案）</h2><ol>
+<li><strong>用 MMCM&#x2F;PLL 从系统时钟（如 100MHz&#x2F;125MHz）生成 25MHz</strong>（并生成一条<strong>相位提前</strong>的 25MHz 输出用于驱动 TXD）。<ul>
+<li>例如：<code>CLKOUT0</code> 给 ODDR（产生 TXC）；<code>CLKOUT1</code> 相位提前 x ns，驱动 OSERDESE2 以确保 TXD 在 TXC 上升沿前稳定。</li>
+</ul>
+</li>
+<li><strong>MMCM 优势</strong>：你能精确设置相位（度&#x2F;度数或时间），非常适合严格相位要求。</li>
+<li><strong>缺点</strong>：MMCM 配置与 lock 状态管理增加复杂度；如果 MMCM 输入不稳定会影响连接；还需确保 MMCM 输出与 PHY 时钟源频率精确匹配（频率漂移问题）。</li>
+<li><strong>相位对齐方法</strong>：通过 MMCM 的 <code>CLKOUTn_PHASE</code> 或 <code>CLKOUTn_DIVIDE</code> 精调，或者输出 TXC 再用 ODELAY 在 TXC 上微调。</li>
+</ol>
+<h2 id="何时选这个方案？"><a href="#何时选这个方案？" class="headerlink" title="何时选这个方案？"></a>何时选这个方案？</h2><ul>
+<li>PHY rx_clk 未被回到 FPGA 或回到的布线不合格</li>
+<li>你需要精确控制相位（MMCM 提供比 ODELAY 更可控的相位调整）</li>
+<li>你可以接受 MMCM 的资源、锁定时间与复杂度</li>
+</ul>
+<hr>
+<h1 id="四、工程建议与调试步骤（实践）"><a href="#四、工程建议与调试步骤（实践）" class="headerlink" title="四、工程建议与调试步骤（实践）"></a>四、工程建议与调试步骤（实践）</h1><ol>
+<li><strong>优先试用 PHY rx_clk：</strong><ul>
+<li>直接用 <code>IBUF</code>-&gt;<code>BUFH</code>-&gt;<code>ODDR</code> 生成 TXC；TXD 用同一 <code>BUFH</code> 作为时钟寄存输出。</li>
+<li>上板：示波器测量 TXD 相对于 TXC 上升沿的位置。</li>
+</ul>
+</li>
+<li><strong>若相位不足</strong>：先在 TXC 上用 <code>ODELAYE2</code> 加 1–3 ns，测量是否满足规范。</li>
+<li><strong>如果需要更精确</strong>：用 MMCM 产生相位提前的驱动时钟给 TXD（或相位滞后给 TXC），作最后微调。</li>
+<li><strong>在 Vivado 里</strong>：声明 RGMII 时钟，设 false paths，避免 STA 误报。</li>
+<li><strong>写个上电训练流程（建议）</strong>：若 PHY 支持，把 PHY 配成 loopback 或 training pattern，逐步扫描 ODELAY 值（或 OSERDESE2 相位）找最大稳定窗口中心并锁定到寄存器。</li>
+</ol>
+<hr>
+<h1 id="五、总结对照表"><a href="#五、总结对照表" class="headerlink" title="五、总结对照表"></a>五、总结对照表</h1><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>PHY rx_clk（首选）</th>
+<th>晶振&#x2F;MMCM（备选）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>相位天然一致</td>
+<td>✅（通常）</td>
+<td>❌（需 MMCM&#x2F;ODELAY 调整）</td>
+</tr>
+<tr>
+<td>实现复杂度</td>
+<td>低（本地缓冲 + ODDR）</td>
+<td>中（MMCM 配置、锁定管理）</td>
+</tr>
+<tr>
+<td>精确相位控制</td>
+<td>中（可用 ODELAY）</td>
+<td>高（MMCM 相位输出）</td>
+</tr>
+<tr>
+<td>抖动&#x2F;稳定</td>
+<td>通常良好</td>
+<td>良好（取决于 PLL 配置）</td>
+</tr>
+<tr>
+<td>调试难度</td>
+<td>低</td>
+<td>中高</td>
+</tr>
+<tr>
+<td>推荐场景</td>
+<td>PHY rx_clk 可用且走线质量好</td>
+<td>PHY rx_clk 不可用或需精确相位控制</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="最后-—-给你一份简单参考的实现片段（基于首选方案：PHY-rx-clk-作为-tx-clk-源）"><a href="#最后-—-给你一份简单参考的实现片段（基于首选方案：PHY-rx-clk-作为-tx-clk-源）" class="headerlink" title="最后 — 给你一份简单参考的实现片段（基于首选方案：PHY rx_clk 作为 tx_clk 源）"></a>最后 — 给你一份简单参考的实现片段（基于首选方案：PHY rx_clk 作为 tx_clk 源）</h1><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// rx_clk -&gt; local buffer -&gt; ODDR generate txc</span><br><span class="hljs-keyword">wire</span> rx_clk_buf;<br>IBUF ibuf_rxclk(<span class="hljs-variable">.I</span>(rgmii_rx_clk_pin), <span class="hljs-variable">.O</span>(rx_clk_buf_int));<br>BUFH bufh_rxclk(<span class="hljs-variable">.I</span>(rx_clk_buf_int), <span class="hljs-variable">.O</span>(rx_clk_buf)); <span class="hljs-comment">// local region buffer</span><br><br><span class="hljs-comment">// ODDR generate TXC (place in IOB)</span><br>(* IOB =<span class="hljs-string">&quot;TRUE&quot;</span> *) <br>ODDR odr_txc (<br>  <span class="hljs-variable">.Q</span>(rgmii_txc),<br>  <span class="hljs-variable">.C</span>(rx_clk_buf),<br>  <span class="hljs-variable">.CE</span>(<span class="hljs-number">1&#x27;b1</span>),<br>  <span class="hljs-variable">.D1</span>(<span class="hljs-number">1&#x27;b1</span>),<br>  <span class="hljs-variable">.D2</span>(<span class="hljs-number">1&#x27;b0</span>),<br>  <span class="hljs-variable">.R</span>(<span class="hljs-number">1&#x27;b0</span>),<br>  <span class="hljs-variable">.S</span>(<span class="hljs-number">1&#x27;b0</span>)<br>);<br><br><span class="hljs-comment">// TXD: register on rx_clk_buf rising edge and output to pins (FDRE in IOB)</span><br>(* IOB =<span class="hljs-string">&quot;TRUE&quot;</span> *) <span class="hljs-keyword">reg</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>] txd_iob;<br><span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> rx_clk_buf <span class="hljs-keyword">or</span> <span class="hljs-keyword">negedge</span> rstn) <span class="hljs-keyword">begin</span><br>   <span class="hljs-keyword">if</span> (!rstn) txd_iob &lt;= <span class="hljs-number">4&#x27;b0</span>;<br>   <span class="hljs-keyword">else</span> txd_iob &lt;= mac_tx_nibble; <span class="hljs-comment">// from MAC logic</span><br><span class="hljs-keyword">end</span><br><span class="hljs-keyword">assign</span> rgmii_txd = txd_iob;<br></code></pre></td></tr></table></figure>
+
+<p>若测得 <code>rgmii_txd</code> 在 <code>rgmii_txc</code> 上升沿不满足 timing，可在 <code>rgmii_txc</code> 后接 <code>ODELAYE2</code> 增加延时；或把 <code>txd_iob</code> 用相位提前的时钟驱动（若你能用 MMCM 产生）。</p>
+<hr>
+<p>需要我现在替你：</p>
+<ul>
+<li><ol>
+<li>给出<strong>含 ODELAYE2 自动扫描&#x2F;训练</strong>的 Verilog 模块（上电自动找到最佳 ODELAY 值并锁定），还是</li>
+</ol>
+</li>
+<li><ol>
+<li>给出<strong>MMCM 两输出相位版</strong>（具体到 MMCME2_BASE 的参数与示例），或者</li>
+</ol>
+</li>
+<li><ol>
+<li>直接把上面的首选方案做成可综合的 top-level 模块并生成对应 XDC？</li>
+</ol>
+</li>
+</ul>
+<p>你选 1 &#x2F; 2 &#x2F; 3 中的一项，我马上把实现代码 + XDC 模板给你。</p>
+<p>好的，这是一个非常经典且棘手的硬件设计问题。当为FPGA（如Xilinx 7系列）设计电路板时，没有将RGMII的时钟连接到专用的时钟输入引脚（MRCC&#x2F;SRCC），会给逻辑设计带来很大的挑战。但别担心，通过合理的逻辑规划，这个问题是<strong>可以解决的</strong>。</p>
+<p>下面我将分两部分详细讲解：<strong>逻辑实现规划</strong>和<strong>布局布线错误的解决</strong>。</p>
+<h3 id="第一部分：逻辑实现规划"><a href="#第一部分：逻辑实现规划" class="headerlink" title="第一部分：逻辑实现规划"></a>第一部分：逻辑实现规划</h3><p>核心思想是：既然时钟没有进入专用的时钟路径，我们就需要在FPGA内部逻辑资源（CLB）中，对这个时钟信号进行特殊处理，以解决<strong>时钟偏斜</strong>和<strong>时序约束</strong>的问题。</p>
+<h4 id="关键步骤："><a href="#关键步骤：" class="headerlink" title="关键步骤："></a>关键步骤：</h4><p><strong>1. 使用通用IO引脚和内部缓冲器</strong></p>
+<ul>
+<li><p>假设RGMII的<code>TX_CLK</code>和<code>RX_CLK</code>被连接到了普通的IO引脚（即非MRCC&#x2F;SRCC引脚）。</p>
+</li>
+<li><p>在代码中，你需要直接将这些引脚定义为普通输入&#x2F;输出。</p>
+</li>
+<li><p>在约束文件（XDC）中，使用<code>create_clock</code>命令为这些时钟创建约束，即使它们来自普通IO。Vivado仍然会对其进行时序分析。</p>
+<figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs tcl"><span class="hljs-comment"># 示例：约束RGMII接收时钟，125MHz</span><br>create_clock -name rgmii_rx_clk -period <span class="hljs-number">8.000</span> [get_ports rgmii_rxc]<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>2. 使用BUFG驱动全局时钟网络</strong></p>
+<p>这是<strong>最重要的一步</strong>。你不能让来自普通IO的时钟信号直接驱动逻辑，必须先用一个<strong>BUFG</strong>来缓冲它。</p>
+<ul>
+<li><p><strong>为什么？</strong> BUFG可以驱动全局时钟树，将时钟信号分配到整个芯片，从而最大限度地减少到不同逻辑单元的偏斜。如果不使用BUFG，时钟偏斜会非常大，几乎不可能满足时序要求。</p>
+</li>
+<li><p><strong>如何做？</strong></p>
+<ul>
+<li><strong>在代码中实例化</strong>：更直接，推荐使用。</li>
+</ul>
+  <figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// Verilog 示例</span><br><span class="hljs-keyword">wire</span> rgmii_rx_clk_ibuf;<br><span class="hljs-keyword">wire</span> rgmii_rx_clk_bufg;<br><br><span class="hljs-comment">// 1. 输入缓冲（IBUF可能由工具自动添加）</span><br>IBUF rgmii_rx_clk_ibuf_inst (<br>    <span class="hljs-variable">.I</span>(rgmii_rxc),<br>    <span class="hljs-variable">.O</span>(rgmii_rx_clk_ibuf)<br>);<br><br><span class="hljs-comment">// 2. 全局时钟缓冲 - 核心步骤！</span><br>BUFG bufg_rgmii_rx_clk_inst (<br>    <span class="hljs-variable">.I</span>(rgmii_rx_clk_ibuf),<br>    <span class="hljs-variable">.O</span>(rgmii_rx_clk_bufg)<br>);<br><br><span class="hljs-comment">// 3. 在你的逻辑中使用 bufged clock</span><br><span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> rgmii_rx_clk_bufg) <span class="hljs-keyword">begin</span><br>    <span class="hljs-comment">// ... 处理RGMII接收数据的逻辑</span><br><span class="hljs-keyword">end</span><br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong>在XDC中约束</strong>：你也可以尝试在约束文件中使用<code>set_property CLOCK_BUFFER_TYPE BUFG [get_nets ...]</code>，但实例化方式更可靠。</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. 针对RGMII接口的特殊处理：时钟与数据的对齐</strong></p>
+<p>RGMII接口要求在电路板级别，时钟相对于数据线有固定的延迟（TX_CLK在源端延迟2ns，RX_CLK在中心采样）。当时钟走非专用路径时，FPGA内部的延迟会破坏这个关系。</p>
+<ul>
+<li><p><strong>对于发送路径（TX）</strong>：</p>
+<ul>
+<li>使用<code>rgmii_tx_clk_bufg</code>来寄存<code>rgmii_txd</code>和<code>rgmii_tx_ctl</code>。</li>
+<li>为了精确控制FPGA输出引脚上时钟与数据的相位关系，必须使用<strong>ODDR原语</strong>来输出<code>TX_CLK</code>。</li>
+<li>同样，数据（<code>TXD</code>和控制<code>TX_CTL</code>）也强烈建议使用<strong>ODDR原语</strong>输出。这样可以确保时钟和数据路径在IOB中的结构相似，延迟可控。</li>
+</ul>
+  <figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// 使用ODDR输出TX_CLK</span><br>ODDR #(<br>    <span class="hljs-variable">.DDR_CLK_EDGE</span>(<span class="hljs-string">&quot;SAME_EDGE&quot;</span>), <span class="hljs-comment">// 推荐模式，在同一时钟边沿对齐数据</span><br>    <span class="hljs-variable">.INIT</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.SRTYPE</span>(<span class="hljs-string">&quot;SYNC&quot;</span>)<br>) ODDR_txc_inst (<br>    <span class="hljs-variable">.Q</span>(rgmii_txc), <span class="hljs-comment">// 输出到端口</span><br>    <span class="hljs-variable">.C</span>(rgmii_tx_clk_bufg),<br>    <span class="hljs-variable">.CE</span>(<span class="hljs-number">1&#x27;b1</span>),<br>    <span class="hljs-variable">.D1</span>(<span class="hljs-number">1&#x27;b1</span>),<br>    <span class="hljs-variable">.D2</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.R</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.S</span>(<span class="hljs-number">1&#x27;b0</span>)<br>);<br></code></pre></td></tr></table></figure>
+<ul>
+<li>在约束文件中，使用<code>set_output_delay</code>来约束TX路径，告诉Vivado电路板上的延迟期望。</li>
+</ul>
+</li>
+<li><p><strong>对于接收路径（RX）</strong>：</p>
+<ul>
+<li>这是挑战最大的部分。来自普通IO的<code>RX_CLK</code>经过BUFG后，其与<code>RXD</code>、<code>RX_CTL</code>信号之间的板级相位关系可能已经失调。</li>
+<li><strong>解决方案：使用IDELAY和IDDR</strong>。</li>
+<li><strong>IDDR</strong>：用于在时钟双边沿采集数据（因为RGMII在上升沿和下降沿都有数据）。</li>
+<li><strong>IDELAY</strong>：这是一个可编程的精细延迟链，可以对数据或时钟路径进行 Tap（抽头）级别的延迟调整。你可以用它来“对齐”数据和时钟的采样时刻，补偿因时钟走非专用路径引入的额外偏斜。</li>
+<li>你可以将IDELAY放在数据路径上（更常见），也可以放在时钟路径上，来动态调整采样窗口。</li>
+</ul>
+  <figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// 示例：使用IDELAY和IDDR处理接收数据</span><br>(* IODELAY_GROUP = <span class="hljs-string">&quot;rgmii_rx_group&quot;</span> *) <span class="hljs-comment">// 用于关联延迟控制</span><br>IDELAYE2 #(<br>    <span class="hljs-variable">.IDELAY_TYPE</span>(<span class="hljs-string">&quot;VARIABLE&quot;</span>),<br>    <span class="hljs-variable">.DELAY_SRC</span>(<span class="hljs-string">&quot;IDATAIN&quot;</span>)<br>) idelay_rxd0 (<br>    <span class="hljs-variable">.IDATAIN</span>(rgmii_rxd[<span class="hljs-number">0</span>]),<br>    <span class="hljs-variable">.DATAOUT</span>(rgmii_rxd_delayed[<span class="hljs-number">0</span>]),<br>    <span class="hljs-variable">.DATAIN</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.C</span>(idelay_clk),<br>    <span class="hljs-variable">.CE</span>(idelay_ce),<br>    <span class="hljs-variable">.INC</span>(<span class="hljs-number">1&#x27;b1</span>),<br>    <span class="hljs-variable">.LD</span>(idelay_ld),<br>    <span class="hljs-variable">.LDPIPEEN</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.CNTVALUEOUT</span>(),<br>    <span class="hljs-variable">.CNTVALUEIN</span>(idelay_tap_value)<br>);<br><br>IDDR #(<br>    <span class="hljs-variable">.DDR_CLK_EDGE</span>(<span class="hljs-string">&quot;SAME_EDGE_PIPELINED&quot;</span>)<br>) iddr_rxd0 (<br>    <span class="hljs-variable">.Q1</span>(rx_data_s0[<span class="hljs-number">0</span>]),<br>    <span class="hljs-variable">.Q2</span>(rx_data_s1[<span class="hljs-number">0</span>]),<br>    <span class="hljs-variable">.C</span>(rgmii_rx_clk_bufg),<br>    <span class="hljs-variable">.CE</span>(<span class="hljs-number">1&#x27;b1</span>),<br>    <span class="hljs-variable">.D</span>(rgmii_rxd_delayed[<span class="hljs-number">0</span>]),<br>    <span class="hljs-variable">.R</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.S</span>(<span class="hljs-number">1&#x27;b0</span>)<br>);<br></code></pre></td></tr></table></figure>
+<ul>
+<li>你需要实现一个<strong>校准逻辑</strong>（例如一个状态机），通过不断调整IDELAY的Tap值，并检查接收到的数据模式（如前导码），来找到稳定的采样点。</li>
+</ul>
+</li>
+</ul>
+<h3 id="第二部分：布局布线出现错误如何解决"><a href="#第二部分：布局布线出现错误如何解决" class="headerlink" title="第二部分：布局布线出现错误如何解决"></a>第二部分：布局布线出现错误如何解决</h3><p>即使逻辑规划正确，在实现阶段也必然会遇到时序违例和布线困难。</p>
+<p><strong>1. 时序违例</strong></p>
+<ul>
+<li><strong>问题</strong>：建立时间或保持时间违例，尤其是在<code>RX_CLK</code>和其相关的数据路径之间。</li>
+<li><strong>解决方案</strong>：<ul>
+<li><p><strong>a. 细化约束</strong>：确保你的<code>set_input_delay</code>和<code>set_output_delay</code>约束准确反映了板级时序。不准确的约束会导致工具优化方向错误。</p>
+</li>
+<li><p>**b. 使用<code>set_clock_groups</code>**：明确告知工具，RGMII的时钟与其他逻辑时钟是异步的。这可以避免工具浪费精力去优化不相关的路径。</p>
+<figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs tcl">set_clock_groups -asynchronous -group [get_clocks rgmii_rx_clk] -group [get_clocks -include_generated_clocks [get_clocks sys_clk]]<br></code></pre></td></tr></table></figure></li>
+<li><p><strong>c. 手动布局约束</strong>：如果某些逻辑（如IDELAY控制逻辑）与IOB离得太远，会导致高延迟。可以使用<code>PROHIBIT</code>约束禁止某些区域，或者使用<code>PBLOCK</code>将相关的逻辑（接收逻辑、发送逻辑）分组并约束到一个靠近其对应IOB的特定区域。</p>
+</li>
+<li><p><strong>d. 优化综合策略</strong>：在Vivado的实现策略中，选择<strong>更高性能的配置</strong>，如<code>Performance_RefinePlacement</code>。它会进行更多轮的优化。</p>
+</li>
+<li><p><strong>e. 使用物理优化</strong>：在<code>report_timing_summary</code>后，如果关键路径明确，可以对特定网络使用<code>set_property PHYSICAL_EFFORT high [get_nets ...]</code>。</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 布线资源紧张或错误</strong></p>
+<ul>
+<li><strong>问题</strong>：BUFG资源不足，或者到某些逻辑的布线拥塞。</li>
+<li><strong>解决方案</strong>：<ul>
+<li><strong>a. 检查BUFG使用率</strong>：在<code>report_clock_networks</code>中查看。每个时钟区域BUFG数量有限。如果你使用了太多其他需要BUFG的时钟，可能会用尽资源。如果BUFG用尽，<strong>此设计几乎无法成功</strong>，你必须重新规划时钟资源。</li>
+<li><strong>b. 分析拥塞报告</strong>：运行<code>report_design_analysis -congestion</code>查看高拥塞区域。通过区域约束将逻辑分散开。</li>
+<li><strong>c. 增量编译</strong>：如果只有小部分逻辑在修改，可以开启增量编译，复用之前成功的布局布线结果，提高收敛几率。</li>
+</ul>
+</li>
+</ul>
+<h3 id="总结与流程图"><a href="#总结与流程图" class="headerlink" title="总结与流程图"></a>总结与流程图</h3><p>面对这个硬件设计缺陷，解决问题的整体思路是一个系统性的工程，下图清晰地展示了从问题定位到最终实现的完整流程和关键决策点：</p>
+<pre><code class=" mermaid">flowchart TD
+    A[硬件设计错误&lt;br&gt;RGMII时钟未接MRCC/SRCC] --&gt; B&#123;逻辑修复规划&#125;;
+    
+    B --&gt; C[关键步骤：使用BUFG];
+    B --&gt; D[发送路径修复];
+    B --&gt; E[接收路径修复];
+    
+    C --&gt; F[约束与分析];
+    
+    subgraph D [发送路径]
+        D1[使用ODDR原语&lt;br&gt;输出时钟与数据] --&gt; D2[set_output_delay约束];
+    end
+    
+    subgraph E [接收路径]
+        E1[使用IDELAY&lt;br&gt;精确调整数据延迟] --&gt; E2[使用IDDR原语&lt;br&gt;双边沿采样];
+        E2 --&gt; E3[实现校准逻辑&lt;br&gt;动态寻找最佳采样点];
+    end
+    
+    subgraph F [实现与验证]
+        F1[设置准确的&lt;br&gt;时序约束] --&gt; F2[布局布线&lt;br&gt;及时序分析];
+        F2 --&gt; G&#123;时序是否满足?&#125;;
+        G -- 是 --&gt; H[成功!];
+        G -- 否 --&gt; I[调试与优化];
+    end
+    
+    subgraph I [调试循环]
+        I1[检查/修正约束] --&gt; I2[优化布局&lt;br&gt;区域约束];
+        I2 --&gt; I3[选择更高&lt;br&gt;性能实现策略];
+        I3 --&gt; F2;
+    end
+</code></pre>
+
+<p>总而言之，这是一个“软件修复硬件错误”的典型案例。虽然复杂且需要深厚的时序理解，但通过系统地应用上述方法，成功实现功能的概率是非常高的。然而，这也带来了<strong>额外的逻辑资源消耗、功耗和设计复杂度</strong>。下次设计电路板时，务必<strong>优先将时钟信号连接到MRCC&#x2F;SRCC引脚</strong>，这是最根本的解决方案。</p>
+<p>好——你碰到的问题在 K7（7 系列）里很常见：PHY 的 RGMII 时钟没有被送到 MRCC&#x2F;SRCC 等 IO 专用时钟引脚上（也就是没有走到那些专用的区域时钟资源），但你又需要用 25 MHz 时钟去驱动 &#x2F; 同步 100 Mbps 的 RGMII。下面给出几种可行方案（从最推荐到替代方案），并给出实现要点、优缺点、必须的 FPGA 原语和一个最小的 Verilog 示例 + 关键 XDC 约束，帮助你直接落地实现。</p>
+<hr>
+<h1 id="方案总览（优先级）"><a href="#方案总览（优先级）" class="headerlink" title="方案总览（优先级）"></a>方案总览（优先级）</h1><ol>
+<li><strong>在 FPGA 端生成并输出 25 MHz 到 PHY（推荐）</strong> — 在 IOB 使用 ODDR 输出整形的 25 MHz 时钟（保证 IO 级别的时序和摆幅），TX 数据与该时钟本地同步；RX 侧用 IDDR&#x2F;ISERDESE2 在 IOB 里采样，再用 fabric 时钟域处理。优点：不依赖 MRCC&#x2F;SRCC，时序可控，工程上常用。</li>
+<li><strong>使用 fabric 时钟 + IDDR&#x2F;ISERDESE2 捕获（PHY 提供时钟但不连 MRCC）</strong> — 将 PHY 的 25 MHz CLK 连到常规 IOB（IBUF），在 FPGA 内用 BUFG&#x2F;BUFH 做分配并用 IDDR&#x2F;ISERDESE2&#x2F;IDELAY 调整。效果依赖布线延迟，需做 IDELAY 微调。</li>
+<li><strong>使用 RGMII 延迟模式（PHY 内部延时或内建 RGMII TX&#x2F;RX delay）配合 IDELAY 校准</strong> — 需要看 PHY 是否支持 RGMII tx&#x2F;rx delay。若 PHY 能把时钟延迟&#x2F;对齐到数据，可简化 FPGA 端校准。</li>
+<li><strong>如果可行：改用 GMII&#x2F;MII（更慢但简单）或用串行接口（如 SGMII）桥接</strong> — 作为最后退路或原型阶段。</li>
+</ol>
+<hr>
+<h1 id="关键概念（要点）"><a href="#关键概念（要点）" class="headerlink" title="关键概念（要点）"></a>关键概念（要点）</h1><ul>
+<li>100 Mbps 的 RGMII 在你的设定下用 25 MHz 时钟（周期 40ns），数据是<strong>双边沿</strong>或<strong>单边沿</strong>取决于配置；常见是 DDR（rising+falling）传输，所以使用 IDDR &#x2F; OSERDESE2&#x2F;ISERDESE2 比单纯 FF 更稳健。</li>
+<li>必须尽量在 <strong>IOB</strong> 做 DDR 捕获&#x2F;发送（使用 IDDR&#x2F;ODDR &#x2F; ISERDESE2&#x2F;OSERDESE2），这样可以满足 I&#x2F;O 级别的建立&#x2F;保持与偏移需求。</li>
+<li>如果 PHY 的 CLK 没连到 MRCC&#x2F;SRCC（专用 IO 时钟），不要把 PHY 时钟当作全局 BUFG 时钟来分配到整个 FPGA。更安全的做法是在 FPGA 端<strong>自己合成&#x2F;生成输出时钟</strong>（即方案1）。</li>
+<li>使用 <strong>IDELAYE2&#x2F;IDELAYCTRL</strong> 对 RX 数据线进行微调（训练或手工设置），保证在 IDDR 采样窗口中取到稳定数据。每个 I&#x2F;O bank 需要一个 IDELAYCTRL。</li>
+<li>XDC：必须创建 25 MHz 时钟（create_clock）并标注对 IO 的外部端口和 false_path（跨域）等。</li>
+</ul>
+<hr>
+<h1 id="推荐实现（方案1，详细步骤-代码示例）"><a href="#推荐实现（方案1，详细步骤-代码示例）" class="headerlink" title="推荐实现（方案1，详细步骤 + 代码示例）"></a>推荐实现（方案1，详细步骤 + 代码示例）</h1><p>思路：在 FPGA 内用系统时钟 &#x2F; PLL（或直接分频）生成 25 MHz；把这个 25 MHz 用 ODDR 放到 RGMII_CLK 输出引脚（确保 ODDR 在 IOB），TX 数据用 OSERDESE2&#x2F;ODDR&#x2F;或寄存器在 IOB 输出；RX 端 PHY 的 25 MHz 仍会输出到 FPGA 的 RGMIi_CK 引脚（假设连了），但即使没连 MRCC，RX 数据也用 IOB 的 IDDR&#x2F;ISERDESE2 捕获并用 fabric 时钟 (eg. 25MHz generated or 100MHz local) 做处理。</p>
+<p>下面给出最小可用的 Verilog 示例（只示意 TX_CLK 生成与 RX 数据捕获的关键原语）：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// 简化示例：K7 上的 RGMII: 生成 TX clock (25MHz) via ODDR in IOB,</span><br><span class="hljs-comment">// 用 IDDR 在 IOB 捕获 RX signals。</span><br><span class="hljs-comment">// 真实工程中把各信号扩展到 4 bit、并用 ISERDESE2/OSERDESE2 更可靠。</span><br><br><span class="hljs-keyword">module</span> rgmii_if (<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>        sys_clk,      <span class="hljs-comment">// 例如 100MHz or 125MHz 系统时钟</span><br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>        sys_rstn,<br>    <span class="hljs-comment">// FPGA &lt;-&gt; PHY (top-level pins)</span><br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>        rgmii_tx_clk, <span class="hljs-comment">// 要驱动 PHY 的 RGMII CLK 引脚</span><br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>]  rgmii_txd,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span>        rgmii_tx_ctl,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>        rgmii_rx_clk, <span class="hljs-comment">// 如果 PHY 有输出到 FPGA</span><br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>]  rgmii_rxd,<br>    <span class="hljs-keyword">input</span>  <span class="hljs-keyword">wire</span>        rgmii_rx_ctl<br>);<br><br><span class="hljs-comment">// === generate 25MHz clock from sys_clk (example: simple counter, or use MMCM/PLL) ===</span><br><span class="hljs-keyword">reg</span> [<span class="hljs-number">31</span>:<span class="hljs-number">0</span>] div_cnt;<br><span class="hljs-keyword">reg</span>        clk25;<br><br><span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> sys_clk <span class="hljs-keyword">or</span> <span class="hljs-keyword">negedge</span> sys_rstn) <span class="hljs-keyword">begin</span><br>    <span class="hljs-keyword">if</span> (!sys_rstn) <span class="hljs-keyword">begin</span><br>        div_cnt &lt;= <span class="hljs-number">0</span>;<br>        clk25 &lt;= <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>        <span class="hljs-keyword">if</span> (div_cnt == <span class="hljs-number">1</span>) <span class="hljs-keyword">begin</span><br>            div_cnt &lt;= <span class="hljs-number">0</span>;<br>            clk25 &lt;= ~clk25;<br>        <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>            div_cnt &lt;= div_cnt + <span class="hljs-number">1</span>;<br>        <span class="hljs-keyword">end</span><br>    <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><span class="hljs-comment">// 上面只是示例：如果 sys_clk 为 100MHz，则计数到1会生成 25MHz（100/4）——</span><br><span class="hljs-comment">// 生产中推荐用 MMCM/PLLv 生成精确的 25MHz 并相位对齐</span><br><br><span class="hljs-comment">// === Output TX clock using ODDR in IOB ===</span><br><span class="hljs-comment">// 强制 ODDR 放到 IOB 的一个做法是加属性 (* IOB = &quot;TRUE&quot; *)，但大多数情况下直接用 ODDR primitive 会被放入 IOB</span><br>(* IOB = <span class="hljs-string">&quot;TRUE&quot;</span> *)<br>ODDR #(<br>  <span class="hljs-variable">.DDR_CLK_EDGE</span>(<span class="hljs-string">&quot;SAME_EDGE&quot;</span>), <span class="hljs-comment">// or &quot;OPPOSITE_EDGE&quot; depending on target</span><br>  <span class="hljs-variable">.INIT</span>(<span class="hljs-number">1&#x27;b0</span>),<br>  <span class="hljs-variable">.SRTYPE</span>(<span class="hljs-string">&quot;SYNC&quot;</span>)<br>) odr_txclk (<br>  <span class="hljs-variable">.Q</span>(rgmii_tx_clk),<br>  <span class="hljs-variable">.C</span>(sys_clk),          <span class="hljs-comment">// clock input for ODDR latch; use a fast fabric clock</span><br>  <span class="hljs-variable">.CE</span>(<span class="hljs-number">1&#x27;b1</span>),<br>  <span class="hljs-variable">.D1</span>(<span class="hljs-number">1&#x27;b1</span>),            <span class="hljs-comment">// produce a 50% duty square wave from clk25: map D1/D2 accordingly</span><br>  <span class="hljs-variable">.D2</span>(<span class="hljs-number">1&#x27;b0</span>),<br>  <span class="hljs-variable">.R</span>(<span class="hljs-number">1&#x27;b0</span>),<br>  <span class="hljs-variable">.S</span>(<span class="hljs-number">1&#x27;b0</span>)<br>);<br><span class="hljs-comment">// 上面是最简化示例：更常见是把 clk25 送入 ODDR 的 C，D1/D2 切换以生成真实 25MHz。</span><br><span class="hljs-comment">// 也可用 OSERDESE2 输出更精准相位的时钟。</span><br><br><span class="hljs-comment">// === TX data path (示意): register data on clk25, then ouput via ODDR/OSERDESE2 ===</span><br><span class="hljs-keyword">reg</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>] txd_reg;<br><span class="hljs-keyword">reg</span>       tx_ctl_reg;<br><span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk25 <span class="hljs-keyword">or</span> <span class="hljs-keyword">negedge</span> sys_rstn) <span class="hljs-keyword">begin</span><br>    <span class="hljs-keyword">if</span>(!sys_rstn) <span class="hljs-keyword">begin</span><br>        txd_reg &lt;= <span class="hljs-number">4&#x27;b0</span>;<br>        tx_ctl_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>    <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>        <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> load txd_reg from MAC logic</span><br>        txd_reg &lt;= <span class="hljs-number">4&#x27;b1010</span>; <span class="hljs-comment">// placeholder</span><br>        tx_ctl_reg &lt;= <span class="hljs-number">1&#x27;b1</span>;<br>    <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><br><span class="hljs-comment">// use ODDR for each txd bit to get DDR output onto single pin</span><br><span class="hljs-keyword">genvar</span> i;<br><span class="hljs-keyword">generate</span><br>  <span class="hljs-keyword">for</span> (i=<span class="hljs-number">0</span>;i&lt;<span class="hljs-number">4</span>;i=i+<span class="hljs-number">1</span>) <span class="hljs-keyword">begin</span> : tx_oddr<br>    (* IOB = <span class="hljs-string">&quot;TRUE&quot;</span> *)<br>    ODDR txoddr (<br>      <span class="hljs-variable">.Q</span>(rgmii_txd[i]),<br>      <span class="hljs-variable">.C</span>(clk25),    <span class="hljs-comment">// clock to toggle outputs</span><br>      <span class="hljs-variable">.CE</span>(<span class="hljs-number">1&#x27;b1</span>),<br>      <span class="hljs-variable">.D1</span>(txd_reg[i]),  <span class="hljs-comment">// data for rising edge</span><br>      <span class="hljs-variable">.D2</span>(<span class="hljs-number">1&#x27;b0</span>),        <span class="hljs-comment">// data for falling edge (or use alternate)</span><br>      <span class="hljs-variable">.R</span>(<span class="hljs-number">1&#x27;b0</span>),<br>      <span class="hljs-variable">.S</span>(<span class="hljs-number">1&#x27;b0</span>)<br>    );<br>  <span class="hljs-keyword">end</span><br><span class="hljs-keyword">endgenerate</span><br><br><span class="hljs-comment">// === RX capture ===</span><br><span class="hljs-comment">// Use IDDR in IOB to capture incoming bits on both edges into fabric</span><br><span class="hljs-keyword">wire</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>] rxd_rise, rxd_fall;<br><span class="hljs-keyword">genvar</span> j;<br><span class="hljs-keyword">generate</span><br>  <span class="hljs-keyword">for</span> (j=<span class="hljs-number">0</span>;j&lt;<span class="hljs-number">4</span>;j=j+<span class="hljs-number">1</span>) <span class="hljs-keyword">begin</span> : rx_iddr<br>    (* IOB = <span class="hljs-string">&quot;TRUE&quot;</span> *)<br>    IDDR rxiddr (<br>      <span class="hljs-variable">.Q1</span>(rxd_rise[j]),   <span class="hljs-comment">// data captured on rising edge</span><br>      <span class="hljs-variable">.Q2</span>(rxd_fall[j]),   <span class="hljs-comment">// data captured on falling edge</span><br>      <span class="hljs-variable">.C</span>(rgmii_rx_clk),   <span class="hljs-comment">// input clock from PHY or from generated clk (if connected)</span><br>      <span class="hljs-variable">.CE</span>(<span class="hljs-number">1&#x27;b1</span>),<br>      <span class="hljs-variable">.D</span>(rgmii_rxd[j]),<br>      <span class="hljs-variable">.R</span>(<span class="hljs-number">1&#x27;b0</span>),<br>      <span class="hljs-variable">.S</span>(<span class="hljs-number">1&#x27;b0</span>),<br>      <span class="hljs-variable">.CINVCTRL</span>(<span class="hljs-number">1&#x27;b0</span>)<br>    );<br>  <span class="hljs-keyword">end</span><br><span class="hljs-keyword">endgenerate</span><br><br><span class="hljs-comment">// combine rise/fall appropriately to reconstruct nibble timing in MAC domain</span><br><span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> deserialise/align bits, IDELAY adjust as necessary</span><br><br><span class="hljs-keyword">endmodule</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：上例为说明用法，并非完整 MAC 接口代码。工业化实现请用 ISERDESE2&#x2F;OSERDESE2 做 4-bit&#x2F;DDR 序列化&#x2F;反序列化，并用 MMCM&#x2F;PLL 做精确相位控制。</p>
+</blockquote>
+<hr>
+<h1 id="关键硬件原语-amp-工程要点（必须项）"><a href="#关键硬件原语-amp-工程要点（必须项）" class="headerlink" title="关键硬件原语 &amp; 工程要点（必须项）"></a>关键硬件原语 &amp; 工程要点（必须项）</h1><ul>
+<li>输出侧：<strong>ODDR &#x2F; OSERDESE2</strong> 放在 IOB，用来输出 TX clock &#x2F; DDR 数据。确保 ODDR&#x2F;OSERDESE2 在 IOB（使用 <code>(* IOB=&quot;TRUE&quot; *)</code> 或让合成放置到 IOB）。</li>
+<li>输入侧：<strong>IDDR &#x2F; ISERDESE2</strong> 在 IOB 捕获 DDR 数据（能减少布线抖动影响）。</li>
+<li>输入微调：<strong>IDELAYE2 &#x2F; IDELAYCTRL</strong>（每个 I&#x2F;O bank 一个 IDELAYCTRL），用于对 RX 数据线做相位微调（训练步骤）。</li>
+<li>时钟生成：用 <strong>MMCM&#x2F;PLL</strong> 生成 25 MHz（优于简单计数器），并用 BUFG&#x2F;BUFH&#x2F;BUFR 在合适域分发（注意布线区域约束）。</li>
+<li>约束（XDC）：<ul>
+<li><code>create_clock -name RGMII_TX_CLK -period 40.0 [get_ports rgmii_tx_clk]</code>（25MHz &#x3D;&gt; period 40ns）</li>
+<li>对输入输出端口设置 I&#x2F;O delays（<code>set_input_delay</code> &#x2F; <code>set_output_delay</code>）相对于该时钟（如果需要与外部时序一致）。</li>
+<li>对 MAC 内部时钟域之间标注 <code>set_false_path</code> 或 <code>set_clock_groups</code> 避免静态时序检查把 IO clock domain 误判。</li>
+</ul>
+</li>
+<li>布局：把 RGMII 的引脚集中在同一 Bank&#x2F;region，尽量物理靠近，避免跨 bank&#x2F;far 布线导致延迟不可控。</li>
+<li>IDELAY 校准：在 FPGA 上电时运行一个训练过程（PHY 发送特定模式，FPGA sweep IDELAY 值找稳定窗口），把选定偏移写入寄存器或硬编码到 bitstream。</li>
+</ul>
+<hr>
+<h1 id="RX-训练（常用步骤）"><a href="#RX-训练（常用步骤）" class="headerlink" title="RX 训练（常用步骤）"></a>RX 训练（常用步骤）</h1><ol>
+<li>PHY 输出固定 PRBS&#x2F;训练 pattern（例如 0x5A repeating 或其它易识别 pattern）。</li>
+<li>FPGA 从最小 IDELAY 值开始，逐步增加，对每个 IDELAY 读取 IDDR 捕获的 pattern 是否稳定。</li>
+<li>找到连续稳定窗口的中心值，写入 IDELAY（<code>IDELAYE2</code> CNTVALUE）。</li>
+<li>对所有 4 条数据和 ctl 分别校准，或用并行训练找到全局偏移。</li>
+</ol>
+<hr>
+<h1 id="时序约束建议（XDC-片段）"><a href="#时序约束建议（XDC-片段）" class="headerlink" title="时序约束建议（XDC 片段）"></a>时序约束建议（XDC 片段）</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs xdc"># create clock for generated tx clock (25MHz)<br>create_clock -name RGMII_TX_CLK -period 40.0 [get_ports rgmii_tx_clk]<br><br># Example: specify input delay of rgmii_rxd[] relative to rgmii_rx_clk<br># (值需要根据 PCB 测量或 IDELAY 校准得到)<br>set_input_delay -clock RGMII_RX_CLK  -max 2.5 [get_ports rgmii_rxd[*]]<br>set_input_delay -clock RGMII_RX_CLK  -min -1.5 [get_ports rgmii_rxd[*]]<br><br># mark false paths between MAC clock domain and RGMII_IO if appropriate:<br>set_clock_groups -asynchronous -group [get_clocks MAC_CLK] -group [get_clocks RGMII_RX_CLK RGMII_TX_CLK]<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>上述具体数值（input_delay 等）须通过板上测量 &#x2F; 仿真 &#x2F; IDELAY 校准获得。</p>
+</blockquote>
+<hr>
+<h1 id="优缺点对比（总结）"><a href="#优缺点对比（总结）" class="headerlink" title="优缺点对比（总结）"></a>优缺点对比（总结）</h1><ul>
+<li>方案1（FPGA 端生成 TX clk，IOB DDR）：<ul>
+<li>优点：时序可控、对 MRCC&#x2F;SRCC 不依赖；工程可移植；更容易通过时序分析。</li>
+<li>缺点：需生成稳定 25 MHz（用 MMCM 更稳），并正确相位对齐 TX 数据。</li>
+</ul>
+</li>
+<li>方案2（使用 PHY CLK 输入到一般 IOB）：<ul>
+<li>优点：PHY 提供原生时钟，逻辑上简单。</li>
+<li>缺点：如果 PHY CLK 没走 MRCC&#x2F;SRCC，分配到 fabric 可能抖动&#x2F;延迟大；需 IDELAY 校准。</li>
+</ul>
+</li>
+<li>若 PHY 支持 RGMII 延迟（tx&#x2F;rx internal delay），可配合 IDELAY 减少 FPGA 端调试工作。</li>
+</ul>
+<hr>
+<h1 id="实施清单（Checklist）"><a href="#实施清单（Checklist）" class="headerlink" title="实施清单（Checklist）"></a>实施清单（Checklist）</h1><ol>
+<li>确认 PCB：PHY 到 FPGA 的 CLK&#x2F;DAT&#x2F;CTL 腳位在同一 bank，且走线短且匹配。</li>
+<li>在 Vivado 中为每个 RGMII IO Bank 放置 IDELAYCTRL 并启动。</li>
+<li>使用 MMCM&#x2F;PLL 生成精确 25 MHz（优先），并确保相位可控。</li>
+<li>在 IOB 使用 ODDR&#x2F;OSERDESE2 输出 RGMIi_TX_CLK 与 TX 数据。</li>
+<li>RX 端用 IDDR&#x2F;ISERDESE2 + IDELAYE2 做采样和校准。</li>
+<li>写 XDC：create_clock（25MHz）、input&#x2F;output delay、false_path&#x2F;clock_groups。</li>
+<li>上板做 IDELAY 校准程序并存储校准值（EEPROM&#x2F;寄存器&#x2F;bitstream init）。</li>
+<li>做眼图或示波器检查：确认 TX_CLK 与 TX_DATA 的相位关系在 PHY 规范内。</li>
+</ol>
+<hr>
+<p>如果你愿意，我可以：</p>
+<ul>
+<li>给你写一份更完整的 <strong>ISERDESE2&#x2F;OSERDESE2</strong> 的 Verilog 模板（含 4-bit DDR 序列化 &#x2F; 反序列化、IDELAY 校准逻辑和上电训练），或</li>
+<li>根据你当前的板级引脚（把 top-level 引脚名、IO bank、是否有 IDELAYCTRL、PHY 型号、sys_clk 频率）给出<strong>精确的 XDC</strong> 与 placement 建议并检查是否需要调整 MMCM&#x2F;PLL 设置。</li>
+</ul>
+<p>告诉我你想要哪一项（或直接把 top-level 针脚和 sys_clk 频率贴过来），我立刻把可直接综合的模块和 XDC 发给你。</p>
+<p>基于25MHz时钟的100Mbps RGMII方案，这是一个非常典型的应用场景。由于时钟频率较低，时序要求相对宽松，但仍然需要严谨的设计。以下是完整的实现方案：</p>
+<h2 id="🎯-系统架构概述"><a href="#🎯-系统架构概述" class="headerlink" title="🎯 系统架构概述"></a>🎯 系统架构概述</h2><p>在25MHz时钟下的100Mbps RGMII接口中：</p>
+<ul>
+<li><strong>时钟频率</strong>：25MHz</li>
+<li><strong>数据速率</strong>：100Mbps（在时钟双沿采样，等效100Mbps）</li>
+<li><strong>数据对齐</strong>：时钟中心对齐采样</li>
+</ul>
+<pre><code class=" mermaid">flowchart TD
+    subgraph FPGA侧
+        A[用户逻辑] --&gt; B[RGMII接口逻辑]
+        B --&gt; C[IOB &amp; 时钟管理]
+    end
+    
+    subgraph 板级连接
+        C --&gt; D[RGMII连接器]
+    end
+    
+    subgraph PHY侧
+        D --&gt; E[以太网PHY芯片]
+        E --&gt; F[网络接口]
+    end
+</code></pre>
+
+<h2 id="🔧-具体实现方案"><a href="#🔧-具体实现方案" class="headerlink" title="🔧 具体实现方案"></a>🔧 具体实现方案</h2><h3 id="1-时钟处理方案"><a href="#1-时钟处理方案" class="headerlink" title="1. 时钟处理方案"></a>1. 时钟处理方案</h3><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// 时钟缓冲处理 - 即使接在普通IO也要用BUFG</span><br><span class="hljs-keyword">wire</span> rgmii_tx_clk_ibuf;<br><span class="hljs-keyword">wire</span> rgmii_tx_clk_bufg;<br><span class="hljs-keyword">wire</span> rgmii_rx_clk_ibuf;<br><span class="hljs-keyword">wire</span> rgmii_rx_clk_bufg;<br><br><span class="hljs-comment">// 发送时钟路径</span><br>IBUF tx_clk_ibuf_inst (<br>    <span class="hljs-variable">.I</span>(rgmii_txc_pin),<br>    <span class="hljs-variable">.O</span>(rgmii_tx_clk_ibuf)<br>);<br><br>BUFG tx_clk_bufg_inst (<br>    <span class="hljs-variable">.I</span>(rgmii_tx_clk_ibuf),<br>    <span class="hljs-variable">.O</span>(rgmii_tx_clk_bufg)<br>);<br><br><span class="hljs-comment">// 接收时钟路径  </span><br>IBUF rx_clk_ibuf_inst (<br>    <span class="hljs-variable">.I</span>(rgmii_rxc_pin),<br>    <span class="hljs-variable">.O</span>(rgmii_rx_clk_ibuf)<br>);<br><br>BUFG rx_clk_bufg_inst (<br>    <span class="hljs-variable">.I</span>(rgmii_rx_clk_ibuf),<br>    <span class="hljs-variable">.O</span>(rgmii_rx_clk_bufg)<br>);<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-发送路径实现"><a href="#2-发送路径实现" class="headerlink" title="2. 发送路径实现"></a>2. 发送路径实现</h3><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// RGMII发送逻辑 - 25MHz时钟，100Mbps速率</span><br><span class="hljs-keyword">module</span> rgmii_tx_100m (<br>    <span class="hljs-keyword">input</span> <span class="hljs-keyword">wire</span> clk_25m,          <span class="hljs-comment">// 25MHz全局时钟</span><br>    <span class="hljs-keyword">input</span> <span class="hljs-keyword">wire</span> rst_n,<br>    <span class="hljs-keyword">input</span> <span class="hljs-keyword">wire</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] tx_data,<br>    <span class="hljs-keyword">input</span> <span class="hljs-keyword">wire</span> tx_en,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> rgmii_txc,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>] rgmii_txd,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> rgmii_tx_ctl<br>);<br><br><span class="hljs-comment">// 内部寄存器</span><br><span class="hljs-keyword">reg</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] tx_data_reg;<br><span class="hljs-keyword">reg</span> tx_en_reg;<br><span class="hljs-keyword">reg</span> tx_ctl_reg;<br><br><span class="hljs-comment">// 在25MHz时钟下寄存数据</span><br><span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk_25m <span class="hljs-keyword">or</span> <span class="hljs-keyword">negedge</span> rst_n) <span class="hljs-keyword">begin</span><br>    <span class="hljs-keyword">if</span> (!rst_n) <span class="hljs-keyword">begin</span><br>        tx_data_reg &lt;= <span class="hljs-number">8&#x27;h0</span>;<br>        tx_en_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>        tx_ctl_reg &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>    <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>        tx_data_reg &lt;= tx_data;<br>        tx_en_reg &lt;= tx_en;<br>        tx_ctl_reg &lt;= tx_en; <span class="hljs-comment">// TX_CTL与TX_EN相同</span><br>    <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><br><span class="hljs-comment">// 使用ODDR输出时钟</span><br>ODDR #(<br>    <span class="hljs-variable">.DDR_CLK_EDGE</span>(<span class="hljs-string">&quot;SAME_EDGE&quot;</span>),<br>    <span class="hljs-variable">.INIT</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.SRTYPE</span>(<span class="hljs-string">&quot;SYNC&quot;</span>)<br>) ODDR_txc_inst (<br>    <span class="hljs-variable">.Q</span>(rgmii_txc),<br>    <span class="hljs-variable">.C</span>(clk_25m),<br>    <span class="hljs-variable">.CE</span>(<span class="hljs-number">1&#x27;b1</span>),<br>    <span class="hljs-variable">.D1</span>(<span class="hljs-number">1&#x27;b1</span>),<br>    <span class="hljs-variable">.D2</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.R</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.S</span>(<span class="hljs-number">1&#x27;b0</span>)<br>);<br><br><span class="hljs-comment">// 使用ODDR输出数据[3:0] - 上升沿发送</span><br>ODDR #(<br>    <span class="hljs-variable">.DDR_CLK_EDGE</span>(<span class="hljs-string">&quot;SAME_EDGE&quot;</span>),<br>    <span class="hljs-variable">.INIT</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.SRTYPE</span>(<span class="hljs-string">&quot;SYNC&quot;</span>)<br>) ODDR_txd0 (<br>    <span class="hljs-variable">.Q</span>(rgmii_txd[<span class="hljs-number">0</span>]),<br>    <span class="hljs-variable">.C</span>(clk_25m),<br>    <span class="hljs-variable">.CE</span>(<span class="hljs-number">1&#x27;b1</span>),<br>    <span class="hljs-variable">.D1</span>(tx_data_reg[<span class="hljs-number">0</span>]),<br>    <span class="hljs-variable">.D2</span>(tx_data_reg[<span class="hljs-number">4</span>]),<br>    <span class="hljs-variable">.R</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.S</span>(<span class="hljs-number">1&#x27;b0</span>)<br>);<br><br>ODDR #(<br>    <span class="hljs-variable">.DDR_CLK_EDGE</span>(<span class="hljs-string">&quot;SAME_EDGE&quot;</span>), <br>    <span class="hljs-variable">.INIT</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.SRTYPE</span>(<span class="hljs-string">&quot;SYNC&quot;</span>)<br>) ODDR_txd1 (<br>    <span class="hljs-variable">.Q</span>(rgmii_txd[<span class="hljs-number">1</span>]),<br>    <span class="hljs-variable">.C</span>(clk_25m),<br>    <span class="hljs-variable">.CE</span>(<span class="hljs-number">1&#x27;b1</span>),<br>    <span class="hljs-variable">.D1</span>(tx_data_reg[<span class="hljs-number">1</span>]),<br>    <span class="hljs-variable">.D2</span>(tx_data_reg[<span class="hljs-number">5</span>]),<br>    <span class="hljs-variable">.R</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.S</span>(<span class="hljs-number">1&#x27;b0</span>)<br>);<br><br><span class="hljs-comment">// ... 类似的实例化 txd[2] 和 txd[3]</span><br><br><span class="hljs-comment">// 使用ODDR输出控制信号</span><br>ODDR #(<br>    <span class="hljs-variable">.DDR_CLK_EDGE</span>(<span class="hljs-string">&quot;SAME_EDGE&quot;</span>),<br>    <span class="hljs-variable">.INIT</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.SRTYPE</span>(<span class="hljs-string">&quot;SYNC&quot;</span>)<br>) ODDR_tx_ctl (<br>    <span class="hljs-variable">.Q</span>(rgmii_tx_ctl),<br>    <span class="hljs-variable">.C</span>(clk_25m),<br>    <span class="hljs-variable">.CE</span>(<span class="hljs-number">1&#x27;b1</span>),<br>    <span class="hljs-variable">.D1</span>(tx_en_reg),<br>    <span class="hljs-variable">.D2</span>(tx_ctl_reg),<br>    <span class="hljs-variable">.R</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.S</span>(<span class="hljs-number">1&#x27;b0</span>)<br>);<br><br><span class="hljs-keyword">endmodule</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-接收路径实现"><a href="#3-接收路径实现" class="headerlink" title="3. 接收路径实现"></a>3. 接收路径实现</h3><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// RGMII接收逻辑 - 25MHz时钟，100Mbps速率</span><br><span class="hljs-keyword">module</span> rgmii_rx_100m (<br>    <span class="hljs-keyword">input</span> <span class="hljs-keyword">wire</span> rgmii_rxc_bufg,    <span class="hljs-comment">// 经过BUFG的接收时钟</span><br>    <span class="hljs-keyword">input</span> <span class="hljs-keyword">wire</span> rst_n,<br>    <span class="hljs-keyword">input</span> <span class="hljs-keyword">wire</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>] rgmii_rxd,<br>    <span class="hljs-keyword">input</span> <span class="hljs-keyword">wire</span> rgmii_rx_ctl,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] rx_data,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> rx_dv,<br>    <span class="hljs-keyword">output</span> <span class="hljs-keyword">wire</span> rx_er<br>);<br><br><span class="hljs-comment">// IDELAY控制信号</span><br><span class="hljs-keyword">wire</span> idelay_clk = clk_200m; <span class="hljs-comment">// 需要独立的200MHz参考时钟</span><br><span class="hljs-keyword">reg</span> [<span class="hljs-number">8</span>:<span class="hljs-number">0</span>] idelay_tap_value = <span class="hljs-number">9&#x27;d0</span>;<br><span class="hljs-keyword">reg</span> idelay_ce = <span class="hljs-number">1&#x27;b0</span>;<br><span class="hljs-keyword">reg</span> idelay_ld = <span class="hljs-number">1&#x27;b0</span>;<br><br><span class="hljs-comment">// 延迟后的数据</span><br><span class="hljs-keyword">wire</span> [<span class="hljs-number">3</span>:<span class="hljs-number">0</span>] rgmii_rxd_delayed;<br><span class="hljs-keyword">wire</span> rgmii_rx_ctl_delayed;<br><br><span class="hljs-comment">// 使用IDELAY2调整数据延迟</span><br>(* IODELAY_GROUP = <span class="hljs-string">&quot;rgmii_rx_group&quot;</span> *)<br>IDELAYE2 #(<br>    <span class="hljs-variable">.IDELAY_TYPE</span>(<span class="hljs-string">&quot;VARIABLE&quot;</span>),<br>    <span class="hljs-variable">.DELAY_SRC</span>(<span class="hljs-string">&quot;IDATAIN&quot;</span>),<br>    <span class="hljs-variable">.IDELAY_VALUE</span>(<span class="hljs-number">0</span>),<br>    <span class="hljs-variable">.HIGH_PERFORMANCE_MODE</span>(<span class="hljs-string">&quot;TRUE&quot;</span>)<br>) idelay_rxd0 (<br>    <span class="hljs-variable">.IDATAIN</span>(rgmii_rxd[<span class="hljs-number">0</span>]),<br>    <span class="hljs-variable">.DATAOUT</span>(rgmii_rxd_delayed[<span class="hljs-number">0</span>]),<br>    <span class="hljs-variable">.DATAIN</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.C</span>(idelay_clk),<br>    <span class="hljs-variable">.CE</span>(idelay_ce),<br>    <span class="hljs-variable">.INC</span>(<span class="hljs-number">1&#x27;b1</span>),<br>    <span class="hljs-variable">.LD</span>(idelay_ld),<br>    <span class="hljs-variable">.LDPIPEEN</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.CNTVALUEOUT</span>(),<br>    <span class="hljs-variable">.CNTVALUEIN</span>(idelay_tap_value)<br>);<br><br><span class="hljs-comment">// ... 类似的实例化其他数据位和ctl</span><br><br><span class="hljs-comment">// 使用IDDR解双倍数据速率</span><br><span class="hljs-keyword">wire</span> [<span class="hljs-number">7</span>:<span class="hljs-number">0</span>] rx_data_sdr;<br><span class="hljs-keyword">wire</span> rx_dv_sdr, rx_er_sdr;<br><br>IDDR #(<br>    <span class="hljs-variable">.DDR_CLK_EDGE</span>(<span class="hljs-string">&quot;SAME_EDGE_PIPELINED&quot;</span>)<br>) iddr_rxd0 (<br>    <span class="hljs-variable">.Q1</span>(rx_data_sdr[<span class="hljs-number">0</span>]),  <span class="hljs-comment">// 上升沿数据</span><br>    <span class="hljs-variable">.Q2</span>(rx_data_sdr[<span class="hljs-number">4</span>]),  <span class="hljs-comment">// 下降沿数据  </span><br>    <span class="hljs-variable">.C</span>(rgmii_rxc_bufg),<br>    <span class="hljs-variable">.CE</span>(<span class="hljs-number">1&#x27;b1</span>),<br>    <span class="hljs-variable">.D</span>(rgmii_rxd_delayed[<span class="hljs-number">0</span>]),<br>    <span class="hljs-variable">.R</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.S</span>(<span class="hljs-number">1&#x27;b0</span>)<br>);<br><br><span class="hljs-comment">// ... 类似的实例化其他数据位</span><br><br>IDDR #(<br>    <span class="hljs-variable">.DDR_CLK_EDGE</span>(<span class="hljs-string">&quot;SAME_EDGE_PIPELINED&quot;</span>) <br>) iddr_rx_ctl (<br>    <span class="hljs-variable">.Q1</span>(rx_dv_sdr),<br>    <span class="hljs-variable">.Q2</span>(rx_er_sdr),<br>    <span class="hljs-variable">.C</span>(rgmii_rxc_bufg),<br>    <span class="hljs-variable">.CE</span>(<span class="hljs-number">1&#x27;b1</span>),<br>    <span class="hljs-variable">.D</span>(rgmii_rx_ctl_delayed),<br>    <span class="hljs-variable">.R</span>(<span class="hljs-number">1&#x27;b0</span>),<br>    <span class="hljs-variable">.S</span>(<span class="hljs-number">1&#x27;b0</span>)<br>);<br><br><span class="hljs-comment">// 输出赋值</span><br><span class="hljs-keyword">assign</span> rx_data = rx_data_sdr;<br><span class="hljs-keyword">assign</span> rx_dv = rx_dv_sdr;<br><span class="hljs-keyword">assign</span> rx_er = rx_er_sdr;<br><br><span class="hljs-comment">// 简单的IDELAY校准状态机</span><br><span class="hljs-keyword">localparam</span> CALIB_IDLE = <span class="hljs-number">2&#x27;d0</span>;<br><span class="hljs-keyword">localparam</span> CALIB_SEARCH = <span class="hljs-number">2&#x27;d1</span>;<br><span class="hljs-keyword">localparam</span> CALIB_DONE = <span class="hljs-number">2&#x27;d2</span>;<br><br><span class="hljs-keyword">reg</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] calib_state = CALIB_IDLE;<br><span class="hljs-keyword">reg</span> [<span class="hljs-number">8</span>:<span class="hljs-number">0</span>] best_tap = <span class="hljs-number">9&#x27;d0</span>;<br><br><span class="hljs-comment">// 简化的校准逻辑 - 实际应用中需要更复杂的模式检测</span><br><span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> idelay_clk <span class="hljs-keyword">or</span> <span class="hljs-keyword">negedge</span> rst_n) <span class="hljs-keyword">begin</span><br>    <span class="hljs-keyword">if</span> (!rst_n) <span class="hljs-keyword">begin</span><br>        calib_state &lt;= CALIB_IDLE;<br>        idelay_ce &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>        idelay_ld &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>        idelay_tap_value &lt;= <span class="hljs-number">9&#x27;d0</span>;<br>    <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>        <span class="hljs-keyword">case</span> (calib_state)<br>            CALIB_IDLE: <span class="hljs-keyword">begin</span><br>                idelay_ld &lt;= <span class="hljs-number">1&#x27;b1</span>;  <span class="hljs-comment">// 加载初始值</span><br>                calib_state &lt;= CALIB_SEARCH;<br>            <span class="hljs-keyword">end</span><br>            CALIB_SEARCH: <span class="hljs-keyword">begin</span><br>                idelay_ld &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>                <span class="hljs-keyword">if</span> (idelay_tap_value &lt; <span class="hljs-number">9&#x27;d31</span>) <span class="hljs-keyword">begin</span><br>                    idelay_ce &lt;= <span class="hljs-number">1&#x27;b1</span>;  <span class="hljs-comment">// 增加tap值</span><br>                    idelay_tap_value &lt;= idelay_tap_value + <span class="hljs-number">1</span>;<br>                <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span><br>                    calib_state &lt;= CALIB_DONE;<br>                    idelay_ce &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>                <span class="hljs-keyword">end</span><br>            <span class="hljs-keyword">end</span><br>            CALIB_DONE: <span class="hljs-keyword">begin</span><br>                <span class="hljs-comment">// 保持当前tap值</span><br>                idelay_ce &lt;= <span class="hljs-number">1&#x27;b0</span>;<br>            <span class="hljs-keyword">end</span><br>        <span class="hljs-keyword">endcase</span><br>    <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><br><span class="hljs-keyword">endmodule</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="📋-时序约束方案"><a href="#📋-时序约束方案" class="headerlink" title="📋 时序约束方案"></a>📋 时序约束方案</h2><h3 id="XDC约束文件关键内容"><a href="#XDC约束文件关键内容" class="headerlink" title="XDC约束文件关键内容"></a>XDC约束文件关键内容</h3><figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs tcl"><span class="hljs-comment"># 时钟约束</span><br>create_clock -name rgmii_tx_clk -period <span class="hljs-number">40.000</span> [get_ports rgmii_txc]<br>create_clock -name rgmii_rx_clk -period <span class="hljs-number">40.000</span> [get_ports rgmii_rxc]<br><br><span class="hljs-comment"># 输入延迟约束 - 根据PHY芯片手册调整</span><br>set_input_delay -<span class="hljs-keyword">clock</span> [get_clocks rgmii_rx_clk] -max <span class="hljs-number">2.000</span> [get_ports &#123;rgmii_rxd[*] rgmii_rx_ctl&#125;]<br>set_input_delay -<span class="hljs-keyword">clock</span> [get_clocks rgmii_rx_clk] -min <span class="hljs-number">1.000</span> [get_ports &#123;rgmii_rxd[*] rgmii_rx_ctl&#125;]<br><br><span class="hljs-comment"># 输出延迟约束</span><br>set_output_delay -<span class="hljs-keyword">clock</span> [get_clocks rgmii_tx_clk] -max <span class="hljs-number">2.000</span> [get_ports &#123;rgmii_txd[*] rgmii_tx_ctl&#125;]<br>set_output_delay -<span class="hljs-keyword">clock</span> [get_clocks rgmii_tx_clk] -min <span class="hljs-number">-1.000</span> [get_ports &#123;rgmii_txd[*] rgmii_tx_ctl&#125;]<br><br><span class="hljs-comment"># 时钟分组</span><br>set_clock_groups -asynchronous -group [get_clocks rgmii_tx_clk] -group [get_clocks rgmii_rx_clk]<br><br><span class="hljs-comment"># 虚假路径 - 避免跨时钟域分析</span><br>set_false_path -from [get_clocks rgmii_tx_clk] -to [get_clocks rgmii_rx_clk]<br>set_false_path -from [get_clocks rgmii_rx_clk] -to [get_clocks rgmii_tx_clk]<br></code></pre></td></tr></table></figure>
+
+<h2 id="🛠️-布局布线优化策略"><a href="#🛠️-布局布线优化策略" class="headerlink" title="🛠️ 布局布线优化策略"></a>🛠️ 布局布线优化策略</h2><h3 id="1-区域约束"><a href="#1-区域约束" class="headerlink" title="1. 区域约束"></a>1. 区域约束</h3><figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs tcl"><span class="hljs-comment"># 将RGMIO逻辑约束到靠近连接器的区域</span><br>create_pblock rgmio_pblock<br>add_cells_to_pblock [get_pblocks rgmio_pblock] [get_cells -hierarchical *rgmii*]<br>resize_pblock [get_pblocks rgmio_pblock] -add &#123;SLICE_X0Y0:SLICE_X20Y50 DSP_X0Y0:DSP_X2Y20 RAMB18_X0Y0:RAMB18_X0Y20&#125;<br><br><span class="hljs-comment"># 引脚位置约束</span><br>set_property PACKAGE_PIN AB12 [get_ports rgmii_txc]<br>set_property PACKAGE_PIN AB13 [get_ports &#123;rgmii_txd[<span class="hljs-number">0</span>]&#125;]<br><span class="hljs-comment"># ... 其他引脚约束</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-实现策略选择"><a href="#2-实现策略选择" class="headerlink" title="2. 实现策略选择"></a>2. 实现策略选择</h3><ul>
+<li>使用 <strong>Performance_RefinePlacement</strong> 策略</li>
+<li>开启 <strong>Physical Optimization</strong></li>
+<li>设置 <strong>Higher Fanout Guide</strong> 为 10000</li>
+</ul>
+<h2 id="🎯-25MHz方案的优势"><a href="#🎯-25MHz方案的优势" class="headerlink" title="🎯 25MHz方案的优势"></a>🎯 25MHz方案的优势</h2><ol>
+<li><strong>时序宽松</strong>：40ns周期相比125MHz的8ns周期，时序余量更大</li>
+<li><strong>功耗更低</strong>：低频时钟显著降低动态功耗</li>
+<li><strong>更易实现</strong>：即使时钟接在普通IO上，也更容易满足时序</li>
+<li><strong>IDELAY调整范围更宽</strong>：相同的tap值在25MHz下覆盖的UI范围更大</li>
+</ol>
+<h2 id="🔍-调试建议"><a href="#🔍-调试建议" class="headerlink" title="🔍 调试建议"></a>🔍 调试建议</h2><ol>
+<li><strong>使用ILA</strong>：插入集成逻辑分析仪，实时观察数据流</li>
+<li><strong>分阶段验证</strong>：先验证发送路径，再验证接收路径</li>
+<li><strong>利用Vivado时序报告</strong>：重点关注建立&#x2F;保持时间违例</li>
+<li><strong>板级测试</strong>：使用网络测试仪或环回测试验证功能</li>
+</ol>
+<p>这个方案充分利用了25MHz时钟相对宽松的时序要求，即使硬件设计存在时钟引脚连接不理想的情况，通过合理的逻辑设计和约束，仍然能够实现稳定可靠的100Mbps RGMII接口。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/FPGA/" class="category-chain-item">FPGA</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>xilinx_k7普通io当时钟</div>
+      <div>http://witbit.cn/FPGA/xilinx_k7普通io当时钟.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>朝彻</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年11月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/FPGA/xilinx_k7%E6%97%B6%E9%92%9F.html" title="xilinx_k7时钟">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">xilinx_k7时钟</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/AI/%E4%B8%BA%E4%BB%80%E4%B9%88FPGA%E6%AF%94RK3588%E5%8A%A0%E9%80%9Fyolo%E5%BB%B6%E8%BF%9F%E4%BD%8E.html" title="为什么FPGA比RK3588加速yolo延迟低">
+                        <span class="hidden-mobile">为什么FPGA比RK3588加速yolo延迟低</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

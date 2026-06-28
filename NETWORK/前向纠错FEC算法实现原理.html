@@ -16,30 +16,30 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f415482">
-  <meta name="author" content="dnsnat">
+  <meta name="author" content="朝彻">
   <meta name="keywords" content="">
   
     <meta name="description" content="前向纠错算法介绍前向纠错（FEC）算法被广泛使用在实时音视频领域提升音视频的弱网抗性，只要收到FEC分组内的冗余包和一定数量的数据包，就能根据FEC算法恢复出对应的冗余包。常见的FEC实现包括M+1系列的异或算法、M+N系列的RS矩阵算法，这2种实现算法各有优缺点。 异或算法实现相对简单，将M个数据包逐字节进行异或计算，计算得到的结果即为冗余包。这种算法只需要进行异常运算，复杂度低。但是抗丢包能力">
 <meta property="og:type" content="article">
 <meta property="og:title" content="前向纠错FEC算法实现原理">
-<meta property="og:url" content="http://blog.uanet.cn/NETWORK/%E5%89%8D%E5%90%91%E7%BA%A0%E9%94%99FEC%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86.html">
-<meta property="og:site_name" content="DNSNAT">
+<meta property="og:url" content="http://witbit.cn/NETWORK/%E5%89%8D%E5%90%91%E7%BA%A0%E9%94%99FEC%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86.html">
+<meta property="og:site_name" content="WITBIT">
 <meta property="og:description" content="前向纠错算法介绍前向纠错（FEC）算法被广泛使用在实时音视频领域提升音视频的弱网抗性，只要收到FEC分组内的冗余包和一定数量的数据包，就能根据FEC算法恢复出对应的冗余包。常见的FEC实现包括M+1系列的异或算法、M+N系列的RS矩阵算法，这2种实现算法各有优缺点。 异或算法实现相对简单，将M个数据包逐字节进行异或计算，计算得到的结果即为冗余包。这种算法只需要进行异常运算，复杂度低。但是抗丢包能力">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.uanet.cn/NETWORK/%E5%89%8D%E5%90%91%E7%BA%A0%E9%94%99FEC%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/1588939926171-22cc1722696186ab-1024x270.png">
-<meta property="og:image" content="http://blog.uanet.cn/NETWORK/%E5%89%8D%E5%90%91%E7%BA%A0%E9%94%99FEC%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/1592996156364-343a6490f82ea87b-1024x302.png">
-<meta property="og:image" content="http://blog.uanet.cn/NETWORK/%E5%89%8D%E5%90%91%E7%BA%A0%E9%94%99FEC%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/1592996119029-81b914c2001ade95-1024x379.png">
+<meta property="og:image" content="http://witbit.cn/NETWORK/%E5%89%8D%E5%90%91%E7%BA%A0%E9%94%99FEC%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/1588939926171-22cc1722696186ab-1024x270.png">
+<meta property="og:image" content="http://witbit.cn/NETWORK/%E5%89%8D%E5%90%91%E7%BA%A0%E9%94%99FEC%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/1592996156364-343a6490f82ea87b-1024x302.png">
+<meta property="og:image" content="http://witbit.cn/NETWORK/%E5%89%8D%E5%90%91%E7%BA%A0%E9%94%99FEC%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/1592996119029-81b914c2001ade95-1024x379.png">
 <meta property="article:published_time" content="2025-02-13T05:53:20.895Z">
 <meta property="article:modified_time" content="2025-02-13T05:53:20.895Z">
-<meta property="article:author" content="dnsnat">
+<meta property="article:author" content="朝彻">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://blog.uanet.cn/NETWORK/%E5%89%8D%E5%90%91%E7%BA%A0%E9%94%99FEC%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/1588939926171-22cc1722696186ab-1024x270.png">
+<meta name="twitter:image" content="http://witbit.cn/NETWORK/%E5%89%8D%E5%90%91%E7%BA%A0%E9%94%99FEC%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/1588939926171-22cc1722696186ab-1024x270.png">
   
   
   
     <link rel="stylesheet" href="/css/mycss.css">
   
-  <title>前向纠错FEC算法实现原理 - DNSNAT</title>
+  <title>前向纠错FEC算法实现原理 - WITBIT</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -81,7 +81,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -107,7 +107,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
 </head>
 
 
@@ -121,7 +121,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>阵源阿威</strong>
+      <strong>WitBit</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -178,18 +178,6 @@
               <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
                 <span>课程</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
-                <i class="iconfont icon-link-fill"></i>
-                <span>官网</span>
               </a>
             </li>
           
@@ -392,13 +380,13 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>前向纠错FEC算法实现原理</div>
-      <div>http://blog.uanet.cn/NETWORK/前向纠错FEC算法实现原理.html</div>
+      <div>http://witbit.cn/NETWORK/前向纠错FEC算法实现原理.html</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>dnsnat</div>
+          <div>朝彻</div>
         </div>
       
       

@@ -1,0 +1,1477 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="朝彻">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="你这个问题本质是在问三件事：  lspci 是怎么“读到 BAR 信息”的 CPU 访问 BAR 时底层用的是什么协议 PCIe 整体通信流程到底怎么走  我给你从软件 → 协议 → FPGA接口一层层拆开。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PCIE_DMA流程">
+<meta property="og:url" content="http://witbit.cn/FPGA/taxi/PCIE_DMA%E6%B5%81%E7%A8%8B.html">
+<meta property="og:site_name" content="WITBIT">
+<meta property="og:description" content="你这个问题本质是在问三件事：  lspci 是怎么“读到 BAR 信息”的 CPU 访问 BAR 时底层用的是什么协议 PCIe 整体通信流程到底怎么走  我给你从软件 → 协议 → FPGA接口一层层拆开。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-23T08:49:13.019Z">
+<meta property="article:modified_time" content="2026-03-23T08:59:36.390Z">
+<meta property="article:author" content="朝彻">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>PCIE_DMA流程 - WITBIT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WitBit</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="PCIE_DMA流程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-03-23 16:49" pubdate>
+          2026年3月23日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          26 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">PCIE_DMA流程</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>你这个问题本质是在问三件事：</p>
+<ol>
+<li><code>lspci</code> 是怎么“读到 BAR 信息”的</li>
+<li>CPU 访问 BAR 时底层用的是什么协议</li>
+<li>PCIe 整体通信流程到底怎么走</li>
+</ol>
+<p>我给你从<strong>软件 → 协议 → FPGA接口</strong>一层层拆开。</p>
+<hr>
+<h1 id="一、lspci-vv-访问-BAR，用的是什么协议？"><a href="#一、lspci-vv-访问-BAR，用的是什么协议？" class="headerlink" title="一、lspci -vv 访问 BAR，用的是什么协议？"></a>一、<code>lspci -vv</code> 访问 BAR，用的是什么协议？</h1><p>👉 <strong>答案：PCIe Configuration Space 访问（配置空间协议）</strong></p>
+<hr>
+<h2 id="1️⃣-lspci-干了什么"><a href="#1️⃣-lspci-干了什么" class="headerlink" title="1️⃣ lspci 干了什么"></a>1️⃣ <code>lspci</code> 干了什么</h2><p>当你执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">lspci -vv -s 01:00.0<br></code></pre></td></tr></table></figure>
+
+<p>本质是在读：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><span class="hljs-symbol">PCIe</span> Configuration <span class="hljs-meta">Space</span>（配置空间）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-BAR-在哪里？"><a href="#2️⃣-BAR-在哪里？" class="headerlink" title="2️⃣ BAR 在哪里？"></a>2️⃣ BAR 在哪里？</h2><p>BAR寄存器在：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">PCI</span>配置空间 offset <span class="hljs-number">0</span>x10 ~ <span class="hljs-number">0</span>x24<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3️⃣-底层协议"><a href="#3️⃣-底层协议" class="headerlink" title="3️⃣ 底层协议"></a>3️⃣ 底层协议</h2><p>👉 使用的是：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">PCIe TLP：<span class="hljs-keyword">Configuration</span> <span class="hljs-keyword">Read</span> / <span class="hljs-keyword">Write</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4️⃣-流程"><a href="#4️⃣-流程" class="headerlink" title="4️⃣ 流程"></a>4️⃣ 流程</h2><figure class="highlight isbl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs isbl"><span class="hljs-variable">lspci</span><br> → 内核 <span class="hljs-function"><span class="hljs-title">pci_read_config_dword</span>()</span><br>   → 生成 <span class="hljs-variable">Config</span> <span class="hljs-variable">Read</span> <span class="hljs-variable">TLP</span><br>     → 发到 <span class="hljs-variable">PCIe</span> 设备<br>       → <span class="hljs-variable">FPGA</span> <span class="hljs-variable">PCIe</span> <span class="hljs-variable">IP</span> 自动响应<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="5️⃣-关键点"><a href="#5️⃣-关键点" class="headerlink" title="5️⃣ 关键点"></a>5️⃣ 关键点</h2><p>👉 <strong>这个阶段 FPGA 用户逻辑完全不参与</strong></p>
+<p>因为：</p>
+<ul>
+<li>Config Space 是 PCIe IP 硬核处理的</li>
+<li>BAR 只是“寄存器值”</li>
+</ul>
+<hr>
+<h1 id="二、访问-BAR-数据，用的是什么协议？"><a href="#二、访问-BAR-数据，用的是什么协议？" class="headerlink" title="二、访问 BAR 数据，用的是什么协议？"></a>二、访问 BAR 数据，用的是什么协议？</h1><p>👉 <strong>答案：Memory Read &#x2F; Memory Write TLP</strong></p>
+<hr>
+<h2 id="1️⃣-场景"><a href="#1️⃣-场景" class="headerlink" title="1️⃣ 场景"></a>1️⃣ 场景</h2><p>例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">*(<span class="hljs-keyword">volatile</span> <span class="hljs-type">uint32_t</span> *)bar0 = <span class="hljs-number">0x1234</span>;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-底层协议"><a href="#2️⃣-底层协议" class="headerlink" title="2️⃣ 底层协议"></a>2️⃣ 底层协议</h2><p>👉 转换成：</p>
+<figure class="highlight cos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cos">PCIe Memory <span class="hljs-keyword">Write</span> TLP<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3️⃣-完整流程"><a href="#3️⃣-完整流程" class="headerlink" title="3️⃣ 完整流程"></a>3️⃣ 完整流程</h2><h3 id="写（Host-→-FPGA）"><a href="#写（Host-→-FPGA）" class="headerlink" title="写（Host → FPGA）"></a>写（Host → FPGA）</h3><figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mathematica"><span class="hljs-variable">CPU</span> <span class="hljs-variable">store</span><br> → <span class="hljs-variable">MMIO</span>（内存访问）<br>   → <span class="hljs-variable">PCIe</span> <span class="hljs-built_in">Root</span> <span class="hljs-built_in">Complex</span><br>     → <span class="hljs-variable">Memory</span> <span class="hljs-built_in">Write</span> <span class="hljs-variable">TLP</span><br>       → <span class="hljs-variable">FPGA</span> <span class="hljs-variable">PCIe</span> <span class="hljs-variable">IP</span><br>         → <span class="hljs-type">s_axis</span><span class="hljs-type">_cq</span><br>           → <span class="hljs-variable">AXI</span><span class="hljs-operator">-</span><span class="hljs-variable">Lite</span><br>             → 寄存器<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="读（Host-→-FPGA-→-Host）"><a href="#读（Host-→-FPGA-→-Host）" class="headerlink" title="读（Host → FPGA → Host）"></a>读（Host → FPGA → Host）</h3><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">CPU <span class="hljs-keyword">load</span><br> → Memory <span class="hljs-keyword">Read</span> TLP<br>   → FPGA<br>     → 你逻辑返回数据<br>       → Completion TLP<br>         → Host<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4️⃣-FPGA接口对应"><a href="#4️⃣-FPGA接口对应" class="headerlink" title="4️⃣ FPGA接口对应"></a>4️⃣ FPGA接口对应</h2><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>PCIe接口</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>BAR写</td>
+<td><code>s_axis_cq</code></td>
+</tr>
+<tr>
+<td>BAR读响应</td>
+<td><code>m_axis_cc</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="三、两种访问的本质区别（核心）"><a href="#三、两种访问的本质区别（核心）" class="headerlink" title="三、两种访问的本质区别（核心）"></a>三、两种访问的本质区别（核心）</h1><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>用途</th>
+<th>TLP类型</th>
+<th>FPGA是否参与</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>lspci</td>
+<td>枚举设备</td>
+<td>Config TLP</td>
+<td>❌ 不参与</td>
+</tr>
+<tr>
+<td>访问BAR</td>
+<td>数据交互</td>
+<td>Memory TLP</td>
+<td>✅ 参与</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="四、PCIe完整通信流程（重点）"><a href="#四、PCIe完整通信流程（重点）" class="headerlink" title="四、PCIe完整通信流程（重点）"></a>四、PCIe完整通信流程（重点）</h1><hr>
+<h2 id="1️⃣-分层结构"><a href="#1️⃣-分层结构" class="headerlink" title="1️⃣ 分层结构"></a>1️⃣ 分层结构</h2><figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs lasso">应用层（你的FPGA逻辑）<br>↓<br>Transaction Layer（TLP）<br>↓<br><span class="hljs-built_in">Data</span> <span class="hljs-keyword">Link</span> Layer（ACK/重传）<br>↓<br>Physical Layer（SerDes）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-三种核心通信路径"><a href="#2️⃣-三种核心通信路径" class="headerlink" title="2️⃣ 三种核心通信路径"></a>2️⃣ 三种核心通信路径</h2><hr>
+<h2 id="🔵-场景1：枚举设备（lspci）"><a href="#🔵-场景1：枚举设备（lspci）" class="headerlink" title="🔵 场景1：枚举设备（lspci）"></a>🔵 场景1：枚举设备（lspci）</h2><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">Host<br> → <span class="hljs-built_in">Config</span> Read TLP<br>   → FPGA PCIe IP<br>     → 返回 <span class="hljs-keyword">BAR </span>信息<br></code></pre></td></tr></table></figure>
+
+<p>👉 不经过你逻辑</p>
+<hr>
+<h2 id="🔵-场景2：CPU访问BAR（控制路径）"><a href="#🔵-场景2：CPU访问BAR（控制路径）" class="headerlink" title="🔵 场景2：CPU访问BAR（控制路径）"></a>🔵 场景2：CPU访问BAR（控制路径）</h2><figure class="highlight cos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cos">CPU<br> → Memory <span class="hljs-keyword">Write</span><br>   → PCIe TLP<br>     → FPGA<br>       → AXI-Lite<br>         → 寄存器<br></code></pre></td></tr></table></figure>
+
+<p>👉 用于：</p>
+<ul>
+<li>控制</li>
+<li>配置</li>
+<li>状态读取</li>
+</ul>
+<hr>
+<h2 id="🔵-场景3：DMA（数据路径）"><a href="#🔵-场景3：DMA（数据路径）" class="headerlink" title="🔵 场景3：DMA（数据路径）"></a>🔵 场景3：DMA（数据路径）</h2><hr>
+<h3 id="FPGA-→-Host（发数据）"><a href="#FPGA-→-Host（发数据）" class="headerlink" title="FPGA → Host（发数据）"></a>FPGA → Host（发数据）</h3><figure class="highlight cos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cos">FPGA<br> → m_axis_rq<br>   → Memory <span class="hljs-keyword">Write</span> TLP<br>     → Host DDR<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="FPGA-←-Host（取数据）"><a href="#FPGA-←-Host（取数据）" class="headerlink" title="FPGA ← Host（取数据）"></a>FPGA ← Host（取数据）</h3><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs stata">FPGA<br> → 发 <span class="hljs-keyword">Memory</span> <span class="hljs-keyword">Read</span><br>   → Host返回 Completion<br>     → s_axis_rc<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="五、用一个统一模型帮你彻底理解"><a href="#五、用一个统一模型帮你彻底理解" class="headerlink" title="五、用一个统一模型帮你彻底理解"></a>五、用一个统一模型帮你彻底理解</h1><p>你可以这样记：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">PCIe</span> <span class="hljs-operator">=</span> 三条通道<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="1️⃣-配置通道（Config）"><a href="#1️⃣-配置通道（Config）" class="headerlink" title="1️⃣ 配置通道（Config）"></a>1️⃣ 配置通道（Config）</h2><p>👉 给系统用</p>
+<ul>
+<li><code>lspci</code></li>
+<li>枚举设备</li>
+<li>BAR大小</li>
+</ul>
+<hr>
+<h2 id="2️⃣-控制通道（BAR-x2F-MMIO）"><a href="#2️⃣-控制通道（BAR-x2F-MMIO）" class="headerlink" title="2️⃣ 控制通道（BAR &#x2F; MMIO）"></a>2️⃣ 控制通道（BAR &#x2F; MMIO）</h2><p>👉 给驱动用</p>
+<ul>
+<li>寄存器访问</li>
+<li>启停DMA</li>
+<li>配置队列</li>
+</ul>
+<hr>
+<h2 id="3️⃣-数据通道（DMA）"><a href="#3️⃣-数据通道（DMA）" class="headerlink" title="3️⃣ 数据通道（DMA）"></a>3️⃣ 数据通道（DMA）</h2><p>👉 给数据用</p>
+<ul>
+<li>网络包</li>
+<li>AI数据</li>
+<li>大流量</li>
+</ul>
+<hr>
+<h1 id="六、结合你-FPGA-设计（非常关键）"><a href="#六、结合你-FPGA-设计（非常关键）" class="headerlink" title="六、结合你 FPGA 设计（非常关键）"></a>六、结合你 FPGA 设计（非常关键）</h1><hr>
+<h2 id="1️⃣-你必须实现的只有两个"><a href="#1️⃣-你必须实现的只有两个" class="headerlink" title="1️⃣ 你必须实现的只有两个"></a>1️⃣ 你必须实现的只有两个</h2><h3 id="✅-BAR逻辑（AXI-Lite）"><a href="#✅-BAR逻辑（AXI-Lite）" class="headerlink" title="✅ BAR逻辑（AXI-Lite）"></a>✅ BAR逻辑（AXI-Lite）</h3><p>处理：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">s_axis_cq</span> → 寄存器<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="✅-DMA逻辑"><a href="#✅-DMA逻辑" class="headerlink" title="✅ DMA逻辑"></a>✅ DMA逻辑</h3><p>处理：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">m_axis_rq</span> / s_axis_rc<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-你不用管的"><a href="#2️⃣-你不用管的" class="headerlink" title="2️⃣ 你不用管的"></a>2️⃣ 你不用管的</h2><p>👉 Config Space</p>
+<p>因为：</p>
+<ul>
+<li>PCIe IP 已经实现</li>
+</ul>
+<hr>
+<h1 id="七、常见误区（你一定要避免）"><a href="#七、常见误区（你一定要避免）" class="headerlink" title="七、常见误区（你一定要避免）"></a>七、常见误区（你一定要避免）</h1><hr>
+<h2 id="❌-误区1"><a href="#❌-误区1" class="headerlink" title="❌ 误区1"></a>❌ 误区1</h2><p>“lspci 是访问 BAR”</p>
+<p>👉 错！</p>
+<p>✔ 它访问的是：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><span class="hljs-symbol">Config</span> <span class="hljs-meta">Space</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="❌-误区2"><a href="#❌-误区2" class="headerlink" title="❌ 误区2"></a>❌ 误区2</h2><p>“BAR 是一种协议”</p>
+<p>👉 错！</p>
+<p>✔ BAR 是：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">地址映射机制<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="❌-误区3"><a href="#❌-误区3" class="headerlink" title="❌ 误区3"></a>❌ 误区3</h2><p>“PCIe 就是 AXI”</p>
+<p>👉 错！</p>
+<p>✔ 实际：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><span class="hljs-symbol">PCIe</span> → TLP → AXI（<span class="hljs-built_in">IP</span>内部转换）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="八、一句话总结（核心认知）"><a href="#八、一句话总结（核心认知）" class="headerlink" title="八、一句话总结（核心认知）"></a>八、一句话总结（核心认知）</h1><p>👉 <strong>lspci 用的是 Config TLP（配置空间）</strong><br>👉 <strong>访问 BAR 用的是 Memory TLP（内存读写）</strong><br>👉 <strong>真正数据传输靠 DMA（也是 Memory TLP）</strong></p>
+<hr>
+<p>如果你下一步想更深入，我可以帮你画一个：</p>
+<p>👉 <strong>“pcie4_uscale_plus + BAR + DMA + Linux驱动”完整时序图（精确到TLP级）</strong></p>
+<p>这个能直接让你把整个 PCIe 架构彻底打通。</p>
+<p>这段代码本质就是一个<strong>典型 Linux 网卡驱动 TX 路径（Descriptor + DMA）</strong>实现。你问的核心是：</p>
+<blockquote>
+<p>👉 <strong>“DMA 是在哪一步真正启动的？”</strong><br>👉 <strong>“整个发送流程是怎么闭环的？”</strong></p>
+</blockquote>
+<p>我按<strong>代码逐行 → DMA触发点 → 完整时序（Host ↔ FPGA）</strong>给你拆。</p>
+<hr>
+<h1 id="一、这段代码在整个网络栈的位置"><a href="#一、这段代码在整个网络栈的位置" class="headerlink" title="一、这段代码在整个网络栈的位置"></a>一、这段代码在整个网络栈的位置</h1><p>函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">cndm_start_xmit(<span class="hljs-keyword">struct</span> sk_buff *skb, <span class="hljs-keyword">struct</span> net_device *ndev)<br></code></pre></td></tr></table></figure>
+
+<p>👉 是 Linux 网络栈的：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><span class="hljs-symbol">TCP</span>/<span class="hljs-built_in">IP</span> → dev_queue_xmit → ndo_start_xmit（你这个函数）<br></code></pre></td></tr></table></figure>
+
+<p>👉 作用：</p>
+<p><strong>把 skb 转成 DMA 描述符，交给网卡（FPGA）发送</strong></p>
+<hr>
+<h1 id="二、逐段讲解（带关键点）"><a href="#二、逐段讲解（带关键点）" class="headerlink" title="二、逐段讲解（带关键点）"></a>二、逐段讲解（带关键点）</h1><hr>
+<h2 id="1️⃣-获取队列-amp-ring"><a href="#1️⃣-获取队列-amp-ring" class="headerlink" title="1️⃣ 获取队列 &amp; ring"></a>1️⃣ 获取队列 &amp; ring</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cndm_ring</span> *<span class="hljs-title">sq</span> =</span> priv-&gt;txq;<br></code></pre></td></tr></table></figure>
+
+<p>👉 <code>sq</code> &#x3D; Send Queue（发送队列）</p>
+<p>通常结构：</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs coq">Descriptor <span class="hljs-keyword">Ring</span>（环形队列）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-找当前-descriptor-位置"><a href="#2️⃣-找当前-descriptor-位置" class="headerlink" title="2️⃣ 找当前 descriptor 位置"></a>2️⃣ 找当前 descriptor 位置</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">index = sq-&gt;prod_ptr &amp; sq-&gt;size_mask;<br></code></pre></td></tr></table></figure>
+
+<p>👉 经典 ring buffer：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">index</span> <span class="hljs-operator">=</span> prod_ptr % size<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3️⃣-定位-descriptor"><a href="#3️⃣-定位-descriptor" class="headerlink" title="3️⃣ 定位 descriptor"></a>3️⃣ 定位 descriptor</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">tx_desc = (<span class="hljs-keyword">struct</span> cndm_desc *)(sq-&gt;buf + index*<span class="hljs-number">16</span>);<br></code></pre></td></tr></table></figure>
+
+<p>👉 每个 desc 16 字节：</p>
+<p>典型结构：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">|<span class="hljs-string"> addr (64bit) </span>|<span class="hljs-string"> len (32bit) </span>|<span class="hljs-string"> flags </span>|<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4️⃣-处理时间戳（可选）"><a href="#4️⃣-处理时间戳（可选）" class="headerlink" title="4️⃣ 处理时间戳（可选）"></a>4️⃣ 处理时间戳（可选）</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (shinfo-&gt;tx_flags &amp; SKBTX_HW_TSTAMP)<br></code></pre></td></tr></table></figure>
+
+<p>👉 如果需要 PTP 硬件时间戳：</p>
+<ul>
+<li>标记 tx_info</li>
+<li>后续 FPGA 要回 timestamp</li>
+</ul>
+<hr>
+<h2 id="5️⃣-关键步骤：DMA-映射"><a href="#5️⃣-关键步骤：DMA-映射" class="headerlink" title="5️⃣ 关键步骤：DMA 映射"></a>5️⃣ 关键步骤：DMA 映射</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">dma_addr = dma_map_single(dev, skb-&gt;data, len, DMA_TO_DEVICE);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔴-重点：这一步到底做了什么？"><a href="#🔴-重点：这一步到底做了什么？" class="headerlink" title="🔴 重点：这一步到底做了什么？"></a>🔴 重点：这一步到底做了什么？</h2><p>👉 不是 DMA 传输！</p>
+<p>👉 是：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"><span class="hljs-meta">CPU</span>虚拟地址 → PCIe DMA地址（IOMMU/物理地址）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="结果："><a href="#结果：" class="headerlink" title="结果："></a>结果：</h3><figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs haskell"><span class="hljs-title">skb</span>-&gt;<span class="hljs-class"><span class="hljs-keyword">data</span>（<span class="hljs-type">CPU</span>地址）</span><br>    ↓<br><span class="hljs-title">dma_addr</span>（<span class="hljs-type">PCIe</span>可访问地址）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="6️⃣-写-descriptor（关键）"><a href="#6️⃣-写-descriptor（关键）" class="headerlink" title="6️⃣ 写 descriptor（关键）"></a>6️⃣ 写 descriptor（关键）</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">tx_desc-&gt;len = len;<br>tx_desc-&gt;addr = dma_addr;<br></code></pre></td></tr></table></figure>
+
+<p>👉 告诉 FPGA：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">去这个地址取数据，长度是多少<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="7️⃣-保存上下文（用于回收）"><a href="#7️⃣-保存上下文（用于回收）" class="headerlink" title="7️⃣ 保存上下文（用于回收）"></a>7️⃣ 保存上下文（用于回收）</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">tx_info-&gt;skb = skb;<br>tx_info-&gt;dma_addr = dma_addr;<br></code></pre></td></tr></table></figure>
+
+<p>👉 用于：</p>
+<ul>
+<li>DMA完成后 unmap</li>
+<li>释放 skb</li>
+</ul>
+<hr>
+<h2 id="8️⃣-更新生产者指针"><a href="#8️⃣-更新生产者指针" class="headerlink" title="8️⃣ 更新生产者指针"></a>8️⃣ 更新生产者指针</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">sq-&gt;prod_ptr++;<br></code></pre></td></tr></table></figure>
+
+<p>👉 表示：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">新 descriptor 已准备好<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="9️⃣-队列满控制"><a href="#9️⃣-队列满控制" class="headerlink" title="9️⃣ 队列满控制"></a>9️⃣ 队列满控制</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (sq-&gt;prod_ptr - sq-&gt;cons_ptr &gt;= <span class="hljs-number">128</span>)<br>    netif_tx_stop_queue()<br></code></pre></td></tr></table></figure>
+
+<p>👉 防止 ring overflow</p>
+<hr>
+<h2 id="🔟-内存屏障（非常关键）"><a href="#🔟-内存屏障（非常关键）" class="headerlink" title="🔟 内存屏障（非常关键）"></a>🔟 内存屏障（非常关键）</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">dma_wmb();<br></code></pre></td></tr></table></figure>
+
+<p>👉 保证：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">descriptor</span> 已经写到内存<br>再通知设备<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔥-11️⃣-关键点：启动-DMA"><a href="#🔥-11️⃣-关键点：启动-DMA" class="headerlink" title="🔥 11️⃣ 关键点：启动 DMA"></a>🔥 11️⃣ 关键点：启动 DMA</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">cndm_sq_write_prod_ptr(sq);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="三、DMA-是在哪里真正启动的？"><a href="#三、DMA-是在哪里真正启动的？" class="headerlink" title="三、DMA 是在哪里真正启动的？"></a>三、DMA 是在哪里真正启动的？</h1><p>👉 <strong>就在这一句：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">cndm_sq_write_prod_ptr(sq);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="它本质做了什么？"><a href="#它本质做了什么？" class="headerlink" title="它本质做了什么？"></a>它本质做了什么？</h2><p>通常实现是：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">writel(sq-&gt;prod_ptr, BAR0 + TX_PROD_REG);<br></code></pre></td></tr></table></figure>
+
+<p>👉 也就是：</p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gauss">写 FPGA <span class="hljs-built_in">BAR</span>寄存器<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔴-转换成-PCIe-行为："><a href="#🔴-转换成-PCIe-行为：" class="headerlink" title="🔴 转换成 PCIe 行为："></a>🔴 转换成 PCIe 行为：</h2><figure class="highlight cos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cos">CPU写寄存器<br>→ Memory <span class="hljs-keyword">Write</span> TLP<br>→ FPGA<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="FPGA-收到后："><a href="#FPGA-收到后：" class="headerlink" title="FPGA 收到后："></a>FPGA 收到后：</h2><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stata">发现 prod_ptr 增加<br>→ 读取 descriptor<br>→ 发起 DMA（PCIe <span class="hljs-keyword">Memory</span> <span class="hljs-keyword">Read</span>）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="四、完整发送流程（重点）"><a href="#四、完整发送流程（重点）" class="headerlink" title="四、完整发送流程（重点）"></a>四、完整发送流程（重点）</h1><hr>
+<h2 id="🔵-阶段1：CPU准备数据"><a href="#🔵-阶段1：CPU准备数据" class="headerlink" title="🔵 阶段1：CPU准备数据"></a>🔵 阶段1：CPU准备数据</h2><figure class="highlight isbl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs isbl">应用层<br> → <span class="hljs-variable">skb</span><br> → <span class="hljs-function"><span class="hljs-title">start_xmit</span>()</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-阶段2：驱动准备-descriptor"><a href="#🔵-阶段2：驱动准备-descriptor" class="headerlink" title="🔵 阶段2：驱动准备 descriptor"></a>🔵 阶段2：驱动准备 descriptor</h2><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">dma_map_single</span><span class="hljs-params">()</span></span>        （地址转换）<br>写 desc（addr + len）<br>更新 prod_ptr<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-阶段3：通知-FPGA（关键）"><a href="#🔵-阶段3：通知-FPGA（关键）" class="headerlink" title="🔵 阶段3：通知 FPGA（关键）"></a>🔵 阶段3：通知 FPGA（关键）</h2><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">writel</span><span class="hljs-params">(prod_ptr)</span></span><br> → PCIe Memory Write TLP<br> → FPGA BAR寄存器<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-阶段4：FPGA-启动-DMA"><a href="#🔵-阶段4：FPGA-启动-DMA" class="headerlink" title="🔵 阶段4：FPGA 启动 DMA"></a>🔵 阶段4：FPGA 启动 DMA</h2><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs stata">FPGA:<br>  读取 descriptor<br>    → 发 PCIe <span class="hljs-keyword">Memory</span> <span class="hljs-keyword">Read</span> TLP<br>      → Host DDR<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-阶段5：数据进入-FPGA"><a href="#🔵-阶段5：数据进入-FPGA" class="headerlink" title="🔵 阶段5：数据进入 FPGA"></a>🔵 阶段5：数据进入 FPGA</h2><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">PCIe</span> → s_axis_rc<br> → DMA engine<br> → FIFO / MAC<br> → 发包<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-阶段6：发送完成"><a href="#🔵-阶段6：发送完成" class="headerlink" title="🔵 阶段6：发送完成"></a>🔵 阶段6：发送完成</h2><figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs avrasm"><span class="hljs-symbol">FPGA:</span><br>  更新 cons_ptr<br>  （可选）发中断 MSI<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-阶段7：驱动回收"><a href="#🔵-阶段7：驱动回收" class="headerlink" title="🔵 阶段7：驱动回收"></a>🔵 阶段7：驱动回收</h2><figure class="highlight isbl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs isbl">中断 <span class="hljs-variable"><span class="hljs-keyword">or</span></span> <span class="hljs-variable">NAPI</span> <span class="hljs-variable">poll</span>:<br>  <span class="hljs-function"><span class="hljs-title">dma_unmap_single</span>()</span><br>  <span class="hljs-function"><span class="hljs-title">dev_kfree_skb</span>()</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="五、关键理解（你必须抓住）"><a href="#五、关键理解（你必须抓住）" class="headerlink" title="五、关键理解（你必须抓住）"></a>五、关键理解（你必须抓住）</h1><hr>
+<h2 id="❗-DMA-不是-CPU-启动的"><a href="#❗-DMA-不是-CPU-启动的" class="headerlink" title="❗ DMA 不是 CPU 启动的"></a>❗ DMA 不是 CPU 启动的</h2><p>👉 CPU 只是：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 准备 descriptor<br><span class="hljs-bullet">2.</span> 写 doorbell（prod<span class="hljs-emphasis">_ptr）</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="✅-真正-DMA-发起者"><a href="#✅-真正-DMA-发起者" class="headerlink" title="✅ 真正 DMA 发起者"></a>✅ 真正 DMA 发起者</h2><p>👉 是 FPGA：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">FPGA</span> 主动发 PCIe TLP<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="六、用一句话总结"><a href="#六、用一句话总结" class="headerlink" title="六、用一句话总结"></a>六、用一句话总结</h1><p>👉 <strong>DMA 启动点 &#x3D; 写 FPGA doorbell（prod_ptr寄存器）</strong></p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs stata">CPU:<br>  写 <span class="hljs-keyword">desc</span><br>  → 写 BAR寄存器（doorbell）<br><br>FPGA:<br>  看到 doorbell<br>  → 发 PCIe <span class="hljs-keyword">Memory</span> <span class="hljs-keyword">Read</span><br>  → 完成 DMA<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="七、结合你方向（非常关键）"><a href="#七、结合你方向（非常关键）" class="headerlink" title="七、结合你方向（非常关键）"></a>七、结合你方向（非常关键）</h1><p>你现在做 FPGA NIC &#x2F; AI：</p>
+<p>可以扩展：</p>
+<hr>
+<h2 id="1️⃣-Descriptor增强"><a href="#1️⃣-Descriptor增强" class="headerlink" title="1️⃣ Descriptor增强"></a>1️⃣ Descriptor增强</h2><figure class="highlight smalltalk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs smalltalk">| addr | len | <span class="hljs-type">AI</span> tag | flow id |<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-FPGA行为"><a href="#2️⃣-FPGA行为" class="headerlink" title="2️⃣ FPGA行为"></a>2️⃣ FPGA行为</h2><ul>
+<li>AI分类 → 决定发哪个队列</li>
+<li>ACL判断 → 是否丢包</li>
+<li>PTP → 打时间戳</li>
+</ul>
+<hr>
+<h2 id="3️⃣-高阶优化"><a href="#3️⃣-高阶优化" class="headerlink" title="3️⃣ 高阶优化"></a>3️⃣ 高阶优化</h2><ul>
+<li>多队列 TX（RSS &#x2F; QoS）</li>
+<li>零拷贝（DPDK思路）</li>
+<li>批量 doorbell（减少 PCIe TLP）</li>
+</ul>
+<hr>
+<h1 id="八、如果你要更深入"><a href="#八、如果你要更深入" class="headerlink" title="八、如果你要更深入"></a>八、如果你要更深入</h1><p>我可以帮你下一步做：</p>
+<p>👉 <strong>“FPGA端 DMA Engine（Verilog）如何解析 descriptor + 发 TLP”</strong></p>
+<p>包括：</p>
+<ul>
+<li>m_axis_rq 如何构造 Memory Read</li>
+<li>Completion 如何处理</li>
+<li>和 Linux 驱动完全对齐</li>
+</ul>
+<p>这个就是你现在这个驱动的<strong>硬件对口实现</strong>。</p>
+<p>这个函数在你这段 TX 代码里是一个<strong>很关键但容易被误解的点</strong>。我给你从<strong>内核语义 → 调用路径 → PTP&#x2F;硬件时间戳 → 和你FPGA的关系</strong>讲清楚。</p>
+<hr>
+<h1 id="一、skb-tx-timestamp-的作用（核心一句话）"><a href="#一、skb-tx-timestamp-的作用（核心一句话）" class="headerlink" title="一、skb_tx_timestamp() 的作用（核心一句话）"></a>一、<code>skb_tx_timestamp()</code> 的作用（核心一句话）</h1><p>👉 <strong>为这个 skb 生成“发送时间戳事件”，通知上层（socket&#x2F;应用）</strong></p>
+<hr>
+<h1 id="二、它到底干了什么？"><a href="#二、它到底干了什么？" class="headerlink" title="二、它到底干了什么？"></a>二、它到底干了什么？</h1><p>函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">skb_tx_timestamp(skb);<br></code></pre></td></tr></table></figure>
+
+<p>本质是：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs arcade">根据 skb 的标志位<br>→ 决定是否要做 TX <span class="hljs-built_in">timestamp</span><br>→ 触发 软件 or 硬件 时间戳流程<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="三、结合你代码看（关键）"><a href="#三、结合你代码看（关键）" class="headerlink" title="三、结合你代码看（关键）"></a>三、结合你代码看（关键）</h1><p>你前面有：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (shinfo-&gt;tx_flags &amp; SKBTX_HW_TSTAMP) &#123;<br>    shinfo-&gt;tx_flags |= SKBTX_IN_PROGRESS;<br>    tx_info-&gt;ts_requested = <span class="hljs-number">1</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="这些-flag-的含义"><a href="#这些-flag-的含义" class="headerlink" title="这些 flag 的含义"></a>这些 flag 的含义</h2><table>
+<thead>
+<tr>
+<th>flag</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>SKBTX_HW_TSTAMP</code></td>
+<td>用户要求硬件时间戳</td>
+</tr>
+<tr>
+<td><code>SKBTX_IN_PROGRESS</code></td>
+<td>驱动正在处理时间戳</td>
+</tr>
+</tbody></table>
+<hr>
+<p>👉 所以这段逻辑是：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs scss">用户请求时间戳<br>→ 标记这个 skb<br>→ 后面 <span class="hljs-built_in">skb_tx_timestamp</span>() 会处理<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="四、skb-tx-timestamp-内部逻辑"><a href="#四、skb-tx-timestamp-内部逻辑" class="headerlink" title="四、skb_tx_timestamp() 内部逻辑"></a>四、<code>skb_tx_timestamp()</code> 内部逻辑</h1><p>它会判断两种情况：</p>
+<hr>
+<h2 id="🔵-情况1：软件时间戳"><a href="#🔵-情况1：软件时间戳" class="headerlink" title="🔵 情况1：软件时间戳"></a>🔵 情况1：软件时间戳</h2><p>如果没有硬件支持：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">skb-&gt;tstamp = ktime_get_real();<br></code></pre></td></tr></table></figure>
+
+<p>👉 直接打时间（CPU时间）</p>
+<hr>
+<h2 id="🔵-情况2：硬件时间戳（你现在的重点）"><a href="#🔵-情况2：硬件时间戳（你现在的重点）" class="headerlink" title="🔵 情况2：硬件时间戳（你现在的重点）"></a>🔵 情况2：硬件时间戳（你现在的重点）</h2><p>如果：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">SKBTX_HW_TSTAMP</span><br></code></pre></td></tr></table></figure>
+
+<p>👉 那它<strong>不会立即生成时间戳</strong></p>
+<p>而是：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs vim">等待驱动 <span class="hljs-keyword">later</span> 回填时间戳<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="五、完整-TX-时间戳流程（重点）"><a href="#五、完整-TX-时间戳流程（重点）" class="headerlink" title="五、完整 TX 时间戳流程（重点）"></a>五、完整 TX 时间戳流程（重点）</h1><hr>
+<h2 id="🔵-Step-1：应用层请求"><a href="#🔵-Step-1：应用层请求" class="headerlink" title="🔵 Step 1：应用层请求"></a>🔵 Step 1：应用层请求</h2><p>用户态：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">setsockopt(... SO_TIMESTAMPING ...)<br></code></pre></td></tr></table></figure>
+
+<p>发送数据时：</p>
+<figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xl"><span class="hljs-function"><span class="hljs-title">skb</span>-&gt;</span>tx_flags = SKBTX_HW_TSTAMP<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-Step-2：驱动-start-xmit"><a href="#🔵-Step-2：驱动-start-xmit" class="headerlink" title="🔵 Step 2：驱动 start_xmit"></a>🔵 Step 2：驱动 start_xmit</h2><p>你这段代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">tx_info-&gt;ts_requested = <span class="hljs-number">1</span>;<br>skb_tx_timestamp(skb);<br></code></pre></td></tr></table></figure>
+
+<p>👉 作用：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">注册“这个包需要时间戳”<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-Step-3：FPGA发送数据"><a href="#🔵-Step-3：FPGA发送数据" class="headerlink" title="🔵 Step 3：FPGA发送数据"></a>🔵 Step 3：FPGA发送数据</h2><figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs avrasm"><span class="hljs-symbol">FPGA:</span><br>  发包<br>  在 MAC 层打时间戳（PTP）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-Step-4：FPGA回传时间戳"><a href="#🔵-Step-4：FPGA回传时间戳" class="headerlink" title="🔵 Step 4：FPGA回传时间戳"></a>🔵 Step 4：FPGA回传时间戳</h2><p>方式：</p>
+<ul>
+<li>descriptor写回</li>
+<li>专用FIFO</li>
+<li>寄存器 + 中断</li>
+</ul>
+<hr>
+<h2 id="🔵-Step-5：驱动回填时间戳（关键）"><a href="#🔵-Step-5：驱动回填时间戳（关键）" class="headerlink" title="🔵 Step 5：驱动回填时间戳（关键）"></a>🔵 Step 5：驱动回填时间戳（关键）</h2><p>驱动在 TX completion 时：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">skb_tstamp_tx(skb, &amp;hwtstamp);<br></code></pre></td></tr></table></figure>
+
+<p>👉 把 FPGA 时间戳写回 skb</p>
+<hr>
+<h2 id="🔵-Step-6：内核通知用户态"><a href="#🔵-Step-6：内核通知用户态" class="headerlink" title="🔵 Step 6：内核通知用户态"></a>🔵 Step 6：内核通知用户态</h2><p>通过：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">socket</span> <span class="hljs-literal">error</span> queue<br></code></pre></td></tr></table></figure>
+
+<p>用户用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">recvmsg(MSG_ERRQUEUE)<br></code></pre></td></tr></table></figure>
+
+<p>拿到时间戳</p>
+<hr>
+<h1 id="六、你代码里的关键点"><a href="#六、你代码里的关键点" class="headerlink" title="六、你代码里的关键点"></a>六、你代码里的关键点</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">skb_tx_timestamp(skb);<br></code></pre></td></tr></table></figure>
+
+<p>👉 它做的是：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">把 skb 加入“时间戳跟踪体系”<br></code></pre></td></tr></table></figure>
+
+<p>但：</p>
+<p>❗ <strong>真正时间戳不是这里产生的</strong></p>
+<hr>
+<h1 id="七、容易混淆的点（非常重要）"><a href="#七、容易混淆的点（非常重要）" class="headerlink" title="七、容易混淆的点（非常重要）"></a>七、容易混淆的点（非常重要）</h1><hr>
+<h2 id="❌-误区1-1"><a href="#❌-误区1-1" class="headerlink" title="❌ 误区1"></a>❌ 误区1</h2><p>“skb_tx_timestamp 就是打时间戳”</p>
+<p>👉 错！</p>
+<p>✔ 它只是：</p>
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nix">触发流程 <span class="hljs-symbol">/</span> 注册事件<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="❌-误区2-1"><a href="#❌-误区2-1" class="headerlink" title="❌ 误区2"></a>❌ 误区2</h2><p>“调用完就有时间戳了”</p>
+<p>👉 错！</p>
+<p>✔ 硬件时间戳流程是：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">异步的！<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="❌-误区3-1"><a href="#❌-误区3-1" class="headerlink" title="❌ 误区3"></a>❌ 误区3</h2><p>“驱动不用管”</p>
+<p>👉 错！</p>
+<p>✔ 驱动必须实现：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">skb_tstamp_tx()<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="八、结合你-FPGA-NIC（重点）"><a href="#八、结合你-FPGA-NIC（重点）" class="headerlink" title="八、结合你 FPGA NIC（重点）"></a>八、结合你 FPGA NIC（重点）</h1><p>你现在这个驱动：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">tx_info-&gt;ts_requested = <span class="hljs-number">1</span>;<br></code></pre></td></tr></table></figure>
+
+<p>👉 FPGA 端必须做：</p>
+<hr>
+<h2 id="1️⃣-在发送时记录时间"><a href="#1️⃣-在发送时记录时间" class="headerlink" title="1️⃣ 在发送时记录时间"></a>1️⃣ 在发送时记录时间</h2><figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs arcade">MAC层 / PHY层<br>PTP <span class="hljs-built_in">timestamp</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-把时间戳带回来"><a href="#2️⃣-把时间戳带回来" class="headerlink" title="2️⃣ 把时间戳带回来"></a>2️⃣ 把时间戳带回来</h2><p>常见方式：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs arduino">desc writeback<br>或 completion queue<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3️⃣-驱动处理"><a href="#3️⃣-驱动处理" class="headerlink" title="3️⃣ 驱动处理"></a>3️⃣ 驱动处理</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (tx_info-&gt;ts_requested) &#123;<br>    skb_tstamp_tx(skb, &amp;ts);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="九、你这个系统的完整模型（强烈建议记住）"><a href="#九、你这个系统的完整模型（强烈建议记住）" class="headerlink" title="九、你这个系统的完整模型（强烈建议记住）"></a>九、你这个系统的完整模型（强烈建议记住）</h1><figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs scss">应用层<br>  ↓<br>SO_TIMESTAMPING<br>  ↓<br>skb-&gt;tx_flags<br>  ↓<br><span class="hljs-built_in">start_xmit</span>()<br>  ↓<br><span class="hljs-built_in">skb_tx_timestamp</span>()   ← 注册<br>  ↓<br>FPGA发送<br>  ↓<br>FPGA产生timestamp<br>  ↓<br>驱动<span class="hljs-built_in">skb_tstamp_tx</span>() ← 回填<br>  ↓<br>用户态<span class="hljs-built_in">recvmsg</span>()<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="十、一句话总结"><a href="#十、一句话总结" class="headerlink" title="十、一句话总结"></a>十、一句话总结</h1><p>👉 <strong><code>skb_tx_timestamp()</code> &#x3D; 告诉内核“这个包需要 TX 时间戳”，并启动时间戳流程</strong></p>
+<p>不是：</p>
+<p>❌ 打时间<br>❌ 获取时间</p>
+<p>而是：</p>
+<p>✅ <strong>注册 + 触发机制</strong></p>
+<hr>
+<h1 id="十一、结合你当前项目的关键建议"><a href="#十一、结合你当前项目的关键建议" class="headerlink" title="十一、结合你当前项目的关键建议"></a>十一、结合你当前项目的关键建议</h1><p>你做 FPGA + PTP：</p>
+<p>必须补齐三块：</p>
+<hr>
+<h2 id="1️⃣-FPGA"><a href="#1️⃣-FPGA" class="headerlink" title="1️⃣ FPGA"></a>1️⃣ FPGA</h2><ul>
+<li>MAC层打时间戳</li>
+<li>回传机制</li>
+</ul>
+<hr>
+<h2 id="2️⃣-驱动"><a href="#2️⃣-驱动" class="headerlink" title="2️⃣ 驱动"></a>2️⃣ 驱动</h2><ul>
+<li><code>tx_info-&gt;ts_requested</code></li>
+<li>completion时调用 <code>skb_tstamp_tx</code></li>
+</ul>
+<hr>
+<h2 id="3️⃣-用户态"><a href="#3️⃣-用户态" class="headerlink" title="3️⃣ 用户态"></a>3️⃣ 用户态</h2><ul>
+<li><code>SO_TIMESTAMPING</code></li>
+<li><code>recvmsg(MSG_ERRQUEUE)</code></li>
+</ul>
+<hr>
+<p>如果你下一步要深入，我可以帮你：</p>
+<p>👉 画一个 <strong>“LinuxPTP + FPGA + 驱动 + skb 时间戳完整时序图（纳秒级）”</strong></p>
+<p>这个对你做 TSN &#x2F; PTP 网卡是核心能力。</p>
+<p>这段代码很短，但它就是你 TX 路径里<strong>最关键的“DMA触发点（doorbell）”</strong>。我从<strong>代码语义 → PCIe协议 → FPGA侧行为 → 时序保证</strong>给你拆清楚。</p>
+<hr>
+<h1 id="一、代码逐行解释"><a href="#一、代码逐行解释" class="headerlink" title="一、代码逐行解释"></a>一、代码逐行解释</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">cndm_sq_write_prod_ptr</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> cndm_ring *sq)</span><br>&#123;<br>	iowrite32(sq-&gt;prod_ptr &amp; <span class="hljs-number">0xffff</span>, sq-&gt;db_addr);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="1️⃣-sq-gt-prod-ptr"><a href="#1️⃣-sq-gt-prod-ptr" class="headerlink" title="1️⃣ sq-&gt;prod_ptr"></a>1️⃣ <code>sq-&gt;prod_ptr</code></h2><p>👉 发送队列的<strong>生产者指针（Producer Pointer）</strong></p>
+<p>表示：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">已经准备好的 descriptor 数量<br></code></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">prod_ptr</span> = <span class="hljs-number">100</span><br></code></pre></td></tr></table></figure>
+
+<p>说明：</p>
+<p>👉 前 100 个 descriptor 已经写好，可以发送</p>
+<hr>
+<h2 id="2️⃣-amp-0xffff"><a href="#2️⃣-amp-0xffff" class="headerlink" title="2️⃣ &amp; 0xffff"></a>2️⃣ <code>&amp; 0xffff</code></h2><p>👉 只取低 16 bit：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">sq-&gt;prod_ptr &amp; <span class="hljs-number">0xffff</span><br></code></pre></td></tr></table></figure>
+
+<p>原因通常是：</p>
+<ul>
+<li>FPGA doorbell 寄存器只有 16bit</li>
+<li>ring size ≤ 64K</li>
+<li>或者硬件只关心低位（wrap 设计）</li>
+</ul>
+<hr>
+<h2 id="3️⃣-sq-gt-db-addr"><a href="#3️⃣-sq-gt-db-addr" class="headerlink" title="3️⃣ sq-&gt;db_addr"></a>3️⃣ <code>sq-&gt;db_addr</code></h2><p>👉 doorbell 寄存器地址（非常关键）</p>
+<p>本质是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">BAR空间中的某个寄存器地址<br></code></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">db_addr</span> = BAR0 + <span class="hljs-number">0</span>x100<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4️⃣-iowrite32"><a href="#4️⃣-iowrite32" class="headerlink" title="4️⃣ iowrite32()"></a>4️⃣ <code>iowrite32()</code></h2><p>👉 向设备寄存器写 32bit</p>
+<p>本质：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">CPU → MMIO写 → PCIe Memory Write TLP<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="二、这一句到底做了什么（核心）"><a href="#二、这一句到底做了什么（核心）" class="headerlink" title="二、这一句到底做了什么（核心）"></a>二、这一句到底做了什么（核心）</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">iowrite32(...)<br></code></pre></td></tr></table></figure>
+
+<p>👉 转换成 PCIe 行为：</p>
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mathematica"><span class="hljs-variable">CPU</span>写寄存器<br> → <span class="hljs-built_in">Root</span> <span class="hljs-built_in">Complex</span><br>   → <span class="hljs-variable">Memory</span> <span class="hljs-built_in">Write</span> <span class="hljs-variable">TLP</span><br>     → <span class="hljs-variable">FPGA</span> <span class="hljs-variable">PCIe</span> <span class="hljs-variable">IP</span><br>       → <span class="hljs-variable">BAR</span>寄存器<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="三、为什么叫-Doorbell（门铃）"><a href="#三、为什么叫-Doorbell（门铃）" class="headerlink" title="三、为什么叫 Doorbell（门铃）"></a>三、为什么叫 Doorbell（门铃）</h1><p>👉 这就是标准 NIC &#x2F; NVMe 模型：</p>
+<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs avrasm"><span class="hljs-symbol">CPU:</span><br>  写 descriptor<br>  ↓<br>按门铃（doorbell）<br>  ↓<br>设备开始干活<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="四、完整-TX-启动流程（结合你代码）"><a href="#四、完整-TX-启动流程（结合你代码）" class="headerlink" title="四、完整 TX 启动流程（结合你代码）"></a>四、完整 TX 启动流程（结合你代码）</h1><hr>
+<h2 id="🔵-Step-1：CPU准备-descriptor"><a href="#🔵-Step-1：CPU准备-descriptor" class="headerlink" title="🔵 Step 1：CPU准备 descriptor"></a>🔵 Step 1：CPU准备 descriptor</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">tx_desc-&gt;addr = dma_addr;<br>tx_desc-&gt;len  = len;<br>sq-&gt;prod_ptr++;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-Step-2：内存屏障"><a href="#🔵-Step-2：内存屏障" class="headerlink" title="🔵 Step 2：内存屏障"></a>🔵 Step 2：内存屏障</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">dma_wmb();<br></code></pre></td></tr></table></figure>
+
+<p>👉 保证：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">descriptor</span> 已写入内存<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-Step-3：敲门（关键）"><a href="#🔵-Step-3：敲门（关键）" class="headerlink" title="🔵 Step 3：敲门（关键）"></a>🔵 Step 3：敲门（关键）</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">iowrite32(prod_ptr, db_addr);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-Step-4：PCIe-传输"><a href="#🔵-Step-4：PCIe-传输" class="headerlink" title="🔵 Step 4：PCIe 传输"></a>🔵 Step 4：PCIe 传输</h2><figure class="highlight cos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cos">Memory <span class="hljs-keyword">Write</span> TLP<br> → FPGA<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-Step-5：FPGA-收到-doorbell"><a href="#🔵-Step-5：FPGA-收到-doorbell" class="headerlink" title="🔵 Step 5：FPGA 收到 doorbell"></a>🔵 Step 5：FPGA 收到 doorbell</h2><p>FPGA逻辑：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">if (new_prod_ptr != old_prod_ptr)<br>    → 有新包<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-Step-6：FPGA-启动-DMA"><a href="#🔵-Step-6：FPGA-启动-DMA" class="headerlink" title="🔵 Step 6：FPGA 启动 DMA"></a>🔵 Step 6：FPGA 启动 DMA</h2><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stata">读取 descriptor<br> → 发 PCIe <span class="hljs-keyword">Memory</span> <span class="hljs-keyword">Read</span> TLP<br>   → Host DDR<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔵-Step-7：数据发送"><a href="#🔵-Step-7：数据发送" class="headerlink" title="🔵 Step 7：数据发送"></a>🔵 Step 7：数据发送</h2><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">DMA</span> → FIFO → MAC → 发包<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="五、FPGA-侧对应逻辑（你必须实现）"><a href="#五、FPGA-侧对应逻辑（你必须实现）" class="headerlink" title="五、FPGA 侧对应逻辑（你必须实现）"></a>五、FPGA 侧对应逻辑（你必须实现）</h1><hr>
+<h2 id="1️⃣-doorbell寄存器"><a href="#1️⃣-doorbell寄存器" class="headerlink" title="1️⃣ doorbell寄存器"></a>1️⃣ doorbell寄存器</h2><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span><br>    <span class="hljs-keyword">if</span> (bar_wr &amp;&amp; addr == DB_ADDR)<br>        prod_ptr &lt;= wdata;<br><span class="hljs-keyword">end</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-检测新任务"><a href="#2️⃣-检测新任务" class="headerlink" title="2️⃣ 检测新任务"></a>2️⃣ 检测新任务</h2><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">if</span> (prod_ptr != cons_ptr)<br>    start_dma &lt;= <span class="hljs-number">1</span>;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3️⃣-读取-descriptor"><a href="#3️⃣-读取-descriptor" class="headerlink" title="3️⃣ 读取 descriptor"></a>3️⃣ 读取 descriptor</h2><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs verilog">desc = desc_mem[cons_ptr];<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4️⃣-发起-PCIe-DMA"><a href="#4️⃣-发起-PCIe-DMA" class="headerlink" title="4️⃣ 发起 PCIe DMA"></a>4️⃣ 发起 PCIe DMA</h2><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stata">m_axis_rq → <span class="hljs-keyword">Memory</span> <span class="hljs-keyword">Read</span> TLP<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="六、为什么必须用-doorbell？"><a href="#六、为什么必须用-doorbell？" class="headerlink" title="六、为什么必须用 doorbell？"></a>六、为什么必须用 doorbell？</h1><p>👉 因为 FPGA 不会主动扫内存！</p>
+<p>如果没有这一步：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"><span class="hljs-meta">CPU</span>写完 descriptor<br>→ FPGA不知道<br>→ DMA不会启动<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="七、为什么要-dma-wmb-（关键配合）"><a href="#七、为什么要-dma-wmb-（关键配合）" class="headerlink" title="七、为什么要 dma_wmb()（关键配合）"></a>七、为什么要 <code>dma_wmb()</code>（关键配合）</h1><p>顺序必须是：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 写 descriptor<br><span class="hljs-bullet">2.</span> dma<span class="hljs-emphasis">_wmb()</span><br><span class="hljs-emphasis">3. 写 doorbell</span><br></code></pre></td></tr></table></figure>
+
+<p>否则：</p>
+<p>❌ FPGA可能看到新 prod_ptr<br>但 descriptor 还没写完</p>
+<p>👉 直接读到垃圾数据</p>
+<hr>
+<h1 id="八、常见问题（你很可能会遇到）"><a href="#八、常见问题（你很可能会遇到）" class="headerlink" title="八、常见问题（你很可能会遇到）"></a>八、常见问题（你很可能会遇到）</h1><hr>
+<h2 id="❗-1-写了-doorbell-但-FPGA没反应"><a href="#❗-1-写了-doorbell-但-FPGA没反应" class="headerlink" title="❗ 1. 写了 doorbell 但 FPGA没反应"></a>❗ 1. 写了 doorbell 但 FPGA没反应</h2><p>检查：</p>
+<ul>
+<li>BAR地址是否对</li>
+<li>FPGA是否正确decode</li>
+<li>PCIe写是否到达（ILA抓）</li>
+</ul>
+<hr>
+<h2 id="❗-2-DMA读到错误数据"><a href="#❗-2-DMA读到错误数据" class="headerlink" title="❗ 2. DMA读到错误数据"></a>❗ 2. DMA读到错误数据</h2><p>99%原因：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">dma_wmb() 缺失<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="❗-3-ring乱序"><a href="#❗-3-ring乱序" class="headerlink" title="❗ 3. ring乱序"></a>❗ 3. ring乱序</h2><p>原因：</p>
+<ul>
+<li>prod_ptr &#x2F; cons_ptr 没同步好</li>
+<li>FPGA没有做 wrap 处理</li>
+</ul>
+<hr>
+<h1 id="九、这一句的本质（必须记住）"><a href="#九、这一句的本质（必须记住）" class="headerlink" title="九、这一句的本质（必须记住）"></a>九、这一句的本质（必须记住）</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">iowrite32(prod_ptr, db_addr);<br></code></pre></td></tr></table></figure>
+
+<p>👉 本质是：</p>
+<figure class="highlight cos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cos">通过 PCIe Memory <span class="hljs-keyword">Write</span> TLP<br>通知 FPGA：<br>“有新 descriptor，可以开始 DMA 了”<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="十、一句话总结-1"><a href="#十、一句话总结-1" class="headerlink" title="十、一句话总结"></a>十、一句话总结</h1><p>👉 <strong>这行代码不是写寄存器，而是“启动整个 DMA 发送链路”</strong></p>
+<hr>
+<h1 id="十一、结合你当前方向（给你一个提升点）"><a href="#十一、结合你当前方向（给你一个提升点）" class="headerlink" title="十一、结合你当前方向（给你一个提升点）"></a>十一、结合你当前方向（给你一个提升点）</h1><p>你可以在这个 doorbell 机制上做优化：</p>
+<hr>
+<h2 id="1️⃣-批量-doorbell"><a href="#1️⃣-批量-doorbell" class="headerlink" title="1️⃣ 批量 doorbell"></a>1️⃣ 批量 doorbell</h2><p>减少 PCIe TLP：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (batch_ready)<br>    iowrite32(...)<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-多队列-doorbell"><a href="#2️⃣-多队列-doorbell" class="headerlink" title="2️⃣ 多队列 doorbell"></a>2️⃣ 多队列 doorbell</h2><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">queue0</span> → db0<br>queue1 → db1<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3️⃣-AI调度"><a href="#3️⃣-AI调度" class="headerlink" title="3️⃣ AI调度"></a>3️⃣ AI调度</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">AI分类 → 不同 queue → 不同 doorbell<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p>如果你下一步想深入，我可以帮你做一个：</p>
+<p>👉 <strong>“FPGA DMA Engine（m_axis_rq 发 TLP）完整 Verilog 模板”</strong></p>
+<p>直接对接你这个驱动，做到：</p>
+<ul>
+<li>descriptor解析</li>
+<li>PCIe读请求生成</li>
+<li>completion处理</li>
+</ul>
+<p>这一步就是从“会用PCIe”到“做高端NIC”的分水岭。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/FPGA/" class="category-chain-item">FPGA</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/FPGA/taxi/" class="category-chain-item">taxi</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>PCIE_DMA流程</div>
+      <div>http://witbit.cn/FPGA/taxi/PCIE_DMA流程.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>朝彻</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年3月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/FPGA/taxi/Mailbox%20%E5%8A%9F%E8%83%BD%E8%AE%BE%E8%AE%A1%E8%AE%B2%E8%A7%A3.html" title="Mailbox 功能设计讲解">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Mailbox 功能设计讲解</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/FPGA/taxi/ps%E6%9B%BF%E4%BB%A3pcie%E6%96%B9%E6%A1%88.html" title="ps替代pcie方案">
+                        <span class="hidden-mobile">ps替代pcie方案</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

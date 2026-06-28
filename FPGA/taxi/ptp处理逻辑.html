@@ -1,0 +1,1827 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="朝彻">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="✅ PTP 时间戳的逻辑流程（从 FPGA 到包时间戳）在这个设计里，PTP 时间戳的生成和使用是通过一条“时间分发”链路（ptp_td_sdi）+ 本地计时器 + MAC 抓取机制完成的。下面按关键模块和流程分段说明。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ptp处理逻辑">
+<meta property="og:url" content="http://witbit.cn/FPGA/taxi/ptp%E5%A4%84%E7%90%86%E9%80%BB%E8%BE%91.html">
+<meta property="og:site_name" content="WITBIT">
+<meta property="og:description" content="✅ PTP 时间戳的逻辑流程（从 FPGA 到包时间戳）在这个设计里，PTP 时间戳的生成和使用是通过一条“时间分发”链路（ptp_td_sdi）+ 本地计时器 + MAC 抓取机制完成的。下面按关键模块和流程分段说明。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-19T07:22:02.600Z">
+<meta property="article:modified_time" content="2026-03-19T09:05:29.419Z">
+<meta property="article:author" content="朝彻">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>ptp处理逻辑 - WITBIT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WitBit</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ptp处理逻辑"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-03-19 15:22" pubdate>
+          2026年3月19日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          6.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          53 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">ptp处理逻辑</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="✅-PTP-时间戳的逻辑流程（从-FPGA-到包时间戳）"><a href="#✅-PTP-时间戳的逻辑流程（从-FPGA-到包时间戳）" class="headerlink" title="✅ PTP 时间戳的逻辑流程（从 FPGA 到包时间戳）"></a>✅ PTP 时间戳的逻辑流程（从 FPGA 到包时间戳）</h2><p>在这个设计里，PTP 时间戳的生成和使用是通过一条“时间分发”链路（<code>ptp_td_sdi</code>）+ 本地计时器 + MAC 抓取机制完成的。下面按关键模块和流程分段说明。</p>
+<hr>
+<h2 id="1️⃣-时间源：ptp-td-sdi-PTP-时钟（ptp-clk-x2F-ptp-sample-clk）"><a href="#1️⃣-时间源：ptp-td-sdi-PTP-时钟（ptp-clk-x2F-ptp-sample-clk）" class="headerlink" title="1️⃣ 时间源：ptp_td_sdi + PTP 时钟（ptp_clk &#x2F; ptp_sample_clk）"></a>1️⃣ 时间源：<code>ptp_td_sdi</code> + PTP 时钟（<code>ptp_clk</code> &#x2F; <code>ptp_sample_clk</code>）</h2><ul>
+<li>**<code>ptp_clk</code>**：来自 SFP 参考时钟（在 <a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">fpga_core.sv</a> 里通过 BUFG 生成），是 PTP 时间基本时钟域。</li>
+<li>**<code>ptp_td_sdi</code>**：串行时间分发数据流（TD SDI），用于把底层外部主时钟（或上游 PTP 主源）的时间信息发送到 FPGA 内部。</li>
+</ul>
+<hr>
+<h2 id="2️⃣-核心：taxi-ptp-td-leaf（PTP-Time-Distribution-Leaf）"><a href="#2️⃣-核心：taxi-ptp-td-leaf（PTP-Time-Distribution-Leaf）" class="headerlink" title="2️⃣ 核心：taxi_ptp_td_leaf（PTP Time Distribution Leaf）"></a>2️⃣ 核心：<code>taxi_ptp_td_leaf</code>（PTP Time Distribution Leaf）</h2><p>这个模块是 PTP 时间戳生成的“大脑”，实现过程可以拆成两大部分：</p>
+<h3 id="✅-2-1-串行接收-amp-解码（时间分发数据）"><a href="#✅-2-1-串行接收-amp-解码（时间分发数据）" class="headerlink" title="✅ 2.1 串行接收 &amp; 解码（时间分发数据）"></a>✅ 2.1 串行接收 &amp; 解码（时间分发数据）</h3><ul>
+<li><code>ptp_td_sdi</code> 被<strong>流水线延迟</strong>后进入反序列化逻辑（16-bit 单元）。</li>
+<li>以 <code>td_tdata</code> + <code>td_tid</code> 形式输出（内部使用 <code>td_msg</code>&#x2F;<code>td_index</code> 作帧识别），代表来自主源的：<ul>
+<li>时间戳秒&#x2F;纳秒片段（TOD）</li>
+<li>时钟周期&#x2F;频率信息（Period）</li>
+<li>其他同步标志（类似 PPS）</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="✅-2-2-本地时钟生成（锁相-x2F-计数器）"><a href="#✅-2-2-本地时钟生成（锁相-x2F-计数器）" class="headerlink" title="✅ 2.2 本地时钟生成（锁相 &#x2F; 计数器）"></a>✅ 2.2 本地时钟生成（锁相 &#x2F; 计数器）</h3><ul>
+<li>模块维护本地计数器：<code>ts_rel_ns</code>、<code>ts_tod_ns</code>、<code>ts_tod_s</code>（秒）等。</li>
+<li>通过 <strong>PI 控制循环</strong>（<code>ts_ns_diff</code> &#x2F; <code>time_err_int</code> &#x2F; <code>period_ns</code>）将本地计时与接收到的时间分发数据同步：<ul>
+<li>如果检测到本地时间与目标时间不一致，会逐步调整 <code>period_ns</code>（相当于调整时钟周期长度）；</li>
+<li>锁定状态由 <code>locked</code> 输出指示（需要频率 + 时间同步都稳定）。</li>
+</ul>
+</li>
+<li>在 ToD 模式下还会生成 <code>output_pps</code> &#x2F; <code>output_pps_str</code>（1PPS 信号和同步脉冲）。</li>
+</ul>
+<hr>
+<h2 id="3️⃣-时间戳输出（output-ts-rel-x2F-output-ts-tod）"><a href="#3️⃣-时间戳输出（output-ts-rel-x2F-output-ts-tod）" class="headerlink" title="3️⃣ 时间戳输出（output_ts_rel &#x2F; output_ts_tod）"></a>3️⃣ 时间戳输出（<code>output_ts_rel</code> &#x2F; <code>output_ts_tod</code>）</h2><ul>
+<li>根据参数 <code>PTP_TS_FMT_TOD</code>（在 <a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">fpga_core.sv</a> 里设定），输出有两种格式：<ul>
+<li><strong>相对时间</strong>（Relative）<code>output_ts_rel</code>：一般表示“从某个起始点起的纳秒计数”</li>
+<li><strong>时间-日（Time-of-Day）</strong>（TOD）<code>output_ts_tod</code>: 包含秒 + 纳秒（更适合直接映射到 PHC）</li>
+</ul>
+</li>
+</ul>
+<p>输出还包括对应的 <code>*_step</code> 信号，用来指示“此时刻刚好发生了纳秒进位”，便于做精确戳定位。</p>
+<hr>
+<h2 id="4️⃣-MAC-侧的时间戳捕获（TX-x2F-RX-的具体过程）"><a href="#4️⃣-MAC-侧的时间戳捕获（TX-x2F-RX-的具体过程）" class="headerlink" title="4️⃣ MAC 侧的时间戳捕获（TX&#x2F;RX 的具体过程）"></a>4️⃣ MAC 侧的时间戳捕获（TX&#x2F;RX 的具体过程）</h2><h3 id="🔹-RX：taxi-axis-xgmii-rx-32-sv"><a href="#🔹-RX：taxi-axis-xgmii-rx-32-sv" class="headerlink" title="🔹 RX：taxi_axis_xgmii_rx_32.sv"></a>🔹 RX：<a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">taxi_axis_xgmii_rx_32.sv</a></h3><ul>
+<li>这个模块监测 XGMII “Start” 开始符号，并在检测到一帧开始时，将当前 <code>ptp_ts</code> <strong>直接捕获到 <code>tuser</code> 里</strong>。</li>
+<li>核心逻辑节点在 <code>STATE_IDLE</code>：<ul>
+<li>一旦检测到 Start（并且 <code>cfg_rx_enable</code> 有效），会把 <code>ptp_ts_out_next = ptp_ts;</code> 存到寄存器。</li>
+<li>最终输出到 AXI-Stream <code>tuser[1+:PTP_TS_W]</code>（tuser[0] 用于帧错误标记等）。</li>
+</ul>
+</li>
+<li>结果：上层逻辑（比如 DMA&#x2F;软件）可以在接收数据包时，直接读取包的时间戳。</li>
+</ul>
+<h3 id="🔹-TX：taxi-eth-mac-phy-10g-sv-tx-ptp-ts-out"><a href="#🔹-TX：taxi-eth-mac-phy-10g-sv-tx-ptp-ts-out" class="headerlink" title="🔹 TX：taxi_eth_mac_phy_10g.sv + tx_ptp_ts_out"></a>🔹 TX：<a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">taxi_eth_mac_phy_10g.sv</a> + <code>tx_ptp_ts_out</code></h3><ul>
+<li>TX 路径也有对应的时间戳输出（<code>tx_ptp_ts_out</code> &#x2F; <code>tx_ptp_ts_step_out</code>），用于 TX 侧时间戳（通常是用于队列完成时记录发送时间）。</li>
+</ul>
+<hr>
+<h2 id="5️⃣-驱动层（Linux-PHC-描述符时间戳）"><a href="#5️⃣-驱动层（Linux-PHC-描述符时间戳）" class="headerlink" title="5️⃣ 驱动层（Linux PHC + 描述符时间戳）"></a>5️⃣ 驱动层（Linux PHC + 描述符时间戳）</h2><p>在驱动: <a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">cndm_ptp.c</a> 中：</p>
+<ul>
+<li><code>cndm_read_cpl_ts()</code> 会通过 FPGA 寄存器读出时间戳字段（<code>ts_ns</code>, <code>ts_fns</code>, <code>ts_s</code> 等）；</li>
+<li><code>gettime/settime/adjtime/adjfine</code> 通过 <a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">CNDM_CMD_OP_PTP</a> 命令访问 FPGA 时钟，并最终跟 Linux PHC（<a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">ptp_clock</a>）绑定。</li>
+</ul>
+<p>因此，从 FPGA 里的 <code>taxi_ptp_td_leaf</code> 生成的时间戳，最终会通过 DMA descriptor + 驱动转换成 Linux 可用的 PHC 时间。</p>
+<hr>
+<h2 id="✅-重点回顾（PTP-时间戳流程核心节点）"><a href="#✅-重点回顾（PTP-时间戳流程核心节点）" class="headerlink" title="✅ 重点回顾（PTP 时间戳流程核心节点）"></a>✅ 重点回顾（PTP 时间戳流程核心节点）</h2><ol>
+<li><strong>时钟 &amp; 时间源输入</strong>：<code>ptp_clk</code> + <code>ptp_td_sdi</code> → <code>taxi_ptp_td_leaf</code></li>
+<li><strong>时间同步生成</strong>：PI 调节本地计时 → 输出时间戳 + PPS + locked</li>
+<li><strong>包时间戳绑定</strong>：MAC 核抓取当前 <code>ptp_ts</code> → 绑定到 AXI-Stream tuser</li>
+<li><strong>驱动读取</strong>：CPL 描述符 &#x2F; 时钟寄存器读回 → Linux PHC</li>
+</ol>
+<hr>
+<p>如果你希望我把“PTP 时间分发协议格式（TD 数据结构）”或“PTP 时间戳在驱动&#x2F;描述符里的具体字段”也做成流程图&#x2F;时序说明，告诉我我可以补充更细的步骤和对应寄存器地址。</p>
+<h2 id="✅-taxi-ptp-td-leaf-在整个架构中的“时间戳处理流程”（完整路径）"><a href="#✅-taxi-ptp-td-leaf-在整个架构中的“时间戳处理流程”（完整路径）" class="headerlink" title="✅ taxi_ptp_td_leaf 在整个架构中的“时间戳处理流程”（完整路径）"></a>✅ <code>taxi_ptp_td_leaf</code> 在整个架构中的“时间戳处理流程”（完整路径）</h2><p><code>taxi_ptp_td_leaf</code> 是 <strong>PTP 时间分发（Time Distribution）模块</strong>，它把外部时钟源／PTP 主时钟的 <strong>时间信息（TD‑SDI）</strong> 解码并生成本地时间戳，同时输出同步信号 (PPS &#x2F; locked)，供 MAC、核心逻辑 &#x2F; 驱动直接使用。这个模块是整个 FPGA 里 PTP 时间戳获取的“核心源头”。</p>
+<hr>
+<h2 id="1️⃣-在架构中的位置（哪里用到它）"><a href="#1️⃣-在架构中的位置（哪里用到它）" class="headerlink" title="1️⃣ 在架构中的位置（哪里用到它）"></a>1️⃣ 在架构中的位置（哪里用到它）</h2><h3 id="✅-在-taxi-eth-mac-phy-10g-sv-里被实例化（TX-x2F-RX-双方向）"><a href="#✅-在-taxi-eth-mac-phy-10g-sv-里被实例化（TX-x2F-RX-双方向）" class="headerlink" title="✅ 在 taxi_eth_mac_phy_10g.sv 里被实例化（TX&#x2F;RX 双方向）"></a>✅ 在 <a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">taxi_eth_mac_phy_10g.sv</a> 里被实例化（TX&#x2F;RX 双方向）</h3><ul>
+<li><strong>TX 侧</strong>：<code>tx_leaf_inst</code></li>
+<li><strong>RX 侧</strong>：<code>rx_leaf_inst</code></li>
+</ul>
+<p>它们都通过相同的输入获得时间：</p>
+<ul>
+<li><code>ptp_clk</code> &#x2F; <code>ptp_rst</code>：核心 PTP 时钟域</li>
+<li><code>ptp_sample_clk</code>：用于同步 + 采样</li>
+<li><code>ptp_td_sdi</code>：从外部（例如 SFP 光模块或者上游 PTP 主时钟）来的串行时间分发数据</li>
+</ul>
+<p>然后它输出：</p>
+<ul>
+<li>生成本地时间戳：<code>output_ts_rel</code> &#x2F; <code>output_ts_tod</code></li>
+<li>“步进”指示：<code>*_step</code></li>
+<li>PPS 信号（ToD 模式）：<code>output_pps</code>、<code>output_pps_str</code></li>
+<li>lock 指示：<code>locked</code></li>
+</ul>
+<hr>
+<h2 id="2️⃣-核心流程：从串行-TD-数据到本地时钟（简单流程图）"><a href="#2️⃣-核心流程：从串行-TD-数据到本地时钟（简单流程图）" class="headerlink" title="2️⃣ 核心流程：从串行 TD 数据到本地时钟（简单流程图）"></a>2️⃣ 核心流程：从串行 TD 数据到本地时钟（简单流程图）</h2><ol>
+<li><p><strong>TD‑SDI 串行输入</strong></p>
+<ul>
+<li><code>ptp_td_sdi</code> 进入 <code>taxi_ptp_td_leaf</code>。</li>
+<li>先经过 <code>TD_SDI_PIPELINE</code> 延迟（对齐 + 路径平衡）。</li>
+</ul>
+</li>
+<li><p><strong>反序列化：从 bit 流变成 16-bit 字数据</strong></p>
+<ul>
+<li>模块内部用 16-bit shift‑reg 接收 bit 并每 16 bit 输出一个 <code>td_tdata</code> + <code>td_tid</code>。</li>
+<li><code>td_tid</code> 表示该 16-bit 属于哪种时间数据（秒、纳秒、周期、标志等）。</li>
+</ul>
+</li>
+<li><p><strong>基于 <code>td_tid</code> 的寄存器写入（shadow registers）</strong></p>
+<ul>
+<li>根据 <code>td_tid</code> 把时间分发包里的字段写入：<ul>
+<li><code>dst_tod_ns_shadow</code> &#x2F; <code>dst_tod_s_shadow</code>（ToD 秒&#x2F;纳秒）</li>
+<li><code>dst_rel_ns_shadow</code>（相对时间纳秒）</li>
+<li>以及 “step” 标志（time step &#x2F; 时间步进）</li>
+</ul>
+</li>
+<li>这些 shadow 只在全部字段接收完毕（shadow_valid）后才被用于更新主时钟。</li>
+</ul>
+</li>
+<li><p><strong>本地时间生成（主时钟 &#x2F; PI 环）</strong></p>
+<ul>
+<li><p>模块维护本地时间计数器：</p>
+<ul>
+<li><code>ts_rel_ns</code>（相对纳秒计数）</li>
+<li><code>ts_tod_ns</code> &#x2F; <code>ts_tod_s</code>（ToD 纳秒秒）</li>
+</ul>
+</li>
+<li><p>通过 <code>period_ns</code> 变量控制本地“钟速”，相当于调节时钟周期，实现频率跟踪。</p>
+</li>
+<li><p>通过 <code>ts_ns_diff</code> &#x2F; <code>phase_err</code> &#x2F; <code>time_err_int</code> -&gt; PI 控制算法（误差积分）来逼近外部时间源：</p>
+<p>✅ 如果本地时间与接收到的 TD 时间发生差值（<code>ts_ns_diff</code>），模块会逐步调整 <code>period_ns</code>，直到锁定。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>时间同步 &#x2F; 锁定输出</strong></p>
+<ul>
+<li>当本地时间与外部分发时间一致时，<code>locked</code> 输出变高。</li>
+<li>若 ToD 模式，还会输出 <code>output_pps</code> &#x2F; <code>output_pps_str</code>（1PPS 脉冲 + “strobe”）。</li>
+</ul>
+</li>
+<li><p><strong>最终输出（给 MAC &#x2F; 其他模块用）</strong></p>
+<ul>
+<li><code>output_ts_rel</code>：用于 MAC RX&#x2F;TX 时间戳（相对纳秒格式）</li>
+<li><code>output_ts_tod</code>：用于 ToD 时间戳（秒 + 纳秒格式）</li>
+<li><code>*_step</code>：标识该周期刚跨纳秒边界（用于补偿计数器跨界）</li>
+<li><code>locked</code>：告诉上层时间是否同步稳定</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="3️⃣-它的输出在系统里怎么用（典型用途）"><a href="#3️⃣-它的输出在系统里怎么用（典型用途）" class="headerlink" title="3️⃣ 它的输出在系统里怎么用（典型用途）"></a>3️⃣ 它的输出在系统里怎么用（典型用途）</h2><h3 id="✅-1-以太网包时间戳（RX-x2F-TX）"><a href="#✅-1-以太网包时间戳（RX-x2F-TX）" class="headerlink" title="✅ 1) 以太网包时间戳（RX&#x2F;TX）"></a>✅ 1) 以太网包时间戳（RX&#x2F;TX）</h3><p>在 <a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">taxi_axis_xgmii_rx_32.sv</a> 内部，</p>
+<ul>
+<li>收到帧开始（XGMII START）时，会把当前 <code>ptp_ts</code> 捕获并写入 AXIS <code>tuser</code>；</li>
+<li>所以每帧都会被“标签化”一个精确时间戳（来自 <code>taxi_ptp_td_leaf</code>）。</li>
+</ul>
+<h3 id="✅-2-Linux-PHC-x2F-驱动时间读取"><a href="#✅-2-Linux-PHC-x2F-驱动时间读取" class="headerlink" title="✅ 2) Linux PHC &#x2F; 驱动时间读取"></a>✅ 2) Linux PHC &#x2F; 驱动时间读取</h3><p>驱动 <a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">cndm_ptp.c</a> 通过读寄存器（比如 <code>0x0324</code>, <code>0x0328</code>, <code>0x032C</code> 等）获取当前 PTP 时钟，最终交给 Linux PHC，使系统可做 <code>phc_gettime</code>, <code>phc_settime</code>, <code>phc_adjtime</code> 等操作。</p>
+<hr>
+<h2 id="4️⃣-核心关键点总结（你需要记住的重点）"><a href="#4️⃣-核心关键点总结（你需要记住的重点）" class="headerlink" title="4️⃣ 核心关键点总结（你需要记住的重点）"></a>4️⃣ 核心关键点总结（你需要记住的重点）</h2><ul>
+<li><strong><code>ptp_td_sdi</code> 是时间分发数据源，<code>taxi_ptp_td_leaf</code> 把它解码为时间</strong></li>
+<li><strong>它输出的 <code>output_ts_\*</code> 是整个 FPGA 里所有时间戳的唯一来源</strong>（MAC timestamp &#x2F; 驱动 timestamp）</li>
+<li><strong>同步算法不是简单“直接写”，而是通过 PI 回路平滑锁定</strong>（避免抖动、避免突变）</li>
+<li><strong>锁定与 PPS 由模块直接产生，外部逻辑可直接使用 <code>locked</code> &#x2F; <code>pps</code></strong></li>
+</ul>
+<hr>
+<p>如果你想要我进一步说明「TD‑SDI 数据包格式（各个 <code>td_tid</code> 对应什么内容）」或者「驱动里寄存器对应的具体地址&#x2F;字段（比如 <code>ts_fns</code>, <code>ts_ns</code></p>
+<h2 id="✅-找到写入-AXIS-tuser-的代码（taxi-axis-xgmii-rx-32-sv）"><a href="#✅-找到写入-AXIS-tuser-的代码（taxi-axis-xgmii-rx-32-sv）" class="headerlink" title="✅ 找到写入 AXIS tuser 的代码（taxi_axis_xgmii_rx_32.sv）"></a>✅ 找到写入 AXIS <code>tuser</code> 的代码（<a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">taxi_axis_xgmii_rx_32.sv</a>）</h2><p>在 <a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">taxi_axis_xgmii_rx_32.sv</a> 里，<code>ptp_ts</code> 在收到帧开始（XGMII START）时被捕获，并被 **挂到 AXI-Stream <code>m_axis_rx.tuser</code>**：</p>
+<p>然后在输出端写到 <code>tuser</code> 里（user 字段最低位用于“错误标记”，其余位用于时间戳）：</p>
+<hr>
+<h2 id="✅-“上层-PTP-协议”如何拿到时间戳并计算（从-tuser-到-PTP-算法）"><a href="#✅-“上层-PTP-协议”如何拿到时间戳并计算（从-tuser-到-PTP-算法）" class="headerlink" title="✅ “上层 PTP 协议”如何拿到时间戳并计算（从 tuser 到 PTP 算法）"></a>✅ “上层 PTP 协议”如何拿到时间戳并计算（从 tuser 到 PTP 算法）</h2><h3 id="1-MAC-→-DMA（tuser-被携带进-DMA-描述符）"><a href="#1-MAC-→-DMA（tuser-被携带进-DMA-描述符）" class="headerlink" title="1) MAC → DMA（tuser 被携带进 DMA 描述符）"></a>1) MAC → DMA（tuser 被携带进 DMA 描述符）</h3><ul>
+<li><code>m_axis_rx.tuser</code> 会被 <code>taxi_dma_client_axis_sink</code> 读出并放入 DMA descriptor 的 <code>sts_user</code> 字段中。</li>
+<li>在 <a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">cndm_micro_rx.sv</a> 中，它被拆成两部分：<ul>
+<li>低位 <code>sts_user[0]</code> 作为时间戳有效标志（<code>tuser</code> 本来用于错误&#x2F;标记）</li>
+<li>剩余高位 <code>sts_user[USER_W-1:1]</code> 作为时间戳数据（rel 或 tod 格式）</li>
+</ul>
+</li>
+</ul>
+<p>代码摘录（<a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">cndm_micro_rx.sv</a>）：</p>
+<p>如果需要 TOD 格式，它还会经过 <code>taxi_ptp_td_rel2tod</code> 进行转换，然后把时间戳写回 <code>rx_ptp_ts</code>。</p>
+<hr>
+<h3 id="2-DMA-完成后-→-completion-队列里带时间戳"><a href="#2-DMA-完成后-→-completion-队列里带时间戳" class="headerlink" title="2) DMA 完成后 → completion 队列里带时间戳"></a>2) DMA 完成后 → completion 队列里带时间戳</h3><p><code>cndm_micro_rx</code> 会把最终 <code>rx_ptp_ts</code> 写入 completion packet（<code>m_axis_cpl.tdata</code>），然后被 PCIe 传回主机。</p>
+<p>在驱动里（<a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">cndm_rq.c</a>）对应的完成处理：</p>
+<p><code>cndm_read_cpl_ts()</code> 从 completion entry（<code>struct cndm_cpl</code>）取出:</p>
+<ul>
+<li><code>ts_ns</code>（纳秒部分）</li>
+<li><code>ts_s</code>（秒高位，用寄存器补全）</li>
+</ul>
+<p>所以最终时间戳被写入 <code>skb-&gt;tstamp</code>。</p>
+<hr>
+<h2 id="3-上层-PTP-协议如何使用这个时间戳（典型流程）"><a href="#3-上层-PTP-协议如何使用这个时间戳（典型流程）" class="headerlink" title="3) 上层 PTP 协议如何使用这个时间戳（典型流程）"></a>3) 上层 PTP 协议如何使用这个时间戳（典型流程）</h2><p>上层 PTP 进程（例如 <code>ptp4l</code>）通过 Linux 的 <code>SO_TIMESTAMPING</code>&#x2F;<code>phc</code> 机制：</p>
+<ol>
+<li><p>用户态开启 <code>SO_TIMESTAMPING_RX_HARDWARE</code> &#x2F; <code>SO_TIMESTAMPING_TX_HARDWARE</code>。</p>
+</li>
+<li><p>内核驱动（上面那段代码）把硬件时间戳放到 <code>skb_hwtstamps(skb)</code>。</p>
+</li>
+<li><p>用户态从 <code>recvmsg()</code> 拿到 <code>SCM_TIMESTAMPING</code> 控制消息，得到 <code>struct timespec</code>（硬件时间）。</p>
+</li>
+<li><p>PTP 协议用这些时间戳计算偏移与延迟，例如：</p>
+<ul>
+<li>Sync&#x2F;Follow_Up：<code>t1</code> &#x3D; 发送 Sync 的硬件时间（TX timestamp）</li>
+<li>Sync 接收：<code>t2</code> &#x3D; 本地接收时间（RX timestamp）</li>
+<li>DelayReq 发出：<code>t3</code> &#x3D; 发送时间（TX timestamp）</li>
+<li>DelayResp 接收：<code>t4</code> &#x3D; 接收时间（RX timestamp）</li>
+</ul>
+<p>经典公式：</p>
+<ul>
+<li><strong>offset</strong> &#x3D; (t2 + t3 - t1 - t4) &#x2F; 2</li>
+<li><strong>delay</strong> &#x3D; (t2 - t1 + t4 - t3) &#x2F; 2</li>
+</ul>
+</li>
+</ol>
+<p>驱动本身不“算公式”，它只把硬件时间戳交给 Linux stack &#x2F; ptp4l，后者负责把时间戳和 PTP 报文里本身的时间戳字段（originTimestamp 等）关联起来。</p>
+<hr>
+<h2 id="✅-关键信息总结"><a href="#✅-关键信息总结" class="headerlink" title="✅ 关键信息总结"></a>✅ 关键信息总结</h2><ul>
+<li>**写入 AXIS tuser 的代码在 <a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">taxi_axis_xgmii_rx_32.sv</a>**：<code>m_axis_rx.tuser[1+:PTP_TS_W] = ptp_ts_out_reg;</code></li>
+<li><strong>时间戳通过 DMA 描述符状态通道传递到 completion</strong>（<code>dma_desc.sts_user</code> -&gt; <code>cndm_micro_rx</code> -&gt; completion <a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">cndm_cpl</a>）</li>
+<li><strong>驱动读取 completion 并写入 <code>skb_hwtstamps</code></strong> → 上层 PTP 进程可以拿到硬件时间戳并用于 offset&#x2F;delay 计算</li>
+</ul>
+<h2 id="✅-ptp-td-sdi-分析讲解与实现流程"><a href="#✅-ptp-td-sdi-分析讲解与实现流程" class="headerlink" title="✅ ptp_td_sdi 分析讲解与实现流程"></a>✅ <code>ptp_td_sdi</code> 分析讲解与实现流程</h2><p><code>ptp_td_sdi</code>（PTP Time Distribution Serial Data Input）是 FPGA 内部 PTP 时间分发模块（<code>taxi_ptp_td_leaf</code>）的<strong>串行输入信号</strong>，用于接收来自外部 PTP 主时钟（或上游时间源）的时间同步数据。它是整个 PTP 时间戳生成链路的“源头输入”，通过串行 bit 流传递时间戳、时钟周期等信息，实现 FPGA 本地时钟与外部主时钟的同步。</p>
+<hr>
+<h2 id="1️⃣-ptp-td-sdi-的基本分析"><a href="#1️⃣-ptp-td-sdi-的基本分析" class="headerlink" title="1️⃣ ptp_td_sdi 的基本分析"></a>1️⃣ <code>ptp_td_sdi</code> 的基本分析</h2><h3 id="✅-信号特性"><a href="#✅-信号特性" class="headerlink" title="✅ 信号特性"></a>✅ 信号特性</h3><ul>
+<li><strong>类型</strong>：单 bit 串行输入（<code>logic</code> 类型）。</li>
+<li><strong>时钟域</strong>：在 <code>ptp_clk</code> 时钟域下采样（通常是 PTP 参考时钟，如 156.25 MHz）。</li>
+<li><strong>数据格式</strong>：串行 bit 流，编码为 16-bit 字（word）的序列，每个字代表时间数据包的不同字段。</li>
+<li><strong>协议</strong>：自定义 PTP 时间分发协议（TD - Time Distribution），非标准 PTP 报文，而是 FPGA 内部优化的串行传输格式。</li>
+<li><strong>用途</strong>：将外部主时钟的时间信息（秒、纳秒、周期）传递到 FPGA，用于生成本地时间戳（<code>output_ts_rel</code> &#x2F; <code>output_ts_tod</code>）和 PPS 信号。</li>
+</ul>
+<h3 id="✅-数据包结构（从代码反推）"><a href="#✅-数据包结构（从代码反推）" class="headerlink" title="✅ 数据包结构（从代码反推）"></a>✅ 数据包结构（从代码反推）</h3><p>每个 TD 数据包由多个 16-bit 字组成，字段通过 <code>td_tid</code>（Type ID）标识：</p>
+<ul>
+<li>**tid[7:4]**：消息类型（msg_reg，例如时间戳类型）。</li>
+<li>**tid[3:0]**：字段索引（index_reg，从 0 开始递增）。</li>
+<li>**tdata[15:0]**：数据内容。</li>
+</ul>
+<p>典型字段（从 <a href="vscode-file://vscode-app/opt/visual-studio-code/resources/app/out/vs/code/electron-browser/workbench/workbench.html">taxi_ptp_td_leaf.sv</a> 解析逻辑）：</p>
+<ul>
+<li><code>tid=0x01</code>：ToD 纳秒低 16-bit。</li>
+<li><code>tid=0x02</code>：ToD 纳秒高 14-bit + 步进标志。</li>
+<li><code>tid=0x03</code>：ToD 秒低 16-bit。</li>
+<li><code>tid=0x04</code>：ToD 秒中 16-bit。</li>
+<li><code>tid=0x05</code>：ToD 秒高 16-bit。</li>
+<li><code>tid=0x06</code>：相对纳秒低 16-bit。</li>
+<li><code>tid=0x07</code>：相对纳秒高 16-bit。</li>
+<li><code>tid=0x08</code>：相对纳秒最高 16-bit。</li>
+<li><code>tid=0x0B</code>：时钟周期低 16-bit。</li>
+<li><code>tid=0x0C</code>：时钟周期中 16-bit。</li>
+<li><code>tid=0x0D</code>：时钟周期高 8-bit。</li>
+<li><code>tid=0x11</code>：ToD 偏移纳秒。</li>
+</ul>
+<p>包以 <code>td_tlast=1</code> 结束（当串行 bit 为 1 时）。</p>
+<h3 id="✅-优势"><a href="#✅-优势" class="headerlink" title="✅ 优势"></a>✅ 优势</h3><ul>
+<li><strong>低开销</strong>：串行传输，节省引脚和带宽。</li>
+<li><strong>实时性</strong>：直接在 PTP 时钟域处理，避免跨时钟同步延迟。</li>
+<li><strong>灵活</strong>：支持相对时间（Relative）和时间-日（ToD）两种格式。</li>
+</ul>
+<hr>
+<h2 id="2️⃣-ptp-td-sdi-的实现流程（从外部到-FPGA-内部）"><a href="#2️⃣-ptp-td-sdi-的实现流程（从外部到-FPGA-内部）" class="headerlink" title="2️⃣ ptp_td_sdi 的实现流程（从外部到 FPGA 内部）"></a>2️⃣ <code>ptp_td_sdi</code> 的实现流程（从外部到 FPGA 内部）</h2><h3 id="✅-流程概述"><a href="#✅-流程概述" class="headerlink" title="✅ 流程概述"></a>✅ 流程概述</h3><ol>
+<li><strong>外部时间源生成串行数据</strong>（硬件&#x2F;软件）。</li>
+<li><strong>FPGA 接收并反序列化</strong>（<code>taxi_ptp_td_leaf</code>）。</li>
+<li><strong>解析数据字段</strong>（根据 tid 提取时间信息）。</li>
+<li><strong>更新本地时间戳</strong>（PI 控制同步）。</li>
+<li><strong>输出同步时间</strong>（给 MAC &#x2F; 驱动使用）。</li>
+</ol>
+<h3 id="✅-详细步骤"><a href="#✅-详细步骤" class="headerlink" title="✅ 详细步骤"></a>✅ 详细步骤</h3><h4 id="步骤-1-外部时间源生成串行数据"><a href="#步骤-1-外部时间源生成串行数据" class="headerlink" title="步骤 1: 外部时间源生成串行数据"></a>步骤 1: 外部时间源生成串行数据</h4><ul>
+<li><strong>来源</strong>：外部 PTP 主时钟设备（例如，通过 SFP 光模块或专用串行接口连接）。</li>
+<li><strong>生成方式</strong>：<ul>
+<li>主时钟设备周期性发送 TD 数据包（例如，每秒或按需）。</li>
+<li>数据包字段按 tid 顺序串行化：先发送 tid&#x3D;0x01 的 16-bit 数据，然后 tid&#x3D;0x02，以此类推。</li>
+<li>每个 16-bit 字以 LSB-first 方式串行发送（<code>td_shift_reg</code> 移位逻辑）。</li>
+<li>包起始：发送 bit&#x3D;0（触发 FPGA 开始计数 16 bit）。</li>
+<li>包结束：发送 bit&#x3D;1（<code>td_tlast</code>）。</li>
+</ul>
+</li>
+<li><strong>示例</strong>：如果 ToD 时间是 2026-03-19 12:00:00.000000000，纳秒&#x3D;0，秒&#x3D;1700846400，则：<ul>
+<li>tid&#x3D;0x01: 纳秒低 16-bit &#x3D; 0x0000</li>
+<li>tid&#x3D;0x03: 秒低 16-bit &#x3D; 0x6400 (部分秒值)</li>
+<li>… 依此类推。</li>
+</ul>
+</li>
+</ul>
+<h4 id="步骤-2-FPGA-接收并反序列化（taxi-ptp-td-leaf-模块）"><a href="#步骤-2-FPGA-接收并反序列化（taxi-ptp-td-leaf-模块）" class="headerlink" title="步骤 2: FPGA 接收并反序列化（taxi_ptp_td_leaf 模块）"></a>步骤 2: FPGA 接收并反序列化（<code>taxi_ptp_td_leaf</code> 模块）</h4><ul>
+<li><strong>流水线延迟</strong>：<code>ptp_td_sdi</code> 先通过 <code>TD_SDI_PIPELINE</code>（默认 2 级）延迟，优化时序路径。</li>
+<li><strong>移位接收</strong>：<ul>
+<li>每 <code>ptp_clk</code> 上升沿，bit 移入 <code>td_shift_reg</code>（16-bit 寄存器）。</li>
+</ul>
+</li>
+<li><strong>帧检测</strong>：<ul>
+<li>当 <code>ptp_td_sdi == 0</code> 时，启动 16-bit 计数器（<code>bit_cnt_reg &lt;= 16</code>）。</li>
+<li>计数到 0 时，输出 <code>td_tdata</code>（当前 16-bit 字）、<code>td_tid</code>（类型 ID）、<code>td_tlast</code>（结束标志）。</li>
+</ul>
+</li>
+<li><strong>同步到主时钟域</strong>：<code>td_sync_reg</code> 翻转触发跨时钟同步（<code>td_sync_sync1/2/3</code>），将数据传递到 <code>clk</code> 域。</li>
+</ul>
+<h4 id="步骤-3-解析数据字段"><a href="#步骤-3-解析数据字段" class="headerlink" title="步骤 3: 解析数据字段"></a>步骤 3: 解析数据字段</h4><ul>
+<li><strong>根据 <code>dst_td_tid_reg</code> 写入 shadow 寄存器</strong>：</li>
+<li><strong>字段累积</strong>：多个 16-bit 字组合成完整时间值（例如，纳秒 &#x3D; 低16 + 高14）。</li>
+<li><strong>有效性检查</strong>：当所有字段接收完毕（<code>dst_tod_shadow_valid_next = 1&#39;b1</code>），标记 shadow 数据有效。</li>
+</ul>
+<h4 id="步骤-4-更新本地时间戳（PI-控制同步）"><a href="#步骤-4-更新本地时间戳（PI-控制同步）" class="headerlink" title="步骤 4: 更新本地时间戳（PI 控制同步）"></a>步骤 4: 更新本地时间戳（PI 控制同步）</h4><ul>
+<li><strong>加载 shadow 数据</strong>：当 <code>dst_load_cnt_reg == 0</code> 时，将 shadow 复制到主时间寄存器（<code>ts_tod_ns</code>、<code>ts_tod_s</code> 等）。</li>
+<li><strong>误差计算</strong>：比较本地时间与接收到的外部时间，计算 <code>ts_ns_diff</code>（纳秒差值）。</li>
+<li><strong>PI 控制</strong>：<ul>
+<li>积分器：<code>time_err_int_next = $signed(time_err_int_reg) + ts_ns_diff</code>。</li>
+<li>输出：调整 <code>period_ns</code>（时钟周期），逼近外部时间。</li>
+<li>锁定：当误差稳定时，<code>locked</code> 输出高电平。</li>
+</ul>
+</li>
+<li><strong>时间生成</strong>：基于调整后的周期，更新 <code>ts_rel_ns</code> &#x2F; <code>ts_tod_ns</code> &#x2F; <code>ts_tod_s</code>。</li>
+</ul>
+<h4 id="步骤-5-输出同步时间"><a href="#步骤-5-输出同步时间" class="headerlink" title="步骤 5: 输出同步时间"></a>步骤 5: 输出同步时间</h4><ul>
+<li><strong>时间戳输出</strong>：<ul>
+<li><code>output_ts_rel</code>：相对纳秒（用于 MAC RX&#x2F;TX 时间戳）。</li>
+<li><code>output_ts_tod</code>：ToD 秒 + 纳秒（用于 PHC）。</li>
+</ul>
+</li>
+<li><strong>PPS 输出</strong>：在 ToD 模式下，当秒进位时生成 <code>output_pps</code> &#x2F; <code>output_pps_str</code>。</li>
+<li><strong>传递到 MAC</strong>：<code>ptp_ts</code> 输入到 <code>taxi_axis_xgmii_rx_32</code>，用于帧时间戳捕获。</li>
+<li><strong>传递到驱动</strong>：通过 DMA &#x2F; completion，最终写入 <code>skb_hwtstamps</code>。</li>
+</ul>
+<hr>
+<h2 id="✅-关键代码片段总结"><a href="#✅-关键代码片段总结" class="headerlink" title="✅ 关键代码片段总结"></a>✅ 关键代码片段总结</h2><ul>
+<li><strong>反序列化核心</strong>（<code>taxi_ptp_td_leaf.sv</code>）：</li>
+<li><strong>字段解析</strong>：</li>
+<li><strong>PI 同步</strong>：</li>
+</ul>
+<hr>
+<h2 id="✅-注意事项"><a href="#✅-注意事项" class="headerlink" title="✅ 注意事项"></a>✅ 注意事项</h2><ul>
+<li><strong>时钟同步</strong>：<code>ptp_td_sdi</code> 必须在 <code>ptp_clk</code> 域稳定采样，避免亚稳态。</li>
+<li><strong>数据完整性</strong>：外部源需确保包顺序和完整性（FPGA 不校验 CRC）。</li>
+<li><strong>调试</strong>：可以通过 <code>td_tvalid_reg</code> &#x2F; <code>dst_td_tvalid_reg</code> 监控接收状态。</li>
+<li><strong>扩展</strong>：如果需要更高精度，可调整 <code>TD_SDI_PIPELINE</code> 或增加字段。</li>
+</ul>
+<p>如果你需要“TD 数据包的具体 bit 布局图”或“如何在外部硬件生成 ptp_td_sdi”，我可以进一步扩展。—</p>
+<h2 id="✅-注意事项-1"><a href="#✅-注意事项-1" class="headerlink" title="✅ 注意事项"></a>✅ 注意事项</h2><ul>
+<li><strong>时钟同步</strong>：<code>ptp_td_sdi</code> 必须在 <code>ptp_clk</code> 域稳定采样，避免亚稳态。</li>
+<li><strong>数据完整性</strong>：外部源需确保包顺序和完整性（FPGA 不校验 CRC）。</li>
+<li><strong>调试</strong>：可以通过 <code>td_tvalid_reg</code> &#x2F; <code>dst_td_tvalid_reg</code> 监控接收状态。</li>
+<li><strong>扩展</strong>：如果需要更高精度，可调整 <code>TD_SDI_PIPELINE</code> 或增加字段。</li>
+</ul>
+<p>这个问题非常关键，本质是在问：</p>
+<p>👉 <strong>Taxi 里的 <code>ptp_td_sdi</code>（Time Distribution Serial Interface）到底从哪来？LinuxPTP 怎么把“PTP时间”变成这根串行线？</strong></p>
+<p>先给结论（避免走弯路）：</p>
+<hr>
+<h1 id="✅-一句话结论"><a href="#✅-一句话结论" class="headerlink" title="✅ 一句话结论"></a>✅ 一句话结论</h1><p>👉 <strong>LinuxPTP 本身不会直接产生 <code>ptp_td_sdi</code></strong><br>👉 <code>ptp_td_sdi</code> 是 <strong>FPGA&#x2F;NIC驱动&#x2F;硬件逻辑生成的“时间分发流”</strong></p>
+<p>LinuxPTP只是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">算时间 → 提供时间 → 写入PHC/NIC → FPGA再编码成ptp_td_sdi<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="一、ptp-td-sdi-本质是什么？"><a href="#一、ptp-td-sdi-本质是什么？" class="headerlink" title="一、ptp_td_sdi 本质是什么？"></a>一、<code>ptp_td_sdi</code> 本质是什么？</h1><p>从你给的代码可以看出：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">input</span> <span class="hljs-keyword">wire</span> <span class="hljs-keyword">logic</span> ptp_td_sdi<br></code></pre></td></tr></table></figure>
+
+<p>然后第一段逻辑在干：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs verilog">td_shift_reg &lt;= &#123;ptp_td_sdi, td_shift_reg[<span class="hljs-number">15</span>:<span class="hljs-number">1</span>]&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>👉 说明：</p>
+<h3 id="✅-它是一个-串行bit流接口"><a href="#✅-它是一个-串行bit流接口" class="headerlink" title="✅ 它是一个 串行bit流接口"></a>✅ 它是一个 <strong>串行bit流接口</strong></h3><p>类似：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">1根线 + 时钟 → 传输时间帧<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="👉-它传的不是“包”，而是："><a href="#👉-它传的不是“包”，而是：" class="headerlink" title="👉 它传的不是“包”，而是："></a>👉 它传的不是“包”，而是：</h2><h3 id="时间帧（TD-Frame）"><a href="#时间帧（TD-Frame）" class="headerlink" title="时间帧（TD Frame）"></a><strong>时间帧（TD Frame）</strong></h3><p>从代码解析：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs verilog">td_tid_reg &lt;= &#123;td_msg_reg, td_index_reg&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>👉 数据结构类似：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">[MSG_ID | WORD_INDEX] + DATA(16bit)<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="👉-实际承载内容："><a href="#👉-实际承载内容：" class="headerlink" title="👉 实际承载内容："></a>👉 实际承载内容：</h2><p>你在代码中看到：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs verilog">src_ns_shadow_reg<br>src_period_shadow_reg<br></code></pre></td></tr></table></figure>
+
+<p>说明 TD 流里包含：</p>
+<h3 id="✔-时间信息"><a href="#✔-时间信息" class="headerlink" title="✔ 时间信息"></a>✔ 时间信息</h3><ul>
+<li>ns（纳秒）</li>
+<li>秒（ToD）</li>
+</ul>
+<h3 id="✔-时钟参数"><a href="#✔-时钟参数" class="headerlink" title="✔ 时钟参数"></a>✔ 时钟参数</h3><ul>
+<li>period（周期）</li>
+<li>step（是否跳变）</li>
+</ul>
+<hr>
+<h1 id="二、ptp-td-sdi-在系统中的位置"><a href="#二、ptp-td-sdi-在系统中的位置" class="headerlink" title="二、ptp_td_sdi 在系统中的位置"></a>二、<code>ptp_td_sdi</code> 在系统中的位置</h1><p>完整路径应该是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">     LinuxPTP (ptp4l)<br>           ↓<br>     PHC (硬件时钟)<br>           ↓<br>     NIC driver<br>           ↓<br>FPGA (TD master encoder)<br>           ↓<br>     ptp_td_sdi (串行)<br>           ↓<br>taxi_ptp_td_leaf (你这段代码)<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="三、LinuxPTP-在这里到底干了什么？"><a href="#三、LinuxPTP-在这里到底干了什么？" class="headerlink" title="三、LinuxPTP 在这里到底干了什么？"></a>三、LinuxPTP 在这里到底干了什么？</h1><p>LinuxPTP只做两件事：</p>
+<hr>
+<h2 id="1️⃣-计算“标准PTP时间”"><a href="#1️⃣-计算“标准PTP时间”" class="headerlink" title="1️⃣ 计算“标准PTP时间”"></a>1️⃣ 计算“标准PTP时间”</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">Sync / Follow_Up / Delay_Req / Delay_Resp<br></code></pre></td></tr></table></figure>
+
+<p>得到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">当前精确时间（master time）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-写入-PHC（网卡硬件时钟）"><a href="#2️⃣-写入-PHC（网卡硬件时钟）" class="headerlink" title="2️⃣ 写入 PHC（网卡硬件时钟）"></a>2️⃣ 写入 PHC（网卡硬件时钟）</h2><p>通过：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">clock_settime()<br>ioctl(PHC)<br></code></pre></td></tr></table></figure>
+
+<p>👉 把时间写到 NIC&#x2F;FPGA：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">PHC = 当前PTP时间<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="四、关键问题：ptp-td-sdi-是谁生成的？"><a href="#四、关键问题：ptp-td-sdi-是谁生成的？" class="headerlink" title="四、关键问题：ptp_td_sdi 是谁生成的？"></a>四、关键问题：<code>ptp_td_sdi</code> 是谁生成的？</h1><p>👉 <strong>不是 LinuxPTP</strong></p>
+<p>而是：</p>
+<h1 id="✅-FPGA-或-NIC-硬件逻辑生成"><a href="#✅-FPGA-或-NIC-硬件逻辑生成" class="headerlink" title="✅ FPGA 或 NIC 硬件逻辑生成"></a>✅ FPGA 或 NIC 硬件逻辑生成</h1><hr>
+<h2 id="常见实现方式（3种）"><a href="#常见实现方式（3种）" class="headerlink" title="常见实现方式（3种）"></a>常见实现方式（3种）</h2><hr>
+<h2 id="🟢-方式1：FPGA内部-TD-Master（推荐）"><a href="#🟢-方式1：FPGA内部-TD-Master（推荐）" class="headerlink" title="🟢 方式1：FPGA内部 TD Master（推荐）"></a>🟢 方式1：FPGA内部 TD Master（推荐）</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">PHC寄存器（FPGA）<br>     ↓<br>TD Encoder（你自己写）<br>     ↓<br>ptp_td_sdi<br></code></pre></td></tr></table></figure>
+
+<h3 id="具体实现："><a href="#具体实现：" class="headerlink" title="具体实现："></a>具体实现：</h3><p>你需要写一个模块：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">module</span> ptp_td_master (<br>    <span class="hljs-keyword">input</span> clk,<br>    <span class="hljs-keyword">input</span> [<span class="hljs-number">63</span>:<span class="hljs-number">0</span>] ptp_time,<br>    <span class="hljs-keyword">output</span> ptp_td_sdi<br>);<br></code></pre></td></tr></table></figure>
+
+<p>做的事情：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">时间 → 切成16bit → 加header → 串行输出<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🟡-方式2：CPU-x2F-驱动写FPGA寄存器"><a href="#🟡-方式2：CPU-x2F-驱动写FPGA寄存器" class="headerlink" title="🟡 方式2：CPU&#x2F;驱动写FPGA寄存器"></a>🟡 方式2：CPU&#x2F;驱动写FPGA寄存器</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">LinuxPTP → driver → AXI → FPGA寄存器<br></code></pre></td></tr></table></figure>
+
+<p>FPGA：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">读取寄存器 → TD编码 → ptp_td_sdi<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔴-方式3：软件bit-bang（几乎不用）"><a href="#🔴-方式3：软件bit-bang（几乎不用）" class="headerlink" title="🔴 方式3：软件bit-bang（几乎不用）"></a>🔴 方式3：软件bit-bang（几乎不用）</h2><p>CPU直接生成bit流 → GPIO</p>
+<p>👉 不现实（抖动大）</p>
+<hr>
+<h1 id="五、TD编码协议（从代码反推）"><a href="#五、TD编码协议（从代码反推）" class="headerlink" title="五、TD编码协议（从代码反推）"></a>五、TD编码协议（从代码反推）</h1><p>你这段代码已经暴露协议细节：</p>
+<hr>
+<h2 id="1️⃣-帧起始"><a href="#1️⃣-帧起始" class="headerlink" title="1️⃣ 帧起始"></a>1️⃣ 帧起始</h2><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">if</span> (ptp_td_sdi == <span class="hljs-number">0</span>) <span class="hljs-keyword">begin</span><br>    bit_cnt_reg &lt;= <span class="hljs-number">16</span>;<br></code></pre></td></tr></table></figure>
+
+<p>👉 <strong>0 &#x3D; start bit</strong></p>
+<hr>
+<h2 id="2️⃣-数据长度"><a href="#2️⃣-数据长度" class="headerlink" title="2️⃣ 数据长度"></a>2️⃣ 数据长度</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">每帧 = 16 bit<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3️⃣-数据结构"><a href="#3️⃣-数据结构" class="headerlink" title="3️⃣ 数据结构"></a>3️⃣ 数据结构</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">[MSG_ID | INDEX] → td_tid<br>DATA → td_tdata<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4️⃣-示例（推测）"><a href="#4️⃣-示例（推测）" class="headerlink" title="4️⃣ 示例（推测）"></a>4️⃣ 示例（推测）</h2><table>
+<thead>
+<tr>
+<th>tid</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1-5</td>
+<td>ToD seconds</td>
+</tr>
+<tr>
+<td>6-8</td>
+<td>ns</td>
+</tr>
+<tr>
+<td>11-13</td>
+<td>period</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="六、LinuxPTP-如何“间接生成”-ptp-td-sdi？"><a href="#六、LinuxPTP-如何“间接生成”-ptp-td-sdi？" class="headerlink" title="六、LinuxPTP 如何“间接生成” ptp_td_sdi？"></a>六、LinuxPTP 如何“间接生成” ptp_td_sdi？</h1><p>关键链路：</p>
+<hr>
+<h2 id="Step-1：LinuxPTP-同步时间"><a href="#Step-1：LinuxPTP-同步时间" class="headerlink" title="Step 1：LinuxPTP 同步时间"></a>Step 1：LinuxPTP 同步时间</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ptp4l -i eth0<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Step-2：写-NIC-硬件时钟（PHC）"><a href="#Step-2：写-NIC-硬件时钟（PHC）" class="headerlink" title="Step 2：写 NIC 硬件时钟（PHC）"></a>Step 2：写 NIC 硬件时钟（PHC）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">phc2sys -s eth0 -c CLOCK_REALTIME<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Step-3：驱动把-PHC-映射到-FPGA"><a href="#Step-3：驱动把-PHC-映射到-FPGA" class="headerlink" title="Step 3：驱动把 PHC 映射到 FPGA"></a>Step 3：驱动把 PHC 映射到 FPGA</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">driver → BAR / AXI → FPGA time register<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Step-4：FPGA-读取时间"><a href="#Step-4：FPGA-读取时间" class="headerlink" title="Step 4：FPGA 读取时间"></a>Step 4：FPGA 读取时间</h2><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs verilog">ptp_time_reg &lt;= AXI_read();<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Step-5：编码成-TD-流"><a href="#Step-5：编码成-TD-流" class="headerlink" title="Step 5：编码成 TD 流"></a>Step 5：编码成 TD 流</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">time → TD frame → 串行输出<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="七、和-Taxi-的关系（关键理解）"><a href="#七、和-Taxi-的关系（关键理解）" class="headerlink" title="七、和 Taxi 的关系（关键理解）"></a>七、和 Taxi 的关系（关键理解）</h1><p>Taxi 实际分成两块：</p>
+<hr>
+<h2 id="1️⃣-TD-Master（你没贴出来的部分）"><a href="#1️⃣-TD-Master（你没贴出来的部分）" class="headerlink" title="1️⃣ TD Master（你没贴出来的部分）"></a>1️⃣ TD Master（你没贴出来的部分）</h2><p>👉 负责生成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">ptp_td_sdi<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-TD-Leaf（你贴的代码）"><a href="#2️⃣-TD-Leaf（你贴的代码）" class="headerlink" title="2️⃣ TD Leaf（你贴的代码）"></a>2️⃣ TD Leaf（你贴的代码）</h2><p>👉 负责：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">恢复时间 + PI同步<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="八、为什么要搞-ptp-td-sdi？（核心价值）"><a href="#八、为什么要搞-ptp-td-sdi？（核心价值）" class="headerlink" title="八、为什么要搞 ptp_td_sdi？（核心价值）"></a>八、为什么要搞 <code>ptp_td_sdi</code>？（核心价值）</h1><p>相比标准 PTP：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>Ethernet PTP</th>
+<th>TD</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>介质</td>
+<td>网络包</td>
+<td>串行线</td>
+</tr>
+<tr>
+<td>抖动</td>
+<td>高</td>
+<td>极低</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>不确定</td>
+<td>固定</td>
+</tr>
+<tr>
+<td>精度</td>
+<td>100ns~1us</td>
+<td>&lt;10ns</td>
+</tr>
+</tbody></table>
+<hr>
+<p>👉 本质：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">TD = “PTP物理层加速版”<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="九、结合你当前项目（重点建议）"><a href="#九、结合你当前项目（重点建议）" class="headerlink" title="九、结合你当前项目（重点建议）"></a>九、结合你当前项目（重点建议）</h1><p>你现在做：</p>
+<p>👉 FPGA NIC + PTP + TSN</p>
+<p>建议这样设计：</p>
+<hr>
+<h2 id="✅-推荐架构"><a href="#✅-推荐架构" class="headerlink" title="✅ 推荐架构"></a>✅ 推荐架构</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs text">LinuxPTP<br>   ↓<br>PHC（FPGA寄存器）<br>   ↓<br>TD Master（FPGA）<br>   ↓<br>ptp_td_sdi<br>   ↓<br>多个 Leaf（多端口/多FPGA）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="✅-如果是-Zynq"><a href="#✅-如果是-Zynq" class="headerlink" title="✅ 如果是 Zynq"></a>✅ 如果是 Zynq</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">ARM (LinuxPTP)<br>   ↓ AXI<br>PL (TD Master)<br>   ↓<br>ptp_td_sdi<br></code></pre></td></tr></table></figure>
+
+<p>👉 ARM作用：</p>
+<ul>
+<li>跑 ptp4l</li>
+<li>更新 PHC</li>
+</ul>
+<hr>
+<h1 id="十、你可以做的进阶优化（非常适合你）"><a href="#十、你可以做的进阶优化（非常适合你）" class="headerlink" title="十、你可以做的进阶优化（非常适合你）"></a>十、你可以做的进阶优化（非常适合你）</h1><h2 id="🔥-1：完全去-LinuxPTP"><a href="#🔥-1：完全去-LinuxPTP" class="headerlink" title="🔥 1：完全去 LinuxPTP"></a>🔥 1：完全去 LinuxPTP</h2><p>👉 FPGA实现：</p>
+<ul>
+<li>Sync解析</li>
+<li>Delay计算</li>
+<li>PI servo</li>
+</ul>
+<hr>
+<h2 id="🔥-2：做“多节点同步网络”"><a href="#🔥-2：做“多节点同步网络”" class="headerlink" title="🔥 2：做“多节点同步网络”"></a>🔥 2：做“多节点同步网络”</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">1 master FPGA → N leaf FPGA<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔥-3：结合-TSN"><a href="#🔥-3：结合-TSN" class="headerlink" title="🔥 3：结合 TSN"></a>🔥 3：结合 TSN</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">TD clock → Qbv scheduler<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="如果你想更深入"><a href="#如果你想更深入" class="headerlink" title="如果你想更深入"></a>如果你想更深入</h1><p>我可以帮你：</p>
+<p>✅ 写一个 <strong>ptp_td_master Verilog模板（可直接对接你这段leaf）</strong><br>✅ 或给你画一个 <strong>Zynq + Taxi + LinuxPTP完整架构图（工程级）</strong><br>✅ 或做一个 <strong>“去LinuxPTP纯FPGA PTP NIC方案”</strong>（非常适合你现在的方向）</p>
+<p>你这段代码已经把 <strong>Taxi &#x2F; Corundum 系列 PTP 架构里最核心的一条链路打通了</strong>：</p>
+<p>👉 <strong>LinuxPTP（软件） → PHC（寄存器） → ptp_td_sdo（串行） → ptp_td_sdi（分发） → 各模块硬件时间</strong></p>
+<p>下面我帮你把这条链路<strong>完整拆开（工程级视角）</strong>。</p>
+<hr>
+<h1 id="一、核心结论（先给你抓重点）"><a href="#一、核心结论（先给你抓重点）" class="headerlink" title="一、核心结论（先给你抓重点）"></a>一、核心结论（先给你抓重点）</h1><h3 id="ptp-td-sdi-本质是什么？"><a href="#ptp-td-sdi-本质是什么？" class="headerlink" title="ptp_td_sdi 本质是什么？"></a>ptp_td_sdi 本质是什么？</h3><p>👉 <strong>不是 PTP 报文</strong><br>👉 是 <strong>已经同步好的“时间码流（Time Distribution Stream）”</strong></p>
+<p>可以理解为：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">LinuxPTP</span> → 算出时间/频率修正<br>        → 写寄存器（PHC）<br>        → FPGA生成“标准时间流”<br>        → ptp_td_sdo 串行发出<br>        → ptp_td_sdi 在全FPGA广播<br></code></pre></td></tr></table></figure>
+
+<p>👉 本质：<strong>FPGA内部“时间总线”</strong></p>
+<hr>
+<h1 id="二、ptp-td-sdi-的生成链路（你这段代码）"><a href="#二、ptp-td-sdi-的生成链路（你这段代码）" class="headerlink" title="二、ptp_td_sdi 的生成链路（你这段代码）"></a>二、ptp_td_sdi 的生成链路（你这段代码）</h1><p>我们按你代码真实路径走一遍：</p>
+<hr>
+<h2 id="1️⃣-LinuxPTP（用户态）"><a href="#1️⃣-LinuxPTP（用户态）" class="headerlink" title="1️⃣ LinuxPTP（用户态）"></a>1️⃣ LinuxPTP（用户态）</h2><p>运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">ptp4l -i eth0 -m<br>phc2sys -s eth0 -c CLOCK_REALTIME<br></code></pre></td></tr></table></figure>
+
+<p>它干三件事：</p>
+<h3 id="✔-1-解析PTP报文"><a href="#✔-1-解析PTP报文" class="headerlink" title="✔ 1. 解析PTP报文"></a>✔ 1. 解析PTP报文</h3><ul>
+<li>Sync &#x2F; Follow_Up</li>
+<li>Delay_Req &#x2F; Delay_Resp</li>
+</ul>
+<p>算出：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">offset</span> <span class="hljs-operator">=</span> master_time - local_time<br><span class="hljs-attribute">drift</span> <span class="hljs-operator">=</span> 频率偏差<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="✔-2-调整-PHC（硬件时钟）"><a href="#✔-2-调整-PHC（硬件时钟）" class="headerlink" title="✔ 2. 调整 PHC（硬件时钟）"></a>✔ 2. 调整 PHC（硬件时钟）</h3><p>通过：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">clock_adjtime()<br></code></pre></td></tr></table></figure>
+
+<p>驱动调用：</p>
+<ul>
+<li>adjtime（时间偏移）</li>
+<li>adjfreq（频率调整）</li>
+</ul>
+<hr>
+<h2 id="2️⃣-FPGA-驱动-→-写-APB-寄存器"><a href="#2️⃣-FPGA-驱动-→-写-APB-寄存器" class="headerlink" title="2️⃣ FPGA 驱动 → 写 APB 寄存器"></a>2️⃣ FPGA 驱动 → 写 APB 寄存器</h2><p>对应你代码：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// 写时间</span><br><span class="hljs-number">0</span>x54 / <span class="hljs-number">0</span>x58 / <span class="hljs-number">0</span>x5C  -&gt; set_ptp_ts_tod<br><br><span class="hljs-comment">// 微调</span><br><span class="hljs-number">0</span>x50                -&gt; offset_ptp_ts_tod<br><br><span class="hljs-comment">// 调频</span><br><span class="hljs-number">0</span>x78 / <span class="hljs-number">0</span>x7C         -&gt; set_ptp_period<br></code></pre></td></tr></table></figure>
+
+<p>👉 LinuxPTP 做的事情就是：</p>
+<h3 id="✔-Step（跳变）"><a href="#✔-Step（跳变）" class="headerlink" title="✔ Step（跳变）"></a>✔ Step（跳变）</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">直接写时间<br></code></pre></td></tr></table></figure>
+
+<h3 id="✔-Slew（微调）"><a href="#✔-Slew（微调）" class="headerlink" title="✔ Slew（微调）"></a>✔ Slew（微调）</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">offset</span> <span class="hljs-operator">+</span> 调<span class="hljs-keyword">period</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3️⃣-taxi-ptp-td-phc（核心时钟模块）"><a href="#3️⃣-taxi-ptp-td-phc（核心时钟模块）" class="headerlink" title="3️⃣ taxi_ptp_td_phc（核心时钟模块）"></a>3️⃣ taxi_ptp_td_phc（核心时钟模块）</h2><p>👉 这是<strong>时间生成器</strong></p>
+<h3 id="功能："><a href="#功能：" class="headerlink" title="功能："></a>功能：</h3><figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs nix">输入：<br>    时间设置 <span class="hljs-symbol">/</span> offset <span class="hljs-symbol">/</span> period<br><br>输出：<br>    ptp_td_sdo（串行时间流）<br>    PPS<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="ptp-td-sdo-生成本质："><a href="#ptp-td-sdo-生成本质：" class="headerlink" title="ptp_td_sdo 生成本质："></a>ptp_td_sdo 生成本质：</h3><p>它会不断输出：</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs coq">时间帧：<br>[MSG_ID | <span class="hljs-type">INDEX</span> | <span class="hljs-type">DATA</span>]<br></code></pre></td></tr></table></figure>
+
+<p>类似：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ns</td>
+<td>纳秒</td>
+</tr>
+<tr>
+<td>sec</td>
+<td>秒</td>
+</tr>
+<tr>
+<td>period</td>
+<td>时钟周期</td>
+</tr>
+<tr>
+<td>control</td>
+<td>step标志</td>
+</tr>
+</tbody></table>
+<p>👉 以<strong>串行 bit stream</strong>输出（你看到的 sdo）</p>
+<hr>
+<h2 id="4️⃣-ptp-td-sdi（广播-反序列化）"><a href="#4️⃣-ptp-td-sdi（广播-反序列化）" class="headerlink" title="4️⃣ ptp_td_sdi（广播 + 反序列化）"></a>4️⃣ ptp_td_sdi（广播 + 反序列化）</h2><p>在 <code>taxi_ptp_td_leaf</code>：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs verilog">ptp_td_sdi → shift_reg → td_tdata_reg<br></code></pre></td></tr></table></figure>
+
+<h3 id="做了三件事："><a href="#做了三件事：" class="headerlink" title="做了三件事："></a>做了三件事：</h3><hr>
+<h3 id="✔-①-串行-→-并行（Deserializer）"><a href="#✔-①-串行-→-并行（Deserializer）" class="headerlink" title="✔ ① 串行 → 并行（Deserializer）"></a>✔ ① 串行 → 并行（Deserializer）</h3><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs verilog">td_shift_reg &lt;= &#123;ptp_td_sdi, td_shift_reg[<span class="hljs-number">15</span>:<span class="hljs-number">1</span>]&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>每 16bit 拼成：</p>
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs autohotkey">td_tdat<span class="hljs-built_in">a_reg</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="✔-②-协议解析"><a href="#✔-②-协议解析" class="headerlink" title="✔ ② 协议解析"></a>✔ ② 协议解析</h3><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs verilog">td_tid_reg &lt;= &#123;td_msg, td_index&#125;<br></code></pre></td></tr></table></figure>
+
+<p>解析：</p>
+<table>
+<thead>
+<tr>
+<th>TID</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1~5</td>
+<td>ToD 时间</td>
+</tr>
+<tr>
+<td>6~8</td>
+<td>ns</td>
+</tr>
+<tr>
+<td>11~13</td>
+<td>period</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="✔-③-时间恢复"><a href="#✔-③-时间恢复" class="headerlink" title="✔ ③ 时间恢复"></a>✔ ③ 时间恢复</h3><p>恢复：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">src<span class="hljs-emphasis">_ns_reg</span><br><span class="hljs-emphasis">src_period_</span>reg<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="5️⃣-硬件-PI-Servo（关键）"><a href="#5️⃣-硬件-PI-Servo（关键）" class="headerlink" title="5️⃣ 硬件 PI Servo（关键）"></a>5️⃣ 硬件 PI Servo（关键）</h2><p>你代码里这一段：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// PI control</span><br>time_err_int_reg<br>period_ns_next<br></code></pre></td></tr></table></figure>
+
+<p>👉 作用：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">让本地 clk 收敛到 ptp_td_sdi 时间<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="三、完整数据流（系统级）"><a href="#三、完整数据流（系统级）" class="headerlink" title="三、完整数据流（系统级）"></a>三、完整数据流（系统级）</h1><p>给你一张工程图（重点）：</p>
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs nix">┌──────────────┐<br>│ LinuxPTP     │<br>│ (ptp4l)      │<br>└─────┬────────┘<br>      │ offset <span class="hljs-symbol">/</span> freq<br>      ▼<br>┌──────────────┐<br>│ Driver       │<br>│ (PHC接口)    │<br>└─────┬────────┘<br>      │ APB写寄存器<br>      ▼<br>┌──────────────┐<br>│ ptp_td_phc   │  ← 时间源<br>│ (Master)     │<br>└─────┬────────┘<br>      │ ptp_td_sdo<br>      ▼<br>┌──────────────┐<br>│ ptp_td_sdi   │  ← 时间分发总线<br>└─────┬────────┘<br>      ▼<br>┌──────────────┐<br>│ ptp_td_leaf  │  ← 每个模块<br>│ (PI同步)     │<br>└─────┬────────┘<br>      ▼<br>MAC <span class="hljs-symbol">/</span> TSU <span class="hljs-symbol">/</span> DMA <span class="hljs-symbol">/</span> NIC<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="四、关键理解（你必须掌握）"><a href="#四、关键理解（你必须掌握）" class="headerlink" title="四、关键理解（你必须掌握）"></a>四、关键理解（你必须掌握）</h1><h2 id="1️⃣-LinuxPTP-不直接控制-FPGA-时钟"><a href="#1️⃣-LinuxPTP-不直接控制-FPGA-时钟" class="headerlink" title="1️⃣ LinuxPTP 不直接控制 FPGA 时钟"></a>1️⃣ LinuxPTP 不直接控制 FPGA 时钟</h2><p>👉 它只做：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs applescript">计算 <span class="hljs-built_in">offset</span> + 频率<br></code></pre></td></tr></table></figure>
+
+<p>👉 真正执行的是：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade">FPGA 硬件 <span class="hljs-literal">PI</span> servo<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-ptp-td-sdi-≠-PTP-报文"><a href="#2️⃣-ptp-td-sdi-≠-PTP-报文" class="headerlink" title="2️⃣ ptp_td_sdi ≠ PTP 报文"></a>2️⃣ ptp_td_sdi ≠ PTP 报文</h2><p>👉 区别：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>PTP报文</th>
+<th>ptp_td_sdi</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>层级</td>
+<td>网络层</td>
+<td>FPGA内部</td>
+</tr>
+<tr>
+<td>内容</td>
+<td>Sync&#x2F;Delay</td>
+<td>时间流</td>
+</tr>
+<tr>
+<td>频率</td>
+<td>ms级</td>
+<td>cycle级</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="3️⃣-为什么这样设计？"><a href="#3️⃣-为什么这样设计？" class="headerlink" title="3️⃣ 为什么这样设计？"></a>3️⃣ 为什么这样设计？</h2><p>核心优势：</p>
+<h3 id="✔-极低延迟"><a href="#✔-极低延迟" class="headerlink" title="✔ 极低延迟"></a>✔ 极低延迟</h3><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs x86asm">不走<span class="hljs-meta">CPU</span><br>不走AXI<br>不走PCIe<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="✔-全局同步"><a href="#✔-全局同步" class="headerlink" title="✔ 全局同步"></a>✔ 全局同步</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">一个时间 → 全FPGA一致<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="✔-可扩展-TSN-x2F-TDMA"><a href="#✔-可扩展-TSN-x2F-TDMA" class="headerlink" title="✔ 可扩展 TSN &#x2F; TDMA"></a>✔ 可扩展 TSN &#x2F; TDMA</h3><p>👉 这也是 Taxi &#x2F; Corundum 强项</p>
+<hr>
+<h1 id="五、你这个设计的工程价值（重点）"><a href="#五、你这个设计的工程价值（重点）" class="headerlink" title="五、你这个设计的工程价值（重点）"></a>五、你这个设计的工程价值（重点）</h1><p>结合你背景（FPGA + 网络安全 + TSN）：</p>
+<p>这个架构可以直接扩展：</p>
+<hr>
+<h2 id="✔-1-TSN-Qbv"><a href="#✔-1-TSN-Qbv" class="headerlink" title="✔ 1. TSN Qbv"></a>✔ 1. TSN Qbv</h2><p>用：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">ptp_sync_ts_rel</span><br></code></pre></td></tr></table></figure>
+
+<p>做：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">时间窗口调度<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="✔-2-多端口时间一致-NIC"><a href="#✔-2-多端口时间一致-NIC" class="headerlink" title="✔ 2. 多端口时间一致 NIC"></a>✔ 2. 多端口时间一致 NIC</h2><p>多个 MAC：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">共享 ptp_td_sdi<br></code></pre></td></tr></table></figure>
+
+<p>→ 纳秒级同步</p>
+<hr>
+<h2 id="✔-3-硬件时间戳-NIC（你项目方向）"><a href="#✔-3-硬件时间戳-NIC（你项目方向）" class="headerlink" title="✔ 3. 硬件时间戳 NIC（你项目方向）"></a>✔ 3. 硬件时间戳 NIC（你项目方向）</h2><p>结合你：</p>
+<blockquote>
+<p>AI + 网络安全 FPGA</p>
+</blockquote>
+<p>可以做：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">时间 + 流量特征 + 安全检测<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="六、给你一个“本质一句话总结”"><a href="#六、给你一个“本质一句话总结”" class="headerlink" title="六、给你一个“本质一句话总结”"></a>六、给你一个“本质一句话总结”</h1><p>👉 整个系统可以用一句话概括：</p>
+<blockquote>
+<p>LinuxPTP 负责“算时间”，FPGA 负责“发时间”，ptp_td_sdi 负责“分时间”，硬件 PI 负责“锁时间”。</p>
+</blockquote>
+<hr>
+<h1 id="七、如果你要继续深入（建议方向）"><a href="#七、如果你要继续深入（建议方向）" class="headerlink" title="七、如果你要继续深入（建议方向）"></a>七、如果你要继续深入（建议方向）</h1><p>我建议你下一步可以继续问我：</p>
+<h3 id="👉-1-如何自己实现-ptp-td-sdi-协议（替代-taxi）"><a href="#👉-1-如何自己实现-ptp-td-sdi-协议（替代-taxi）" class="headerlink" title="👉 1. 如何自己实现 ptp_td_sdi 协议（替代 taxi）"></a>👉 1. 如何自己实现 ptp_td_sdi 协议（替代 taxi）</h3><h3 id="👉-2-如何把这个架构移植到-Zynq（PS-PL）"><a href="#👉-2-如何把这个架构移植到-Zynq（PS-PL）" class="headerlink" title="👉 2. 如何把这个架构移植到 Zynq（PS + PL）"></a>👉 2. 如何把这个架构移植到 Zynq（PS + PL）</h3><h3 id="👉-3-如何结合-TSN（Qbv-x2F-Qch-x2F-CQF）"><a href="#👉-3-如何结合-TSN（Qbv-x2F-Qch-x2F-CQF）" class="headerlink" title="👉 3. 如何结合 TSN（Qbv &#x2F; Qch &#x2F; CQF）"></a>👉 3. 如何结合 TSN（Qbv &#x2F; Qch &#x2F; CQF）</h3><h3 id="👉-4-如何做“完全脱离-LinuxPTP-的纯硬件-Grandmaster”"><a href="#👉-4-如何做“完全脱离-LinuxPTP-的纯硬件-Grandmaster”" class="headerlink" title="👉 4. 如何做“完全脱离 LinuxPTP 的纯硬件 Grandmaster”"></a>👉 4. 如何做“完全脱离 LinuxPTP 的纯硬件 Grandmaster”</h3><p>我可以帮你把它直接升级成：</p>
+<p>👉 <strong>军工级 TSN + PTP FPGA 网卡架构</strong></p>
+<p>下面把你关心的 <strong>LinuxPTP 的 offset &#x2F; 频率计算 + PI servo 原理</strong>，从“工程实现 + 数学本质 + FPGA可落地”三个层面讲清楚，尽量贴近你现在在做的 <strong>FPGA PTP &#x2F; ptp_td_sdi &#x2F; 硬件servo</strong> 场景。</p>
+<hr>
+<h1 id="一、先把核心问题说清楚"><a href="#一、先把核心问题说清楚" class="headerlink" title="一、先把核心问题说清楚"></a>一、先把核心问题说清楚</h1><p>LinuxPTP（如 <code>ptp4l</code>）本质做三件事：</p>
+<h3 id="1️⃣-算-offset（时间偏差）"><a href="#1️⃣-算-offset（时间偏差）" class="headerlink" title="1️⃣ 算 offset（时间偏差）"></a>1️⃣ 算 offset（时间偏差）</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">offset = 本地时钟 - 主时钟<br></code></pre></td></tr></table></figure>
+
+<h3 id="2️⃣-算-delay（链路时延）"><a href="#2️⃣-算-delay（链路时延）" class="headerlink" title="2️⃣ 算 delay（链路时延）"></a>2️⃣ 算 delay（链路时延）</h3><h3 id="3️⃣-用-servo-算法调整本地时钟："><a href="#3️⃣-用-servo-算法调整本地时钟：" class="headerlink" title="3️⃣ 用 servo 算法调整本地时钟："></a>3️⃣ 用 servo 算法调整本地时钟：</h3><ul>
+<li>调 phase（时间跳变 &#x2F; offset correction）</li>
+<li>调 frequency（频率微调）</li>
+</ul>
+<hr>
+<h1 id="二、PTP四步报文-→-offset计算（核心）"><a href="#二、PTP四步报文-→-offset计算（核心）" class="headerlink" title="二、PTP四步报文 → offset计算（核心）"></a>二、PTP四步报文 → offset计算（核心）</h1><p>以 <strong>2-step clock</strong> 为例：</p>
+<h2 id="报文时间戳"><a href="#报文时间戳" class="headerlink" title="报文时间戳"></a>报文时间戳</h2><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>t1</td>
+<td>master 发 Sync 时间</td>
+</tr>
+<tr>
+<td>t2</td>
+<td>slave 收 Sync 时间</td>
+</tr>
+<tr>
+<td>t3</td>
+<td>slave 发 Delay_Req</td>
+</tr>
+<tr>
+<td>t4</td>
+<td>master 收 Delay_Req</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="1️⃣-计算-delay"><a href="#1️⃣-计算-delay" class="headerlink" title="1️⃣ 计算 delay"></a>1️⃣ 计算 delay</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">delay = ((t2 - t1) + (t4 - t3)) / 2<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-计算-offset"><a href="#2️⃣-计算-offset" class="headerlink" title="2️⃣ 计算 offset"></a>2️⃣ 计算 offset</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">offset = (t2 - t1) - delay<br></code></pre></td></tr></table></figure>
+
+<p>👉 等价写法：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">offset = ((t2 - t1) - (t4 - t3)) / 2<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="直观理解"><a href="#直观理解" class="headerlink" title="直观理解"></a>直观理解</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">master -----&gt; slave<br>        t1      t2<br><br>slave -----&gt; master<br>        t3      t4<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>(t2 - t1)：包含 delay + offset</li>
+<li>(t4 - t3)：包含 delay - offset</li>
+</ul>
+<p>👉 一减就把 delay 抵消了</p>
+<hr>
+<h1 id="三、LinuxPTP-servo架构"><a href="#三、LinuxPTP-servo架构" class="headerlink" title="三、LinuxPTP servo架构"></a>三、LinuxPTP servo架构</h1><p>LinuxPTP 中核心模块：</p>
+<ul>
+<li><code>clock.c</code></li>
+<li><code>servo.c</code></li>
+<li><code>pi.c</code>（关键）</li>
+</ul>
+<hr>
+<h2 id="servo输入"><a href="#servo输入" class="headerlink" title="servo输入"></a>servo输入</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs text">输入：<br>    offset (ns)<br>    delay (ns)<br>    本地时间戳<br><br>输出：<br>    freq_adjust (ppb)<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="四、PI-Servo-原理（核心）"><a href="#四、PI-Servo-原理（核心）" class="headerlink" title="四、PI Servo 原理（核心）"></a>四、PI Servo 原理（核心）</h1><p>LinuxPTP 默认使用：</p>
+<p>👉 <strong>PI控制器（比例 + 积分）</strong></p>
+<hr>
+<h2 id="1️⃣-控制目标"><a href="#1️⃣-控制目标" class="headerlink" title="1️⃣ 控制目标"></a>1️⃣ 控制目标</h2><p>让：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">offset → 0<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-控制量"><a href="#2️⃣-控制量" class="headerlink" title="2️⃣ 控制量"></a>2️⃣ 控制量</h2><p>调节：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">clock frequency（频率）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3️⃣-PI公式"><a href="#3️⃣-PI公式" class="headerlink" title="3️⃣ PI公式"></a>3️⃣ PI公式</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">freq = Kp * offset + Ki * ∫offset dt<br></code></pre></td></tr></table></figure>
+
+<p>离散化后（LinuxPTP实际用）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">freq[n] = Kp * offset[n] + Ki * sum(offset)<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4️⃣-各项含义"><a href="#4️⃣-各项含义" class="headerlink" title="4️⃣ 各项含义"></a>4️⃣ 各项含义</h2><table>
+<thead>
+<tr>
+<th>项</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Kp</td>
+<td>快速响应</td>
+</tr>
+<tr>
+<td>Ki</td>
+<td>消除长期误差</td>
+</tr>
+<tr>
+<td>sum(offset)</td>
+<td>历史累计误差</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="五、LinuxPTP-实际实现细节（重点）"><a href="#五、LinuxPTP-实际实现细节（重点）" class="headerlink" title="五、LinuxPTP 实际实现细节（重点）"></a>五、LinuxPTP 实际实现细节（重点）</h1><p>在 <code>pi.c</code> 中核心逻辑：</p>
+<h2 id="1️⃣-第一阶段：初始同步（step）"><a href="#1️⃣-第一阶段：初始同步（step）" class="headerlink" title="1️⃣ 第一阶段：初始同步（step）"></a>1️⃣ 第一阶段：初始同步（step）</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (<span class="hljs-built_in">abs</span>(offset) &gt; step_threshold)<br>    step_clock(offset);<br></code></pre></td></tr></table></figure>
+
+<p>👉 大误差直接跳时间（避免慢慢调）</p>
+<hr>
+<h2 id="2️⃣-稳定后进入-PI-模式"><a href="#2️⃣-稳定后进入-PI-模式" class="headerlink" title="2️⃣ 稳定后进入 PI 模式"></a>2️⃣ 稳定后进入 PI 模式</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">ppb = Kp * offset + Ki * drift;<br>drift += offset;<br></code></pre></td></tr></table></figure>
+
+<p>👉 这里：</p>
+<ul>
+<li><code>ppb</code>：频率调整（parts per billion）</li>
+<li><code>drift</code>：积分项</li>
+</ul>
+<hr>
+<h2 id="3️⃣-限幅（非常关键）"><a href="#3️⃣-限幅（非常关键）" class="headerlink" title="3️⃣ 限幅（非常关键）"></a>3️⃣ 限幅（非常关键）</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">ppb = clamp(ppb, -max, +max);<br></code></pre></td></tr></table></figure>
+
+<p>👉 防止震荡 &#x2F; 发散</p>
+<hr>
+<h2 id="4️⃣-低通滤波（实际有）"><a href="#4️⃣-低通滤波（实际有）" class="headerlink" title="4️⃣ 低通滤波（实际有）"></a>4️⃣ 低通滤波（实际有）</h2><p>LinuxPTP 会对 offset 做滤波：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">filtered_offset = α * new + (1-α) * old<br></code></pre></td></tr></table></figure>
+
+<p>👉 抗 jitter</p>
+<hr>
+<h1 id="六、频率调节本质（关键理解）"><a href="#六、频率调节本质（关键理解）" class="headerlink" title="六、频率调节本质（关键理解）"></a>六、频率调节本质（关键理解）</h1><p>你 FPGA 很重要的一点👇</p>
+<hr>
+<h2 id="时钟模型"><a href="#时钟模型" class="headerlink" title="时钟模型"></a>时钟模型</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">T_local = T_real * (1 + ε)<br></code></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li>ε &#x3D; frequency error</li>
+</ul>
+<hr>
+<h2 id="PI-servo做的事："><a href="#PI-servo做的事：" class="headerlink" title="PI servo做的事："></a>PI servo做的事：</h2><p>调整 ε，使：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">d(offset)/dt → 0<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="换句话说："><a href="#换句话说：" class="headerlink" title="换句话说："></a>换句话说：</h2><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>offset correction</td>
+<td>修正当前时间</td>
+</tr>
+<tr>
+<td>frequency correction</td>
+<td>修正未来时间</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="七、LinuxPTP-→-硬件映射（你最关心）"><a href="#七、LinuxPTP-→-硬件映射（你最关心）" class="headerlink" title="七、LinuxPTP → 硬件映射（你最关心）"></a>七、LinuxPTP → 硬件映射（你最关心）</h1><p>你现在有：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">LinuxPTP → ptp_td_sdi → FPGA PHC<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="1️⃣-LinuxPTP输出"><a href="#1️⃣-LinuxPTP输出" class="headerlink" title="1️⃣ LinuxPTP输出"></a>1️⃣ LinuxPTP输出</h2><p>通过：</p>
+<ul>
+<li><code>clock_adjtime()</code></li>
+<li><code>adjtimex()</code></li>
+</ul>
+<p>给 NIC：</p>
+<h3 id="两类控制："><a href="#两类控制：" class="headerlink" title="两类控制："></a>两类控制：</h3><h4 id="A-step（时间跳变）"><a href="#A-step（时间跳变）" class="headerlink" title="A. step（时间跳变）"></a>A. step（时间跳变）</h4><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">settimeofday()<br></code></pre></td></tr></table></figure>
+
+<p>👉 对应 FPGA：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs verilog">input_ts_tod_valid<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="B-frequency（频率调节）"><a href="#B-frequency（频率调节）" class="headerlink" title="B. frequency（频率调节）"></a>B. frequency（频率调节）</h4><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">adjfine / adjfreq<br></code></pre></td></tr></table></figure>
+
+<p>👉 对应 FPGA：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs verilog">input_period_ns<br>input_period_fns<br></code></pre></td></tr></table></figure>
+
+<p>或：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs verilog">drift compensation<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-转成-ptp-td-sdi"><a href="#2️⃣-转成-ptp-td-sdi" class="headerlink" title="2️⃣ 转成 ptp_td_sdi"></a>2️⃣ 转成 ptp_td_sdi</h2><p>在你的架构中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs text">LinuxPTP<br>   ↓<br>PHC（软件）<br>   ↓<br>FPGA PHC（taxi_ptp_td_phc）<br>   ↓<br>ptp_td_sdo<br>   ↓<br>ptp_td_sdi（广播）<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="八、ptp-td-sdi里承载的本质信息"><a href="#八、ptp-td-sdi里承载的本质信息" class="headerlink" title="八、ptp_td_sdi里承载的本质信息"></a>八、ptp_td_sdi里承载的本质信息</h1><p>其实只有三类：</p>
+<hr>
+<h2 id="1️⃣-当前时间"><a href="#1️⃣-当前时间" class="headerlink" title="1️⃣ 当前时间"></a>1️⃣ 当前时间</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">ToD timestamp<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-步进标志"><a href="#2️⃣-步进标志" class="headerlink" title="2️⃣ 步进标志"></a>2️⃣ 步进标志</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">ts_step<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3️⃣-频率信息（隐含）"><a href="#3️⃣-频率信息（隐含）" class="headerlink" title="3️⃣ 频率信息（隐含）"></a>3️⃣ 频率信息（隐含）</h2><p>通过：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">period_ns + period_fns<br></code></pre></td></tr></table></figure>
+
+<p>👉 等价：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">freq adjustment<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="九、用一句话总结-PI-servo"><a href="#九、用一句话总结-PI-servo" class="headerlink" title="九、用一句话总结 PI servo"></a>九、用一句话总结 PI servo</h1><p>👉 LinuxPTP 本质在做：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">用 offset 推导 frequency correction，让未来不再产生 offset<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="十、结合你FPGA设计的关键建议（非常重要）"><a href="#十、结合你FPGA设计的关键建议（非常重要）" class="headerlink" title="十、结合你FPGA设计的关键建议（非常重要）"></a>十、结合你FPGA设计的关键建议（非常重要）</h1><p>如果你要做 <strong>硬件 servo（比 LinuxPTP 强10倍）</strong>：</p>
+<hr>
+<h2 id="1️⃣-把-PI-搬进-FPGA"><a href="#1️⃣-把-PI-搬进-FPGA" class="headerlink" title="1️⃣ 把 PI 搬进 FPGA"></a>1️⃣ 把 PI 搬进 FPGA</h2><p>直接实现：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs verilog">freq = Kp * offset + Ki * integral<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-offset来源"><a href="#2️⃣-offset来源" class="headerlink" title="2️⃣ offset来源"></a>2️⃣ offset来源</h2><p>来自：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">硬件 timestamp pipeline<br></code></pre></td></tr></table></figure>
+
+<p>而不是 Linux</p>
+<hr>
+<h2 id="3️⃣-优势"><a href="#3️⃣-优势" class="headerlink" title="3️⃣ 优势"></a>3️⃣ 优势</h2><table>
+<thead>
+<tr>
+<th>软件PI</th>
+<th>硬件PI</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ms级</td>
+<td>ns级</td>
+</tr>
+<tr>
+<td>jitter大</td>
+<td>jitter极低</td>
+</tr>
+<tr>
+<td>非实时</td>
+<td>完全实时</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="4️⃣-可进阶"><a href="#4️⃣-可进阶" class="headerlink" title="4️⃣ 可进阶"></a>4️⃣ 可进阶</h2><ul>
+<li>Kalman Filter（更高级）</li>
+<li>Hybrid servo（CPU + FPGA）</li>
+</ul>
+<hr>
+<h1 id="十一、总结（核心理解）"><a href="#十一、总结（核心理解）" class="headerlink" title="十一、总结（核心理解）"></a>十一、总结（核心理解）</h1><h3 id="LinuxPTP本质："><a href="#LinuxPTP本质：" class="headerlink" title="LinuxPTP本质："></a>LinuxPTP本质：</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">PTP报文 → 算 offset → PI servo → 调频率 → 消除offset<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="关键公式："><a href="#关键公式：" class="headerlink" title="关键公式："></a>关键公式：</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">offset = ((t2 - t1) - (t4 - t3)) / 2<br>freq = Kp * offset + Ki * ∑offset<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="硬件对应："><a href="#硬件对应：" class="headerlink" title="硬件对应："></a>硬件对应：</h3><table>
+<thead>
+<tr>
+<th>LinuxPTP</th>
+<th>FPGA</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>offset</td>
+<td>timestamp差</td>
+</tr>
+<tr>
+<td>freq</td>
+<td>period_ns&#x2F;fns</td>
+</tr>
+<tr>
+<td>step</td>
+<td>ts_tod_valid</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="如果你下一步想深入（建议）"><a href="#如果你下一步想深入（建议）" class="headerlink" title="如果你下一步想深入（建议）"></a>如果你下一步想深入（建议）</h1><p>可以继续往这几个方向走（我可以帮你直接出RTL级方案）：</p>
+<ol>
+<li><strong>FPGA实现 PI servo（Verilog版）</strong></li>
+<li><strong>ptp_td_sdi协议反向解析（bit级）</strong></li>
+<li><strong>硬件 timestamp → offset计算 pipeline</strong></li>
+<li><strong>亚纳秒级 TSN &#x2F; gPTP servo设计</strong></li>
+</ol>
+<p>直接说你要哪一块，我可以给你做到“可上板”的级别。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/FPGA/" class="category-chain-item">FPGA</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/FPGA/taxi/" class="category-chain-item">taxi</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ptp处理逻辑</div>
+      <div>http://witbit.cn/FPGA/taxi/ptp处理逻辑.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>朝彻</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年3月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/FPGA/taxi/ps%E6%9B%BF%E4%BB%A3pcie%E6%96%B9%E6%A1%88.html" title="ps替代pcie方案">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">ps替代pcie方案</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/FPGA/taxi/cndm_micro_pcie_us%E4%BB%A3%E7%A0%81%E6%9E%B6%E6%9E%84%E5%92%8C%E5%8A%9F%E8%83%BD.html" title="cndm_micro_pcie_us代码架构和功能">
+                        <span class="hidden-mobile">cndm_micro_pcie_us代码架构和功能</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

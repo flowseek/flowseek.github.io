@@ -16,56 +16,56 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f415482">
-  <meta name="author" content="dnsnat">
+  <meta name="author" content="朝彻">
   <meta name="keywords" content="">
   
     <meta name="description" content="有个小朋友对我说：他对人工智能特别感兴趣，小时候就特别喜欢看《终结者》《机械公敌》等电影，但是他始终不明白： 为什么机器能像人类一样思考呢？">
 <meta property="og:type" content="article">
 <meta property="og:title" content="人工智能（一）机器学习和神经网络">
-<meta property="og:url" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C.html">
-<meta property="og:site_name" content="DNSNAT">
+<meta property="og:url" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C.html">
+<meta property="og:site_name" content="WITBIT">
 <meta property="og:description" content="有个小朋友对我说：他对人工智能特别感兴趣，小时候就特别喜欢看《终结者》《机械公敌》等电影，但是他始终不明白： 为什么机器能像人类一样思考呢？">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F16857824j00r19gig0007c0008f004mm.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F13d1694cj00r19gig0023c000m800etm.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F406bc76ej00r19gig002ac000le00sgm.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F976ca335j00r19gig000lc000fj00h2m.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F1f609797j00r19gig000ic000ff008om.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F1769e9b3j00r19gig001pc000u000gwm.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F0d754d9bj00r19gig003nc000u000nrm.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fee48bbc4j00r19gig001cc000u0009qm.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fcd849486j00r19gig002bc000rs00imm.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F1cf1455cj00r19gig000wc000hi00bnm.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/8ef46f39g00r19gih00lhc000dc006ym.gif">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fdf900475j00r19iec0045d000oe00n9p.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F7fb46461j00r19gig0016c000r500gym.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F74d71967j00r19gig000mc000nj00azm.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F9e7f7099j00r19ih7003rd000ne00ikp.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F6414fe5fj00r19gig001fc000j800arm.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F5ed2de80j00r19ijv001cd000l000bpp.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F487830b8j00r19gig0017c000lb00d3m.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F3c4ba144j00r19gig0021c000rf00igm.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F4d36ccbfj00r19gig000jc000ji00e0m.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fda2c1bf3j00r19im9002dd000or00l5p.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fffa01cdbj00r19gig000ec000ax00aym.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Ff554e340j00r19inr000cd000f1006tp.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Feef6b895j00r19gig0015c000e40098m.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F3c9a69a3j00r19gig001bc000j60077m.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F7298491fj00r19gig001xc000u000dsm.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fe552c4d9j00r19gig000ac000h70085m.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fe29ebd6bj00r19gig000ec000h500dum.jpeg">
-<meta property="og:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F0a2951dbj00r19gig000mc000om00d6m.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F16857824j00r19gig0007c0008f004mm.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F13d1694cj00r19gig0023c000m800etm.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F406bc76ej00r19gig002ac000le00sgm.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F976ca335j00r19gig000lc000fj00h2m.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F1f609797j00r19gig000ic000ff008om.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F1769e9b3j00r19gig001pc000u000gwm.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F0d754d9bj00r19gig003nc000u000nrm.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fee48bbc4j00r19gig001cc000u0009qm.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fcd849486j00r19gig002bc000rs00imm.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F1cf1455cj00r19gig000wc000hi00bnm.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/8ef46f39g00r19gih00lhc000dc006ym.gif">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fdf900475j00r19iec0045d000oe00n9p.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F7fb46461j00r19gig0016c000r500gym.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F74d71967j00r19gig000mc000nj00azm.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F9e7f7099j00r19ih7003rd000ne00ikp.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F6414fe5fj00r19gig001fc000j800arm.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F5ed2de80j00r19ijv001cd000l000bpp.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F487830b8j00r19gig0017c000lb00d3m.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F3c4ba144j00r19gig0021c000rf00igm.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F4d36ccbfj00r19gig000jc000ji00e0m.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fda2c1bf3j00r19im9002dd000or00l5p.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fffa01cdbj00r19gig000ec000ax00aym.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Ff554e340j00r19inr000cd000f1006tp.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Feef6b895j00r19gig0015c000e40098m.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F3c9a69a3j00r19gig001bc000j60077m.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F7298491fj00r19gig001xc000u000dsm.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fe552c4d9j00r19gig000ac000h70085m.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2Fe29ebd6bj00r19gig000ec000h500dum.jpeg">
+<meta property="og:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F0a2951dbj00r19gig000mc000om00d6m.jpeg">
 <meta property="article:published_time" content="2025-02-13T05:53:20.522Z">
 <meta property="article:modified_time" content="2025-02-13T05:53:20.522Z">
-<meta property="article:author" content="dnsnat">
+<meta property="article:author" content="朝彻">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://blog.uanet.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F16857824j00r19gig0007c0008f004mm.jpeg">
+<meta name="twitter:image" content="http://witbit.cn/AI/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%EF%BC%88%E4%B8%80%EF%BC%89%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%92%8C%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/2F16857824j00r19gig0007c0008f004mm.jpeg">
   
   
   
     <link rel="stylesheet" href="/css/mycss.css">
   
-  <title>人工智能（一）机器学习和神经网络 - DNSNAT</title>
+  <title>人工智能（一）机器学习和神经网络 - WITBIT</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -107,7 +107,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -133,7 +133,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
 </head>
 
 
@@ -147,7 +147,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>阵源阿威</strong>
+      <strong>WitBit</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -204,18 +204,6 @@
               <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
                 <span>课程</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
-                <i class="iconfont icon-link-fill"></i>
-                <span>官网</span>
               </a>
             </li>
           
@@ -479,13 +467,13 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>人工智能（一）机器学习和神经网络</div>
-      <div>http://blog.uanet.cn/AI/人工智能（一）机器学习和神经网络.html</div>
+      <div>http://witbit.cn/AI/人工智能（一）机器学习和神经网络.html</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>dnsnat</div>
+          <div>朝彻</div>
         </div>
       
       

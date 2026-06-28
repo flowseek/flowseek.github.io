@@ -16,32 +16,32 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f415482">
-  <meta name="author" content="dnsnat">
+  <meta name="author" content="朝彻">
   <meta name="keywords" content="">
   
     <meta name="description" content="（1）定义顾名思义，就是FPGA语句的延迟问题。在这里，有三种赋值方式：连续赋值、阻塞赋值、非阻塞赋值；有两种延迟方式：正规延迟、内定延迟。两者相乘则共有6种方式延迟。 （2）延迟种类2.1 连续赋值2.1.1 正规延迟1）代码 assign #5 C &#x3D; A +B。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Verilog仿真延时方法">
-<meta property="og:url" content="http://blog.uanet.cn/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95.html">
-<meta property="og:site_name" content="DNSNAT">
+<meta property="og:url" content="http://witbit.cn/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95.html">
+<meta property="og:site_name" content="WITBIT">
 <meta property="og:description" content="（1）定义顾名思义，就是FPGA语句的延迟问题。在这里，有三种赋值方式：连续赋值、阻塞赋值、非阻塞赋值；有两种延迟方式：正规延迟、内定延迟。两者相乘则共有6种方式延迟。 （2）延迟种类2.1 连续赋值2.1.1 正规延迟1）代码 assign #5 C &#x3D; A +B。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95/2bee011d097b21267b6505ddf9a418d9.png">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95/c9276a788e8bd52b6f051edfcb3ef93c.png">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95/6e2d801a1ebb1f74f83374b673e6a1a3.png">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95/9becdfd07c07b69244d4edb19679c4c3.png">
-<meta property="og:image" content="http://blog.uanet.cn/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95/46c254ecb398d5aaafe7b29dd14bb5da.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95/2bee011d097b21267b6505ddf9a418d9.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95/c9276a788e8bd52b6f051edfcb3ef93c.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95/6e2d801a1ebb1f74f83374b673e6a1a3.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95/9becdfd07c07b69244d4edb19679c4c3.png">
+<meta property="og:image" content="http://witbit.cn/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95/46c254ecb398d5aaafe7b29dd14bb5da.png">
 <meta property="article:published_time" content="2025-02-13T05:53:20.752Z">
 <meta property="article:modified_time" content="2025-02-13T05:53:20.752Z">
-<meta property="article:author" content="dnsnat">
+<meta property="article:author" content="朝彻">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://blog.uanet.cn/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95/2bee011d097b21267b6505ddf9a418d9.png">
+<meta name="twitter:image" content="http://witbit.cn/FPGA/Verilog%E4%BB%BF%E7%9C%9F%E5%BB%B6%E6%97%B6%E6%96%B9%E6%B3%95/2bee011d097b21267b6505ddf9a418d9.png">
   
   
   
     <link rel="stylesheet" href="/css/mycss.css">
   
-  <title>Verilog仿真延时方法 - DNSNAT</title>
+  <title>Verilog仿真延时方法 - WITBIT</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -83,7 +83,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -109,7 +109,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
 </head>
 
 
@@ -123,7 +123,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>阵源阿威</strong>
+      <strong>WitBit</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -180,18 +180,6 @@
               <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
                 <span>课程</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
-                <i class="iconfont icon-link-fill"></i>
-                <span>官网</span>
               </a>
             </li>
           
@@ -407,13 +395,13 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>Verilog仿真延时方法</div>
-      <div>http://blog.uanet.cn/FPGA/Verilog仿真延时方法.html</div>
+      <div>http://witbit.cn/FPGA/Verilog仿真延时方法.html</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>dnsnat</div>
+          <div>朝彻</div>
         </div>
       
       

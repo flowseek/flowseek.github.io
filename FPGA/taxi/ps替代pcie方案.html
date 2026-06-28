@@ -1,0 +1,1027 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="朝彻">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="可以改，但要明确一句话： 👉 Zynq7020 替代 PCIe 不是“接口替换”，而是“整套数据通路重构” 你现在这段 PCIe 代码，本质是一个 Endpoint 设备接口，而 Zynq7020 是 SoC（PS+PL）架构，改法如下👇">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ps替代pcie方案">
+<meta property="og:url" content="http://witbit.cn/FPGA/taxi/ps%E6%9B%BF%E4%BB%A3pcie%E6%96%B9%E6%A1%88.html">
+<meta property="og:site_name" content="WITBIT">
+<meta property="og:description" content="可以改，但要明确一句话： 👉 Zynq7020 替代 PCIe 不是“接口替换”，而是“整套数据通路重构” 你现在这段 PCIe 代码，本质是一个 Endpoint 设备接口，而 Zynq7020 是 SoC（PS+PL）架构，改法如下👇">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-23T01:56:53.501Z">
+<meta property="article:modified_time" content="2026-03-23T03:05:26.819Z">
+<meta property="article:author" content="朝彻">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>ps替代pcie方案 - WITBIT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WitBit</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ps替代pcie方案"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-03-23 09:56" pubdate>
+          2026年3月23日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          650 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          6 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">ps替代pcie方案</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>可以改，但要明确一句话：</p>
+<p>👉 <strong>Zynq7020 替代 PCIe 不是“接口替换”，而是“整套数据通路重构”</strong></p>
+<p>你现在这段 PCIe 代码，本质是一个 <strong>Endpoint 设备接口</strong>，而 Zynq7020 是 <strong>SoC（PS+PL）架构</strong>，改法如下👇</p>
+<hr>
+<h1 id="一、整体架构替换（核心）"><a href="#一、整体架构替换（核心）" class="headerlink" title="一、整体架构替换（核心）"></a>一、整体架构替换（核心）</h1><h2 id="❌-你现在（PCIe-架构）"><a href="#❌-你现在（PCIe-架构）" class="headerlink" title="❌ 你现在（PCIe 架构）"></a>❌ 你现在（PCIe 架构）</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">FPGA(PL) → PCIe → x86 内存 → 应用<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="✅-改成-Zynq7020"><a href="#✅-改成-Zynq7020" class="headerlink" title="✅ 改成 Zynq7020"></a>✅ 改成 Zynq7020</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">FPGA(PL) → AXI DMA → PS DDR → ARM(Linux)<br></code></pre></td></tr></table></figure>
+
+<p>👉 PCIe 整条链路 <strong>全部消失</strong></p>
+<hr>
+<h1 id="二、你这段-PCIe-代码怎么处理"><a href="#二、你这段-PCIe-代码怎么处理" class="headerlink" title="二、你这段 PCIe 代码怎么处理"></a>二、你这段 PCIe 代码怎么处理</h1><h2 id="❌-整块删除"><a href="#❌-整块删除" class="headerlink" title="❌ 整块删除"></a>❌ 整块删除</h2><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs verilog">pcie4_uscale_plus_0 pcie4_uscale_plus_inst ( ... );<br></code></pre></td></tr></table></figure>
+
+<p>👉 包括：</p>
+<ul>
+<li>RQ &#x2F; RC &#x2F; CQ &#x2F; CC 全部 AXIS接口</li>
+<li>cfg_* 配置</li>
+<li>MSI 中断</li>
+<li>flow control</li>
+</ul>
+<hr>
+<h1 id="三、替代模块（必须新增）"><a href="#三、替代模块（必须新增）" class="headerlink" title="三、替代模块（必须新增）"></a>三、替代模块（必须新增）</h1><h2 id="1️⃣-AXI-DMA（核心）"><a href="#1️⃣-AXI-DMA（核心）" class="headerlink" title="1️⃣ AXI DMA（核心）"></a>1️⃣ AXI DMA（核心）</h2><h3 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h3><p>👉 替代 PCIe DMA</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">PL → AXI DMA → PS DDR<br>PS DDR → AXI DMA → PL<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Vivado-连接"><a href="#Vivado-连接" class="headerlink" title="Vivado 连接"></a>Vivado 连接</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs text">[PL logic]<br>     │ AXIS<br>     ▼<br>[AXI DMA]<br>     │ AXI-MM<br>     ▼<br>[PS DDR]<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="两种模式建议"><a href="#两种模式建议" class="headerlink" title="两种模式建议"></a>两种模式建议</h3><table>
+<thead>
+<tr>
+<th>模式</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Simple DMA</td>
+<td>简单搬运</td>
+</tr>
+<tr>
+<td>SG DMA</td>
+<td>⭐推荐（高性能）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="2️⃣-AXI-Lite（寄存器控制）"><a href="#2️⃣-AXI-Lite（寄存器控制）" class="headerlink" title="2️⃣ AXI Lite（寄存器控制）"></a>2️⃣ AXI Lite（寄存器控制）</h2><p>👉 替代 PCIe BAR</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">PS → AXI Lite → FPGA寄存器<br></code></pre></td></tr></table></figure>
+
+<p>你原来 PCIe：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">.m_axis_cq  // host访问BAR<br></code></pre></td></tr></table></figure>
+
+<p>👉 现在变成：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-keyword">reg</span> [<span class="hljs-number">31</span>:<span class="hljs-number">0</span>] ctrl_reg;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3️⃣-中断（IRQ）"><a href="#3️⃣-中断（IRQ）" class="headerlink" title="3️⃣ 中断（IRQ）"></a>3️⃣ 中断（IRQ）</h2><p>👉 替代 MSI</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">FPGA → IRQ → PS<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="四、对应关系（最关键）"><a href="#四、对应关系（最关键）" class="headerlink" title="四、对应关系（最关键）"></a>四、对应关系（最关键）</h1><table>
+<thead>
+<tr>
+<th>PCIe</th>
+<th>Zynq7020</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PCIe IP</td>
+<td>❌删除</td>
+</tr>
+<tr>
+<td>RQ (发请求)</td>
+<td>AXI Master &#x2F; DMA</td>
+</tr>
+<tr>
+<td>RC (完成)</td>
+<td>AXI返回</td>
+</tr>
+<tr>
+<td>CQ (host访问)</td>
+<td>AXI Lite</td>
+</tr>
+<tr>
+<td>CC (completion)</td>
+<td>AXI Lite响应</td>
+</tr>
+<tr>
+<td>MSI</td>
+<td>IRQ</td>
+</tr>
+<tr>
+<td>BAR</td>
+<td>AXI寄存器</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="五、推荐最小系统结构（直接能跑）"><a href="#五、推荐最小系统结构（直接能跑）" class="headerlink" title="五、推荐最小系统结构（直接能跑）"></a>五、推荐最小系统结构（直接能跑）</h1><h2 id="Vivado-Block-Design："><a href="#Vivado-Block-Design：" class="headerlink" title="Vivado Block Design："></a>Vivado Block Design：</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs text">[ZYNQ7 PS]<br>   │<br>   ├── AXI HP0  ← DMA数据<br>   │<br>   ├── AXI GP0  → 控制寄存器<br>   │<br>   └── IRQ_F2P  ← 中断<br><br>        ▲<br>        │<br>   [AXI DMA]<br>        ▲<br>        │ AXIS<br>        ▼<br>   [你的FPGA逻辑]<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="六、你原来-PCIe-设计要改哪些地方"><a href="#六、你原来-PCIe-设计要改哪些地方" class="headerlink" title="六、你原来 PCIe 设计要改哪些地方"></a>六、你原来 PCIe 设计要改哪些地方</h1><h2 id="1️⃣-数据接口改造"><a href="#1️⃣-数据接口改造" class="headerlink" title="1️⃣ 数据接口改造"></a>1️⃣ 数据接口改造</h2><p>原来：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs verilog">axis_pcie_rq<br>axis_pcie_rc<br></code></pre></td></tr></table></figure>
+
+<p>👉 改成：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">// 输出数据给DMA</span><br>m_axis_tdata<br>m_axis_tvalid<br>m_axis_tready<br><br><span class="hljs-comment">// 输入数据</span><br>s_axis_tdata<br>s_axis_tvalid<br>s_axis_tready<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2️⃣-去掉-TLP-概念"><a href="#2️⃣-去掉-TLP-概念" class="headerlink" title="2️⃣ 去掉 TLP 概念"></a>2️⃣ 去掉 TLP 概念</h2><p>你现在：</p>
+<ul>
+<li>TLP</li>
+<li>tag</li>
+<li>completion</li>
+</ul>
+<p>👉 全部不要了</p>
+<p>变成：</p>
+<p>👉 <strong>纯数据流（packet &#x2F; stream）</strong></p>
+<hr>
+<h2 id="3️⃣-地址体系改变"><a href="#3️⃣-地址体系改变" class="headerlink" title="3️⃣ 地址体系改变"></a>3️⃣ 地址体系改变</h2><p>原来：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">PCIe地址（host内存）<br></code></pre></td></tr></table></figure>
+
+<p>现在：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">PS DDR 地址<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="七、性能现实（必须接受）"><a href="#七、性能现实（必须接受）" class="headerlink" title="七、性能现实（必须接受）"></a>七、性能现实（必须接受）</h1><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>PCIe</th>
+<th>Zynq7020</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>带宽</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>CPU</td>
+<td>x86</td>
+<td>ARM A9</td>
+</tr>
+<tr>
+<td>适合</td>
+<td>加速卡</td>
+<td>嵌入式</td>
+</tr>
+</tbody></table>
+<p>👉 Zynq7020 ≈ <strong>1~2 Gbps级别系统</strong></p>
+<hr>
+<h1 id="八、结合你项目（重点建议）"><a href="#八、结合你项目（重点建议）" class="headerlink" title="八、结合你项目（重点建议）"></a>八、结合你项目（重点建议）</h1><p>你在做：</p>
+<ul>
+<li>多口 RGMII</li>
+<li>AI 流量识别</li>
+<li>安全系统</li>
+</ul>
+<hr>
+<h2 id="✅-最优架构（Zynq7020版）"><a href="#✅-最优架构（Zynq7020版）" class="headerlink" title="✅ 最优架构（Zynq7020版）"></a>✅ 最优架构（Zynq7020版）</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs text">PHY → FPGA:<br>        - 包解析<br>        - ACL<br>        - AI识别<br>        - 过滤<br>     ↓<br>   AXI DMA<br>     ↓<br>PS:<br>   - 日志<br>   - 控制<br>   - Web/UI<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="❗关键原则"><a href="#❗关键原则" class="headerlink" title="❗关键原则"></a>❗关键原则</h2><p>👉 <strong>不要让 PS 参与数据面</strong></p>
+<p>错误：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">数据 → PS → 再处理<br></code></pre></td></tr></table></figure>
+
+<p>正确：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">数据 → FPGA处理 → PS只看结果<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="九、你下一步最关键的3件事"><a href="#九、你下一步最关键的3件事" class="headerlink" title="九、你下一步最关键的3件事"></a>九、你下一步最关键的3件事</h1><h2 id="1️⃣-搭-Block-Design"><a href="#1️⃣-搭-Block-Design" class="headerlink" title="1️⃣ 搭 Block Design"></a>1️⃣ 搭 Block Design</h2><ul>
+<li>ZYNQ7 + AXI DMA + HP口</li>
+</ul>
+<hr>
+<h2 id="2️⃣-改-FPGA-接口"><a href="#2️⃣-改-FPGA-接口" class="headerlink" title="2️⃣ 改 FPGA 接口"></a>2️⃣ 改 FPGA 接口</h2><ul>
+<li>PCIe AXIS → 标准 AXIS</li>
+</ul>
+<hr>
+<h2 id="3️⃣-上-Linux（Petalinux）"><a href="#3️⃣-上-Linux（Petalinux）" class="headerlink" title="3️⃣ 上 Linux（Petalinux）"></a>3️⃣ 上 Linux（Petalinux）</h2><ul>
+<li>驱动 AXI DMA</li>
+<li>mmap 控制寄存器</li>
+</ul>
+<hr>
+<h1 id="十、总结一句话"><a href="#十、总结一句话" class="headerlink" title="十、总结一句话"></a>十、总结一句话</h1><p>👉 <strong>Zynq7020 替代 PCIe &#x3D;</strong></p>
+<ul>
+<li>❌ 删 PCIe IP</li>
+<li>✅ 上 AXI DMA + AXI Lite</li>
+<li>✅ 数据走 DDR</li>
+<li>✅ 控制走寄存器</li>
+</ul>
+<hr>
+<h1 id="如果你要继续深入（建议）"><a href="#如果你要继续深入（建议）" class="headerlink" title="如果你要继续深入（建议）"></a>如果你要继续深入（建议）</h1><p>我可以帮你直接给：</p>
+<p>✅ 一套 <strong>Zynq7020 完整工程模板</strong></p>
+<ul>
+<li>Vivado Block Design</li>
+<li>AXI DMA 接线</li>
+<li>Verilog 模块模板</li>
+<li>Linux DMA 驱动 demo</li>
+</ul>
+<p>或者：</p>
+<p>✅ 把你当前 PCIe 工程<br>👉 <strong>一步一步改成 Zynq 可运行版本（带代码级修改）</strong></p>
+<p>你现在这一步，本质是在做一个<strong>产品形态切换（加速卡 → 嵌入式设备）</strong>，方向是对的，但架构必须一次改对。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/FPGA/" class="category-chain-item">FPGA</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/FPGA/taxi/" class="category-chain-item">taxi</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ps替代pcie方案</div>
+      <div>http://witbit.cn/FPGA/taxi/ps替代pcie方案.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>朝彻</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年3月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/FPGA/taxi/PCIE_DMA%E6%B5%81%E7%A8%8B.html" title="PCIE_DMA流程">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">PCIE_DMA流程</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/FPGA/taxi/ptp%E5%A4%84%E7%90%86%E9%80%BB%E8%BE%91.html" title="ptp处理逻辑">
+                        <span class="hidden-mobile">ptp处理逻辑</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

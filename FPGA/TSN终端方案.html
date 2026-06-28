@@ -1,0 +1,1090 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="朝彻">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="接下来，我们通过三个具体的终端TSN应用架构方案，把前面的理论“落地”。这些方案覆盖了工业边缘网关、车载中央计算和超高精度运动控制三个典型场景，你可以直观看到不同精度要求下硬件与软件是如何分工协作的。 每个方案都会围绕架构图（文字描述）、硬件组件、软件栈、时钟同步与门控实现来展开。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TSN终端方案">
+<meta property="og:url" content="http://witbit.cn/FPGA/TSN%E7%BB%88%E7%AB%AF%E6%96%B9%E6%A1%88.html">
+<meta property="og:site_name" content="WITBIT">
+<meta property="og:description" content="接下来，我们通过三个具体的终端TSN应用架构方案，把前面的理论“落地”。这些方案覆盖了工业边缘网关、车载中央计算和超高精度运动控制三个典型场景，你可以直观看到不同精度要求下硬件与软件是如何分工协作的。 每个方案都会围绕架构图（文字描述）、硬件组件、软件栈、时钟同步与门控实现来展开。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-04-27T04:39:05.413Z">
+<meta property="article:modified_time" content="2026-04-27T06:07:06.249Z">
+<meta property="article:author" content="朝彻">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>TSN终端方案 - WITBIT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WitBit</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="TSN终端方案"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-04-27 12:39" pubdate>
+          2026年4月27日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          3.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          27 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">TSN终端方案</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>接下来，我们通过三个具体的终端TSN应用架构方案，把前面的理论“落地”。这些方案覆盖了<strong>工业边缘网关</strong>、<strong>车载中央计算</strong>和<strong>超高精度运动控制</strong>三个典型场景，你可以直观看到不同精度要求下硬件与软件是如何分工协作的。</p>
+<p>每个方案都会围绕架构图（文字描述）、硬件组件、软件栈、时钟同步与门控实现来展开。</p>
+<hr>
+<h3 id="方案一：基于-x86-Intel-I225-的工业PC-x2F-测试终端"><a href="#方案一：基于-x86-Intel-I225-的工业PC-x2F-测试终端" class="headerlink" title="方案一：基于 x86 + Intel I225 的工业PC&#x2F;测试终端"></a>方案一：基于 x86 + Intel I225 的工业PC&#x2F;测试终端</h3><p><strong>适用场景</strong>：工业视觉质检工控机、TSN网络测试诊断工具、产线数据采集网关。<br><strong>核心目标</strong>：在标准PC硬件上，以最低成本和最小改动获得 <strong>亚微秒级时间同步</strong> 和 <strong>微秒级确定性发送</strong> 能力。</p>
+<h4 id="架构组成"><a href="#架构组成" class="headerlink" title="架构组成"></a>架构组成</h4><figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs nix">┌─────────────────────────────────────────────────────┐<br>│  应用层 (Python<span class="hljs-operator">/</span>C<span class="hljs-operator">++</span>)                                 │<br>│  ┌───────────────┐  ┌────────────────────┐          │<br>│  │ OPC UA PubSub │  │ gPTP 管理 &amp; 监控   │          │<br>│  └───────┬───────┘  └────────┬───────────┘          │<br>├──────────┼──────────────────┼───────────────────────┤<br>│  内核空间  │                  │                       │<br>│  ┌───────▼───────┐  ┌───────▼───────────┐          │<br>│  │ TAPRIO qdisc  │  │ ptp4l <span class="hljs-symbol">/</span> phc2sys  │          │<br>│  │ (tc 配置)      │  │ (同步算法)       │          │<br>│  └───────┬───────┘  └───────┬───────────┘          │<br>├──────────┼──────────────────┼───────────────────────┤<br>│  硬件    │                  │                       │<br>│  ┌───────▼──────────────────▼───────────┐          │<br>│  │   Intel I225<span class="hljs-symbol">/I226</span> 网卡               │          │<br>│  │  ✓ 硬件 PTP 时间戳 (PHC)             │          │<br>│  │  ✓ 多队列 <span class="hljs-operator">+</span> 硬件 TAPRIO 卸载         │          │<br>│  └──────────────────────────────────────┘          │<br>└─────────────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>硬件</strong>：普通x86工控机 + <strong>Intel I225&#x2F;I226</strong> 以太网控制器。该网卡集成了PTP硬件时钟(PHC)和硬件时间戳，并支持通过Linux TAPRIO qdisc卸载门控调度表到硬件。</li>
+<li><strong>操作系统</strong>：标准Linux (推荐PREEMPT_RT内核，但非强制)。</li>
+<li><strong>TSN软件栈</strong>：<ul>
+<li><strong>时间同步</strong>：<code>linuxptp</code>套件。<code>ptp4l</code> 利用硬件时间戳与网络Grandmaster同步，<code>phc2sys</code> 将网卡PHC的精确时间同步给系统时钟，使 <code>clock_gettime</code> 返回TSN时间。</li>
+<li><strong>门控调度</strong>：使用 <code>tc taprio</code> 下发门控列表(GCL)。例如，为周期性关键数据所在队列设置固定的开门时隙，硬件会严格按照时隙发送，不受CPU负载影响。</li>
+</ul>
+</li>
+<li><strong>典型数据流</strong>：OPC UA PubSub 应用通过 UDP 发送数据，套接字绑定特定优先级(SO_PRIORITY)，经TAPRIO映射到受门控保护的硬件队列。</li>
+</ul>
+<h4 id="优势与限制"><a href="#优势与限制" class="headerlink" title="优势与限制"></a>优势与限制</h4><ul>
+<li><strong>优势</strong>：商用现货(COTS)硬件，软件生态成熟，开发成本极低，非常适合搭建TSN测试床和通用数据采集。</li>
+<li><strong>限制</strong>：中断延迟和CPU调度抖动依然存在，很难实现<strong>低于100微秒周期的硬实时控制</strong>；更适合周期在1ms以上的软实时数据传输。</li>
+</ul>
+<hr>
+<h3 id="方案二：基于-ARM-SoC-如TI-AM62x-的实时工业协议网关"><a href="#方案二：基于-ARM-SoC-如TI-AM62x-的实时工业协议网关" class="headerlink" title="方案二：基于 ARM SoC (如TI AM62x) 的实时工业协议网关"></a>方案二：基于 ARM SoC (如TI AM62x) 的实时工业协议网关</h3><p><strong>适用场景</strong>：PROFINET&#x2F;EtherCAT 到 TSN 的协议转换器，边缘智能控制器。<br><strong>核心目标</strong>：在单芯片上同时运行Linux和RTOS，实现 <strong>异构核间的TSN时间共享</strong>，为实时工业协议提供确定的网络接入。</p>
+<h4 id="架构组成-1"><a href="#架构组成-1" class="headerlink" title="架构组成"></a>架构组成</h4><figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs scss">┌──────────────────────────────────────────────────────────┐<br>│  Cortex-A53 (Linux)                Cortex-R5F (RTOS/裸机) │<br>│  ┌──────────────────┐             ┌──────────────────┐   │<br>│  │ 管理面：NETCONF, │   IPC共享   │ 实时应用：       │   │<br>│  │ OPC UA, 云端连接 │◄───────────►│ PROFINET 协议栈  │   │<br>│  └────────┬─────────┘  时间、配置 └────────┬─────────┘   │<br>│           │                                │              │<br>├───────────┼────────────────────────────────┼──────────────┤<br>│  内核     │                                │              │<br>│  ┌───────▼────────┐                       │              │<br>│  │ Linux ptp4l    │                       │              │<br>│  │ phc2sys        │                       │              │<br>│  └───────┬────────┘                       │              │<br>├──────────┼────────────────────────────────┼──────────────┤<br>│  硬件    │                                │              │<br>│  ┌───────▼────────────────────────────────▼──────────┐   │<br>│  │  TI AM62x SoC 集成 CPSW (Common Platform Switch)  │   │<br>│  │  - <span class="hljs-number">3</span>端口 TSN 交换机内核 (带 PHC)                    │   │<br>│  │  - 硬件 TAS (时间感知整形, Qbv)                     │   │<br>│  │  - 帧抢占 (<span class="hljs-number">802.1</span>Qbu)                               │   │<br>│  │  - 硬件时间戳 (所有端口)                            │   │<br>│  └────────────────────────────────────────────────────┘   │<br>└──────────────────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>硬件平台</strong>：TI AM62x (Sitara) 系列，其内部集成的CPSW以太网子系统本身就是一个小型TSN交换机，具备完整的硬件卸载能力。</li>
+<li><strong>异构核心的时间协同</strong>：这是该方案的精髓。SoC上的**所有处理器核心（A核与R核）共享同一个PTP硬件时钟(PHC)**。这意味着：<ul>
+<li>Linux通过<code>phc2sys</code>将系统时间对齐到该PHC。</li>
+<li>RTOS可以直接读取PHC寄存器获取高精度TSN时间，从而为PROFINET RT&#x2F;IRT报文打上精确时间戳，或按照TSN门控时刻精准发送。</li>
+</ul>
+</li>
+<li><strong>实时协议通过TSN传输</strong>：R5F核运行的实时协议栈将数据帧发送到CPSW交换机出口队列，该队列受硬件TAS门控控制。例如，为PROFINET IRT数据流配置一个每31.25µs周期的专用开门时隙，确保其在网络上获得绝对的确定性传输。</li>
+</ul>
+<h4 id="优势与限制-1"><a href="#优势与限制-1" class="headerlink" title="优势与限制"></a>优势与限制</h4><ul>
+<li><strong>优势</strong>：单芯片融合IT(管理)与OT(实时控制)，硬件集成度高，功耗低。CPSW硬件直接提供纳秒级交换和门控，确定性极强。</li>
+<li><strong>限制</strong>：依赖特定SoC平台，开发涉及异构核间通信，门槛较高。</li>
+</ul>
+<hr>
+<h3 id="方案三：基于-FPGA-Zynq-的极致确定性机器人与运动控制器"><a href="#方案三：基于-FPGA-Zynq-的极致确定性机器人与运动控制器" class="headerlink" title="方案三：基于 FPGA (Zynq) 的极致确定性机器人与运动控制器"></a>方案三：基于 FPGA (Zynq) 的极致确定性机器人与运动控制器</h3><p><strong>适用场景</strong>：多轴机器人同步控制、CNC数控系统、高速数据采集卡。<br><strong>核心目标</strong>：实现 <strong>亚微秒级的绝对时间同步</strong> 和 <strong>抖动低于100纳秒的确定性发送</strong>，并支持自定义的实时协议。</p>
+<h4 id="架构组成-2"><a href="#架构组成-2" class="headerlink" title="架构组成"></a>架构组成</h4><figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs nix">┌────────────────────────────────────────────────────────────┐<br>│  处理器系统 PS (ARM Cortex-A <span class="hljs-symbol">/</span> R)                          │<br>│  ┌──────────────────────────┐                             │<br>│  │  Linux <span class="hljs-symbol">/</span> 裸机软件         │                             │<br>│  │  <span class="hljs-operator">-</span> 运动控制算法           │                             │<br>│  │  <span class="hljs-operator">-</span> 门控列表(GCL)配置      │                             │<br>│  │  <span class="hljs-operator">-</span> gPTP 协议栈管理        │                             │<br>│  └──────────┬───────────────┘                             │<br>├─────────────┼─────────────────────────────────────────────┤<br>│  可编程逻辑 PL (FPGA)       │ AXI 总线                    │<br>│  ┌──────────▼───────────────────────────────────────────┐ │<br>│  │  自定义 TSN 端点 IP 核                                │ │<br>│  │  ┌────────────┐  ┌──────────┐  ┌─────────────────┐ │ │<br>│  │  │ 硬件 PTP   │  │ 时间感知 │  │ 高精度 PWM <span class="hljs-symbol">/</span> IO │ │ │<br>│  │  │ 时间戳单元 │  │ 整形器   │  │ 控制信号生成    │ │ │<br>│  │  │ (<span class="hljs-number">802.1</span>AS)  │  │ (<span class="hljs-number">802.1</span>Qbv)│  │ (直接驱动机器人)│ │ │<br>│  │  └────────────┘  └──────────┘  └─────────────────┘ │ │<br>│  │  ┌────────────────────────────────────────────────┐ │ │<br>│  │  │   自定义实时协议 MAC (如 极简 EtherCAT 风格)   │ │ │<br>│  │  └────────────────────────────────────────────────┘ │ │<br>│  └───────────────────────────────────────────────────────┘ │<br>└────────────────────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>硬件平台</strong>：Xilinx Zynq-7000&#x2F;Zynq UltraScale+ 系列。PS运行控制逻辑和协议管理，PL实现全硬件TSN数据通路。</li>
+<li><strong>同步与节拍</strong>：PL中的PTP硬件单元计算出极高的同步精度（常见&lt;100ns）。这个精确的TSN时间不仅用于网络收发，<strong>还通过PL直接生成PWM信号，作为伺服驱动器或电机控制的硬件同步时钟</strong>，消除了软件中断延迟带来的抖动，实现真正的硬实时同步。</li>
+<li><strong>门控与自定义协议</strong>：硬件时间感知整形器直接根据配置的门控列表（从PS写入）对队列进行纳秒级精度的开关控制。此外，你可以直接在PL中构建专用的实时总线MAC（如优化的EtherCAT从站IP核），让其数据帧直接通过TSN门控队列发送，形成“<strong>TSN + 传统工业协议</strong>”或“<strong>全新自定义实时TSN协议</strong>”的高度融合。</li>
+</ul>
+<h4 id="优势与限制-2"><a href="#优势与限制-2" class="headerlink" title="优势与限制"></a>优势与限制</h4><ul>
+<li><strong>优势</strong>：确定性无可匹敌（纳秒级抖动），协议和功能完全可定制，是前沿TSN应用（如TSN Fusion平台）的理想原型和部署平台。</li>
+<li><strong>限制</strong>：硬件开发(Verilog&#x2F;VHDL)工作量大，成本较高，适合高端、小批量、极致性能要求的场合。</li>
+</ul>
+<hr>
+<h3 id="方案速查与选择指南"><a href="#方案速查与选择指南" class="headerlink" title="方案速查与选择指南"></a>方案速查与选择指南</h3><table>
+<thead>
+<tr>
+<th align="left">方案</th>
+<th align="left">硬件核心</th>
+<th align="left">同步精度</th>
+<th align="left">门控确定性</th>
+<th align="left">优势</th>
+<th align="left">典型场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>工业PC终端</strong></td>
+<td align="left">Intel I225 网卡</td>
+<td align="left">亚微秒级</td>
+<td align="left">微秒级（~10µs）</td>
+<td align="left">COTS低成本，软件生态好</td>
+<td align="left">视觉工控机、测试工具</td>
+</tr>
+<tr>
+<td align="left"><strong>实时协议网关</strong></td>
+<td align="left">TI AM62x CPSW</td>
+<td align="left">纳秒级</td>
+<td align="left">微秒级（~1µs）</td>
+<td align="left">单芯片IT&#x2F;OT融合，硬件卸载</td>
+<td align="left">工业边缘网关、控制器</td>
+</tr>
+<tr>
+<td align="left"><strong>极致运动控制</strong></td>
+<td align="left">Zynq FPGA PL</td>
+<td align="left">亚百纳秒级</td>
+<td align="left">亚微秒级（&lt;100ns）</td>
+<td align="left">完全定制，纳秒级抖动</td>
+<td align="left">机器人、CNC、高速同步</td>
+</tr>
+</tbody></table>
+<p>如果你愿意分享具体的应用领域（比如是工厂自动化、车载视频还是电网同步）以及大概的周期要求，我们可以针对性地调整上面的某个方案，细化到具体的配置和软件选型。</p>
+<p>需要注意的是，你提到的“tsnse”很可能是**驱动<code>tsnep</code>**的拼写误差，它本身就是为支持硬件TSN卸载（Offload）而设计的。</p>
+<p>当前提供支持并将其作为设计核心的项目主要有以下三个，它们各有侧重：</p>
+<h3 id="📝-支持-TSN-x2F-TAPRIO-卸载的-FPGA-开源项目"><a href="#📝-支持-TSN-x2F-TAPRIO-卸载的-FPGA-开源项目" class="headerlink" title="📝 支持 TSN&#x2F;TAPRIO 卸载的 FPGA 开源项目"></a>📝 支持 TSN&#x2F;TAPRIO 卸载的 FPGA 开源项目</h3><ul>
+<li><strong>OpenTSN</strong>：由国防科技大学FAST团队开发，是一个完整的TSN网络集成验证环境。它基于“FAST”架构，将门控调度（802.1Qbv）等TSN功能<strong>全卸载（Full Offload）到网卡FPGA硬件</strong>，实现与主机计算平台的解耦。非常适合希望快速搭建完整TSN验证网络、或在学术上研究调度规划的开发者。</li>
+<li><strong>Xilinx TSN Endpoint (Xilinx_tsn_ep)<strong>：Xilinx (AMD) 官方提供的IP及参考驱动，已集成在 <code>linux-xlnx</code> 内核中。该驱动通过标准<code>tc taprio</code>命令将配置下发给硬件门控列表(GCL)，并利用硬件PTP时钟 (802.1AS) 确保调度与全局时间精准同步。这是目前</strong>生产就绪度最高、文档丰富</strong>且开箱即用的选择。</li>
+<li><strong>TSN Endpoint Ethernet MAC (tsnep)<strong>：由工程师Gerhard Engleder主导的独立开源项目，其硬件IP核心实现了一个用于实时通信的FPGA端点MAC。项目最核心的价值是提供了</strong>已合入Linux内核主线</strong>（<code>drivers/net/ethernet/engleder/tsnep*.c</code>）的驱动程序，直接通过<code>TC_SETUP_QDISC_TAPRIO</code>回调实现任务卸载，非常适合需要高度可控、独立研究或定制的场景。</li>
+</ul>
+<hr>
+<p>其中，<code>tsnep</code> 驱动目前是唯一一个已进入Linux内核主线、开箱即支持TAPRIO硬件卸载的方案。你更倾向于基于它做二次开发，还是研究其与OpenTSN等架构的调度机制差异？</p>
+<p>你提到的这三样东西其实正好组成一条<strong>工业确定性通信链路</strong>：</p>
+<ul>
+<li>OPC UA PubSub → 数据模型 + 发布机制</li>
+<li>TAPRIO qdisc → Linux 侧时间调度</li>
+<li>Intel I225 &#x2F; Intel I226 → 支持 TSN 的网卡硬件</li>
+</ul>
+<p>本质上是在做一件事：</p>
+<p>👉 <strong>把 OPC UA PubSub 变成“可确定延迟”的工业实时通信（TSN）</strong></p>
+<hr>
+<h1 id="一、整体架构（先建立全局理解）"><a href="#一、整体架构（先建立全局理解）" class="headerlink" title="一、整体架构（先建立全局理解）"></a>一、整体架构（先建立全局理解）</h1><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">OPC UA PubSub<br>    ↓<br>UDP / Ethernet<br>    ↓<br>Linux 网络栈<br>    ↓<br>TAPRIO (时间调度)<br>    ↓<br>I225/I226 (硬件队列 + 时间门控)<br>    ↓<br>TSN 网络<br></code></pre></td></tr></table></figure>
+
+<p>👉 目标：</p>
+<ul>
+<li>不只是“能发”</li>
+<li>而是<strong>什么时候发、延迟多少、是否抖动 → 全可控</strong></li>
+</ul>
+<hr>
+<h1 id="二、OPC-UA-PubSub-在这里的角色"><a href="#二、OPC-UA-PubSub-在这里的角色" class="headerlink" title="二、OPC UA PubSub 在这里的角色"></a>二、OPC UA PubSub 在这里的角色</h1><p>PubSub 做的事情：</p>
+<ul>
+<li>定义数据（DataSet）</li>
+<li>定义发布周期（Publishing Interval）</li>
+<li>封装成 NetworkMessage</li>
+<li>通过 UDP 或 Ethernet 发送</li>
+</ul>
+<p>👉 问题：</p>
+<p>❌ PubSub 本身 <strong>不保证实时性</strong><br>❌ 只定义“逻辑周期”，不控制链路调度</p>
+<hr>
+<h1 id="三、TAPRIO-qdisc-是核心（软件侧-TSN）"><a href="#三、TAPRIO-qdisc-是核心（软件侧-TSN）" class="headerlink" title="三、TAPRIO qdisc 是核心（软件侧 TSN）"></a>三、TAPRIO qdisc 是核心（软件侧 TSN）</h1><p>TAPRIO qdisc 是 Linux 的：</p>
+<p>👉 <strong>Time-Aware Shaper（IEEE 802.1Qbv）实现</strong></p>
+<hr>
+<h2 id="1-它解决什么问题？"><a href="#1-它解决什么问题？" class="headerlink" title="1. 它解决什么问题？"></a>1. 它解决什么问题？</h2><p>普通 Linux 网络：</p>
+<ul>
+<li>FIFO &#x2F; 优先级调度</li>
+<li>无时间控制</li>
+<li>抖动大</li>
+</ul>
+<p>TAPRIO：</p>
+<p>✅ 按时间窗口发送<br>✅ 控制每个队列“什么时候可以发”<br>✅ 实现 deterministic latency</p>
+<hr>
+<h2 id="2-工作机制（关键理解）"><a href="#2-工作机制（关键理解）" class="headerlink" title="2. 工作机制（关键理解）"></a>2. 工作机制（关键理解）</h2><p>网卡有多个 TX Queue：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">Queue 0 → Best Effort<br>Queue 1 → Control<br>Queue 2 → TSN Critical<br></code></pre></td></tr></table></figure>
+
+<p>TAPRIO 定义：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs text">时间轴：<br><br>|----A----|----B----|----C----|<br><br>A：只允许 Queue2（实时数据）<br>B：允许 Queue1<br>C：允许 Queue0<br></code></pre></td></tr></table></figure>
+
+<p>👉 这就是“时间门控（Gate Control List, GCL）”</p>
+<hr>
+<h2 id="3-示例配置"><a href="#3-示例配置" class="headerlink" title="3. 示例配置"></a>3. 示例配置</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">tc qdisc replace dev eth0 parent root taprio \<br>num_tc 3 \<br>map 0 1 2 2 2 2 2 2 \<br>queues 1@0 1@1 1@2 \<br>base-time 0 \<br>sched-entry S 0x4 300000 \<br>sched-entry S 0x2 300000 \<br>sched-entry S 0x1 400000 \<br>clockid CLOCK_TAI<br></code></pre></td></tr></table></figure>
+
+<p>解释：</p>
+<ul>
+<li><code>0x4</code> → 开 Queue2（TSN）</li>
+<li><code>300000 ns</code> → 300μs 时间窗</li>
+<li>周期 &#x3D; 1ms</li>
+</ul>
+<p>👉 你可以把：</p>
+<ul>
+<li>OPC UA PubSub 数据 → 放到 Queue2</li>
+<li>普通流量 → Queue0</li>
+</ul>
+<hr>
+<h1 id="四、Intel-I225-x2F-I226-的作用（硬件关键）"><a href="#四、Intel-I225-x2F-I226-的作用（硬件关键）" class="headerlink" title="四、Intel I225 &#x2F; I226 的作用（硬件关键）"></a>四、Intel I225 &#x2F; I226 的作用（硬件关键）</h1><p>这两颗网卡：</p>
+<ul>
+<li>Intel I225</li>
+<li>Intel I226</li>
+</ul>
+<p>👉 是少数支持 TSN 的商用 NIC</p>
+<hr>
+<h2 id="支持能力："><a href="#支持能力：" class="headerlink" title="支持能力："></a>支持能力：</h2><h3 id="1️⃣-多队列-TX"><a href="#1️⃣-多队列-TX" class="headerlink" title="1️⃣ 多队列 TX"></a>1️⃣ 多队列 TX</h3><ul>
+<li>8 个 TX Queue</li>
+<li>和 TAPRIO 对应</li>
+</ul>
+<hr>
+<h3 id="2️⃣-硬件时间戳"><a href="#2️⃣-硬件时间戳" class="headerlink" title="2️⃣ 硬件时间戳"></a>2️⃣ 硬件时间戳</h3><p>支持：</p>
+<ul>
+<li>IEEE 1588</li>
+</ul>
+<p>👉 用于：</p>
+<ul>
+<li>时间同步（PTP）</li>
+<li>TAPRIO 精确调度</li>
+</ul>
+<hr>
+<h3 id="3️⃣-Gate-Control（部分-offload）"><a href="#3️⃣-Gate-Control（部分-offload）" class="headerlink" title="3️⃣ Gate Control（部分 offload）"></a>3️⃣ Gate Control（部分 offload）</h3><ul>
+<li>支持 Qbv offload（部分）</li>
+<li>减少 CPU jitter</li>
+</ul>
+<hr>
+<h2 id="为什么必须用这类网卡？"><a href="#为什么必须用这类网卡？" class="headerlink" title="为什么必须用这类网卡？"></a>为什么必须用这类网卡？</h2><p>否则：</p>
+<p>❌ TAPRIO 只是软件调度<br>❌ 无法保证精度（μs级）</p>
+<hr>
+<h1 id="五、三者如何协同（核心重点）"><a href="#五、三者如何协同（核心重点）" class="headerlink" title="五、三者如何协同（核心重点）"></a>五、三者如何协同（核心重点）</h1><h2 id="1-数据流绑定"><a href="#1-数据流绑定" class="headerlink" title="1. 数据流绑定"></a>1. 数据流绑定</h2><p>你要做的不是普通发送，而是：</p>
+<p>👉 <strong>把 PubSub 数据绑定到 TSN 队列</strong></p>
+<p>方法：</p>
+<h3 id="使用-SO-PRIORITY-x2F-VLAN-PCP"><a href="#使用-SO-PRIORITY-x2F-VLAN-PCP" class="headerlink" title="使用 SO_PRIORITY &#x2F; VLAN PCP"></a>使用 SO_PRIORITY &#x2F; VLAN PCP</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">setsockopt(sock, SOL_SOCKET, SO_PRIORITY, ...)<br></code></pre></td></tr></table></figure>
+
+<p>或：</p>
+<ul>
+<li>VLAN tag → PCP &#x3D; 5~7（高优先级）</li>
+</ul>
+<hr>
+<h2 id="2-映射关系"><a href="#2-映射关系" class="headerlink" title="2. 映射关系"></a>2. 映射关系</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs text">PubSub (AI/控制数据)<br>        ↓<br>SO_PRIORITY = 6<br>        ↓<br>TC 映射 → Queue2<br>        ↓<br>TAPRIO → 时间窗 A<br>        ↓<br>I225 → 精确发出<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3-时间同步（必须）"><a href="#3-时间同步（必须）" class="headerlink" title="3. 时间同步（必须）"></a>3. 时间同步（必须）</h2><p>使用：</p>
+<ul>
+<li>IEEE 1588</li>
+</ul>
+<p>工具：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">ptp4l -i eth0 -m<br>phc2sys -s CLOCK_REALTIME -c eth0<br></code></pre></td></tr></table></figure>
+
+<p>👉 没有这个：</p>
+<p>❌ TAPRIO 全部失效（时间不一致）</p>
+<hr>
+<h1 id="六、OPC-UA-PubSub-TSN（工业级形态）"><a href="#六、OPC-UA-PubSub-TSN（工业级形态）" class="headerlink" title="六、OPC UA PubSub + TSN（工业级形态）"></a>六、OPC UA PubSub + TSN（工业级形态）</h1><p>标准组合：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">OPC UA PubSub over Ethernet (UADP)<br>        +<br>IEEE 802.1Qbv (TAPRIO)<br>        +<br>IEEE 1588 (PTP)<br></code></pre></td></tr></table></figure>
+
+<p>👉 形成：</p>
+<p><strong>OPC UA FX（Field eXchange）架构</strong></p>
+<hr>
+<h1 id="七、结合你的FPGA能力（重点建议）"><a href="#七、结合你的FPGA能力（重点建议）" class="headerlink" title="七、结合你的FPGA能力（重点建议）"></a>七、结合你的FPGA能力（重点建议）</h1><p>你可以做一个非常有价值的系统：</p>
+<hr>
+<h2 id="方案1：FPGA-TSN-OPC-UA-节点"><a href="#方案1：FPGA-TSN-OPC-UA-节点" class="headerlink" title="方案1：FPGA TSN + OPC UA 节点"></a>方案1：FPGA TSN + OPC UA 节点</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs text">FPGA:<br>  - TSN Gate Control<br>  - 报文调度<br>  - AI检测<br><br>ARM:<br>  - PubSub (open62541)<br><br>NIC:<br>  - I225/I226<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="方案2：工业实时安全网关（强烈推荐）"><a href="#方案2：工业实时安全网关（强烈推荐）" class="headerlink" title="方案2：工业实时安全网关（强烈推荐）"></a>方案2：工业实时安全网关（强烈推荐）</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs text">输入：<br>  工业流量（Ethernet）<br><br>FPGA：<br>  AI检测 + 分类<br><br>输出：<br>  OPC UA PubSub（实时）<br>  + TSN调度<br></code></pre></td></tr></table></figure>
+
+<p>👉 卖点：</p>
+<ul>
+<li>“确定性 + 安全”</li>
+<li>很少公司能做</li>
+</ul>
+<hr>
+<h2 id="方案3：替代-PLC-通信扩展"><a href="#方案3：替代-PLC-通信扩展" class="headerlink" title="方案3：替代 PLC 通信扩展"></a>方案3：替代 PLC 通信扩展</h2><ul>
+<li>PLC → 非实时</li>
+<li>你的设备 → TSN + PubSub</li>
+</ul>
+<p>👉 提升：</p>
+<ul>
+<li>抖动从 ms → μs</li>
+</ul>
+<hr>
+<h1 id="八、工程落地关键坑（经验级）"><a href="#八、工程落地关键坑（经验级）" class="headerlink" title="八、工程落地关键坑（经验级）"></a>八、工程落地关键坑（经验级）</h1><h2 id="1-TAPRIO-vs-NIC-驱动"><a href="#1-TAPRIO-vs-NIC-驱动" class="headerlink" title="1. TAPRIO vs NIC 驱动"></a>1. TAPRIO vs NIC 驱动</h2><ul>
+<li>需要驱动支持：<ul>
+<li><code>igc</code>（I225&#x2F;I226）</li>
+</ul>
+</li>
+<li>某些 kernel 才支持完整 offload</li>
+</ul>
+<hr>
+<h2 id="2-时钟源"><a href="#2-时钟源" class="headerlink" title="2. 时钟源"></a>2. 时钟源</h2><p>必须统一：</p>
+<ul>
+<li>CLOCK_TAI</li>
+<li>NIC PHC</li>
+</ul>
+<hr>
+<h2 id="3-缓冲区问题"><a href="#3-缓冲区问题" class="headerlink" title="3. 缓冲区问题"></a>3. 缓冲区问题</h2><p>如果：</p>
+<ul>
+<li>队列太小 → 丢包</li>
+<li>太大 → 延迟漂移</li>
+</ul>
+<hr>
+<h2 id="4-PubSub周期-vs-GCL周期"><a href="#4-PubSub周期-vs-GCL周期" class="headerlink" title="4. PubSub周期 vs GCL周期"></a>4. PubSub周期 vs GCL周期</h2><p>必须对齐：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">PubSub: 1ms<br>TAPRIO: 1ms周期<br></code></pre></td></tr></table></figure>
+
+<p>否则：</p>
+<p>❌ 数据错过窗口<br>❌ 延迟不可预测</p>
+<hr>
+<h1 id="九、总结（核心一句话）"><a href="#九、总结（核心一句话）" class="headerlink" title="九、总结（核心一句话）"></a>九、总结（核心一句话）</h1><p>这三者组合的本质是：</p>
+<p>👉 <strong>把 OPC UA PubSub 从“普通工业通信”升级为“确定性实时通信（TSN）”</strong></p>
+<hr>
+<h1 id="如果你要更进一步（我建议）"><a href="#如果你要更进一步（我建议）" class="headerlink" title="如果你要更进一步（我建议）"></a>如果你要更进一步（我建议）</h1><p>我可以直接帮你做：</p>
+<h3 id="✔-完整-Demo（可卖项目）"><a href="#✔-完整-Demo（可卖项目）" class="headerlink" title="✔ 完整 Demo（可卖项目）"></a>✔ 完整 Demo（可卖项目）</h3><ul>
+<li>Zynq + open62541</li>
+<li>TAPRIO 配置脚本</li>
+<li>I225 实测参数</li>
+<li>FPGA AI输出 → PubSub</li>
+</ul>
+<h3 id="✔-FPGA侧增强"><a href="#✔-FPGA侧增强" class="headerlink" title="✔ FPGA侧增强"></a>✔ FPGA侧增强</h3><ul>
+<li>TSN硬件调度器（替代 TAPRIO）</li>
+<li>PubSub UADP 硬件封装</li>
+</ul>
+<p>👉 这个方向是你目前背景下<strong>最有竞争力的工业产品路线之一</strong></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/FPGA/" class="category-chain-item">FPGA</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>TSN终端方案</div>
+      <div>http://witbit.cn/FPGA/TSN终端方案.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>朝彻</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年4月27日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/FPGA/taxi/TAXI%E4%B8%8B%E4%B8%80%E4%BB%A3%20Corundum%20%E6%99%BA%E8%83%BD%E7%BD%91%E5%8D%A1.html" title="TAXI下一代 Corundum 智能网卡">
+                        <span class="hidden-mobile">TAXI下一代 Corundum 智能网卡</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,1070 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f415482">
+  <meta name="author" content="朝彻">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="下面我严格基于《Multiple Sound Sources Localization from Coarse to Fine》这篇论文，把 Multi-Source Sound Localization（多声源定位） 的核心实现原理拆到“能自己复现”的粒度，然后一步一步讲它如何与 ODAS 结合，最后再讲 进一步接入 AVSegFormer 后，在能力与功能层面能带来哪些“质变式提升”。 我会按">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多声源定位与ODAS结合再讲接入AVSegFormer">
+<meta property="og:url" content="http://witbit.cn/AI/%E5%A4%9A%E5%A3%B0%E6%BA%90%E5%AE%9A%E4%BD%8D%E4%B8%8EODAS%E7%BB%93%E5%90%88%E5%86%8D%E8%AE%B2%E6%8E%A5%E5%85%A5AVSegFormer.html">
+<meta property="og:site_name" content="WITBIT">
+<meta property="og:description" content="下面我严格基于《Multiple Sound Sources Localization from Coarse to Fine》这篇论文，把 Multi-Source Sound Localization（多声源定位） 的核心实现原理拆到“能自己复现”的粒度，然后一步一步讲它如何与 ODAS 结合，最后再讲 进一步接入 AVSegFormer 后，在能力与功能层面能带来哪些“质变式提升”。 我会按">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-12-14T03:21:01.968Z">
+<meta property="article:modified_time" content="2025-12-14T03:22:23.948Z">
+<meta property="article:author" content="朝彻">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+    <link rel="stylesheet" href="/css/mycss.css">
+  
+  <title>多声源定位与ODAS结合再讲接入AVSegFormer - WITBIT</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>WitBit</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/%E8%A7%86%E9%A2%91%E8%AF%BE%E7%A8%8B/FIREWALL-GATEWAY/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>课程</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/image/20231109152419169951465961145.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="多声源定位与ODAS结合再讲接入AVSegFormer"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-12-14 11:21" pubdate>
+          2025年12月14日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          14 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">多声源定位与ODAS结合再讲接入AVSegFormer</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>下面我<strong>严格基于《Multiple Sound Sources Localization from Coarse to Fine》这篇论文</strong>，把 <strong>Multi-Source Sound Localization（多声源定位）</strong> 的<strong>核心实现原理拆到“能自己复现”的粒度</strong>，然后<strong>一步一步讲它如何与 ODAS 结合</strong>，最后再讲 <strong>进一步接入 AVSegFormer 后，在能力与功能层面能带来哪些“质变式提升”</strong>。</p>
+<p>我会按你工程背景（DSP &#x2F; 系统 &#x2F; 可落地）来讲，而不是论文式“空泛总结”。</p>
+<hr>
+<h1 id="一、Multi-Source-Sound-Localization-的本质问题是什么？"><a href="#一、Multi-Source-Sound-Localization-的本质问题是什么？" class="headerlink" title="一、Multi-Source Sound Localization 的本质问题是什么？"></a>一、Multi-Source Sound Localization 的本质问题是什么？</h1><p>一句话概括：</p>
+<blockquote>
+<p><strong>在一个混合音频 + 复杂画面中，同时找到“每一种声音 → 它对应的视觉对象在哪”</strong></p>
+</blockquote>
+<p>核心难点有 3 个：</p>
+<ol>
+<li><strong>音频是混合的（单通道）</strong></li>
+<li><strong>视频里对象很多，但不是每个都在发声</strong></li>
+<li><strong>没有“声音 ↔ 具体物体”的一对一标注</strong></li>
+</ol>
+<p>这篇论文解决的不是“DOA”，而是：</p>
+<blockquote>
+<p><strong>“语义级别的多声源视觉定位”</strong></p>
+</blockquote>
+<p>也就是：</p>
+<ul>
+<li>不是“声音来自左前 30°”</li>
+<li>而是“枪声 → 枪”，“人声 → 人”，“流水声 → 河流”</li>
+</ul>
+<hr>
+<h1 id="二、论文的核心思想（先给你一张“脑内结构图”）"><a href="#二、论文的核心思想（先给你一张“脑内结构图”）" class="headerlink" title="二、论文的核心思想（先给你一张“脑内结构图”）"></a>二、论文的核心思想（先给你一张“脑内结构图”）</h1><h3 id="这篇论文最重要的-三大核心思想"><a href="#这篇论文最重要的-三大核心思想" class="headerlink" title="这篇论文最重要的 三大核心思想"></a>这篇论文最重要的 <strong>三大核心思想</strong></h3><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">混合音频 + 单帧图像<br>        │<br>        ▼<br>① 先搞清楚“有哪些声音类别” （coarse）<br>        │<br>        ▼<br>② 用 <span class="hljs-built_in">CAM</span> / Grad-<span class="hljs-built_in">CAM</span> 把不同类别“拆开”<br>        │<br>        ▼<br>③ 再对“同一类别的 音频特征 ↔ 视觉区域”做精细对齐（fine）<br></code></pre></td></tr></table></figure>
+
+<p>这就是 <strong>Coarse → Fine</strong> 的真正含义。</p>
+<hr>
+<h1 id="三、第一阶段（Coarse）：先“听懂”-“看懂”"><a href="#三、第一阶段（Coarse）：先“听懂”-“看懂”" class="headerlink" title="三、第一阶段（Coarse）：先“听懂”+“看懂”"></a>三、第一阶段（Coarse）：先“听懂”+“看懂”</h1><h2 id="3-1-输入是什么？"><a href="#3-1-输入是什么？" class="headerlink" title="3.1 输入是什么？"></a>3.1 输入是什么？</h2><ul>
+<li><strong>音频</strong>：STFT → Log-Mel Spectrogram</li>
+<li><strong>视觉</strong>：单帧 RGB 图像</li>
+</ul>
+<p>⚠️ 注意：</p>
+<blockquote>
+<p><strong>不是视频序列！只用一帧</strong><br>这是为了排除“运动”作为作弊线索。</p>
+</blockquote>
+<hr>
+<h2 id="3-2-音频-amp-视觉-Backbone"><a href="#3-2-音频-amp-视觉-Backbone" class="headerlink" title="3.2 音频 &amp; 视觉 Backbone"></a>3.2 音频 &amp; 视觉 Backbone</h2><h3 id="Audio-Branch"><a href="#Audio-Branch" class="headerlink" title="Audio Branch"></a>Audio Branch</h3><ul>
+<li>CRNN（Conv + GRU）</li>
+<li>输出：<ul>
+<li><strong>时间-频率特征图</strong> <code>Fa</code></li>
+<li>分类 logits</li>
+</ul>
+</li>
+</ul>
+<h3 id="Visual-Branch"><a href="#Visual-Branch" class="headerlink" title="Visual Branch"></a>Visual Branch</h3><ul>
+<li>ResNet-18</li>
+<li>输出：<ul>
+<li><strong>空间特征图</strong> <code>Ev (H×W×512)</code></li>
+<li>分类 logits</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-3-多任务学习（非常关键）"><a href="#3-3-多任务学习（非常关键）" class="headerlink" title="3.3 多任务学习（非常关键）"></a>3.3 多任务学习（非常关键）</h2><h3 id="任务-1：多标签分类（What）"><a href="#任务-1：多标签分类（What）" class="headerlink" title="任务 1：多标签分类（What）"></a>任务 1：多标签分类（What）</h3><blockquote>
+<p>视频里 <strong>“出现了哪些声音类别”</strong></p>
+</blockquote>
+<ul>
+<li>人声</li>
+<li>枪声</li>
+<li>乐器</li>
+<li>水流</li>
+<li>引擎 …</li>
+</ul>
+<p><strong>多标签 BCE Loss</strong></p>
+<hr>
+<h3 id="任务-2：AV-Correspondence（Whether）"><a href="#任务-2：AV-Correspondence（Whether）" class="headerlink" title="任务 2：AV Correspondence（Whether）"></a>任务 2：AV Correspondence（Whether）</h3><blockquote>
+<p>“这段音频是不是来自这张图？”</p>
+</blockquote>
+<ul>
+<li>正样本：同一视频的 audio + frame</li>
+<li>负样本：audio + 随机 frame</li>
+</ul>
+<p><strong>二分类交叉熵</strong></p>
+<hr>
+<h3 id="第一阶段的产出是什么？"><a href="#第一阶段的产出是什么？" class="headerlink" title="第一阶段的产出是什么？"></a>第一阶段的产出是什么？</h3><p>你得到了：</p>
+<ol>
+<li><strong>知道“有哪些声音类别”</strong></li>
+<li><strong>音频与画面在“视频级”是对齐的</strong></li>
+<li>但 ❌ <strong>还不知道“哪个声音 → 哪个具体物体”</strong></li>
+</ol>
+<hr>
+<h1 id="四、第二阶段（Fine）：真正解决-Multi-Source"><a href="#四、第二阶段（Fine）：真正解决-Multi-Source" class="headerlink" title="四、第二阶段（Fine）：真正解决 Multi-Source"></a>四、第二阶段（Fine）：真正解决 Multi-Source</h1><p>这是整篇论文<strong>最核心、最有价值的部分</strong>。</p>
+<hr>
+<h2 id="4-1-用-Grad-CAM-做“类别解耦”"><a href="#4-1-用-Grad-CAM-做“类别解耦”" class="headerlink" title="4.1 用 Grad-CAM 做“类别解耦”"></a>4.1 用 Grad-CAM 做“类别解耦”</h2><h3 id="核心操作"><a href="#核心操作" class="headerlink" title="核心操作"></a>核心操作</h3><p>对 <strong>每一个类别 c</strong>：</p>
+<ul>
+<li>对音频分类头 → Grad-CAM → 得到 <code>Wᵃ_c(t,f)</code></li>
+<li>对视觉分类头 → Grad-CAM → 得到 <code>Wᵛ_c(x,y)</code></li>
+</ul>
+<p>这一步在干嘛？</p>
+<blockquote>
+<p><strong>把“混合特征”拆成“类别专属特征”</strong></p>
+</blockquote>
+<hr>
+<h2 id="4-2-类别专属特征池化（非常重要）"><a href="#4-2-类别专属特征池化（非常重要）" class="headerlink" title="4.2 类别专属特征池化（非常重要）"></a>4.2 类别专属特征池化（非常重要）</h2><p>对每个类别 c：</p>
+<h3 id="音频："><a href="#音频：" class="headerlink" title="音频："></a>音频：</h3><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs r">fᵃ_<span class="hljs-built_in">c</span> <span class="hljs-operator">=</span> Σ Fa<span class="hljs-punctuation">(</span>t<span class="hljs-punctuation">,</span>f<span class="hljs-punctuation">)</span> · Wᵃ_<span class="hljs-built_in">c</span><span class="hljs-punctuation">(</span>t<span class="hljs-punctuation">,</span>f<span class="hljs-punctuation">)</span> <span class="hljs-operator">/</span> Σ Wᵃ_<span class="hljs-built_in">c</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="视觉："><a href="#视觉：" class="headerlink" title="视觉："></a>视觉：</h3><figure class="highlight gml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gml">fᵛ_c = Σ Ev(<span class="hljs-variable language_">x</span>,<span class="hljs-variable language_">y</span>) · Wᵛ_c(<span class="hljs-variable language_">x</span>,<span class="hljs-variable language_">y</span>) / Σ Wᵛ_c<br></code></pre></td></tr></table></figure>
+
+<p>于是你得到：</p>
+<ul>
+<li>一个视频</li>
+<li>N 个声音类别</li>
+<li>每个类别都有一对 <code>(audio feature, visual feature)</code></li>
+</ul>
+<p>这一步解决的是：</p>
+<blockquote>
+<p><strong>“一个混合音频 → 拆成多个‘语义声源’”</strong></p>
+</blockquote>
+<hr>
+<h2 id="4-3-Fine-grained-对齐（真正的多声源定位）"><a href="#4-3-Fine-grained-对齐（真正的多声源定位）" class="headerlink" title="4.3 Fine-grained 对齐（真正的多声源定位）"></a>4.3 Fine-grained 对齐（真正的多声源定位）</h2><h3 id="核心约束（论文很巧妙）"><a href="#核心约束（论文很巧妙）" class="headerlink" title="核心约束（论文很巧妙）"></a>核心约束（论文很巧妙）</h3><p>正样本只允许：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">同一视频 + 同一类别<br></code></pre></td></tr></table></figure>
+
+<p>负样本包括：</p>
+<ul>
+<li>同类别不同视频</li>
+<li>不同类别</li>
+</ul>
+<h3 id="对齐方式"><a href="#对齐方式" class="headerlink" title="对齐方式"></a>对齐方式</h3><ul>
+<li>映射到同一 embedding space</li>
+<li>L2 distance</li>
+<li>Contrastive Loss</li>
+</ul>
+<hr>
+<h2 id="4-4-最终如何生成“声源定位热力图”？"><a href="#4-4-最终如何生成“声源定位热力图”？" class="headerlink" title="4.4 最终如何生成“声源定位热力图”？"></a>4.4 最终如何生成“声源定位热力图”？</h2><p>对每个类别 c：</p>
+<figure class="highlight gml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gml">K_c(<span class="hljs-variable language_">x</span>,<span class="hljs-variable language_">y</span>) = - || fᵃ_c - Ev(<span class="hljs-variable language_">x</span>,<span class="hljs-variable language_">y</span>) ||²<br></code></pre></td></tr></table></figure>
+
+<p>这一步非常重要：</p>
+<blockquote>
+<p><strong>音频特征 → 在整张图上“扫一遍”</strong><br>看哪里最像这个声音</p>
+</blockquote>
+<p>于是：</p>
+<ul>
+<li>枪声 → 枪</li>
+<li>小提琴 → 小提琴</li>
+<li>人声 → 嘴 &#x2F; 人</li>
+</ul>
+<p>🎯 <strong>这就是 Multi-Source Sound Localization 的核心实现原理</strong></p>
+<hr>
+<h1 id="五、如何和-ODAS-结合（你真正能落地的点）"><a href="#五、如何和-ODAS-结合（你真正能落地的点）" class="headerlink" title="五、如何和 ODAS 结合（你真正能落地的点）"></a>五、如何和 ODAS 结合（你真正能落地的点）</h1><p>ODAS &#x3D; <strong>几何定位</strong><br>论文方法 &#x3D; <strong>语义定位</strong></p>
+<p>它们是 <strong>互补的，不是替代关系</strong>。</p>
+<hr>
+<h2 id="5-1-ODAS-给你什么？"><a href="#5-1-ODAS-给你什么？" class="headerlink" title="5.1 ODAS 给你什么？"></a>5.1 ODAS 给你什么？</h2><ul>
+<li>多麦阵列</li>
+<li>GCC-PHAT &#x2F; SRP-PHAT</li>
+<li>输出：<ul>
+<li>多个 DOA（θ₁, θ₂, …）</li>
+<li>每个方向的能量</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="5-2-论文方法给你什么？"><a href="#5-2-论文方法给你什么？" class="headerlink" title="5.2 论文方法给你什么？"></a>5.2 论文方法给你什么？</h2><ul>
+<li>每个 <strong>声音类别</strong></li>
+<li>在 <strong>图像上的概率热力图</strong></li>
+</ul>
+<hr>
+<h2 id="5-3-融合方式（强烈推荐）"><a href="#5-3-融合方式（强烈推荐）" class="headerlink" title="5.3 融合方式（强烈推荐）"></a>5.3 融合方式（强烈推荐）</h2><h3 id="🔥-融合架构（工程级）"><a href="#🔥-融合架构（工程级）" class="headerlink" title="🔥 融合架构（工程级）"></a>🔥 融合架构（工程级）</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs css">       麦克风阵列<br>            │<br>     ┌──── ODAS ────┐<br>     │   DOA₁ DOA₂  │<br>     │              │<br>     └──────┬───────┘<br>            ▼<br>  声音方向 → 图像投影（FOV）<br>            │<br>            ▼<br>论文模型输出的 K_c(<span class="hljs-attribute">x</span>,<span class="hljs-attribute">y</span>)<br>            │<br>   DOA 作为空间 <span class="hljs-attribute">mask</span><br>            ▼<br> 最终高置信度声源定位<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="ODAS-在这里的-3-个关键作用"><a href="#ODAS-在这里的-3-个关键作用" class="headerlink" title="ODAS 在这里的 3 个关键作用"></a>ODAS 在这里的 3 个关键作用</h3><ol>
+<li><strong>减少误检区域</strong></li>
+<li><strong>区分同类多实例</strong><ul>
+<li>两个人说话</li>
+<li>同一类别，但不同方向</li>
+</ul>
+</li>
+<li><strong>实现时序追踪（tracking）</strong></li>
+</ol>
+<hr>
+<h2 id="5-4-你能做的具体产品级功能"><a href="#5-4-你能做的具体产品级功能" class="headerlink" title="5.4 你能做的具体产品级功能"></a>5.4 你能做的具体产品级功能</h2><ul>
+<li>声控摄像头自动对焦</li>
+<li>会议系统 speaker tracking</li>
+<li>机器人听声转头 + 看物体</li>
+<li>工业异常声源定位</li>
+</ul>
+<hr>
+<h1 id="六、再往前一步：结合-AVSegFormer-会发生什么？"><a href="#六、再往前一步：结合-AVSegFormer-会发生什么？" class="headerlink" title="六、再往前一步：结合 AVSegFormer 会发生什么？"></a>六、再往前一步：结合 AVSegFormer 会发生什么？</h1><p>AVSegFormer &#x3D; <strong>像素级 Audio-Visual Segmentation</strong></p>
+<p>它解决的是：</p>
+<blockquote>
+<p><strong>“这个像素是不是在发声”</strong></p>
+</blockquote>
+<hr>
+<h2 id="6-1-三者能力对比"><a href="#6-1-三者能力对比" class="headerlink" title="6.1 三者能力对比"></a>6.1 三者能力对比</h2><table>
+<thead>
+<tr>
+<th>模块</th>
+<th>能力</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ODAS</td>
+<td>声源方向</td>
+</tr>
+<tr>
+<td>本论文</td>
+<td>声音 ↔ 对象（框 &#x2F; 区域）</td>
+</tr>
+<tr>
+<td>AVSegFormer</td>
+<td>像素级声源分割</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="6-2-融合后的“终极能力”"><a href="#6-2-融合后的“终极能力”" class="headerlink" title="6.2 融合后的“终极能力”"></a>6.2 融合后的“终极能力”</h2><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">ODAS</span> → 声源方向<br>   ↓<br>论文方法 → 声音属于哪个对象<br>   ↓<br>AVSegFormer → 对象内部精确到像素<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="6-3-能实现哪些“质变级功能”"><a href="#6-3-能实现哪些“质变级功能”" class="headerlink" title="6.3 能实现哪些“质变级功能”"></a>6.3 能实现哪些“质变级功能”</h2><h3 id="①-真正的“发声物体分割”"><a href="#①-真正的“发声物体分割”" class="headerlink" title="① 真正的“发声物体分割”"></a>① 真正的“发声物体分割”</h3><ul>
+<li>嘴在动 → 人声</li>
+<li>琴弦 → 乐器声</li>
+<li>水面局部 → 水流声</li>
+</ul>
+<hr>
+<h3 id="②-高质量音视频编辑"><a href="#②-高质量音视频编辑" class="headerlink" title="② 高质量音视频编辑"></a>② 高质量音视频编辑</h3><ul>
+<li>自动给<strong>发声物体打遮罩</strong></li>
+<li>AR 标注“当前谁在说话”</li>
+</ul>
+<hr>
+<h3 id="③-声音引导的实例分割"><a href="#③-声音引导的实例分割" class="headerlink" title="③ 声音引导的实例分割"></a>③ 声音引导的实例分割</h3><p>不需要实例标签：</p>
+<blockquote>
+<p><strong>声音本身就是监督</strong></p>
+</blockquote>
+<hr>
+<h3 id="④-给分离-x2F-增强提供“完美掩码”"><a href="#④-给分离-x2F-增强提供“完美掩码”" class="headerlink" title="④ 给分离 &#x2F; 增强提供“完美掩码”"></a>④ 给分离 &#x2F; 增强提供“完美掩码”</h3><p>比论文里的 CAM pooling 强一个量级。</p>
+<hr>
+<h2 id="6-4-推荐整体系统架构（你可以直接画到-PPT）"><a href="#6-4-推荐整体系统架构（你可以直接画到-PPT）" class="headerlink" title="6.4 推荐整体系统架构（你可以直接画到 PPT）"></a>6.4 推荐整体系统架构（你可以直接画到 PPT）</h2><figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs mathematica"><span class="hljs-variable">Mic</span> <span class="hljs-built_in">Array</span> ── <span class="hljs-variable">ODAS</span> ── <span class="hljs-variable">DOA</span><br>    │<br>    ├─ <span class="hljs-variable">STFT</span> → <span class="hljs-built_in">Audio</span> <span class="hljs-variable">Encoder</span> ─┐<br>    │                        │<br><span class="hljs-variable">Camera</span> → <span class="hljs-variable">Visual</span> <span class="hljs-variable">Encoder</span> ─────┼─ <span class="hljs-built_in">Coarse</span><span class="hljs-operator">-</span><span class="hljs-variable">to</span><span class="hljs-operator">-</span><span class="hljs-built_in">Fine</span> <span class="hljs-variable">AV</span> <span class="hljs-built_in">Alignment</span><br>                             │<br>                    <span class="hljs-variable">AVSegFormer</span><br>                             │<br>               <span class="hljs-variable">Pixel</span><span class="hljs-operator">-</span><span class="hljs-variable">level</span> <span class="hljs-built_in">Sound</span> <span class="hljs-variable">Mask</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="七、如果你要“自己复现-x2F-工程化”的最小路径"><a href="#七、如果你要“自己复现-x2F-工程化”的最小路径" class="headerlink" title="七、如果你要“自己复现 &#x2F; 工程化”的最小路径"></a>七、如果你要“自己复现 &#x2F; 工程化”的最小路径</h1><h3 id="阶段-1（1–2-周）"><a href="#阶段-1（1–2-周）" class="headerlink" title="阶段 1（1–2 周）"></a>阶段 1（1–2 周）</h3><ul>
+<li>STFT + CRNN</li>
+<li>ResNet-18</li>
+<li>单声源 AV Localization</li>
+</ul>
+<h3 id="阶段-2（2–3-周）"><a href="#阶段-2（2–3-周）" class="headerlink" title="阶段 2（2–3 周）"></a>阶段 2（2–3 周）</h3><ul>
+<li>多标签分类</li>
+<li>Grad-CAM 解耦</li>
+<li>Multi-Source 热力图</li>
+</ul>
+<h3 id="阶段-3（2-周）"><a href="#阶段-3（2-周）" class="headerlink" title="阶段 3（2 周）"></a>阶段 3（2 周）</h3><ul>
+<li>ODAS DOA 融合</li>
+<li>空间约束</li>
+</ul>
+<h3 id="阶段-4（进阶）"><a href="#阶段-4（进阶）" class="headerlink" title="阶段 4（进阶）"></a>阶段 4（进阶）</h3><ul>
+<li>接 AVSegFormer</li>
+<li>像素级声源分割</li>
+</ul>
+<hr>
+<p>如果你愿意，下一步我可以帮你：</p>
+<ul>
+<li><strong>画一张“论文 → ODAS → AVSegFormer”的完整系统结构图</strong></li>
+<li><strong>把论文方法改写成“DSP + Transformer 可实时”的版本</strong></li>
+<li><strong>给你一个 PyTorch 级的最小复现代码骨架</strong></li>
+<li><strong>甚至帮你设计一个“嵌入式可卖”的声源定位产品方案</strong></li>
+</ul>
+<p>你想先做哪一步？</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/AI/" class="category-chain-item">AI</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>多声源定位与ODAS结合再讲接入AVSegFormer</div>
+      <div>http://witbit.cn/AI/多声源定位与ODAS结合再讲接入AVSegFormer.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>朝彻</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年12月14日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/SYSTEM/archlinux%E5%AE%89%E8%A3%85.html" title="archlinux安装">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">archlinux安装</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/AI/%E5%90%AC%E5%A3%B0%E8%BE%A8%E4%BD%8D%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94.html" title="听声辨位技术对比">
+                        <span class="hidden-mobile">听声辨位技术对比</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","appKey":"O5B0zE9qtysPQRGIqWSexNrf","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+  <!-- Custom -->
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="/image/webwxgetmsgimg.jpeg" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      京ICP证18048803号
+    </a>
+  </span>
+  
+    
+      <span>
+        <a
+          href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+          rel="nofollow noopener"
+          class="beian-police"
+          target="_blank"
+        >
+          
+            <span style="visibility: hidden; width: 0">|</span>
+            <img src="/img/police_beian.png" srcset="/img/loading.gif" lazyload alt="police-icon"/>
+          
+          <span>京公网安备12345678号</span>
+        </a>
+      </span>
+    
+  
+</div>
+
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

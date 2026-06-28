@@ -16,26 +16,26 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f415482">
-  <meta name="author" content="dnsnat">
+  <meta name="author" content="朝彻">
   <meta name="keywords" content="">
   
     <meta name="description" content="ArchLinux为了快速迭代，在安装上实在是太不友好了。作为一个入门级使用者，我踩了无数的坑才跳出来。为了让其他人不用重复跳坑，我写了个简易安装脚本，希望能让大家在安装的时候能轻松一点 目前仅测试过ArchLinux2020，不过别的应该也就是小改就行。 首先下载ArchLinux，然后建立虚拟机，修改成EFI启动，这方面的文章有很多，我就不重复了">
 <meta property="og:type" content="article">
 <meta property="og:title" content="archlinux安装">
-<meta property="og:url" content="http://blog.uanet.cn/SYSTEM/archlinux%E5%AE%89%E8%A3%85.html">
-<meta property="og:site_name" content="DNSNAT">
+<meta property="og:url" content="http://witbit.cn/SYSTEM/archlinux%E5%AE%89%E8%A3%85.html">
+<meta property="og:site_name" content="WITBIT">
 <meta property="og:description" content="ArchLinux为了快速迭代，在安装上实在是太不友好了。作为一个入门级使用者，我踩了无数的坑才跳出来。为了让其他人不用重复跳坑，我写了个简易安装脚本，希望能让大家在安装的时候能轻松一点 目前仅测试过ArchLinux2020，不过别的应该也就是小改就行。 首先下载ArchLinux，然后建立虚拟机，修改成EFI启动，这方面的文章有很多，我就不重复了">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2025-09-01T06:51:13.842Z">
-<meta property="article:modified_time" content="2025-09-01T06:51:13.842Z">
-<meta property="article:author" content="dnsnat">
+<meta property="article:published_time" content="2025-12-19T00:57:55.559Z">
+<meta property="article:modified_time" content="2025-12-19T00:57:55.559Z">
+<meta property="article:author" content="朝彻">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
     <link rel="stylesheet" href="/css/mycss.css">
   
-  <title>archlinux安装 - DNSNAT</title>
+  <title>archlinux安装 - WITBIT</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -77,7 +77,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.uanet.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"witbit.cn","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"UnMhntipSClXvNhxEInYlGhf-gzGzoHsz","app_key":"O5B0zE9qtysPQRGIqWSexNrf","server_url":"https://1epgvtla.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -103,7 +103,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="DNSNAT" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="WITBIT" type="application/atom+xml">
 </head>
 
 
@@ -117,7 +117,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>阵源阿威</strong>
+      <strong>WitBit</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -178,18 +178,6 @@
             </li>
           
         
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="http://www.dnsnat.com" target="_self">
-                <i class="iconfont icon-link-fill"></i>
-                <span>官网</span>
-              </a>
-            </li>
-          
-        
         
           <li class="nav-item" id="search-btn">
             <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
@@ -230,8 +218,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-09-01 14:51" pubdate>
-          2025年9月1日 下午
+        <time datetime="2025-12-19 08:57" pubdate>
+          2025年12月19日 早上
         </time>
       </span>
     
@@ -243,7 +231,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          2.8k 字
+          3k 字
         
       </span>
     
@@ -255,7 +243,7 @@
         
         
           <!-- compatible with older versions-->
-          24 分钟
+          26 分钟
         
       </span>
     
@@ -412,8 +400,14 @@
 
 
 
-
-
+<p>切换源</p>
+<p>sudo pacman-mirrors -c China -m rank</p>
+<p>打印机驱动</p>
+<p>yay -S foo2zjs-nightly</p>
+<p>broadcom wifi</p>
+<p>sudo pacman -Syu broadcom-wl-dkms</p>
+<p>Intel Comet Lake PCH-LP cAVS 音频</p>
+<p>sudo pacman -S sof-firmware alsa-ucm-conf</p>
 <p>neovim</p>
 <p>sudo pacman -S –noconfirm neovim</p>
 <p>sudo pacman -S  –noconfirm python-pynvim</p>
@@ -443,6 +437,26 @@
 <p>录屏软件</p>
 <p>sudo pacman -Sy obs-studio</p>
 <p>yay -S kazam</p>
+<p>音频驱动</p>
+<p>sudo pacman -S sof-firmware</p>
+<p>macbook  网卡</p>
+<p>sudo pacman -Rns broadcom-wl-dkms broadcom-wl</p>
+<p>确保加载内核驱动</p>
+<p>sudo modprobe -r wl<br>sudo modprobe brcmfmac</p>
+<p>安装苹果专用固件</p>
+<p>sudo pacman -S linux-firmware</p>
+<p>如果仍报错，可以手动安装苹果固件</p>
+<p>sudo mkdir -p &#x2F;lib&#x2F;firmware&#x2F;brcm<br>cd &#x2F;lib&#x2F;firmware&#x2F;brcm<br>sudo wget <a target="_blank" rel="noopener" href="https://github.com/winterheart/broadcom-bt-firmware/raw/master/brcm/brcmfmac4350c2-pcie.Apple%20Inc.-MacBookPro14%2C1.bin">https://github.com/winterheart/broadcom-bt-firmware/raw/master/brcm/brcmfmac4350c2-pcie.Apple%20Inc.-MacBookPro14%2C1.bin</a><br>sudo wget <a target="_blank" rel="noopener" href="https://github.com/winterheart/broadcom-bt-firmware/raw/master/brcm/brcmfmac4350c2-pcie.clm_blob">https://github.com/winterheart/broadcom-bt-firmware/raw/master/brcm/brcmfmac4350c2-pcie.clm_blob</a><br>sudo wget <a target="_blank" rel="noopener" href="https://github.com/winterheart/broadcom-bt-firmware/raw/master/brcm/brcmfmac4350c2-pcie.txt">https://github.com/winterheart/broadcom-bt-firmware/raw/master/brcm/brcmfmac4350c2-pcie.txt</a></p>
+<p>macbook  声卡 </p>
+<p>建议不要用yay改为下载源码安装 依赖内核下载慢可以改为国内镜像</p>
+<p>yay -S snd-hda-macbookpro-dkms-git</p>
+<p>切换pulseaudio到PipeWire</p>
+<p>卸载pulseaudio</p>
+<p>sudo pacman -Rns <br>pulseaudio <br>pulseaudio-alsa <br>pulseaudio-bluetooth <br>pulseaudio-jack <br>pulseaudio-lirc <br>pulseaudio-rtp <br>pulseaudio-zeroconf <br>pulseaudio-ctl <br>manjaro-pulse</p>
+<p>然后立刻安装 PipeWire 的 PA 兼容层</p>
+<p>sudo pacman -S pipewire-pulse</p>
+<p>启动并接管音频</p>
+<p>systemctl –user enable –now pipewire pipewire-pulse wireplumber</p>
 <p>vnc</p>
 <p>#启动xserver</p>
 <p>Xvfb :2 -screen 0 800x600x24 -nolisten tcp</p>
@@ -544,19 +558,19 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>archlinux安装</div>
-      <div>http://blog.uanet.cn/SYSTEM/archlinux安装.html</div>
+      <div>http://witbit.cn/SYSTEM/archlinux安装.html</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>dnsnat</div>
+          <div>朝彻</div>
         </div>
       
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2025年9月1日</div>
+          <div>2025年12月19日</div>
         </div>
       
       
@@ -588,12 +602,18 @@
                   <article class="post-prev col-6">
                     
                     
+                      <a href="/EMBEDDED/%E5%82%85%E9%87%8C%E5%8F%B6%E6%AC%A7%E6%8B%89%E5%88%B0%E6%97%A0%E7%BA%BF.html" title="傅里叶欧拉到无线">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">傅里叶欧拉到无线</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/SYSTEM/windows%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85.html" title="windows开发环境安装">
-                        <span class="hidden-mobile">windows开发环境安装</span>
+                      <a href="/AI/%E5%A4%9A%E5%A3%B0%E6%BA%90%E5%AE%9A%E4%BD%8D%E4%B8%8EODAS%E7%BB%93%E5%90%88%E5%86%8D%E8%AE%B2%E6%8E%A5%E5%85%A5AVSegFormer.html" title="多声源定位与ODAS结合再讲接入AVSegFormer">
+                        <span class="hidden-mobile">多声源定位与ODAS结合再讲接入AVSegFormer</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
